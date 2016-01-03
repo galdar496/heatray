@@ -60,6 +60,10 @@ class World
         /// Get a reference to the keyboard keys.
         std::bitset<256> &getKeys();
 
+        /// If true, this key will be reset by the raytracer itself and should not be reset
+        /// by the windowing system.
+        bool isSpecialKey(const char key) const;
+
         /// Get the number of passes performed so far.
         int getNumPassesPerformed() const;
     

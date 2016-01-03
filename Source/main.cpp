@@ -83,7 +83,13 @@ void keyPressed(unsigned char key, int mouseX, int mouseY)
 
 void keyReleased(unsigned char key, int mouseX, int mouseY)
 {
-    world.getKeys().reset(key);
+    // Certain keys (keys that aren't held down) may not be properly processed if they're reset too soon (such as enabling GI).
+    // Ask the world which keys those might be to make sure we don't prematurely reset it. In those cases, the world will handle
+    // resetting any special keys.
+    if (!world.isSpecialKey(key))
+    {
+        world.getKeys().reset(key);
+    }
 }
 
 void shutdown()
@@ -114,7 +120,7 @@ int main(int argc, char **argv)
     glutInitWindowSize(screen_width, screen_height);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
     glutCreateWindow("Heatray");
-    
+
     glutReshapeFunc(resizeWindow);
     glutDisplayFunc(render);
     glutKeyboardFunc(keyPressed);

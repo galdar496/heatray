@@ -10,6 +10,7 @@
 #include "ShaderGenerator.h"
 #include "../utility/util.h"
 #include "../utility/rng.h"
+#include "../utility/Timer.h"
 #include "../gfx/Shader.h"
 #include "../math/Constants.h"
 
@@ -20,6 +21,33 @@
 
 #define GLUT_KEY_ENTER 13
 #define GLUT_KEY_SPACE 32
+
+// Keys supported by Heatray
+namespace Keys
+{
+    enum
+    {
+        kCameraForward      = 'w',
+        kCameraBackward     = 's',
+        kCameraPanLeft      = 'a',
+        kCameraPanRight     = 'd',
+        kCameraRotateUp     = 'r',
+        kCameraRotateDown   = 'f',
+        kCameraRotateLeft   = 'q',
+        kCameraRotateRight  = 'e',
+        kCameraRollLeft     = 'z',
+        kCameraRollRight    = 'c',
+
+        kEnableGI   = 'g',
+        kScreenshot = GLUT_KEY_ENTER,
+        kSaveConfig = GLUT_KEY_SPACE,
+
+        kIncreaseFocalLength   = 'p',
+        kDecreaseFocalLength   = 'o',
+        kIncreaseApertureWidth = ']',
+        kDecreaseApertureWidth = '['
+    };
+} // namespace Keys
 
 /// Default constructor.
 World::World() :
@@ -267,6 +295,16 @@ std::bitset<256> &World::getKeys()
     return m_keyboard;
 }
 
+/// If true, this key will be reset by the raytracer itself and should not be reset
+/// by the windowing system.
+bool World::isSpecialKey(const char key) const
+{
+    return ((key == Keys::kEnableGI)   ||
+            (key == Keys::kScreenshot) ||
+            (key == Keys::kSaveConfig)
+           );
+}
+
 /// Get the number of passes performed so far.
 int World::getNumPassesPerformed() const
 {
@@ -276,77 +314,91 @@ int World::getNumPassesPerformed() const
 /// Check the current state of the keyboard.
 void World::checkKeys(const float dt)
 {
+    static util::Timer currentTime(true);
+
+    // Ignore non-camera movement keypresses for this much time to account for 
+    // the key being held accidentally.
+    const float time_delta = 0.5f;
+
     float aperature_increment = 0.1f;
     float focal_length_increment = 1.0f;
     
     bool reset_rendering_state = false;
     
-    if (m_keyboard.test('w'))
+    if (m_keyboard.test(Keys::kCameraForward))
     {
         m_camera.move(0.0f, 0.0f, -m_camera_movement_speed * dt);
         reset_rendering_state = true;
     }
-    else if (m_keyboard.test('s'))
+    else if (m_keyboard.test(Keys::kCameraBackward))
     {
         m_camera.move(0.0f, 0.0f, m_camera_movement_speed * dt);
         reset_rendering_state = true;
     }
     
-    if (m_keyboard.test('a'))
+    if (m_keyboard.test(Keys::kCameraPanLeft))
     {
         m_camera.move(-m_camera_movement_speed * dt, 0.0f, 0.0f);
         reset_rendering_state = true;
     }
-    else if (m_keyboard.test('d'))
+    else if (m_keyboard.test(Keys::kCameraPanRight))
     {
         m_camera.move(m_camera_movement_speed * dt, 0.0f, 0.0f);
         reset_rendering_state = true;
     }
     
-    if (m_keyboard.test('r'))
+    if (m_keyboard.test(Keys::kCameraRotateUp))
     {
         m_camera.pitch(-m_camera_rotation_speed * dt);
         reset_rendering_state = true;
     }
-    else if (m_keyboard.test('f'))
+    else if (m_keyboard.test(Keys::kCameraRotateDown))
     {
         m_camera.pitch(m_camera_rotation_speed * dt);
         reset_rendering_state = true;
     }
     
-    if (m_keyboard.test('e'))
+    if (m_keyboard.test(Keys::kCameraRotateRight))
     {
         m_camera.yaw(m_camera_rotation_speed * dt);
         reset_rendering_state = true;
     }
-    else if (m_keyboard.test('q'))
+    else if (m_keyboard.test(Keys::kCameraRotateLeft))
     {
         m_camera.yaw(-m_camera_rotation_speed * dt);
         reset_rendering_state = true;
     }
     
-    if (m_keyboard.test('z'))
+    if (m_keyboard.test(Keys::kCameraRollLeft))
     {
         m_camera.roll(-m_camera_rotation_speed * dt);
         reset_rendering_state = true;
     }
-    else if (m_keyboard.test('c'))
+    else if (m_keyboard.test(Keys::kCameraRollRight))
     {
         m_camera.roll(m_camera_rotation_speed * dt);
         reset_rendering_state = true;
     }
     
-    if (m_keyboard.test(GLUT_KEY_ENTER))
+    if (m_keyboard.test(Keys::kScreenshot) && currentTime.getElapsedTime() > time_delta)
     {
         m_save_image = true;
+        currentTime.restart();
+
+        // Reset this key manually as it won't be reset by the windowing system.
+        m_keyboard.reset(Keys::kScreenshot);
     }
-    else if (m_keyboard.test(GLUT_KEY_SPACE))
+    else if (m_keyboard.test(Keys::kSaveConfig) && currentTime.getElapsedTime() > time_delta)
     {
         // Write out a configuration file with the current rendering settings.
         writeConfigFile();
+        currentTime.restart();
+
+        // Reset this key manually as it won't be reset by the windowing system.
+        m_keyboard.reset(Keys::kSaveConfig);
     }
     
-    if (m_keyboard.test(']'))
+    if (m_keyboard.test(Keys::kIncreaseApertureWidth))
     {
         float aperture_width = m_camera.getApertureRadius();
         aperture_width += aperature_increment;
@@ -357,7 +409,7 @@ void World::checkKeys(const float dt)
         
         m_camera.setApertureRadius(aperture_width);
     }
-    else if (m_keyboard.test('['))
+    else if (m_keyboard.test(Keys::kDecreaseApertureWidth))
     {
         float aperture_width = m_camera.getApertureRadius();
         aperture_width = std::max(0.0f, aperture_width - aperature_increment);
@@ -369,18 +421,18 @@ void World::checkKeys(const float dt)
         m_camera.setApertureRadius(aperture_width);
     }
     
-    if (m_keyboard.test('p'))
+    if (m_keyboard.test(Keys::kIncreaseFocalLength))
     {
         m_camera.setFocalLength(m_camera.getFocalLength() + focal_length_increment);
         reset_rendering_state = true;
     }
-	else if (m_keyboard.test('o'))
+	else if (m_keyboard.test(Keys::kDecreaseFocalLength))
     {
         m_camera.setFocalLength(std::max(0.0f, m_camera.getFocalLength() - focal_length_increment));
         reset_rendering_state = true;
     }
     
-    if (m_keyboard.test('g')) // perform GI.
+    if (m_keyboard.test(Keys::kEnableGI) && currentTime.getElapsedTime() > time_delta) // perform GI.
     {
         m_gi_buffer.bind();
 		GIUniformBuffer *block = m_gi_buffer.mapBuffer<GIUniformBuffer>();
@@ -388,6 +440,10 @@ void World::checkKeys(const float dt)
 		m_gi_buffer.unmapBuffer();
         m_gi_buffer.unbind();
         reset_rendering_state = true;
+        currentTime.restart();
+
+        // Reset this key manually as it won't be reset by the windowing system.
+        m_keyboard.reset(Keys::kEnableGI);
     }
     
     if (reset_rendering_state)
