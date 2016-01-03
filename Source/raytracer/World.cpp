@@ -267,6 +267,12 @@ std::bitset<256> &World::getKeys()
     return m_keyboard;
 }
 
+/// Get the number of passes performed so far.
+int World::getNumPassesPerformed() const
+{
+    return m_passes_performed;
+}
+
 /// Check the current state of the keyboard.
 void World::checkKeys(const float dt)
 {

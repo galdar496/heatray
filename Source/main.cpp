@@ -6,7 +6,6 @@
 //
 //
 
-#include <iostream>
 #if defined(_WIN32) || defined(_WIN64)
     #include <GLUT/glut.h>
 #else
@@ -15,6 +14,9 @@
 #include "raytracer/World.h"
 #include "utility/Timer.h"
 #include "gfx/Texture.h"
+
+#include <iostream>
+#include <sstream>
 
 // World exists as a global variable to be accessed by all
 // functions in the main file.
@@ -42,6 +44,11 @@ void resizeWindow(int width, int height)
 
 void render()
 {
+    std::stringstream windowTitle;
+    windowTitle << "Heatray - Pass " << world.getNumPassesPerformed();
+    glutSetWindowTitle(windowTitle.str().c_str());
+
+    // Perform the actual rendering of the world into a texture.
     const gfx::Texture *image = world.render();
     
     // Display the generated frame to the screen.

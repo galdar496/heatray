@@ -59,6 +59,9 @@ class World
     
         /// Get a reference to the keyboard keys.
         std::bitset<256> &getKeys();
+
+        /// Get the number of passes performed so far.
+        int getNumPassesPerformed() const;
     
     private:
     
