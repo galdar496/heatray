@@ -1,0 +1,26 @@
+//
+//  display.frame
+//  Heatray
+//
+//  Created by Cody White on 5/10/14.
+//
+//
+
+uniform sampler2D input_texture;   // Color values of all render passes performed so far.
+uniform float num_passes_divisor;  // 1.0 / number of passes performed.
+
+void setup()
+{
+    rl_OutputRayCount = 0;
+}
+
+void main()
+{
+    vec2 tex_coord = rl_FrameCoord.xy / rl_FrameSize.xy;
+	vec3 input_color = texture2D(input_texture, tex_coord).xyz;
+    
+    // Perform the averaging.
+    vec3 avg_color = input_color * num_passes_divisor;
+	accumulate(0, avg_color);
+}
+

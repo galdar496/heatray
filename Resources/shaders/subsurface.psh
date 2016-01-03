@@ -1,0 +1,18 @@
+//
+//  subsurface.psh
+//  Heatray
+//
+//  Created by Cody White on 5/10/14.
+//
+//
+// Implement subsurface scattering for an object by utilizing a prefix shader.
+
+rayattribute vec3 color;
+rayattribute bool is_diffuse_bounce;
+
+void main()
+{
+    float sigma_t = 0.5;
+    rl_InRay.color = exp(-rl_IntersectionT * sigma_t) * rl_InRay.color;
+    continueInRay();
+}

@@ -1,0 +1,11 @@
+<HeatRayConfig>
+    <Framebuffer Width="512" Height="512" />
+    <Mesh Model="Resources/models/chess.obj" Scale="1" />
+    <Camera>
+        <Position X="0" Y="0" Z="50" />
+        <Lens FocalLength="25" ApertureRadius="0" />
+        <Orientation X="0" Y="0" Z="0" Angle="1" /> <!-- Orientation is a quaternion -->
+        <Speed Movement="5.5" Rotation="0.2" />
+    </Camera>
+    <RenderSettings RaysPerPixel="1024" DefaultGIOn="0" MaxRayDepth="5" />
+</HeatRayConfig>
