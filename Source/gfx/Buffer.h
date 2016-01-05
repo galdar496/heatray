@@ -40,6 +40,10 @@ class Buffer
        /// Change the target type for this buffer.
        void setTarget(const RLenum target // IN: Type of buffer to change this object to.
     				  );
+
+       /// Change the usage type for this buffer.
+       void setUsage(const RLenum usage // IN: How will this buffer be used?
+                    );
     
        /// Bind this buffer for use at its stored target point.
        void bind() const;

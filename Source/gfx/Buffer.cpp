@@ -40,7 +40,7 @@ Buffer::~Buffer()
 bool Buffer::load(const void *data, const size_t size, const char *name)
 {
     bool returnValue = false;
-    if (data != NULL)
+    //if (data != NULL)
     {
         // Generate the buffer if necessary.
         if (m_buffer == RL_NULL_BUFFER)
@@ -75,6 +75,12 @@ void Buffer::destroy()
 void Buffer::setTarget(const RLenum target)
 {
     m_target = target;
+}
+
+// Change the usage type for this buffer.
+void Buffer::setUsage(const RLenum usage)
+{
+    m_usage = usage;
 }
     
 /// Bind this buffer for use at its stored target point.
@@ -111,4 +117,4 @@ void Buffer::unmapBuffer() const
    rlUnmapBuffer(m_target);
 }
     
-} // namespace gx
+} // namespace gfx

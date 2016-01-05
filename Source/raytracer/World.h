@@ -17,6 +17,7 @@
 #include "../gfx/Buffer.h"
 #include "../utility/tinyxml2.h"
 #include "Light.h"
+#include "Pixels.h"
 #include <bitset>
 
 #define MAX_LIGHTS 5
@@ -49,8 +50,9 @@ class World
     	void update(const float dt // IN: Change in time since the last call to update() (in seconds).
                    );
     
-    	/// Render a frame. Returns a texture value that contains the final rendered image.
-    	const gfx::Texture *render();
+    	/// Render a frame.
+    	void render(Pixels &outputPixels // OUT: Rendered pixels from EVERY pass, should be averaged for proper viewing.
+                   );
     
     	/// Resize the render viewport.
     	void resize(RLint width, // IN: Width of the screen in pixels.
@@ -150,9 +152,6 @@ class World
     	RLframebuffer m_fbo;                    // FBO to use for raytrace rendering.
 		gfx::Texture  m_fbo_texture;            // Texture to use for the FBO.
         gfx::Texture  m_jitter_texture;         // Texture storing jitter values.
-    	RLframebuffer m_display_fbo;            // Saved handle to the FBO to use for displaying to the screen.
-        gfx::Texture  m_display_fbo_texture;    // Texture which contains the final rendered frame.
-    	gfx::Program  m_display_frame_program;  // Frame program to display a final image.
         int           m_passes_performed;       // Number of passes rendered so far.
     
         gfx::Buffer   m_light_buffer;  // Current rendering position of the light as a shared buffer between all shaders.

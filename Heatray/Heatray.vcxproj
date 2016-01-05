@@ -112,7 +112,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>freeglut.lib;FreeImage.lib;OpenRL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freeglut.lib;FreeImage.lib;OpenRL.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)..\Windows Files</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -158,7 +158,7 @@ xcopy /Y /D /S /I "$(ProjectDir)..\Resources\*" "$(OutDir)Resources"
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>freeglut.lib;FreeImage.lib;OpenRL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freeglut.lib;FreeImage.lib;OpenRL.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)..\Windows Files</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -200,6 +200,7 @@ xcopy /Y /D /S /I "$(ProjectDir)..\Resources\*" "$(OutDir)Resources"
     <ClInclude Include="..\Source\math\Quaternion.h" />
     <ClInclude Include="..\Source\math\Vector.h" />
     <ClInclude Include="..\Source\raytracer\Light.h" />
+    <ClInclude Include="..\Source\raytracer\Pixels.h" />
     <ClInclude Include="..\Source\raytracer\ShaderGenerator.h" />
     <ClInclude Include="..\Source\raytracer\World.h" />
     <ClInclude Include="..\Source\utility\rng.h" />

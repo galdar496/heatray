@@ -118,6 +118,9 @@
     <ClInclude Include="..\Source\raytracer\World.h">
       <Filter>Source\raytracer</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\raytracer\Pixels.h">
+      <Filter>Source\raytracer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resources\shaders\diffuse.rsh">

@@ -54,7 +54,6 @@ World::World() :
 	m_camera_movement_speed(5.5f),
 	m_camera_rotation_speed(0.2f),
 	m_fbo(RL_NULL_FRAMEBUFFER),
-    m_display_fbo(RL_NULL_FRAMEBUFFER),
     m_passes_performed(0),
 	m_save_image(false),
     m_total_pass_count(1024),
@@ -171,11 +170,6 @@ void World::destroy()
         rlDeleteFramebuffers(1, &m_fbo);
         m_fbo = RL_NULL_FRAMEBUFFER;
     }
-    if (m_display_fbo != RL_NULL_FRAMEBUFFER)
-    {
-        rlDeleteFramebuffers(1, &m_display_fbo);
-        m_display_fbo = RL_NULL_FRAMEBUFFER;
-    }
     
     m_mesh.destroy();
     m_random_values_texture.destroy();
@@ -184,8 +178,6 @@ void World::destroy()
     m_vertex_shader.destroy();
     m_fbo_texture.destroy();
     m_jitter_texture.destroy();
-    m_display_fbo_texture.destroy();
-    m_display_frame_program.destroy();
     m_light_buffer.destroy();
     m_gi_buffer.destroy();
     
@@ -198,8 +190,8 @@ void World::update(const float dt)
     checkKeys(dt);
 }
 
-/// Render a frame. Returns a texture value that contains the final rendered image.
-const gfx::Texture *World::render()
+/// Render a frame.
+void World::render(Pixels &outputPixels)
 {
     // Only render if we actually need to, otherwise the finished render will just be displayed by GLUT.
     if (m_passes_performed <= m_total_pass_count)
@@ -233,16 +225,6 @@ const gfx::Texture *World::render()
         m_raytracing_frame_program.set1f("pass_divisor", ((float)m_passes_performed) / (float)m_total_pass_count);
         rlRenderFrame();
 
-        // Display the most recent render averaged with all previous renders since the last time the camera
-        // moved to the display fbo.
-        rlBindFramebuffer(RL_FRAMEBUFFER, m_display_fbo);
-        rlClear(RL_COLOR_BUFFER_BIT);
-        rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE);
-        m_display_frame_program.bind();
-        m_display_frame_program.setTexture("input_texture", m_fbo_texture.getTexture());
-        m_display_frame_program.set1f("num_passes_divisor", 1.0f / (float)m_passes_performed);
-        rlRenderFrame();
-        
         ++m_passes_performed;
     }
     
@@ -250,18 +232,19 @@ const gfx::Texture *World::render()
     {
         // Write the rendered image to an output file.
 		std::vector<float> pixels;
-        pixels.resize(m_display_fbo_texture.width() * m_display_fbo_texture.height() * 4);
-        rlBindTexture(RL_TEXTURE_2D, m_display_fbo_texture.getTexture());
+        pixels.resize(m_fbo_texture.width() * m_fbo_texture.height() * Pixels::NUM_PIXEL_CHANNELS);
+        rlBindTexture(RL_TEXTURE_2D, m_fbo_texture.getTexture());
         rlBindBuffer(RL_PIXEL_PACK_BUFFER, RL_NULL_BUFFER); // Make sure no pixel-pack buffer is bound, we want to copy into 'pixels'.
         rlGetTexImage(RL_TEXTURE_2D, 0, RL_RGBA, RL_FLOAT, &pixels[0]);
-        util::writeImage("out.tiff", m_display_fbo_texture.width(), m_display_fbo_texture.height(), 4, &pixels[0], 1.0f);
+        util::writeImage("out.tiff", m_fbo_texture.width(), m_fbo_texture.height(), Pixels::NUM_PIXEL_CHANNELS, &pixels[0], static_cast<float>(m_passes_performed));
         
         m_save_image = false;
     }
+
+    // Map the rendered texture to a pixelpack buffer so that the calling function can properly display it.
+    outputPixels.setData(m_fbo_texture);
     
     util::checkRLErrors();
-    
-    return &m_display_fbo_texture;
 }
 
 /// Resize the render viewport.
@@ -280,7 +263,6 @@ void World::resize(RLint width, RLint height)
     if (m_fbo_texture.isValid())
     {
         m_fbo_texture.resize(width, height);
-        m_display_fbo_texture.resize(width, height);
 
         // Generate a random texture to use for pixel offsets while rendering. This texture has components which are uniformly
         // distrubuted over a circle. This allows for a radial filter during anti-aliasing.
@@ -556,17 +538,6 @@ void World::setupFramebuffer(const tinyxml2::XMLElement *framebuffer_node, RLint
     m_fbo_texture.setParams(texture_params);
     m_fbo_texture.create(framebuffer_width, framebuffer_height, RL_FLOAT, NULL, "Default FBO Texture");
     rlFramebufferTexture2D(RL_FRAMEBUFFER, RL_COLOR_ATTACHMENT0, RL_TEXTURE_2D, m_fbo_texture.getTexture(), 0);
-    
-    // Create the FBO for displaying to the screen.
-    rlGenFramebuffers(1, &m_display_fbo);
-    rlBindFramebuffer(RL_FRAMEBUFFER, m_display_fbo);
-    m_display_fbo_texture.setParams(texture_params);
-    m_display_fbo_texture.create(framebuffer_width, framebuffer_height, RL_FLOAT, NULL, "Display FBO Texture");
-    rlFramebufferTexture2D(RL_FRAMEBUFFER, RL_COLOR_ATTACHMENT0, RL_TEXTURE_2D, m_display_fbo_texture.getTexture(), 0);
-    
-    // Setup the frameshader which will take care of displaying the default buffer is a human-viewable format.
-    m_display_frame_program.addShader("Resources/shaders/display.frame", gfx::Shader::FRAME);
-    m_display_frame_program.link();
     
     util::checkRLErrors("World::setupFramebuffer()", true);
 }
