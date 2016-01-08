@@ -132,9 +132,6 @@
     <None Include="..\Resources\shaders\diffuseWithTexture.rsh">
       <Filter>Resources\shaders</Filter>
     </None>
-    <None Include="..\Resources\shaders\display.frame">
-      <Filter>Resources\shaders</Filter>
-    </None>
     <None Include="..\Resources\shaders\passthrough.vert">
       <Filter>Resources\shaders</Filter>
     </None>

@@ -109,8 +109,9 @@ class World
     	/// Write a configuration file with the current rendering settings which can be reloaded with a new instance
     	/// of Heatray.
     	void writeConfigFile() const;
-    
+public:
     	std::vector<Light> m_lights; // Lighting info. Read from the mesh file. At most 5 lights are supported.
+private:
     
         /// Structure which represents the uniform block in all shaders for lighting information.
         struct LightUniformBuffer
@@ -136,7 +137,9 @@ class World
     
         gfx::Texture m_random_values_texture; // Texture to use in the RandomUniformBuffer uniform block.
     
+        public:
     	gfx::Camera m_camera;          // Camera which controls the raytracing view.
+        private:
     	float m_camera_movement_speed; // Speed at which to move the camera.
     	float m_camera_rotation_speed; // Speed at which to rotate the camera.
     

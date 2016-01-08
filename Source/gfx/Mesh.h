@@ -90,7 +90,7 @@ class Mesh
             std::vector<math::vec3f>   normals;       // Normals of this mesh.
             std::vector<math::vec3f>   tangents;      // Calculated tangents of this mesh.
             std::vector<math::vec2f>   tex_coords;    // Texture coordinates for this mesh.
-            size_t                      num_elements; // Number of elements (vertices) to render.
+            size_t                     num_elements;  // Number of elements (vertices) to render.
             
             gfx::Buffer buffers[NUM_VBO_TYPES]; // VBOs which makeup the mesh data for this piece.
         };

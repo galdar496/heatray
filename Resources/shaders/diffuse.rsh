@@ -31,12 +31,13 @@ void diffuse()
             
             if (angle > 0.0)
             {
+				// Fire a shadow ray at the light source.
                 createRay();
                 rl_OutRay.direction = light_dir;
-                rl_OutRay.color = base_color * angle * ndotl;
-                rl_OutRay.maxT = vec_length - 0.15; // Shorten max length a bit to avoid precision issues.
+				rl_OutRay.color = base_color * angle * ndotl;
+               //rl_OutRay.maxT = vec_length - 0.15; // Shorten max length a bit to avoid precision issues.
                 rl_OutRay.defaultPrimitive = Light.lights[ii];
-                rl_OutRay.occlusionTest = true;
+                //rl_OutRay.occlusionTest = true;
                 emitRay();
             }
         }

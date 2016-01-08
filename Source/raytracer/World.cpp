@@ -150,7 +150,6 @@ bool World::initialize(const std::string &config_file_path, RLint &screen_width,
         for (int ii = 0; ii < block->count; ++ii)
         {
             block->primitives[ii] = m_lights[ii].primitive;
-            block->normals[ii]    = m_lights[ii].normal;
         }
         m_light_buffer.unmapBuffer();
         m_light_buffer.unbind();
@@ -204,6 +203,7 @@ void World::render(Pixels &outputPixels)
             for (size_t ii = 0; ii < m_lights.size(); ++ii)
             {
                 block->positions[ii] = m_lights[ii].sample_positions[m_passes_performed - 1]; // -1 because m_passes_performed does not start at 0.
+                block->normals[ii]   = m_lights[ii].sample_normals[m_passes_performed - 1];
             }
             m_light_buffer.unmapBuffer();
             m_light_buffer.unbind();
@@ -567,7 +567,6 @@ void World::getLighting(gfx::Mesh &mesh)
 {
     // Go over each mesh piece and look for anything that is a light. For all lights that are found, populate a
     // 'Light' struct with information about that light to use for later rendering.
-    // NOTE: For now, only rectangular area lights are supported.
     gfx::Mesh::MeshList &meshes = mesh.getMeshList();
     for (gfx::Mesh::MeshList::const_iterator iter = meshes.begin(); iter != meshes.end(); ++iter)
     {
@@ -582,27 +581,44 @@ void World::getLighting(gfx::Mesh &mesh)
             
             m_lights.push_back(Light());
             Light *light = &m_lights[m_lights.size() - 1];
-            
-            // Find the light dimensions. We'll use these dimensions to determine how to sample the light.
-            light->dimensions[0] = math::vec3f(HUGE_VALF, HUGE_VALF, HUGE_VALF);
-            light->dimensions[1] = math::vec3f(-HUGE_VALF, -HUGE_VALF, -HUGE_VALF);
-            for (size_t ii = 0; ii < piece->vertices.size(); ++ii)
-            {
-                light->dimensions[0] = math::vectorMin(light->dimensions[0], piece->vertices[ii]);
-                light->dimensions[1] = math::vectorMax(light->dimensions[1], piece->vertices[ii]);
-            }
-            
-            // Adjust the light dimensions along the normal of the light to avoid any precision issues when trying to determine if a pixel is in shadow.
-            light->normal = piece->normals[0];
-            light->dimensions[0] += light->normal * 0.001f;
-            light->dimensions[1] += light->normal * 0.001f;
-            
+
+            int num_light_triangles = piece->vertices.size() / 3;
+
             // Generate the randomized light positions to sample for each pass. Every pass of the render will use one of these generated
             // light positions.
             light->sample_positions.resize(m_total_pass_count);
+            light->sample_normals.resize(m_total_pass_count);
             for (int ii = 0; ii < m_total_pass_count; ++ii)
             {
-                light->sample_positions[ii] = util::random(light->dimensions[0], light->dimensions[1]);
+                // Find a random triangle to use for this sample.
+                int triangle_index = util::random(0, num_light_triangles - 1);
+
+                // Generate 3 random barycentric coordinates.
+                float gamma = util::random(0.0f, 1.0f);
+                float beta  = util::random(0.0f, 1.0f);
+                float alpha;
+                if (gamma + beta > 1.0f)
+                {
+                    // Subtract off some random value from beta.
+                    beta = std::max(0.0f, beta - util::random(0.0f, 1.0f)); 
+                }
+
+                alpha = 1.0f - (gamma + beta);
+
+                // Use the barycentrics to generate a random position within the triangle.
+                int vertex_index = triangle_index * 3;
+                math::vec3f sample_point = (piece->vertices[vertex_index + 0] * gamma) +
+                                           (piece->vertices[vertex_index + 1] * beta) +
+                                           (piece->vertices[vertex_index + 2] * alpha);
+
+                // Similarly set the normal for this sample point.
+                math::vec3f sample_normal = (piece->normals[vertex_index + 0] * gamma) +
+                                            (piece->normals[vertex_index + 1] * beta) +
+                                            (piece->normals[vertex_index + 2] * alpha);
+                sample_normal = math::normalize(sample_normal);
+
+                light->sample_positions[ii] = sample_point;
+                light->sample_normals[ii]   = sample_normal;
             }
         }
     }

@@ -17,10 +17,9 @@ struct Light
 {
     Light() : primitive(RL_NULL_PRIMITIVE) {}
     
-    typedef std::vector<math::vec3f> Positions;
+    typedef std::vector<math::vec3f> Points;
     
-    math::vec3f dimensions[2];    // Dimensions of the area light. [0]=lower-left corner, [1]=upper-right corner.
-    math::vec3f normal;           // Normal of this light's geometry.
     RLprimitive primitive;        // Primitive which represents the light.
-	Positions   sample_positions; // Randomized sample points on the light. Each point is used for a single pass.
+    Points   sample_positions;    // Randomized sample points on the light. Each point is used for a single pass.
+    Points   sample_normals;      // Normals for each sample point on the light.
 };
