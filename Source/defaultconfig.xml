@@ -1,6 +1,6 @@
 <HeatRayConfig>
     <Framebuffer Width="512" Height="512" />
-    <Mesh Model="Resources/models/doom.obj" Scale="1" />
+    <Mesh Model="Resources/models/chess.obj" Scale="1" />
     <Camera>
         <Position X="0" Y="0" Z="50" />
         <Lens FocalLength="25" ApertureRadius="0" />
