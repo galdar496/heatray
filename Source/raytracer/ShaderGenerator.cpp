@@ -32,7 +32,7 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh, gfx::Shader &vertex_shade
     std::string light_shader_source = "rayattribute vec3 color; rayattribute bool is_diffuse_bounce; uniform vec3 kd; uniform primitive defaultPrim;\n"
                                       "void main()\n"
                                       "{\n"
-                                      "   if(rl_FrontFacing) accumulate(rl_InRay.color * kd);\n"
+                                      "    accumulate(rl_InRay.color * kd);\n"
                                       "}\n";
     RLprimitive subsurface_prim;
     {
