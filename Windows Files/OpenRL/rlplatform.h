@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Copyright(c) 2006-2013 Caustic Graphics, Inc.    All rights reserved.        *
+ * Copyright (c) 2006 - 2014 Caustic Graphics, Inc.    All rights reserved.        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #ifndef __rlplatform_h_

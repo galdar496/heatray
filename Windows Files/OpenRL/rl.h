@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Copyright(c) 2006-2013 Caustic Graphics, Inc.    All rights reserved.        *
+ * Copyright (c) 2006 - 2014 Caustic Graphics, Inc.    All rights reserved.        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #ifndef __rl_h__
@@ -329,6 +329,8 @@ typedef struct _RLprogram*     RLprogram;
 
 /* rlGetBooleanv parameters */
 #define RL_IS_HARDWARE_ACCELERATED                    0x8000
+#define RL_DIFFERENTIALS_ENABLED                      0x10340
+#define RL_FILTERED_ACCUMULATES_ENABLED               0x10341
 
 /* Global parameters */
 #define RL_MAX_OUTPUT_RAY_COUNT                       0x10300
@@ -338,6 +340,7 @@ typedef struct _RLprogram*     RLprogram;
 #define RL_MIN_FILTER_RADIUS                          0x10313
 #define RL_MAX_FILTER_RADIUS                          0x10314
 #define RL_MAX_FILTER_TABLE_WIDTH                     0x10315
+#define RL_MAX_SCENE_EXTENT                           0x10316
 
 /* Stats parameters */
 #define RL_TOTAL_FRAME_TIME                           0x10305

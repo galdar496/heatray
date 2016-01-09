@@ -83,6 +83,7 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh, gfx::Shader &vertex_shade
             rlGenPrimitives(1, &(piece->primitive));
             rlBindPrimitive(RL_PRIMITIVE, piece->primitive);
             rlPrimitiveParameterString(RL_PRIMITIVE, RL_PRIMITIVE_NAME, piece->material.name.c_str());
+            rlPrimitiveParameter1i(RL_PRIMITIVE, RL_PRIMITIVE_IS_OCCLUDER, RL_FALSE);
             
             // Set the corresponding light primitive to this new primitive.
             lights[light_count++].primitive = piece->primitive;

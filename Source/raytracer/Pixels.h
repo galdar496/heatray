@@ -69,7 +69,7 @@ class Pixels
             assert(!m_isMapped);
             m_buffer.bind();
             rlBindTexture(RL_TEXTURE_2D, texture.getTexture());
-            rlGetTexImage(RL_TEXTURE_2D, 0, RL_RGBA, RL_FLOAT, nullptr);
+            rlGetTexImage(RL_TEXTURE_2D, 0, RL_RGB, RL_FLOAT, nullptr);
             m_buffer.unbind();
         }
 
@@ -113,7 +113,7 @@ class Pixels
             height = m_height;
         }
 
-        static const int NUM_PIXEL_CHANNELS = 4;
+        static const int NUM_PIXEL_CHANNELS = 3;
 
     private:
 

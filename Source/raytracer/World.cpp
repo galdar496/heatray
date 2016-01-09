@@ -235,7 +235,7 @@ void World::render(Pixels &outputPixels)
         pixels.resize(m_fbo_texture.width() * m_fbo_texture.height() * Pixels::NUM_PIXEL_CHANNELS);
         rlBindTexture(RL_TEXTURE_2D, m_fbo_texture.getTexture());
         rlBindBuffer(RL_PIXEL_PACK_BUFFER, RL_NULL_BUFFER); // Make sure no pixel-pack buffer is bound, we want to copy into 'pixels'.
-        rlGetTexImage(RL_TEXTURE_2D, 0, RL_RGBA, RL_FLOAT, &pixels[0]);
+        rlGetTexImage(RL_TEXTURE_2D, 0, RL_RGB, RL_FLOAT, &pixels[0]);
         util::writeImage("out.tiff", m_fbo_texture.width(), m_fbo_texture.height(), Pixels::NUM_PIXEL_CHANNELS, &pixels[0], static_cast<float>(m_passes_performed));
         
         m_save_image = false;
@@ -529,8 +529,8 @@ void World::setupFramebuffer(const tinyxml2::XMLElement *framebuffer_node, RLint
     
     gfx::Texture::Params texture_params;
     texture_params.min_filter      = RL_LINEAR;
-    texture_params.format          = RL_RGBA;
-    texture_params.internal_format = RL_RGBA;
+    texture_params.format          = RL_RGB;
+    texture_params.internal_format = RL_RGB;
     
     // Create the default FBO for rendering into.
     rlGenFramebuffers(1, &m_fbo);
@@ -582,7 +582,7 @@ void World::getLighting(gfx::Mesh &mesh)
             m_lights.push_back(Light());
             Light *light = &m_lights[m_lights.size() - 1];
 
-            int num_light_triangles = piece->vertices.size() / 3;
+            size_t num_light_triangles = piece->vertices.size() / 3;
 
             // Generate the randomized light positions to sample for each pass. Every pass of the render will use one of these generated
             // light positions.
