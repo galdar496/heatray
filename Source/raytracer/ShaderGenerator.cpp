@@ -29,11 +29,19 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh, gfx::Shader &vertex_shade
     // Attach a shader to the light primitive. This shader either shaders the light directly or
     // accumulates the incoming color based on if this intersection is a shadow occlusion query
     // or not.
-    std::string light_shader_source = "rayattribute vec3 color; rayattribute bool is_diffuse_bounce; uniform vec3 kd; uniform primitive defaultPrim;\n"
-                                      "void main()\n"
-                                      "{\n"
-                                      "    accumulate(rl_InRay.color * kd);\n"
-                                      "}\n";
+    std::string light_shader_with_texture_source = 
+        "rayattribute vec3 color; rayattribute bool is_diffuse_bounce; uniform vec3 kd; uniform primitive defaultPrim; uniform sampler2D diffuse_texture; varying vec2 tex_coords; \n"
+        "void main()\n"
+        "{\n"
+        "    accumulate(rl_InRay.color * kd * texture2D(diffuse_texture, tex_coords).zyx);\n"
+        "}\n";
+    std::string light_shader_without_texture_source = 
+        "rayattribute vec3 color; rayattribute bool is_diffuse_bounce; uniform vec3 kd; uniform primitive defaultPrim; \n"
+        "void main()\n"
+        "{\n"
+        "    accumulate(rl_InRay.color * kd);\n"
+        "}\n";
+
     RLprimitive subsurface_prim;
     {
 //        rlGenPrimitives(1, &subsurface_prim);
@@ -84,12 +92,15 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh, gfx::Shader &vertex_shade
             rlBindPrimitive(RL_PRIMITIVE, piece->primitive);
             rlPrimitiveParameterString(RL_PRIMITIVE, RL_PRIMITIVE_NAME, piece->material.name.c_str());
             rlPrimitiveParameter1i(RL_PRIMITIVE, RL_PRIMITIVE_IS_OCCLUDER, RL_FALSE);
+
+            // Generate any textures that this mesh needs.
+            piece->material.diffuse_texture.createFromLoadedData(true);
             
             // Set the corresponding light primitive to this new primitive.
             lights[light_count++].primitive = piece->primitive;
             
             gfx::Shader light_shader;
-            light_shader.createFromString(light_shader_source, gfx::Shader::RAY, piece->material.name.c_str());
+            light_shader.createFromString(piece->material.diffuse_texture.isValid() ? light_shader_with_texture_source : light_shader_without_texture_source, gfx::Shader::RAY, piece->material.name.c_str());
             piece->program.attach(light_shader);
             piece->program.attach(vertex_shader);
             piece->program.link("light");
