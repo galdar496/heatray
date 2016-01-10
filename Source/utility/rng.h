@@ -8,13 +8,36 @@
 
 #pragma once
 
+#include "../math/Vector.h"
+
 #include <cstdlib>
 #include <random>
-#include "../math/Vector.h"
+#include <vector>
+#include <ctime>
     
 namespace util
 {
-    
+    /// Generate a group of random floats using a uniform distribution.
+    inline void generateRandomNumbers(const float min_value,            // IN: Minimum value to generate from.
+                                      const float max_value,            // IN: Maximum value to generate from.
+                                      const size_t count,               // IN: Number of random values to generate.
+                                      std::vector<float> &randomNumbers // OUT: Generated random values. Any previous values in this vector will be cleared.
+                                     )
+    {
+        static std::random_device random_device;
+        static std::mt19937 generator(random_device());
+        generator.seed(static_cast<unsigned int>(time(nullptr)));
+
+        std::uniform_real_distribution<float> distribution(min_value, max_value);
+
+        randomNumbers.resize(count);
+        for (size_t ii = 0; ii < count; ++ii)
+        {
+            randomNumbers[ii] = distribution(generator);
+        }
+    }
+
+
     /// Generate a random integer within a specified range.
     inline int random(const int nMin, // IN: Minimum value to generate from.
                       const int nMax  // IN: Maximum value to generate to.
@@ -31,8 +54,10 @@ namespace util
                         const float fMax  // IN: Maximum value to generate to.
                        )
     {
-        int r = random(0, RAND_MAX);
-        float fUnit = static_cast<float>((float)r / RAND_MAX);
+        int max_int = std::numeric_limits<int>::max();
+
+        int r = random(0, max_int);
+        float fUnit = static_cast<float>((float)r / max_int);
         float fDiff = fMax - fMin;
         
         return fMin + fUnit * fDiff;

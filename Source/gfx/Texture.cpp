@@ -167,12 +167,8 @@ bool Texture::randomize(const RLint width, const RLint height, const int compone
 	// Generate the random values.
 	size_t size = width * height * components;
     std::vector<float> data;
-    data.resize(size);
-	for (size_t i = 0; i < size; ++i)
-	{
-		data[i] = util::random(min, max);
-	}
-    
+    util::generateRandomNumbers(min, max, size, data);
+
 	rlGenTextures(1, &m_texture_object);
 	rlBindTexture(RL_TEXTURE_2D, m_texture_object);
     
@@ -203,18 +199,34 @@ bool Texture::randomizeRadial(const RLint width, const RLint height, const RLenu
     size_t size = width * height * 3; // Only supports 3 components.
     std::vector<float> data;
     data.resize(size);
+
+    std::vector<float> random_values;
+    util::generateRandomNumbers(0.0f, 1.0f, size, random_values);
+    size_t random_index = 0;
+
     for (size_t ii = 0; ii < size; ii += 3)
     {
+        if (random_index == random_values.size())
+        {
+            // Regenerate the random value, we've ran out. There's a very low probability
+            // of this code every actually executing.
+            util::generateRandomNumbers(0.0f, 1.0f, size, random_values);
+            size_t random_index = 0;
+        }
+
         float x, y;
         do
         {
-            x = radius * (2.0f * util::random(0.0f, 1.0f) - 1.0f);
-            y = radius * (2.0f * util::random(0.0f, 1.0f) - 1.0f);
+            x = radius * (2.0f * random_values[random_index + 0] - 1.0f);
+            y = radius * (2.0f * random_values[random_index + 1] - 1.0f);
+            ++random_index;
         } while ((x * x + y * y) > radius_squared);
         
         data[ii + 0] = x;
         data[ii + 1] = y;
-        data[ii + 2] = util::random(0.0f, 1.0f);
+
+        // Unused since this generates values in a 2D plane yet we have to use 3 components because OpenRL doesn't support a 2 component texture.
+        data[ii + 2] = 0.0f;
     }
     
     rlGenTextures(1, &m_texture_object);
@@ -230,7 +242,7 @@ bool Texture::randomizeRadial(const RLint width, const RLint height, const RLenu
     m_name = name;
     m_data_type = data_type;
     
-    return !util::checkRLErrors("Texture::randomize()");
+    return !util::checkRLErrors("Texture::randomizeRadial()");
 }
     
 /// Destroy this texture.

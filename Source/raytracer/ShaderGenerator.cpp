@@ -43,7 +43,7 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh, gfx::Shader &vertex_shade
 //        rlBindPrimitive(RL_PRIMITIVE, subsurface_prim);
 //        rlUseProgram(subsurface_program.getProgram());
     }
-    
+
     // Iterate over each mesh piece and create an RL primitive object to encapsulate this part of the mesh.
     // For each primitive created, attach the proper VBOs to it.
     gfx::Mesh::MeshList &meshes = mesh.getMeshList();
@@ -67,7 +67,7 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh, gfx::Shader &vertex_shade
             {
                 return false;
             }
-            
+
             piece->program.attach(vertex_shader);
             piece->program.attach(ray_shader);
             piece->program.link(piece->material.name);
@@ -162,12 +162,11 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh, gfx::Shader &vertex_shade
         rlVertexAttribBuffer(render_data.tangent_attribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::vec3f), 0);
         piece->buffers[gfx::Mesh::TANGENTS].unbind();
         
-        
         // Submit this mesh to OpenRL for heirarchy building and later on rendering.
         rlDrawArrays(RL_TRIANGLES, 0, piece->num_elements);
         
         rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE);
-		if (util::checkRLErrors("Mesh::prepareForRendering() - Finished uploading a MeshPiece"))
+		if (util::checkRLErrors("Mesh::prepareForRendering() - Finished uploading a MeshPiece", true))
         {
             return false;
         }

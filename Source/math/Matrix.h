@@ -167,6 +167,22 @@ struct Matrix
 		return result;
 	}
 
+    /**
+    * Post multiplies this matrix by another matrix.
+    * @param right Matrix to multiply the contained matrix by.
+    */
+    template<typename S, unsigned int N>
+    inline void operator *=(const Matrix<S, C, N> &right)
+    {
+        for (unsigned int r = 0; r < R; ++r)
+        {
+            for (unsigned int c = 0; c < N; ++c)
+            {
+                v[r + c * C] = dot(row(r), right.col(c));
+            }
+        }
+    }
+
 	/**
 	  * Post multiplies this matrix by a vector.
 	  * @param right Matrix to post-multipy by.

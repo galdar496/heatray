@@ -433,14 +433,14 @@ class Quaternion
 		  */
 		inline void createFromAxisAngle(const T angle, const QVec &vec)
 		{
-			T angle_val = angle * (T)0.5;
-			T sin_angle = sinf(angle_val);
+			T half_angle = angle * static_cast<T>(0.5);
+			T sin_angle = sinf(half_angle);
 
 			// Compute the quaternion values.
 			m_axis[0] = vec[0] * sin_angle;
 			m_axis[1] = vec[1] * sin_angle;
 			m_axis[2] = vec[2] * sin_angle;
-			m_angle   = cos(angle_val);
+			m_angle   = cosf(half_angle);
 		}
 
 		/** 

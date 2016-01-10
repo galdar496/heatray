@@ -13,8 +13,8 @@ uniform primitive subsurface_primitive;
 
 void diffuse()
 {
-    vec3 base_color = rl_InRay.color * kd;
-    vec3 normalized_normal = getNormal();
+    vec3 base_color     = rl_InRay.color * kd;
+    vec3 surface_normal = getNormal();
 
     for (int ii = 0; ii < Light.count; ++ii)
     {
@@ -22,7 +22,7 @@ void diffuse()
         float vec_length = length(light_dir);
         light_dir /= vec_length; // normalize.
         
-        float ndotl = dot(light_dir, normalized_normal);
+        float ndotl = dot(light_dir, surface_normal);
         
         if (ndotl > 0.0)
         {
@@ -53,7 +53,7 @@ void diffuse()
     
     if (GI.enabled != 0)
     {
-        diffuseBounce(base_color, normalized_normal);
+        diffuseBounce(base_color, surface_normal);
     }
 }
 

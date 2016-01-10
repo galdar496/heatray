@@ -208,6 +208,33 @@ void World::render(Pixels &outputPixels)
             m_light_buffer.unmapBuffer();
             m_light_buffer.unbind();
         }
+
+        // Generate a random texture matrix to use for indexing into the textures containing random values.
+        // Every frame this matrix will be randomly generated to ensure that random values are sampled
+        // in the shaders.
+        math::Mat4f random_texture_matrix = math::Mat4f::identity();
+        {
+            math::Mat4f rotation;
+
+            // Rotate about the y axis.
+            math::quatf y_rotate(util::random(-math::PI, math::PI), math::vec3f(0.0f, 1.0f, 0.0f), true);
+            y_rotate.toMatrix(rotation);
+            random_texture_matrix *= rotation;
+            
+            // Rotate about the x axis.
+            math::quatf x_rotate(util::random(0.0f, math::TWO_PI), math::vec3f(1.0f, 0.0f, 0.0f), true);
+            x_rotate.toMatrix(rotation);
+            random_texture_matrix *= rotation;
+            
+            // Now randomly scale the matrix.
+            const float max_scale = 5.0f;
+            math::Mat4f random_scale = math::Mat4f::identity();
+            random_scale(0, 0) = util::random(0.0f, max_scale);
+            random_scale(1, 1) = util::random(0.0f, max_scale);
+            random_scale(2, 2) = util::random(0.0f, max_scale);
+
+            random_texture_matrix *= random_scale;
+        }
         
         rlBindFramebuffer(RL_FRAMEBUFFER, m_fbo);
         // Setup the camera parameters to the frameshader.
@@ -223,6 +250,7 @@ void World::render(Pixels &outputPixels)
         m_raytracing_frame_program.setTexture("jitter_texture", m_jitter_texture.getTexture());
         m_raytracing_frame_program.setTexture("aperture_sample_texture", m_aperture_sample_texture.getTexture());
         m_raytracing_frame_program.set1f("pass_divisor", ((float)m_passes_performed) / (float)m_total_pass_count);
+        m_raytracing_frame_program.setMatrix4fv("random_texture_matrix", random_texture_matrix.v);
         rlRenderFrame();
 
         ++m_passes_performed;
@@ -582,25 +610,29 @@ void World::getLighting(gfx::Mesh &mesh)
             m_lights.push_back(Light());
             Light *light = &m_lights[m_lights.size() - 1];
 
-            size_t num_light_triangles = piece->vertices.size() / 3;
+            int num_light_triangles = static_cast<int>(piece->vertices.size()) / 3;
 
             // Generate the randomized light positions to sample for each pass. Every pass of the render will use one of these generated
             // light positions.
             light->sample_positions.resize(m_total_pass_count);
             light->sample_normals.resize(m_total_pass_count);
+            std::vector<float> randomBarycentrics;
+            util::generateRandomNumbers(0.0f, 1.0f, m_total_pass_count * 3, randomBarycentrics); // * 3 to account of 3 barycentrics per sample point.
+            int barycentricIndex = 0;
+
             for (int ii = 0; ii < m_total_pass_count; ++ii)
             {
                 // Find a random triangle to use for this sample.
                 int triangle_index = util::random(0, num_light_triangles - 1);
 
                 // Generate 3 random barycentric coordinates.
-                float gamma = util::random(0.0f, 1.0f);
-                float beta  = util::random(0.0f, 1.0f);
+                float gamma = randomBarycentrics[barycentricIndex++];
+                float beta  = randomBarycentrics[barycentricIndex++];
                 float alpha;
                 if (gamma + beta > 1.0f)
                 {
                     // Subtract off some random value from beta.
-                    beta = std::max(0.0f, beta - util::random(0.0f, 1.0f)); 
+                    beta = std::max(0.0f, beta - randomBarycentrics[barycentricIndex++]);
                 }
 
                 alpha = 1.0f - (gamma + beta);
