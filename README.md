@@ -15,8 +15,9 @@ Heat Ray 2.0 is a ray tracer/photon mapper written entirely in C++ with an OpenG
 * Written entirely with OpenRL
 * Interactive camera
 * Up to 5 light sources
-* Geometric lights
+* Geometric light sources
 * Diffuse, mirror reflective, glossy reflective, and refractive surfaces
+* Fully-programmable shader pipeline
 * Depth of field via aperture width and focal length
 * Texturing
 * Normalmapping
