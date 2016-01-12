@@ -313,12 +313,18 @@ bool Mesh::loadMaterials(const std::string &filename, MeshList &materials, const
         {
             fin >> material_name;
             materials[material_name].material.name = material_name;
-            material_iter = materials.find (material_name);
+            material_iter = materials.find(material_name);
             if (material_iter == materials.end())
             {
                 std::cout << "Mesh::loadMaterials() - Could not insert material " << material_name << " into the material map." << std::endl;
                 fin.close();
                 return false;
+            }
+
+            if (material_name.find("Light") != std::string::npos)
+            {
+                // This material is going to be used as a light source.
+                material_iter->second.material.component_flags.set(gfx::Material::LIGHT);
             }
         }
         

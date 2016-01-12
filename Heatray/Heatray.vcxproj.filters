@@ -59,6 +59,9 @@
     <ClCompile Include="..\Source\raytracer\World.cpp">
       <Filter>Source\raytracer</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\gfx\Material.cpp">
+      <Filter>Source\gfx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\gfx\Buffer.h">
@@ -123,15 +126,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Resources\shaders\diffuse.rsh">
-      <Filter>Resources\shaders</Filter>
-    </None>
-    <None Include="..\Resources\shaders\diffuseBounce.rsh">
-      <Filter>Resources\shaders</Filter>
-    </None>
-    <None Include="..\Resources\shaders\diffuseWithTexture.rsh">
-      <Filter>Resources\shaders</Filter>
-    </None>
     <None Include="..\Resources\shaders\passthrough.vert">
       <Filter>Resources\shaders</Filter>
     </None>
@@ -141,13 +135,11 @@
     <None Include="..\Resources\shaders\refraction.rsh">
       <Filter>Resources\shaders</Filter>
     </None>
-    <None Include="..\Resources\shaders\specular.rsh">
+    <None Include="..\Resources\shaders\simpleLight.rsh">
       <Filter>Resources\shaders</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="..\Resources\shaders\subsurface.psh">
+    <None Include="..\Resources\shaders\simpleRayShader.rsh">
       <Filter>Resources\shaders</Filter>
-    </FxCompile>
+    </None>
   </ItemGroup>
 </Project>

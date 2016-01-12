@@ -118,14 +118,15 @@ private:
         {
             LightUniformBuffer() :
             	count(0),
-                primitives{RL_NULL_PRIMITIVE}
+                primitive{RL_NULL_PRIMITIVE}
             {
             }
             
+            math::vec3f position[MAX_LIGHTS];
+            math::vec3f normal[MAX_LIGHTS];
+
             int count;
-            RLprimitive primitives[MAX_LIGHTS];
-            math::vec3f positions[MAX_LIGHTS];
-            math::vec3f normals[MAX_LIGHTS];
+            RLprimitive primitive[MAX_LIGHTS];
         };
     
         /// Structure which represents the uniform block in diffuse shaders for global illumination (GI).

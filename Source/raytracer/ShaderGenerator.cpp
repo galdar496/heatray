@@ -9,6 +9,7 @@
 #include "ShaderGenerator.h"
 #include "../utility/util.h"
 #include <assert.h>
+#include <sstream>
 
 /// Default constructor.
 ShaderGenerator::ShaderGenerator()
@@ -18,42 +19,45 @@ ShaderGenerator::ShaderGenerator()
 /// Destructor.
 ShaderGenerator::~ShaderGenerator()
 {
+    ShaderCache::iterator iter = m_shaderCache.begin();
+    for (; iter != m_shaderCache.end(); ++iter)
+    {
+        delete iter->second;
+        iter->second = nullptr;
+    }
+
+    m_shaderCache.clear();
 }
 
 /// Generate all of the necessary shaders for the current mesh. After a shader has been generated,
 /// it is automatically setup and bound to the proper mesh piece.
-bool ShaderGenerator::generateShaders(gfx::Mesh &mesh, gfx::Shader &vertex_shader, gfx::Buffer &light_buffer, gfx::Buffer &gi_buffer, std::vector<Light> &lights)
+bool ShaderGenerator::generateShaders(gfx::Mesh &mesh, 
+                                      gfx::Shader &vertex_shader, 
+                                      gfx::Buffer &light_buffer,
+                                      gfx::Buffer &gi_buffer, 
+                                      const std::string &ray_shader_path,
+                                      const std::string &light_shader_path,
+                                      const int max_light_count,
+                                      std::vector<Light> &lights)
 {
-    int light_count = 0;
-    
-    // Attach a shader to the light primitive. This shader either shaders the light directly or
-    // accumulates the incoming color based on if this intersection is a shadow occlusion query
-    // or not.
-    std::string light_shader_with_texture_source = 
-        "rayattribute vec3 color; rayattribute bool is_diffuse_bounce; uniform vec3 kd; uniform primitive defaultPrim; uniform sampler2D diffuse_texture; varying vec2 tex_coords; \n"
-        "void main()\n"
-        "{\n"
-        "    accumulate(rl_InRay.color * kd * texture2D(diffuse_texture, tex_coords).zyx);\n"
-        "}\n";
-    std::string light_shader_without_texture_source = 
-        "rayattribute vec3 color; rayattribute bool is_diffuse_bounce; uniform vec3 kd; uniform primitive defaultPrim; \n"
-        "void main()\n"
-        "{\n"
-        "    accumulate(rl_InRay.color * kd);\n"
-        "}\n";
-
-    RLprimitive subsurface_prim;
+    std::string ray_shader_source;
+    std::string light_shader_source;
+    if (!util::readTextFile(ray_shader_path, ray_shader_source))
     {
-//        rlGenPrimitives(1, &subsurface_prim);
-//        gfx::Program subsurface_program;
-//        subsurface_program.addShader("Resources/shaders/subsurface.psh", gfx::Shader::PREFIX);
-//        subsurface_program.link();
-//        rlBindPrimitive(RL_PRIMITIVE, subsurface_prim);
-//        rlUseProgram(subsurface_program.getProgram());
+        std::cout << "Unable to read ray shader at path: " << ray_shader_path;
+        return false;
     }
 
-    // Iterate over each mesh piece and create an RL primitive object to encapsulate this part of the mesh.
-    // For each primitive created, attach the proper VBOs to it.
+    if (!util::readTextFile(light_shader_path, light_shader_source))
+    {
+        std::cout << "Unable to read light shader at path: " << light_shader_path;
+        return false;
+    }
+
+    int light_count = 0;
+
+    // Iterate over each mesh piece and create a shader for it. Afterwards bind the VBOs to the proper
+    // locations in the newly compiled programs.
     gfx::Mesh::MeshList &meshes = mesh.getMeshList();
     for (gfx::Mesh::MeshList::iterator iter = meshes.begin(); iter != meshes.end(); ++iter)
     {
@@ -63,14 +67,14 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh, gfx::Shader &vertex_shade
         if (piece->material.name.find("Light") == std::string::npos)
         {
             // Create the ray shader based on the materials from this mesh piece.
-            gfx::Shader ray_shader;
-            if (!generateRayShader(piece->material, ray_shader))
+            gfx::Shader *ray_shader = findOrCreateRayShader(piece->material, ray_shader_source, max_light_count);
+            if (ray_shader == nullptr)
             {
                 return false;
             }
 
             piece->program.attach(vertex_shader);
-            piece->program.attach(ray_shader);
+            piece->program.attach(*ray_shader);
             piece->program.link(piece->material.name);
             rlUseProgram(piece->program.getProgram());
             
@@ -82,16 +86,18 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh, gfx::Shader &vertex_shade
         {
             // Setup the lighting primitive and program to use along with it.
             rlPrimitiveParameter1i(RL_PRIMITIVE, RL_PRIMITIVE_IS_OCCLUDER, RL_FALSE);
-
-            // Generate any textures that this mesh needs.
-            piece->material.diffuse_texture.createFromLoadedData(true);
             
             // Set the corresponding light primitive to this new primitive.
             lights[light_count++].primitive = piece->primitive;
+
+            // Create the light shader for this light source.
+            gfx::Shader *light_shader = findOrCreateRayShader(piece->material, light_shader_source, max_light_count);
+            if (light_shader == nullptr)
+            {
+                return false;
+            }
             
-            gfx::Shader light_shader;
-            light_shader.createFromString(piece->material.diffuse_texture.isValid() ? light_shader_with_texture_source : light_shader_without_texture_source, gfx::Shader::RAY, piece->material.name.c_str());
-            piece->program.attach(light_shader);
+            piece->program.attach(*light_shader);
             piece->program.attach(vertex_shader);
             piece->program.link("light");
             rlUseProgram(piece->program.getProgram());
@@ -110,11 +116,11 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh, gfx::Shader &vertex_shade
             {
             	piece->program.setTexture("normalmap", piece->material.normal_texture.getTexture());
             }
-            if (piece->material.component_flags.test(gfx::Material::SUBSURFACE))
+            /*if (piece->material.component_flags.test(gfx::Material::SUBSURFACE))
             {
                 piece->program.set1i("subsurface", 1);
                 piece->program.setPrimitive("subsurface_primitive", subsurface_prim);
-            }
+            }*/
             
             // Attach the uniform buffer for the random data to this primitive. Also setup the bounce probability
             // for russian roulette for this particual material.
@@ -176,146 +182,48 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh, gfx::Shader &vertex_shade
     return true;
 }
 
-/// Generate a ray shader based on a material.
-bool ShaderGenerator::generateRayShader(const gfx::Material &material, gfx::Shader &shader) const
+/// Generate a ray shader based on a material OR find the existing shader in the shader cache. If a ray shader was not found and
+/// count not be created, null is returned.
+gfx::Shader *ShaderGenerator::findOrCreateRayShader(const gfx::Material &material, const std::string &shader_source, const int max_light_count)
 {
-    // Start building the source string with the ray attributes.
-    std::string source = "rayattribute vec3 color;\n"
-                         "rayattribute bool is_diffuse_bounce;\n"
-                         "uniform primitive defaultPrim;\n"
-                         "varying vec3 normal;\n"
-                         "varying vec2 tex_coords;\n"
-                         "uniformblock Light { int count; primitive lights[5]; vec3 positions[5]; vec3 normals[5]; };\n"; // Allow at most 5 lights.
-    
-    // Figure out the number of rays to create in this shader and write the uniform
-    // definitions for this shader.
-    int num_rays = 0;
-    if (material.component_flags.test(gfx::Material::SPECULAR))
+    // Look for this shader in the cache first.
+    ShaderFlags shader_flags = material.component_flags.to_ulong();
+    ShaderCache::iterator iter = m_shaderCache.find(shader_flags);
+
+    if (iter != m_shaderCache.end())
     {
-        num_rays += 1;
-        generateSpecularCode(source);
+        // This shader already exists, use it.
+        return iter->second;
     }
-    if (material.component_flags.test(gfx::Material::TRANSMISSIVE))
+
+    // The shader doesn't already exist, so create one.
+    std::stringstream stream;
+    stream << "#define MAX_LIGHTS " << max_light_count << std::endl;
+    std::string final_source = stream.str();
+
+    // Add the proper defines to the top of the shader for this material.
+    for (int ii = 0; ii < gfx::Material::NUM_COMPONENT_FLAGS; ++ii)
     {
-        num_rays += 2;
-        
-        // If we haven't added the specular code yet, add it now as the
-        // transmissive code will utilize it.
-        if (!material.component_flags.test(gfx::Material::SPECULAR))
+        if (material.component_flags.test(ii))
         {
-            generateSpecularCode(source);
+            // Essentially write "#define MATERIAL_TYPE".
+            final_source += "#define ";
+            final_source += gfx::Material::material_names[ii];
+            final_source += "\n";
         }
-        
-        generateTransmissiveCode(source);
     }
-    if (material.component_flags.test(gfx::Material::DIFFUSE))
-    {
-		num_rays += 1; // Shadow ray counts are determined by the 'count' variable in the 'Light' uniform block. Add 1 for the diffuse bounce.
-        num_rays += material.component_flags.test(gfx::Material::SUBSURFACE) ? 1 : 0; // Add a ray if this material uses subsurface scattering.
-        generateDiffuseCode(source, material.diffuse_texture.isValid(), material.normal_texture.isValid());
-    }
-    
-    assert((num_rays < 10) && "Unsuported ray count");
-    
-    // Write the setup shader.
-    source += "void setup() { rl_OutputRayCount[0] = ";
-    char ray_count = '0' + num_rays;
-    source += ray_count;
-    
-    // If this is a diffuse shader, we must cast an extra ray for each light to determine if we're in shadow or not.
-    if (material.component_flags.test(gfx::Material::DIFFUSE))
-    {
-        source += " + Light.count";
-    }
-    
-    source += "; }\n";
-    
-    // Write the main definition.
-    source += "void main()\n"
-    	      "{\n";
-    
-    if (material.component_flags.test(gfx::Material::DIFFUSE))
-    {
-        // Call the diffuse code.
-        source += "diffuse();\n";
-    }
-    
-    if (material.component_flags.test(gfx::Material::SPECULAR))
-    {
-        // Call the specular code.
-        source += "specular(rl_InRay.color * ks.xyz, normalize(normal));\n";
-    }
-    
-    if (material.component_flags.test(gfx::Material::TRANSMISSIVE))
-    {
-        // Call the transmissive code.
-        source += "transmissive();\n";
-    }
-    
-    // TODO: Add support for specular and transmissive.
-    
-    // Finish the shader.
-    source += "}\n";
-    
-    // Finally, create the shader from the assembled shader source string.
-    if (!shader.createFromString(source, gfx::Shader::RAY, material.name))
-    {
-		return false;
-    }
-    
-    return true;
-}
 
-/// Generate diffuse code.
-void ShaderGenerator::generateDiffuseCode(std::string &source, bool use_texture, bool use_normalmap) const
-{
-    source += "varying vec3 tangent;\n";
-    source += "varying vec3 bitangent;\n";
-    
-    if (use_normalmap)
-    {
-        source += "uniform sampler2D normalmap;\n"
-                  "vec3 getNormal()\n"
-                  "{\n"
-                       // Convert the normal from tangent space to world space.
-                  "    vec3 norm = texture2D(normalmap, tex_coords).zyx * 2.0 - 1.0;\n"
-                  "    return mat3(normalize(tangent), normalize(bitangent), normalize(normal)) * norm;\n"
-                  "}\n";
-    }
-    else
-    {
-        source += "vec3 getNormal() { return normalize(normal); }\n";
-    }
-    
-    std::string tmp;
-    util::readTextFile("Resources/shaders/diffuseBounce.rsh", tmp);
-    source += tmp;
-    
-    if (!use_texture)
-    {
-        util::readTextFile("Resources/shaders/diffuse.rsh", tmp);
-        source += tmp;
-    }
-    else
-    {
-        util::readTextFile("Resources/shaders/diffuseWithTexture.rsh", tmp);
-        source += tmp;
-    }
-}
+    final_source += shader_source;
 
-/// Generate specular code.
-void ShaderGenerator::generateSpecularCode(std::string &source) const
-{
-    std::string tmp;
-    util::readTextFile("Resources/shaders/specular.rsh", tmp);
-    source += tmp;
-}
+    // create the shader from the assembled shader source string.
+    gfx::Shader *shader = new gfx::Shader;
+    if (!shader->createFromString(final_source, gfx::Shader::RAY, material.name))
+    {
+        delete shader;
+        shader = nullptr;
+        return nullptr;
+    }
 
-/// Generate transmissive code.
-void ShaderGenerator::generateTransmissiveCode(std::string &source) const
-{
-    std::string tmp;
-    util::readTextFile("Resources/shaders/refraction.rsh", tmp);
-    source += tmp;
+    m_shaderCache[shader_flags] = shader;
+    return shader;
 }
-

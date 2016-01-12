@@ -16,37 +16,33 @@
 namespace gfx
 {
 
+#define MATERIAL_TYPES \
+    X(DIFFUSE)         \
+    X(SPECULAR)        \
+    X(TRANSMISSIVE)    \
+    X(DIFFUSE_TEXTURE) \
+    X(NORMALMAP)       \
+    X(LIGHT)           \
+    X(SUBSURFACE)
+
 /// Material properties supported by the renderer.
 struct Material
 {
     // What type of components are contained within this material?
+#define X(type) type,
     enum MaterialComponents
     {
-        DIFFUSE = 0,
-        SPECULAR,
-        TRANSMISSIVE,
-        DIFFUSE_TEXTURE,
-        NORMALMAP,
-        SUBSURFACE,
+        MATERIAL_TYPES
 
         NUM_COMPONENT_FLAGS
     };
+#undef X
     
     /// Default constructor.
-    Material() :
-    	index_of_refraction(0.0f),
-    	roughness(0.0f),
-    	name("<unnamed>"),
-    	component_flags(0)
-    {
-    }
+    Material();
     
     /// Destroy this material.
-    void destroy()
-    {
-        diffuse_texture.destroy();
-        normal_texture.destroy();
-    }
+    void destroy();
     
     math::vec3f diffuse;		// RGB values of the diffuse component for this material.
     math::vec3f specular;		// RGB values of the specular component for this material.
@@ -61,6 +57,9 @@ struct Material
     std::string name;           // Name of this material.
     
     std::bitset<NUM_COMPONENT_FLAGS> component_flags; // Type of components defined in this material.
+
+    // Table of the material names.
+    static const std::string material_names[];
 };
 
 } // namespace gfx

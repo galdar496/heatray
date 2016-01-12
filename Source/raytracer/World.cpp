@@ -136,10 +136,20 @@ bool World::initialize(const std::string &config_file_path, RLint &screen_width,
         getLighting(m_mesh);
         m_mesh.createRenderData();
         
-        ShaderGenerator generator;
-        if (!generator.generateShaders(m_mesh, m_vertex_shader, m_light_buffer, m_gi_buffer, m_lights))
         {
-            return false;
+            // Read the paths to the shader files from the config file.
+            std::string ray_shader_path;
+            std::string light_shader_path;
+
+            const tinyxml2::XMLElement *shader_node = root_config_node->FirstChildElement("Shader");
+            ray_shader_path = shader_node->FindAttribute("Ray")->Value();
+            light_shader_path = shader_node->FindAttribute("Light")->Value();
+
+            ShaderGenerator generator;
+            if (!generator.generateShaders(m_mesh, m_vertex_shader, m_light_buffer, m_gi_buffer, ray_shader_path, light_shader_path, MAX_LIGHTS, m_lights))
+            {
+                return false;
+            }
         }
         
         // Create the uniform block buffer which will store the current light subregion to sample. Every ray shader
@@ -149,7 +159,7 @@ bool World::initialize(const std::string &config_file_path, RLint &screen_width,
         block->count = static_cast<int>(m_lights.size());
         for (int ii = 0; ii < block->count; ++ii)
         {
-            block->primitives[ii] = m_lights[ii].primitive;
+            block->primitive[ii] = m_lights[ii].primitive;
         }
         m_light_buffer.unmapBuffer();
         m_light_buffer.unbind();
@@ -202,8 +212,8 @@ void World::render(Pixels &outputPixels)
             LightUniformBuffer *block = m_light_buffer.mapBuffer<LightUniformBuffer>();
             for (size_t ii = 0; ii < m_lights.size(); ++ii)
             {
-                block->positions[ii] = m_lights[ii].sample_positions[m_passes_performed - 1]; // -1 because m_passes_performed does not start at 0.
-                block->normals[ii]   = m_lights[ii].sample_normals[m_passes_performed - 1];
+                block->position[ii] = m_lights[ii].sample_positions[m_passes_performed - 1]; // -1 because m_passes_performed does not start at 0.
+                block->normal[ii]   = m_lights[ii].sample_normals[m_passes_performed - 1];
             }
             m_light_buffer.unmapBuffer();
             m_light_buffer.unbind();

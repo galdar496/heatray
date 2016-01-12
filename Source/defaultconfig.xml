@@ -1,6 +1,6 @@
 <HeatRayConfig>
     <Framebuffer Width="512" Height="512" />
-    <Mesh Model="Resources/models/lamp.obj" Scale="1" />
+    <Mesh Model="Resources/models/helmet.obj" Scale="1" />
     <Camera>
         <Position X="0" Y="0" Z="50" />
         <Lens FocalLength="25" ApertureRadius="0" />
@@ -8,4 +8,5 @@
         <Speed Movement="5.5" Rotation="0.2" />
     </Camera>
     <RenderSettings RaysPerPixel="1024" DefaultGIOn="0" MaxRayDepth="5" />
+    <Shader Ray="Resources/shaders/simpleRayShader.rsh" Light="Resources/shaders/simpleLight.rsh" />
 </HeatRayConfig>
