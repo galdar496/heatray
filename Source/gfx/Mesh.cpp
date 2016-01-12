@@ -30,7 +30,7 @@ Mesh::~Mesh()
 /// Load a mesh and possibly prepare it for rendering (based on parameters passed to the function).
 /// Each mesh is broken into mesh pieces which are determined based on all of the triangles specified
 /// for a given material in the mesh file.
-bool Mesh::load(const std::string &filename, const bool create_vbo, const float scale, const bool clear_data)
+bool Mesh::load(const std::string &filename, const bool create_render_data, const float scale, const bool clear_data)
 {
     // Extract the base path of 'filename'. This gives us a shared path between the mesh file and it's material file.
 	std::string path = filename;
@@ -218,9 +218,9 @@ bool Mesh::load(const std::string &filename, const bool create_vbo, const float 
     
 	fin.close();
     
-	if (create_vbo)
+	if (create_render_data)
 	{
-		createVBOs();
+		createRenderData();
 	}
     
 	if (clear_data)
@@ -384,6 +384,7 @@ bool Mesh::loadMaterials(const std::string &filename, MeshList &materials, const
             
             texture_path = base_path + texture_path;
             material_iter->second.material.diffuse_texture.loadTextureData(texture_path);
+            material_iter->second.material.component_flags.set(gfx::Material::DIFFUSE_TEXTURE);
         }
         
         else if (material_line == "map_Bump")
@@ -393,6 +394,7 @@ bool Mesh::loadMaterials(const std::string &filename, MeshList &materials, const
             
             texture_path = base_path + texture_path;
             material_iter->second.material.normal_texture.loadTextureData(texture_path);
+            material_iter->second.material.component_flags.set(gfx::Material::NORMALMAP);
         }
         
         // Unused.
@@ -408,21 +410,34 @@ bool Mesh::loadMaterials(const std::string &filename, MeshList &materials, const
     return true;
 }
     
-/// Create VBOs for all of the mesh pieces.
-void Mesh::createVBOs()
+/// Create rendering data for all of the mesh pieces. This includes the RL primitives for each material along with
+/// the VBOs to store the geometry. Needs to be called on the same thread that the OpenRL context was created on.
+void Mesh::createRenderData()
 {
 	// Allocate a VBO for each material found.
     for (MeshList::iterator iter = m_meshes.begin(); iter != m_meshes.end(); ++iter)
 	{
-        size_t num_elements = iter->second.vertices.size();
+        gfx::Mesh::MeshPiece *piece = &(iter->second);
+
+        // Generate the primitive for this mesh piece.
+        rlGenPrimitives(1, &(piece->primitive));
+        rlBindPrimitive(RL_PRIMITIVE, piece->primitive);
+        rlPrimitiveParameterString(RL_PRIMITIVE, RL_PRIMITIVE_NAME, piece->material.name.c_str());
+        rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE);
+
+        // Generate any textures that this mesh needs.
+        piece->material.diffuse_texture.createFromLoadedData(true);
+        piece->material.normal_texture.createFromLoadedData(true);
+
+        size_t num_elements = piece->vertices.size();
         
         // Create and load the VBOs.
-        iter->second.buffers[VERTICES].load(&(iter->second.vertices[0]), num_elements * sizeof(math::vec3f), "positions");
-        iter->second.buffers[NORMALS].load(&(iter->second.normals[0]), num_elements * sizeof(math::vec3f), "normals");
-        iter->second.buffers[TEX_COORDS].load(&(iter->second.tex_coords[0]), num_elements * sizeof(math::vec2f), "tex coords");
-        iter->second.buffers[TANGENTS].load(&(iter->second.tangents[0]), num_elements * sizeof(math::vec3f), "tangents");
+        piece->buffers[VERTICES].load(&(piece->vertices[0]), num_elements * sizeof(math::vec3f), "positions");
+        piece->buffers[NORMALS].load(&(piece->normals[0]), num_elements * sizeof(math::vec3f), "normals");
+        piece->buffers[TEX_COORDS].load(&(piece->tex_coords[0]), num_elements * sizeof(math::vec2f), "tex coords");
+        piece->buffers[TANGENTS].load(&(piece->tangents[0]), num_elements * sizeof(math::vec3f), "tangents");
         
-        iter->second.num_elements = num_elements;
+        piece->num_elements = num_elements;
 	}
 }
     

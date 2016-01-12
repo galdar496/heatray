@@ -132,9 +132,9 @@ bool World::initialize(const std::string &config_file_path, RLint &screen_width,
         // Wait for the mesh to finish loading before we continue.
         mesh_thread.join();
         
-        // Get the lighting information from the mesh and then create the VBOs for rendering.
+        // Get the lighting information from the mesh and then create the mesh rendering info.
         getLighting(m_mesh);
-        m_mesh.createVBOs();
+        m_mesh.createRenderData();
         
         ShaderGenerator generator;
         if (!generator.generateShaders(m_mesh, m_vertex_shader, m_light_buffer, m_gi_buffer, m_lights))

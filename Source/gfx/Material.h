@@ -25,7 +25,11 @@ struct Material
         DIFFUSE = 0,
         SPECULAR,
         TRANSMISSIVE,
+        DIFFUSE_TEXTURE,
+        NORMALMAP,
         SUBSURFACE,
+
+        NUM_COMPONENT_FLAGS
     };
     
     /// Default constructor.
@@ -56,7 +60,7 @@ struct Material
     
     std::string name;           // Name of this material.
     
-    std::bitset<4> component_flags; // Type of components defined in this material.
+    std::bitset<NUM_COMPONENT_FLAGS> component_flags; // Type of components defined in this material.
 };
 
 } // namespace gfx

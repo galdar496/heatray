@@ -33,10 +33,10 @@ class Mesh
 		/// Load a mesh and possibly prepare it for rendering (based on parameters passed to the function).
     	/// Each mesh is broken into mesh pieces which are determined based on all of the triangles specified
     	/// for a given material in the mesh file.
-        bool load(const std::string &filename,    // IN: Path to the mesh obj file to load.
-                  const bool create_vbo = true,   // IN: If true, VBOs are created for each piece of the mesh.
-                  const float scale = 1.0f,		  // IN: Scaling to apply to the mesh.
-                  const bool clear_data = true    // IN: If true, delete any loaded data after uploading it to a VBO.
+        bool load(const std::string &filename,            // IN: Path to the mesh obj file to load.
+                  const bool create_render_data = true,   // IN: If true, render data for each mesh piece is automatically created.
+                  const float scale = 1.0f,		          // IN: Scaling to apply to the mesh.
+                  const bool clear_data = true            // IN: If true, delete any loaded data after uploading it to a VBO.
                  );
     
         /// Destroy this mesh.
@@ -45,8 +45,9 @@ class Mesh
         /// Clear all loaded data not already in a VBO.
         void clearLoadedData();
     
-        /// Create VBOs for all of the mesh pieces.
-        void createVBOs();
+        /// Create rendering data for all of the mesh pieces. This includes the RL primitives for each material along with
+        /// the VBOs to store the geometry. Needs to be called on the same thread that the OpenRL context was created on.
+        void createRenderData();
     
     	/// Struct to populate for preparing the mesh for rendering. Set each member of the struct
     	/// to the proper vertex program attribute location for data uploading to a vertex shader.

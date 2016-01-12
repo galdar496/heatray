@@ -58,17 +58,10 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh, gfx::Shader &vertex_shade
     for (gfx::Mesh::MeshList::iterator iter = meshes.begin(); iter != meshes.end(); ++iter)
     {
         gfx::Mesh::MeshPiece *piece = &(iter->second);
+        rlBindPrimitive(RL_PRIMITIVE, piece->primitive);
         
         if (piece->material.name.find("Light") == std::string::npos)
         {
-            rlGenPrimitives(1, &(piece->primitive));
-            rlBindPrimitive(RL_PRIMITIVE, piece->primitive);
-            rlPrimitiveParameterString(RL_PRIMITIVE, RL_PRIMITIVE_NAME, piece->material.name.c_str());
-            
-            // Generate any textures that this mesh needs.
-            piece->material.diffuse_texture.createFromLoadedData(true);
-            piece->material.normal_texture.createFromLoadedData(true);
-            
             // Create the ray shader based on the materials from this mesh piece.
             gfx::Shader ray_shader;
             if (!generateRayShader(piece->material, ray_shader))
@@ -88,9 +81,6 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh, gfx::Shader &vertex_shade
         else
         {
             // Setup the lighting primitive and program to use along with it.
-            rlGenPrimitives(1, &(piece->primitive));
-            rlBindPrimitive(RL_PRIMITIVE, piece->primitive);
-            rlPrimitiveParameterString(RL_PRIMITIVE, RL_PRIMITIVE_NAME, piece->material.name.c_str());
             rlPrimitiveParameter1i(RL_PRIMITIVE, RL_PRIMITIVE_IS_OCCLUDER, RL_FALSE);
 
             // Generate any textures that this mesh needs.
