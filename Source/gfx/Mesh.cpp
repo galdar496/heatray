@@ -13,6 +13,10 @@
 #include <iostream>
 #include <vector>
 
+#if defined(_WIN32) || defined(_WIN64)
+    #define sscanf sscanf_s
+#endif
+
 namespace gfx
 {
 
@@ -161,17 +165,17 @@ bool Mesh::load(const std::string &filename, const bool create_render_data, cons
 					size_t cut = line.find("/");
 					line[cut] = ' ';
 					line[cut + 1] = ' ';
-					sscanf_s(line.c_str(), "%d %d", &vertex_indices[i], &normal_indices[i]);
+					sscanf(line.c_str(), "%d %d", &vertex_indices[i], &normal_indices[i]);
 				}
 				else if (!use_normals && use_tex_coords)
 				{
 					size_t cut = line.find("/");
 					line[cut] = ' ';
-					sscanf_s(line.c_str(), "%d %d", &vertex_indices[i], &tex_coord_indices[i]);
+					sscanf(line.c_str(), "%d %d", &vertex_indices[i], &tex_coord_indices[i]);
 				}
 				else if (!use_normals && !use_tex_coords)
 				{
-					sscanf_s(line.c_str(), "%d", &vertex_indices[i]);
+					sscanf(line.c_str(), "%d", &vertex_indices[i]);
 				}
 				else if (use_normals && use_tex_coords)
 				{
@@ -179,7 +183,7 @@ bool Mesh::load(const std::string &filename, const bool create_render_data, cons
 					line[cut] = ' ';
 					cut = line.find("/");
 					line[cut] = ' ';
-					sscanf_s(line.c_str(), "%d %d %d", &vertex_indices[i], &tex_coord_indices[i], &normal_indices[i]);
+					sscanf(line.c_str(), "%d %d %d", &vertex_indices[i], &tex_coord_indices[i], &normal_indices[i]);
 				}
 			}
             

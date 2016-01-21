@@ -211,7 +211,7 @@ bool Texture::randomizeRadial(const RLint width, const RLint height, const RLenu
             // Regenerate the random value, we've ran out. There's a very low probability
             // of this code every actually executing.
             util::generateRandomNumbers(0.0f, 1.0f, size, random_values);
-            size_t random_index = 0;
+            random_index = 0;
         }
 
         float x, y;

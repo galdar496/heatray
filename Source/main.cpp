@@ -6,12 +6,14 @@
 //
 //
 
+#include <GL/glew.h>
+
 #if defined(_WIN32) || defined(_WIN64)
-    #include <GL/glew.h>
     #include <GLUT/glut.h>
     #include <gl/GL.h>
 #else
     #include <GLUT/GLUT.h>
+    #include <OpenGL/GL.h>
 #endif
 #include "raytracer/World.h"
 #include "raytracer/Pixels.h"
@@ -37,7 +39,7 @@ void resizeGLData(int width, int height)
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
     glBindTexture(GL_TEXTURE_2D, displayTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGB, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F_ARB, width, height, 0, GL_RGB, GL_FLOAT, nullptr);
     glBindTexture(GL_TEXTURE_2D, 0);
 
     glViewport(0, 0, width, height);
@@ -176,6 +178,11 @@ int main(int argc, char **argv)
     glBindTexture(GL_TEXTURE_2D, 0);
 
     resizeGLData(screen_width, screen_height);
+    
+    // Make sure that OpenGL doesn't automatically clamp our display texture. This is because the raytraced image
+    // that will be stored in it is actually an accumulation of every ray that has gone through a given pixel.
+    // Therefore each pixel value will quickly move beyond 1.0.
+    glClampColorARB(GL_CLAMP_FRAGMENT_COLOR, GL_FALSE);
 
     timer.start();
     glutMainLoop();
