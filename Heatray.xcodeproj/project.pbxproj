@@ -7,73 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3207C25F198B060700665A0F /* DHTM.tif.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C239198B05D200665A0F /* DHTM.tif.jpg */; };
-		3207C260198B060700665A0F /* FaerieDressTr02.tif.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C23A198B05D200665A0F /* FaerieDressTr02.tif.jpg */; };
-		3207C261198B060700665A0F /* FFfernTr.tif.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C23B198B05D200665A0F /* FFfernTr.tif.jpg */; };
-		3207C262198B060700665A0F /* FFMottleStoneB.tif.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C23C198B05D200665A0F /* FFMottleStoneB.tif.jpg */; };
-		3207C263198B060700665A0F /* FFMushroom1B.tif.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C23D198B05D200665A0F /* FFMushroom1B.tif.jpg */; };
-		3207C264198B060700665A0F /* FFMushroom2B.tif.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C23E198B05D200665A0F /* FFMushroom2B.tif.jpg */; };
-		3207C265198B060700665A0F /* FFPlant_StemB.tif.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C23F198B05D200665A0F /* FFPlant_StemB.tif.jpg */; };
-		3207C266198B060700665A0F /* FFSummerwood_FlrB.tif.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C240198B05D200665A0F /* FFSummerwood_FlrB.tif.jpg */; };
-		3207C267198B060700665A0F /* UpDoTr.tif.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C241198B05D200665A0F /* UpDoTr.tif.jpg */; };
-		3207C268198B060700665A0F /* V3Lo_BodyB(NG).tif.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C242198B05D200665A0F /* V3Lo_BodyB(NG).tif.jpg */; };
-		3207C269198B060700665A0F /* V3Lo_EyeB.tif.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C243198B05D200665A0F /* V3Lo_EyeB.tif.jpg */; };
-		3207C26A198B060700665A0F /* V3Lo_HeadB.tif.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C244198B05D200665A0F /* V3Lo_HeadB.tif.jpg */; };
-		3207C26B198B060700665A0F /* V3Lo_TeethGumsB.tif.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C245198B05D200665A0F /* V3Lo_TeethGumsB.tif.jpg */; };
-		3207C26C198B060700665A0F /* V3Lo_Trans.tif.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C246198B05D200665A0F /* V3Lo_Trans.tif.jpg */; };
-		3207C26E198B061C00665A0F /* DDko.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C248198B05D200665A0F /* DDko.jpg */; };
-		3207C26F198B061C00665A0F /* FaerieDressM.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C249198B05D200665A0F /* FaerieDressM.jpg */; };
-		3207C270198B061C00665A0F /* FFfern.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C24A198B05D200665A0F /* FFfern.jpg */; };
-		3207C271198B061C00665A0F /* FFMottleStone.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C24B198B05D200665A0F /* FFMottleStone.jpg */; };
-		3207C272198B061C00665A0F /* FFMushroom1.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C24C198B05D200665A0F /* FFMushroom1.jpg */; };
-		3207C273198B061C00665A0F /* FFMushroom2.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C24D198B05D200665A0F /* FFMushroom2.jpg */; };
-		3207C274198B061C00665A0F /* FFPlant_Stem.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C24E198B05D200665A0F /* FFPlant_Stem.jpg */; };
-		3207C275198B061C00665A0F /* FFSummerwood_C.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C24F198B05D200665A0F /* FFSummerwood_C.jpg */; };
-		3207C276198B061C00665A0F /* FFSummerwood_C2.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C250198B05D200665A0F /* FFSummerwood_C2.jpg */; };
-		3207C277198B061C00665A0F /* FFSummerwood_Flr.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C251198B05D200665A0F /* FFSummerwood_Flr.jpg */; };
-		3207C278198B061C00665A0F /* FFSummerwood_L.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C252198B05D200665A0F /* FFSummerwood_L.jpg */; };
-		3207C279198B061C00665A0F /* FFSummerwood_L2.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C253198B05D200665A0F /* FFSummerwood_L2.jpg */; };
-		3207C27A198B061C00665A0F /* FFSummerwood_R.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C254198B05D200665A0F /* FFSummerwood_R.jpg */; };
-		3207C27B198B061C00665A0F /* FFSummerwood_R2.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C255198B05D200665A0F /* FFSummerwood_R2.jpg */; };
-		3207C27C198B061C00665A0F /* FFTree_OldPine.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C256198B05D200665A0F /* FFTree_OldPine.jpg */; };
-		3207C27D198B061C00665A0F /* FWWings03.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C257198B05D200665A0F /* FWWings03.jpg */; };
-		3207C27E198B061C00665A0F /* UltimateTreeMed.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C258198B05D200665A0F /* UltimateTreeMed.jpg */; };
-		3207C27F198B061C00665A0F /* UpDoMBr.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C259198B05D200665A0F /* UpDoMBr.jpg */; };
-		3207C280198B061C00665A0F /* V3Lo_BodyM(NG).jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C25A198B05D200665A0F /* V3Lo_BodyM(NG).jpg */; };
-		3207C281198B061C00665A0F /* V3Lo_EyeBlueM.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C25B198B05D200665A0F /* V3Lo_EyeBlueM.jpg */; };
-		3207C282198B061C00665A0F /* V3Lo_HeadM.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C25C198B05D200665A0F /* V3Lo_HeadM.jpg */; };
-		3207C283198B061C00665A0F /* V3Lo_TeethGumsM.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207C25D198B05D200665A0F /* V3Lo_TeethGumsM.jpg */; };
 		3209E1BE19366E4B00D19D3B /* ShaderGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3209E1BC19366E4B00D19D3B /* ShaderGenerator.cpp */; };
 		32766C691937E4500017F493 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32766C671937E4500017F493 /* Texture.cpp */; };
-		327AB234192434E900AFAF79 /* perspective.frame in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327AB2331924287D00AFAF79 /* perspective.frame */; };
-		327AB2391926A17200AFAF79 /* passthrough.vert in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327AB23819269EF000AFAF79 /* passthrough.vert */; };
 		32A4E54A191D350500972E11 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32A4E548191D350500972E11 /* main.cpp */; };
 		32A4E54D191D357600972E11 /* World.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32A4E54B191D357600972E11 /* World.cpp */; };
 		32A4E554191D4A6F00972E11 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32A4E552191D4A6F00972E11 /* Shader.cpp */; };
 		32A4E557191D57B000972E11 /* Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32A4E555191D57B000972E11 /* Program.cpp */; };
 		32A4E55C19217B7200972E11 /* Mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32A4E55A19217B7200972E11 /* Mesh.cpp */; };
 		32A4E56019219CA100972E11 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32A4E55E19219CA100972E11 /* Camera.cpp */; };
-		32A8CDFA198AF90C00010208 /* fairy.mtl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32A8CDF8198AF81600010208 /* fairy.mtl */; };
-		32A8CDFB198AF90C00010208 /* fairy.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32A8CDF9198AF81600010208 /* fairy.obj */; };
-		32D04F8C1988167400A17D06 /* cornell2.mtl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D04F8A1988166700A17D06 /* cornell2.mtl */; };
-		32D04F8D1988167400A17D06 /* cornell2.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D04F8B1988166700A17D06 /* cornell2.obj */; };
-		C3210DC61995EAD500ECB53D /* hellknight.tga in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3210DC41995EABB00ECB53D /* hellknight.tga */; };
-		C3210DC71995EAD500ECB53D /* gob2_s.tga in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3210DC51995EABB00ECB53D /* gob2_s.tga */; };
-		C3210DC91995F20B00ECB53D /* hellknight_local.tga in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3210DC81995F20100ECB53D /* hellknight_local.tga */; };
-		C3210DCB1996062600ECB53D /* normalmap.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3210DCA1996061C00ECB53D /* normalmap.png */; };
-		C3210DD01996D6D000ECB53D /* trite.tga in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3210DCC1996D6C600ECB53D /* trite.tga */; };
-		C3210DD11996D6D000ECB53D /* trite_local.tga in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3210DCD1996D6C600ECB53D /* trite_local.tga */; };
-		C3210DD21996D6D000ECB53D /* doom.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3210DCE1996D6C600ECB53D /* doom.obj */; };
-		C3210DD31996D6D000ECB53D /* doom.mtl in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3210DCF1996D6C600ECB53D /* doom.mtl */; };
 		C3462B821C50AE8E00D3C763 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3B2D2341972551200665B05 /* OpenGL.framework */; };
-		C3462B831C50AEAD00D3C763 /* simpleRayShader.rsh in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462B7F1C50ABF300D3C763 /* simpleRayShader.rsh */; };
-		C3462B841C50AEAD00D3C763 /* simpleLight.rsh in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462B801C50ABF300D3C763 /* simpleLight.rsh */; };
-		C3462B8B1C50AEF600D3C763 /* shader_unwrap.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462B851C50AEDE00D3C763 /* shader_unwrap.jpg */; };
-		C3462B8C1C50AEF600D3C763 /* OLDWOOD.JPG in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462B861C50AEDE00D3C763 /* OLDWOOD.JPG */; };
-		C3462B8D1C50AEF600D3C763 /* lamp.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462B871C50AEDE00D3C763 /* lamp.obj */; };
-		C3462B8E1C50AEF600D3C763 /* lamp.mtl in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462B881C50AEDE00D3C763 /* lamp.mtl */; };
-		C3462B8F1C50AEF600D3C763 /* Concrete.Cast-In-Place.Flat.Grey.1.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462B891C50AEDE00D3C763 /* Concrete.Cast-In-Place.Flat.Grey.1.jpg */; };
-		C3462B901C50AEF600D3C763 /* chinese.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462B8A1C50AEDE00D3C763 /* chinese.jpg */; };
 		C3462B941C50B37A00D3C763 /* Material.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3462B931C50B37A00D3C763 /* Material.cpp */; };
 		C3462B961C50B8C900D3C763 /* libGLEW.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C3462B951C50B8C900D3C763 /* libGLEW.a */; };
 		C3462B991C50BA1700D3C763 /* OpenRL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3462B971C50BA1700D3C763 /* OpenRL.framework */; settings = {ATTRIBUTES = (Required, ); }; };
@@ -83,99 +25,26 @@
 		C3462BA11C50C21700D3C763 /* libGLEW.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462BA01C50C21700D3C763 /* libGLEW.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		C3462BA41C50C29200D3C763 /* libGLEW.1.13.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462BA21C50C29200D3C763 /* libGLEW.1.13.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		C3462BA51C50C29200D3C763 /* libGLEW.1.13.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462BA31C50C29200D3C763 /* libGLEW.1.13.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		C3462BA71C51E93600D3C763 /* Resources in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462BA61C51E93600D3C763 /* Resources */; };
+		C3462BA81C51E99300D3C763 /* defaultconfig.xml in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3AA72F419908C8400AE91CB /* defaultconfig.xml */; };
 		C3673145191F31C60092EDC9 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3673143191F31C60092EDC9 /* Buffer.cpp */; };
 		C36A5E8B19A8F525007B01FC /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3B2D2321972550C00665B05 /* GLUT.framework */; };
-		C36A5E9019A973DD007B01FC /* subsurface.psh in CopyFiles */ = {isa = PBXBuildFile; fileRef = C36A5E8F19A96FD5007B01FC /* subsurface.psh */; };
-		C375510F19AA599500AD87DC /* Wood_Reflect.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = C375510D19AA598A00AD87DC /* Wood_Reflect.jpg */; };
-		C375511019AA599500AD87DC /* Wood_Diffuse.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = C375510E19AA598A00AD87DC /* Wood_Diffuse.jpg */; };
-		C39ADB5E193264E3008583B3 /* cornell.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = C39ADB5C193264DD008583B3 /* cornell.obj */; };
-		C39ADB5F193264E3008583B3 /* cornell.mtl in CopyFiles */ = {isa = PBXBuildFile; fileRef = C39ADB5D193264DD008583B3 /* cornell.mtl */; };
-		C3A7757B19A9876C00A642DC /* chess.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3A7757919A9876000A642DC /* chess.obj */; };
-		C3A7757C19A9876C00A642DC /* chess.mtl in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3A7757A19A9876000A642DC /* chess.mtl */; };
-		C3AA72F619908CF400AE91CB /* defaultconfig.xml in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3AA72F419908C8400AE91CB /* defaultconfig.xml */; };
 		C3AA72F919908D5A00AE91CB /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3AA72F719908D5A00AE91CB /* tinyxml2.cpp */; };
-		C3AB4F8619381729003CFC36 /* checker.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3AB4F8519381716003CFC36 /* checker.jpg */; };
-		C3AB4F8819381788003CFC36 /* wood.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3AB4F871938177F003CFC36 /* wood.jpg */; };
-		C3AB4F8B193AC404003CFC36 /* dragon.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3AB4F89193AC3FA003CFC36 /* dragon.obj */; };
-		C3AB4F8C193AC404003CFC36 /* dragon.mtl in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3AB4F8A193AC3FA003CFC36 /* dragon.mtl */; };
 		C3B2D22C197254E800665B05 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3B2D22B197254E800665B05 /* main.cpp */; };
 		C3B2D239197259D800665B05 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32766C671937E4500017F493 /* Texture.cpp */; };
 		C3B2D23A19725A2600665B05 /* Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32A4E555191D57B000972E11 /* Program.cpp */; };
 		C3B2D23B19725A3B00665B05 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32A4E552191D4A6F00972E11 /* Shader.cpp */; };
-		C3D5923B19515472000B2CC0 /* helmet.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3D5923919515469000B2CC0 /* helmet.obj */; };
-		C3D5923C19515472000B2CC0 /* helmet.mtl in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3D5923A19515469000B2CC0 /* helmet.mtl */; };
-		C3F21CE4194D44D100BBCD40 /* buddha.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3F21CE2194D44A900BBCD40 /* buddha.obj */; };
-		C3F21CE5194D44D100BBCD40 /* buddha.mtl in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3F21CE3194D44A900BBCD40 /* buddha.mtl */; };
-		C3FDB1451984B702003C2F25 /* box.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3FDB1431984B6EC003C2F25 /* box.obj */; };
-		C3FDB1461984B702003C2F25 /* box.mtl in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3FDB1441984B6EC003C2F25 /* box.mtl */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		3207C25E198B05F800665A0F /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = Resources/models/ConvertedMaps;
-			dstSubfolderSpec = 7;
-			files = (
-				3207C25F198B060700665A0F /* DHTM.tif.jpg in CopyFiles */,
-				3207C260198B060700665A0F /* FaerieDressTr02.tif.jpg in CopyFiles */,
-				3207C261198B060700665A0F /* FFfernTr.tif.jpg in CopyFiles */,
-				3207C262198B060700665A0F /* FFMottleStoneB.tif.jpg in CopyFiles */,
-				3207C263198B060700665A0F /* FFMushroom1B.tif.jpg in CopyFiles */,
-				3207C264198B060700665A0F /* FFMushroom2B.tif.jpg in CopyFiles */,
-				3207C265198B060700665A0F /* FFPlant_StemB.tif.jpg in CopyFiles */,
-				3207C266198B060700665A0F /* FFSummerwood_FlrB.tif.jpg in CopyFiles */,
-				3207C267198B060700665A0F /* UpDoTr.tif.jpg in CopyFiles */,
-				3207C268198B060700665A0F /* V3Lo_BodyB(NG).tif.jpg in CopyFiles */,
-				3207C269198B060700665A0F /* V3Lo_EyeB.tif.jpg in CopyFiles */,
-				3207C26A198B060700665A0F /* V3Lo_HeadB.tif.jpg in CopyFiles */,
-				3207C26B198B060700665A0F /* V3Lo_TeethGumsB.tif.jpg in CopyFiles */,
-				3207C26C198B060700665A0F /* V3Lo_Trans.tif.jpg in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		3207C26D198B060B00665A0F /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = Resources/models/Maps;
-			dstSubfolderSpec = 7;
-			files = (
-				3207C26E198B061C00665A0F /* DDko.jpg in CopyFiles */,
-				3207C26F198B061C00665A0F /* FaerieDressM.jpg in CopyFiles */,
-				3207C270198B061C00665A0F /* FFfern.jpg in CopyFiles */,
-				3207C271198B061C00665A0F /* FFMottleStone.jpg in CopyFiles */,
-				3207C272198B061C00665A0F /* FFMushroom1.jpg in CopyFiles */,
-				3207C273198B061C00665A0F /* FFMushroom2.jpg in CopyFiles */,
-				3207C274198B061C00665A0F /* FFPlant_Stem.jpg in CopyFiles */,
-				3207C275198B061C00665A0F /* FFSummerwood_C.jpg in CopyFiles */,
-				3207C276198B061C00665A0F /* FFSummerwood_C2.jpg in CopyFiles */,
-				3207C277198B061C00665A0F /* FFSummerwood_Flr.jpg in CopyFiles */,
-				3207C278198B061C00665A0F /* FFSummerwood_L.jpg in CopyFiles */,
-				3207C279198B061C00665A0F /* FFSummerwood_L2.jpg in CopyFiles */,
-				3207C27A198B061C00665A0F /* FFSummerwood_R.jpg in CopyFiles */,
-				3207C27B198B061C00665A0F /* FFSummerwood_R2.jpg in CopyFiles */,
-				3207C27C198B061C00665A0F /* FFTree_OldPine.jpg in CopyFiles */,
-				3207C27D198B061C00665A0F /* FWWings03.jpg in CopyFiles */,
-				3207C27E198B061C00665A0F /* UltimateTreeMed.jpg in CopyFiles */,
-				3207C27F198B061C00665A0F /* UpDoMBr.jpg in CopyFiles */,
-				3207C280198B061C00665A0F /* V3Lo_BodyM(NG).jpg in CopyFiles */,
-				3207C281198B061C00665A0F /* V3Lo_EyeBlueM.jpg in CopyFiles */,
-				3207C282198B061C00665A0F /* V3Lo_HeadM.jpg in CopyFiles */,
-				3207C283198B061C00665A0F /* V3Lo_TeethGumsM.jpg in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		41D1B5F90DBE8D820025C9C8 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/shaders;
+			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
-				C3462B831C50AEAD00D3C763 /* simpleRayShader.rsh in CopyFiles */,
-				C3462B841C50AEAD00D3C763 /* simpleLight.rsh in CopyFiles */,
-				C36A5E9019A973DD007B01FC /* subsurface.psh in CopyFiles */,
-				327AB2391926A17200AFAF79 /* passthrough.vert in CopyFiles */,
-				327AB234192434E900AFAF79 /* perspective.frame in CopyFiles */,
+				C3462BA81C51E99300D3C763 /* defaultconfig.xml in CopyFiles */,
+				C3462BA71C51E93600D3C763 /* Resources in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -190,59 +59,6 @@
 				C3462BA11C50C21700D3C763 /* libGLEW.dylib in CopyFiles */,
 				C3462B9E1C50BEEC00D3C763 /* OpenRL.framework in CopyFiles */,
 				C3462B9F1C50BEEC00D3C763 /* FreeImage.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		C39ADB59192B1AA3008583B3 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = Resources/models;
-			dstSubfolderSpec = 7;
-			files = (
-				C3462B8B1C50AEF600D3C763 /* shader_unwrap.jpg in CopyFiles */,
-				C3462B8C1C50AEF600D3C763 /* OLDWOOD.JPG in CopyFiles */,
-				C3462B8D1C50AEF600D3C763 /* lamp.obj in CopyFiles */,
-				C3462B8E1C50AEF600D3C763 /* lamp.mtl in CopyFiles */,
-				C3462B8F1C50AEF600D3C763 /* Concrete.Cast-In-Place.Flat.Grey.1.jpg in CopyFiles */,
-				C3462B901C50AEF600D3C763 /* chinese.jpg in CopyFiles */,
-				C375510F19AA599500AD87DC /* Wood_Reflect.jpg in CopyFiles */,
-				C375511019AA599500AD87DC /* Wood_Diffuse.jpg in CopyFiles */,
-				C3A7757B19A9876C00A642DC /* chess.obj in CopyFiles */,
-				C3A7757C19A9876C00A642DC /* chess.mtl in CopyFiles */,
-				C3210DD01996D6D000ECB53D /* trite.tga in CopyFiles */,
-				C3210DD11996D6D000ECB53D /* trite_local.tga in CopyFiles */,
-				C3210DD21996D6D000ECB53D /* doom.obj in CopyFiles */,
-				C3210DD31996D6D000ECB53D /* doom.mtl in CopyFiles */,
-				C3210DCB1996062600ECB53D /* normalmap.png in CopyFiles */,
-				C3210DC91995F20B00ECB53D /* hellknight_local.tga in CopyFiles */,
-				C3210DC61995EAD500ECB53D /* hellknight.tga in CopyFiles */,
-				C3210DC71995EAD500ECB53D /* gob2_s.tga in CopyFiles */,
-				32A8CDFA198AF90C00010208 /* fairy.mtl in CopyFiles */,
-				32A8CDFB198AF90C00010208 /* fairy.obj in CopyFiles */,
-				32D04F8C1988167400A17D06 /* cornell2.mtl in CopyFiles */,
-				32D04F8D1988167400A17D06 /* cornell2.obj in CopyFiles */,
-				C3FDB1451984B702003C2F25 /* box.obj in CopyFiles */,
-				C3FDB1461984B702003C2F25 /* box.mtl in CopyFiles */,
-				C3D5923B19515472000B2CC0 /* helmet.obj in CopyFiles */,
-				C3D5923C19515472000B2CC0 /* helmet.mtl in CopyFiles */,
-				C3F21CE4194D44D100BBCD40 /* buddha.obj in CopyFiles */,
-				C3F21CE5194D44D100BBCD40 /* buddha.mtl in CopyFiles */,
-				C3AB4F8B193AC404003CFC36 /* dragon.obj in CopyFiles */,
-				C3AB4F8C193AC404003CFC36 /* dragon.mtl in CopyFiles */,
-				C3AB4F8819381788003CFC36 /* wood.jpg in CopyFiles */,
-				C3AB4F8619381729003CFC36 /* checker.jpg in CopyFiles */,
-				C39ADB5E193264E3008583B3 /* cornell.obj in CopyFiles */,
-				C39ADB5F193264E3008583B3 /* cornell.mtl in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		C3AA72F519908CD700AE91CB /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 7;
-			files = (
-				C3AA72F619908CF400AE91CB /* defaultconfig.xml in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -346,6 +162,7 @@
 		C3462BA01C50C21700D3C763 /* libGLEW.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.dylib; path = 3rdParty/libs/libGLEW.dylib; sourceTree = "<group>"; };
 		C3462BA21C50C29200D3C763 /* libGLEW.1.13.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.13.dylib; path = 3rdParty/libs/libGLEW.1.13.dylib; sourceTree = "<group>"; };
 		C3462BA31C50C29200D3C763 /* libGLEW.1.13.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.13.0.dylib; path = 3rdParty/libs/libGLEW.1.13.0.dylib; sourceTree = "<group>"; };
+		C3462BA61C51E93600D3C763 /* Resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources; sourceTree = "<group>"; };
 		C367313F191F2F7A0092EDC9 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		C3673140191F2F7A0092EDC9 /* Matrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix.h; sourceTree = "<group>"; };
 		C3673141191F2F7A0092EDC9 /* Quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quaternion.h; sourceTree = "<group>"; };
@@ -404,6 +221,7 @@
 		08FB7794FE84155DC02AAC07 /* Heatray */ = {
 			isa = PBXGroup;
 			children = (
+				C3462BA61C51E93600D3C763 /* Resources */,
 				C3462BA21C50C29200D3C763 /* libGLEW.1.13.dylib */,
 				C3462BA31C50C29200D3C763 /* libGLEW.1.13.0.dylib */,
 				C3462BA01C50C21700D3C763 /* libGLEW.dylib */,
@@ -641,10 +459,6 @@
 				8DD76F640486A84900D96B5E /* Sources */,
 				8DD76F660486A84900D96B5E /* Frameworks */,
 				41D1B5F90DBE8D820025C9C8 /* CopyFiles */,
-				C39ADB59192B1AA3008583B3 /* CopyFiles */,
-				3207C25E198B05F800665A0F /* CopyFiles */,
-				3207C26D198B060B00665A0F /* CopyFiles */,
-				C3AA72F519908CD700AE91CB /* CopyFiles */,
 				C3462B9D1C50BE9600D3C763 /* CopyFiles */,
 			);
 			buildRules = (
