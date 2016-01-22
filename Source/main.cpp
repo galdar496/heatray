@@ -15,16 +15,16 @@
     #include <GLUT/GLUT.h>
     #include <OpenGL/GL.h>
 #endif
-#include "raytracer/World.h"
+#include "raytracer/Raytracer.h"
 #include "raytracer/Pixels.h"
 #include "utility/Timer.h"
 
 #include <iostream>
 #include <sstream>
 
-// World exists as a global variable to be accessed by all
+// Raytracer exists as a global variable to be accessed by all
 // functions in the main file.
-World world; 
+Raytracer raytracer;
 Pixels pixels;          // Pixel object which contains the rendered pixels from the raytracer.
 GLuint pixelBuffer;     // PBO to use to put the pixels on the GPU.
 GLuint displayTexture;  // Texture which contains the final result for display.
@@ -47,7 +47,7 @@ void resizeGLData(int width, int height)
 
 void resizeWindow(int width, int height)
 {
-    world.resize(width, height);
+    raytracer.resize(width, height);
     pixels.resize(width, height);
 
     resizeGLData(width, height);
@@ -56,12 +56,12 @@ void resizeWindow(int width, int height)
 void render()
 {
     std::stringstream windowTitle;
-    int render_passed_performed = world.getNumPassesPerformed();
+    int render_passed_performed = raytracer.getNumPassesPerformed();
     windowTitle << "Heatray - Pass " << render_passed_performed;
     glutSetWindowTitle(windowTitle.str().c_str());
 
-    // Perform the actual rendering of the world into a pixel buffer.
-    world.render(pixels);
+    // Perform the actual rendering of the raytracer into a pixel buffer.
+    raytracer.render(pixels);
 
     size_t width, height;
     pixels.getDimensions(width, height);
@@ -96,14 +96,14 @@ void render()
 
 void update()
 {
-    world.update(timer.dt());
+    raytracer.update(timer.dt());
     glutPostRedisplay();
 }
 
 void shutdown()
 {
     pixels.destroy();
-    world.destroy();
+    raytracer.destroy();
 
     glDeleteBuffers(1, &pixelBuffer);
     glDeleteTextures(1, &displayTexture);
@@ -117,17 +117,17 @@ void keyPressed(unsigned char key, int mouseX, int mouseY)
         exit(0);
     }
     
-    world.getKeys().set(key);
+    raytracer.getKeys().set(key);
 }
 
 void keyReleased(unsigned char key, int mouseX, int mouseY)
 {
     // Certain keys (keys that aren't held down) may not be properly processed if they're reset too soon (such as enabling GI).
-    // Ask the world which keys those might be to make sure we don't prematurely reset it. In those cases, the world will handle
+    // Ask the raytracer which keys those might be to make sure we don't prematurely reset it. In those cases, the raytracer will handle
     // resetting any special keys.
-    if (!world.isSpecialKey(key))
+    if (!raytracer.isSpecialKey(key))
     {
-        world.getKeys().reset(key);
+        raytracer.getKeys().reset(key);
     }
 }
 
@@ -141,7 +141,7 @@ int main(int argc, char **argv)
     }
     
     RLint screen_width, screen_height;
-    if (!world.initialize(config_file, screen_width, screen_height))
+    if (!raytracer.initialize(config_file, screen_width, screen_height))
     {
         std::cout << "Unable to properly initialize Heatray, exiting..." << std::endl;
         exit(1);

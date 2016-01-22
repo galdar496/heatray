@@ -1,5 +1,5 @@
 //
-//  World.h
+//  Raytracer.h
 //  Heatray
 //
 //  Created by Cody White on 5/9/14.
@@ -25,17 +25,17 @@
 /// Class to control raytracing via OpenRL. All rendering setup
 /// and execution is performed via the public interface to
 /// this class.
-class World
+class Raytracer
 {
     public:
     
     	/// Default constructor.
-    	World();
+    	Raytracer();
     
     	/// Destructor.
-    	~World();
+    	~Raytracer();
     
-    	/// Initialize the world for use. Returns true if
+    	/// Initialize the raytracer for use. Returns true if
     	/// initialization was successful.
     	bool initialize(const std::string &config_file_path, //  IN: Path to the xml configuration file to configure the render.
                         RLint             &screen_width,     // OUT: Initial width to set the screen to.
@@ -72,8 +72,8 @@ class World
     private:
     
     	// This class is not copyable.
-    	World(const World &other) = delete;
-    	World & operator=(const World &other) = delete;
+    	Raytracer(const Raytracer &other) = delete;
+    	Raytracer & operator=(const Raytracer &other) = delete;
     
         /// Check the current state of the keyboard.
         void checkKeys(const float dt // IN: Change in time since the last frame (in seconds).

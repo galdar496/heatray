@@ -1,12 +1,12 @@
 //
-//  World.cpp
+//  Raytracer.cpp
 //  Heatray
 //
 //  Created by Cody White on 5/9/14.
 //
 //
 
-#include "World.h"
+#include "Raytracer.h"
 #include "ShaderGenerator.h"
 #include "../utility/util.h"
 #include "../utility/rng.h"
@@ -50,7 +50,7 @@ namespace Keys
 } // namespace Keys
 
 /// Default constructor.
-World::World() :
+Raytracer::Raytracer() :
 	m_camera_movement_speed(5.5f),
 	m_camera_rotation_speed(0.2f),
 	m_fbo(RL_NULL_FRAMEBUFFER),
@@ -63,13 +63,13 @@ World::World() :
 }
 
 /// Destructor.
-World::~World()
+Raytracer::~Raytracer()
 {
 }
 
-/// Initialize the world for use. Returns true if
+/// Initialize the raytracer for use. Returns true if
 /// initialization was successful.
-bool World::initialize(const std::string &config_file_path, RLint &screen_width, RLint &screen_height)
+bool Raytracer::initialize(const std::string &config_file_path, RLint &screen_width, RLint &screen_height)
 {
     // Set all sampling textures to use linear filtering.
     gfx::Texture::Params texture_params;
@@ -87,7 +87,7 @@ bool World::initialize(const std::string &config_file_path, RLint &screen_width,
     
 	// Spawn a thread to load the mesh. This just puts the mesh data into memory, still have to create
     // VBOs out of the data later.
-    std::thread mesh_thread(&World::loadModel, this, root_config_node->FirstChildElement("Mesh"));
+    std::thread mesh_thread(&Raytracer::loadModel, this, root_config_node->FirstChildElement("Mesh"));
     
     // Construct the OpenRL context.
 //    OpenRLContextAttribute attributes[] = {kOpenRL_EnableRayPrefixShaders, 1, NULL};
@@ -172,7 +172,7 @@ bool World::initialize(const std::string &config_file_path, RLint &screen_width,
 
 /// Deallocate any internal data and
 /// prepare for shutdown.
-void World::destroy()
+void Raytracer::destroy()
 {
     if (m_fbo != RL_NULL_FRAMEBUFFER)
     {
@@ -194,13 +194,13 @@ void World::destroy()
 }
 
 /// Update this class.
-void World::update(const float dt)
+void Raytracer::update(const float dt)
 {
     checkKeys(dt);
 }
 
 /// Render a frame.
-void World::render(Pixels &outputPixels)
+void Raytracer::render(Pixels &outputPixels)
 {
     // Only render if we actually need to, otherwise the finished render will just be displayed by GLUT.
     if (m_passes_performed <= m_total_pass_count)
@@ -286,7 +286,7 @@ void World::render(Pixels &outputPixels)
 }
 
 /// Resize the render viewport.
-void World::resize(RLint width, RLint height)
+void Raytracer::resize(RLint width, RLint height)
 {
     if (height == 0)
     {
@@ -310,14 +310,14 @@ void World::resize(RLint width, RLint height)
 }
 
 /// Get a reference to the keyboard keys.
-std::bitset<256> &World::getKeys()
+std::bitset<256> &Raytracer::getKeys()
 {
     return m_keyboard;
 }
 
 /// If true, this key will be reset by the raytracer itself and should not be reset
 /// by the windowing system.
-bool World::isSpecialKey(const char key) const
+bool Raytracer::isSpecialKey(const char key) const
 {
     return ((key == Keys::kEnableGI)   ||
             (key == Keys::kScreenshot) ||
@@ -326,13 +326,13 @@ bool World::isSpecialKey(const char key) const
 }
 
 /// Get the number of passes performed so far.
-int World::getNumPassesPerformed() const
+int Raytracer::getNumPassesPerformed() const
 {
     return m_passes_performed;
 }
 
 /// Check the current state of the keyboard.
-void World::checkKeys(const float dt)
+void Raytracer::checkKeys(const float dt)
 {
     static util::Timer currentTime(true);
 
@@ -474,7 +474,7 @@ void World::checkKeys(const float dt)
 
 /// Reset the rendering state. This is done if the camera moved or the window got resized
 /// and rendering needs to start over from the beginning.
-void World::resetRenderingState()
+void Raytracer::resetRenderingState()
 {
     if (m_fbo != RL_NULL_FRAMEBUFFER)
     {
@@ -487,7 +487,7 @@ void World::resetRenderingState()
 
 /// Load the model specified in the config file and all materials associated with it. After this is finished,
 /// a mesh will be ready for rendering.
-void World::loadModel(const tinyxml2::XMLElement *mesh_node)
+void Raytracer::loadModel(const tinyxml2::XMLElement *mesh_node)
 {
     std::string model_path = mesh_node->Attribute("Model");
     float model_scaling = 1.0f;
@@ -501,7 +501,7 @@ void World::loadModel(const tinyxml2::XMLElement *mesh_node)
 }
 
 /// Setup the camera based on the defaults specified in the config file.
-void World::setupCamera(const tinyxml2::XMLNode *camera_node)
+void Raytracer::setupCamera(const tinyxml2::XMLNode *camera_node)
 {
     const tinyxml2::XMLElement *element = NULL;
     math::vec3f tmp_vector;
@@ -555,7 +555,7 @@ void World::setupCamera(const tinyxml2::XMLNode *camera_node)
 }
 
 /// Setup the default framebuffer to perform all rendering into.
-void World::setupFramebuffer(const tinyxml2::XMLElement *framebuffer_node, RLint &framebuffer_width, RLint &framebuffer_height)
+void Raytracer::setupFramebuffer(const tinyxml2::XMLElement *framebuffer_node, RLint &framebuffer_width, RLint &framebuffer_height)
 {
     // Heatray renders every pass to the same framebuffer without ever clearing it. Therefore, the framebuffer created below will
     // contain the pixel information for every pass. This FBO must be processed by a shader program which divides each pixel by
@@ -577,11 +577,11 @@ void World::setupFramebuffer(const tinyxml2::XMLElement *framebuffer_node, RLint
     m_fbo_texture.create(framebuffer_width, framebuffer_height, RL_FLOAT, NULL, "Default FBO Texture");
     rlFramebufferTexture2D(RL_FRAMEBUFFER, RL_COLOR_ATTACHMENT0, RL_TEXTURE_2D, m_fbo_texture.getTexture(), 0);
     
-    util::checkRLErrors("World::setupFramebuffer()", true);
+    util::checkRLErrors("Raytracer::setupFramebuffer()", true);
 }
 
 /// Setup general rendering settings independent of any object contained within this class.
-void World::setupRenderSettings(const tinyxml2::XMLElement *render_settings_node)
+void Raytracer::setupRenderSettings(const tinyxml2::XMLElement *render_settings_node)
 {
     // Create the random values uniform block data. These values will be used in all diffuse shaders to bounce rays
     // and achieve indirect illumination.
@@ -601,7 +601,7 @@ void World::setupRenderSettings(const tinyxml2::XMLElement *render_settings_node
 }
 
 /// Get the light information from the mesh and populate the m_light member variable.
-void World::getLighting(gfx::Mesh &mesh)
+void Raytracer::getLighting(gfx::Mesh &mesh)
 {
     // Go over each mesh piece and look for anything that is a light. For all lights that are found, populate a
     // 'Light' struct with information about that light to use for later rendering.
@@ -674,7 +674,7 @@ void World::getLighting(gfx::Mesh &mesh)
 
 /// Write a configuration file with the current rendering settings which can be reloaded with a new instance
 /// of Heatray.
-void World::writeConfigFile() const
+void Raytracer::writeConfigFile() const
 {
 	tinyxml2::XMLDocument config;
 	tinyxml2::XMLElement *root_element = config.NewElement("HeatRayConfig");
