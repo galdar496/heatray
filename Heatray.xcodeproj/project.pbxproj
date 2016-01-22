@@ -19,14 +19,13 @@
 		C3462B941C50B37A00D3C763 /* Material.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3462B931C50B37A00D3C763 /* Material.cpp */; };
 		C3462B961C50B8C900D3C763 /* libGLEW.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C3462B951C50B8C900D3C763 /* libGLEW.a */; };
 		C3462B991C50BA1700D3C763 /* OpenRL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3462B971C50BA1700D3C763 /* OpenRL.framework */; settings = {ATTRIBUTES = (Required, ); }; };
-		C3462B9A1C50BA1700D3C763 /* FreeImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3462B981C50BA1700D3C763 /* FreeImage.framework */; };
 		C3462B9E1C50BEEC00D3C763 /* OpenRL.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462B971C50BA1700D3C763 /* OpenRL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		C3462B9F1C50BEEC00D3C763 /* FreeImage.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462B981C50BA1700D3C763 /* FreeImage.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C3462BA11C50C21700D3C763 /* libGLEW.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462BA01C50C21700D3C763 /* libGLEW.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		C3462BA41C50C29200D3C763 /* libGLEW.1.13.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462BA21C50C29200D3C763 /* libGLEW.1.13.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		C3462BA51C50C29200D3C763 /* libGLEW.1.13.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462BA31C50C29200D3C763 /* libGLEW.1.13.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		C3462BA71C51E93600D3C763 /* Resources in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462BA61C51E93600D3C763 /* Resources */; };
 		C3462BA81C51E99300D3C763 /* defaultconfig.xml in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3AA72F419908C8400AE91CB /* defaultconfig.xml */; };
+		C3462BAA1C51EB8F00D3C763 /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C3462BA91C51EB8F00D3C763 /* libfreeimage.a */; };
 		C3673145191F31C60092EDC9 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3673143191F31C60092EDC9 /* Buffer.cpp */; };
 		C36A5E8B19A8F525007B01FC /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3B2D2321972550C00665B05 /* GLUT.framework */; };
 		C3AA72F919908D5A00AE91CB /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3AA72F719908D5A00AE91CB /* tinyxml2.cpp */; };
@@ -58,7 +57,6 @@
 				C3462BA51C50C29200D3C763 /* libGLEW.1.13.0.dylib in CopyFiles */,
 				C3462BA11C50C21700D3C763 /* libGLEW.dylib in CopyFiles */,
 				C3462B9E1C50BEEC00D3C763 /* OpenRL.framework in CopyFiles */,
-				C3462B9F1C50BEEC00D3C763 /* FreeImage.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -158,11 +156,11 @@
 		C3462B931C50B37A00D3C763 /* Material.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Material.cpp; sourceTree = "<group>"; };
 		C3462B951C50B8C900D3C763 /* libGLEW.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libGLEW.a; path = 3rdParty/libs/libGLEW.a; sourceTree = SOURCE_ROOT; };
 		C3462B971C50BA1700D3C763 /* OpenRL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenRL.framework; path = 3rdParty/frameworks/OpenRL.framework; sourceTree = SOURCE_ROOT; };
-		C3462B981C50BA1700D3C763 /* FreeImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FreeImage.framework; path = 3rdParty/frameworks/FreeImage.framework; sourceTree = SOURCE_ROOT; };
 		C3462BA01C50C21700D3C763 /* libGLEW.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.dylib; path = 3rdParty/libs/libGLEW.dylib; sourceTree = "<group>"; };
 		C3462BA21C50C29200D3C763 /* libGLEW.1.13.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.13.dylib; path = 3rdParty/libs/libGLEW.1.13.dylib; sourceTree = "<group>"; };
 		C3462BA31C50C29200D3C763 /* libGLEW.1.13.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.13.0.dylib; path = 3rdParty/libs/libGLEW.1.13.0.dylib; sourceTree = "<group>"; };
 		C3462BA61C51E93600D3C763 /* Resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources; sourceTree = "<group>"; };
+		C3462BA91C51EB8F00D3C763 /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreeimage.a; path = 3rdParty/libs/libfreeimage.a; sourceTree = SOURCE_ROOT; };
 		C367313F191F2F7A0092EDC9 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		C3673140191F2F7A0092EDC9 /* Matrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix.h; sourceTree = "<group>"; };
 		C3673141191F2F7A0092EDC9 /* Quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quaternion.h; sourceTree = "<group>"; };
@@ -200,8 +198,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C3462BAA1C51EB8F00D3C763 /* libfreeimage.a in Frameworks */,
 				C3462B991C50BA1700D3C763 /* OpenRL.framework in Frameworks */,
-				C3462B9A1C50BA1700D3C763 /* FreeImage.framework in Frameworks */,
 				C3462B961C50B8C900D3C763 /* libGLEW.a in Frameworks */,
 				C3462B821C50AE8E00D3C763 /* OpenGL.framework in Frameworks */,
 				C36A5E8B19A8F525007B01FC /* GLUT.framework in Frameworks */,
@@ -318,8 +316,8 @@
 		32A4E541191D304F00972E11 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C3462BA91C51EB8F00D3C763 /* libfreeimage.a */,
 				C3462B971C50BA1700D3C763 /* OpenRL.framework */,
-				C3462B981C50BA1700D3C763 /* FreeImage.framework */,
 				C3462B951C50B8C900D3C763 /* libGLEW.a */,
 				C3B2D2341972551200665B05 /* OpenGL.framework */,
 				C3B2D2321972550C00665B05 /* GLUT.framework */,
