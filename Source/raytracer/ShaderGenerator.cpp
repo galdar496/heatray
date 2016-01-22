@@ -110,7 +110,7 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
             
             if (piece->material.diffuse_texture.isValid())
             {
-                piece->program.setTexture("diffuse_texture", piece->material.diffuse_texture.getTexture());
+                piece->program.setTexture("diffuseTexture", piece->material.diffuse_texture.getTexture());
             }
             if (piece->material.normal_texture.isValid())
             {
@@ -130,7 +130,7 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
                 rlUniformBlockBuffer(gi_block_index, gi_buffer.getBuffer());
                 
                 float bounce_probablility = (piece->material.diffuse[0] + piece->material.diffuse[1] + piece->material.diffuse[2]) / 3.0f;
-                piece->program.set1f("bounce_probablility", bounce_probablility);
+                piece->program.set1f("bounceProbablility", bounce_probablility);
             }
         }
         if (piece->material.component_flags.test(gfx::Material::SPECULAR))
@@ -148,10 +148,10 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
         
         // Attach the proper vbos to the attributes for this shader.
         gfx::Mesh::RenderData render_data;
-        render_data.position_attribute  = rlGetAttribLocation(piece->program.getProgram(), "position_attribute");
-        render_data.normal_attribute    = rlGetAttribLocation(piece->program.getProgram(), "normal_attribute");
-        render_data.tex_coord_attribute = rlGetAttribLocation(piece->program.getProgram(), "tex_coord_attribute");
-        render_data.tangent_attribute   = rlGetAttribLocation(piece->program.getProgram(), "tangent_attribute");
+        render_data.position_attribute  = rlGetAttribLocation(piece->program.getProgram(), "positionAttribute");
+        render_data.normal_attribute    = rlGetAttribLocation(piece->program.getProgram(), "normalAttribute");
+        render_data.tex_coord_attribute = rlGetAttribLocation(piece->program.getProgram(), "texCoordAttribute");
+        render_data.tangent_attribute   = rlGetAttribLocation(piece->program.getProgram(), "tangentAttribute");
         
         piece->buffers[gfx::Mesh::VERTICES].bind();
         rlVertexAttribBuffer(render_data.position_attribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::vec3f), 0);

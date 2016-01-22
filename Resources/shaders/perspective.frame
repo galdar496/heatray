@@ -8,19 +8,18 @@
 // Implement a perspective camera model and generate primary rays.
 
 rayattribute vec3 color;
-rayattribute bool is_diffuse_bounce;
+rayattribute bool isDiffuseBounce;
 
-uniform vec3 camera_position;              // Position of the camera in world space.
+uniform vec3 cameraPosition;               // Position of the camera in world space.
 uniform vec3 forward;                      // Normalized forward vector from the camera.
 uniform vec3 up;                           // Normalized up vector from the camera.
 uniform vec3 right;                        // Normalized right vector from the camera.
-uniform float fov_tan;		               // Tangent of the camera's field of view.
-uniform float aspect_ratio;                // Aspect ration of the camera.
-uniform float focal_length;                // Focal length of the camera.
-uniform sampler2D jitter_texture;          // Random values to use as a jitter to the ray direction.
-uniform sampler2D aperture_sample_texture; // Random values within an aperture width to use to adjust the camera origin for depth of field.
-uniform float pass_divisor;                // Current pass index divided by the total number of passes to perform.
-uniform mat4 random_texture_matrix;        // Random tex-coord transform matrix used for indexing to the random textures.
+uniform float fovTan;		               // Tangent of the camera's field of view.
+uniform float aspectRatio;                 // Aspect ration of the camera.
+uniform float focalLength;                 // Focal length of the camera.
+uniform sampler2D jitterTexture;           // Random values to use as a jitter to the ray direction.
+uniform sampler2D apertureSampleTexture;   // Random values within an aperture width to use to adjust the camera origin for depth of field.
+uniform mat4 randomTextureMatrix;          // Random tex-coord transform matrix used for indexing to the random textures.
 
 void setup()
 {
@@ -30,25 +29,25 @@ void setup()
 void main()
 {
     // Generate a random texture coordinate. Texture coordinates must be able to wrap.
-    vec2 tex_coord = (rl_FrameCoord.xy / rl_FrameSize.xy);
-	tex_coord = (random_texture_matrix * vec4(tex_coord.x, tex_coord.y, 0.0, 1.0)).xy;
+    vec2 texCoord = (rl_FrameCoord.xy / rl_FrameSize.xy);
+	texCoord = (randomTextureMatrix * vec4(texCoord.x, texCoord.y, 0.0, 1.0)).xy;
     
-    vec2 jitter          = texture2D(jitter_texture, tex_coord).xy;
-    vec2 aperture_sample = texture2D(aperture_sample_texture, tex_coord).xy;
+    vec2 jitter          = texture2D(jitterTexture, texCoord).xy;
+    vec2 apertureSample = texture2D(apertureSampleTexture, texCoord).xy;
     
-    vec2 frame_coord = ((rl_FrameCoord.xy + jitter) / rl_FrameSize.xy) - 0.5;
-    vec3 dir = forward + (right * (fov_tan * aspect_ratio * frame_coord.x)) + (up * (fov_tan * frame_coord.y));
+    vec2 frameCoord = ((rl_FrameCoord.xy + jitter) / rl_FrameSize.xy) - 0.5;
+    vec3 dir = forward + (right * (fovTan * aspectRatio * frameCoord.x)) + (up * (fovTan * frameCoord.y));
     
     // Compute the origin and direction to use based on the focal length of the camera.
-    vec3 focal_point = camera_position + (focal_length * dir);  // Intersection point to focus the ray through.
-    vec3 origin = camera_position + vec3(aperture_sample, 0.0); // Randomize the ray origin to be somewhere within the aperture.
-    dir = focal_point - origin;
+    vec3 focalPoint = cameraPosition + (focalLength * dir);   // Intersection point to focus the ray through.
+    vec3 origin = cameraPosition + vec3(apertureSample, 0.0); // Randomize the ray origin to be somewhere within the aperture.
+    dir = focalPoint - origin;
     
     createRay();
     rl_OutRay.origin    = origin;
     rl_OutRay.direction = dir;	// Direction is auto-normalized by OpenRL.
     rl_OutRay.color     = vec3(1.0);
-    rl_OutRay.is_diffuse_bounce = false;
+    rl_OutRay.isDiffuseBounce = false;
     emitRay();
 }
 

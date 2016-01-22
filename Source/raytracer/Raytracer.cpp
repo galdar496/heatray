@@ -250,17 +250,16 @@ void Raytracer::render(Pixels &outputPixels)
         // Setup the camera parameters to the frameshader.
         rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE);
         m_raytracing_frame_program.bind();
-        m_raytracing_frame_program.set3fv("camera_position", m_camera.getPosition().v);
+        m_raytracing_frame_program.set3fv("cameraPosition", m_camera.getPosition().v);
         m_raytracing_frame_program.set3fv("forward", m_camera.getForwardVector().v);
         m_raytracing_frame_program.set3fv("up", m_camera.getUpVector().v);
         m_raytracing_frame_program.set3fv("right", m_camera.getRightVector().v);
-        m_raytracing_frame_program.set1f("fov_tan", tanf((math::DEGREE_TO_RADIAN * m_camera.getFOV()) * 0.5f));
-        m_raytracing_frame_program.set1f("focal_length", m_camera.getFocalLength());
-        m_raytracing_frame_program.set1f("aspect_ratio", m_camera.getAspectRatio());
-        m_raytracing_frame_program.setTexture("jitter_texture", m_jitter_texture.getTexture());
-        m_raytracing_frame_program.setTexture("aperture_sample_texture", m_aperture_sample_texture.getTexture());
-        m_raytracing_frame_program.set1f("pass_divisor", ((float)m_passes_performed) / (float)m_total_pass_count);
-        m_raytracing_frame_program.setMatrix4fv("random_texture_matrix", random_texture_matrix.v);
+        m_raytracing_frame_program.set1f("fovTan", tanf((math::DEGREE_TO_RADIAN * m_camera.getFOV()) * 0.5f));
+        m_raytracing_frame_program.set1f("focalLength", m_camera.getFocalLength());
+        m_raytracing_frame_program.set1f("aspectRatio", m_camera.getAspectRatio());
+        m_raytracing_frame_program.setTexture("jitterTexture", m_jitter_texture.getTexture());
+        m_raytracing_frame_program.setTexture("apertureSampleTexture", m_aperture_sample_texture.getTexture());
+        m_raytracing_frame_program.setMatrix4fv("randomTextureMatrix", random_texture_matrix.v);
         rlRenderFrame();
 
         ++m_passes_performed;

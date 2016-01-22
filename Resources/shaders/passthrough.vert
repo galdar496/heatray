@@ -6,23 +6,23 @@
 //
 //
 
-attribute vec3 position_attribute;
-attribute vec3 normal_attribute;
-attribute vec2 tex_coord_attribute;
-attribute vec3 tangent_attribute;
+attribute vec3 positionAttribute;
+attribute vec3 normalAttribute;
+attribute vec2 texCoordAttribute;
+attribute vec3 tangentAttribute;
 
 varying vec3 normal;
-varying vec2 tex_coords;
+varying vec2 texCoords;
 varying vec3 tangent;
 varying vec3 bitangent;
 
 void main()
 {
-    rl_Position = vec4(position_attribute, 1.0);
+    rl_Position = vec4(positionAttribute, 1.0);
     
     // Varyings.
-    normal      = normal_attribute;
-    tex_coords  = tex_coord_attribute;
-    tangent     = tangent_attribute;
+    normal      = normalAttribute;
+    texCoords   = texCoordAttribute;
+    tangent     = tangentAttribute;
     bitangent   = cross(normal, tangent);
 }

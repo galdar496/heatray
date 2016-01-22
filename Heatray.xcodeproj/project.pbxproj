@@ -142,8 +142,8 @@
 		C3210DCD1996D6C600ECB53D /* trite_local.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = trite_local.tga; sourceTree = "<group>"; };
 		C3210DCE1996D6C600ECB53D /* doom.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = doom.obj; sourceTree = "<group>"; };
 		C3210DCF1996D6C600ECB53D /* doom.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = doom.mtl; sourceTree = "<group>"; };
-		C3462B7F1C50ABF300D3C763 /* simpleRayShader.rsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = simpleRayShader.rsh; sourceTree = "<group>"; };
-		C3462B801C50ABF300D3C763 /* simpleLight.rsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = simpleLight.rsh; sourceTree = "<group>"; };
+		C3462B7F1C50ABF300D3C763 /* simpleRayShader.rsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = simpleRayShader.rsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		C3462B801C50ABF300D3C763 /* simpleLight.rsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = simpleLight.rsh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
 		C3462B811C50AC0B00D3C763 /* Pixels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pixels.h; sourceTree = "<group>"; };
 		C3462B851C50AEDE00D3C763 /* shader_unwrap.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = shader_unwrap.jpg; sourceTree = "<group>"; };
 		C3462B861C50AEDE00D3C763 /* OLDWOOD.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = OLDWOOD.JPG; sourceTree = "<group>"; };
@@ -167,7 +167,7 @@
 		C3673142191F2F7A0092EDC9 /* Vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vector.h; sourceTree = "<group>"; };
 		C3673143191F31C60092EDC9 /* Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Buffer.cpp; sourceTree = "<group>"; };
 		C3673144191F31C60092EDC9 /* Buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Buffer.h; sourceTree = "<group>"; };
-		C36A5E8F19A96FD5007B01FC /* subsurface.psh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = subsurface.psh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.glsl; };
+		C36A5E8F19A96FD5007B01FC /* subsurface.psh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = subsurface.psh; sourceTree = "<group>"; };
 		C375510D19AA598A00AD87DC /* Wood_Reflect.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Wood_Reflect.jpg; sourceTree = "<group>"; };
 		C375510E19AA598A00AD87DC /* Wood_Diffuse.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Wood_Diffuse.jpg; sourceTree = "<group>"; };
 		C39ADB5C193264DD008583B3 /* cornell.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cornell.obj; sourceTree = "<group>"; };
