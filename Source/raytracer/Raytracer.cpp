@@ -227,21 +227,21 @@ void Raytracer::render(Pixels &outputPixels)
             math::Mat4f rotation;
 
             // Rotate about the y axis.
-            math::quatf y_rotate(util::random(-math::PI, math::PI), math::vec3f(0.0f, 1.0f, 0.0f), true);
+            math::quatf y_rotate(util::Random(-math::PI, math::PI), math::vec3f(0.0f, 1.0f, 0.0f), true);
             y_rotate.toMatrix(rotation);
             random_texture_matrix *= rotation;
             
             // Rotate about the x axis.
-            math::quatf x_rotate(util::random(0.0f, math::TWO_PI), math::vec3f(1.0f, 0.0f, 0.0f), true);
+            math::quatf x_rotate(util::Random(0.0f, math::TWO_PI), math::vec3f(1.0f, 0.0f, 0.0f), true);
             x_rotate.toMatrix(rotation);
             random_texture_matrix *= rotation;
             
             // Now randomly scale the matrix.
             const float max_scale = 5.0f;
             math::Mat4f random_scale = math::Mat4f::identity();
-            random_scale(0, 0) = util::random(0.0f, max_scale);
-            random_scale(1, 1) = util::random(0.0f, max_scale);
-            random_scale(2, 2) = util::random(0.0f, max_scale);
+            random_scale(0, 0) = util::Random(0.0f, max_scale);
+            random_scale(1, 1) = util::Random(0.0f, max_scale);
+            random_scale(2, 2) = util::Random(0.0f, max_scale);
 
             random_texture_matrix *= random_scale;
         }
@@ -274,7 +274,7 @@ void Raytracer::render(Pixels &outputPixels)
         rlBindTexture(RL_TEXTURE_2D, m_fbo_texture.getTexture());
         rlBindBuffer(RL_PIXEL_PACK_BUFFER, RL_NULL_BUFFER); // Make sure no pixel-pack buffer is bound, we want to copy into 'pixels'.
         rlGetTexImage(RL_TEXTURE_2D, 0, RL_RGB, RL_FLOAT, &pixels[0]);
-        util::writeImage("out.tiff", m_fbo_texture.width(), m_fbo_texture.height(), Pixels::NUM_PIXEL_CHANNELS, &pixels[0], static_cast<float>(m_passes_performed));
+        util::WriteImage("out.tiff", m_fbo_texture.width(), m_fbo_texture.height(), Pixels::NUM_PIXEL_CHANNELS, &pixels[0], static_cast<float>(m_passes_performed));
         
         m_save_image = false;
     }
@@ -282,7 +282,7 @@ void Raytracer::render(Pixels &outputPixels)
     // Map the rendered texture to a pixelpack buffer so that the calling function can properly display it.
     outputPixels.setData(m_fbo_texture);
     
-    util::checkRLErrors();
+    util::CheckRLErrors();
 }
 
 /// Resize the render viewport.
@@ -400,19 +400,19 @@ void Raytracer::checkKeys(const float dt)
         reset_rendering_state = true;
     }
     
-    if (m_keyboard.test(Keys::kScreenshot) && currentTime.getElapsedTime() > time_delta)
+    if (m_keyboard.test(Keys::kScreenshot) && currentTime.GetElapsedTime() > time_delta)
     {
         m_save_image = true;
-        currentTime.restart();
+        currentTime.Restart();
 
         // Reset this key manually as it won't be reset by the windowing system.
         m_keyboard.reset(Keys::kScreenshot);
     }
-    else if (m_keyboard.test(Keys::kSaveConfig) && currentTime.getElapsedTime() > time_delta)
+    else if (m_keyboard.test(Keys::kSaveConfig) && currentTime.GetElapsedTime() > time_delta)
     {
         // Write out a configuration file with the current rendering settings.
         writeConfigFile();
-        currentTime.restart();
+        currentTime.Restart();
 
         // Reset this key manually as it won't be reset by the windowing system.
         m_keyboard.reset(Keys::kSaveConfig);
@@ -452,7 +452,7 @@ void Raytracer::checkKeys(const float dt)
         reset_rendering_state = true;
     }
     
-    if (m_keyboard.test(Keys::kEnableGI) && currentTime.getElapsedTime() > time_delta) // perform GI.
+    if (m_keyboard.test(Keys::kEnableGI) && currentTime.GetElapsedTime() > time_delta) // perform GI.
     {
         m_gi_buffer.bind();
 		GIUniformBuffer *block = m_gi_buffer.mapBuffer<GIUniformBuffer>();
@@ -460,7 +460,7 @@ void Raytracer::checkKeys(const float dt)
 		m_gi_buffer.unmapBuffer();
         m_gi_buffer.unbind();
         reset_rendering_state = true;
-        currentTime.restart();
+        currentTime.Restart();
 
         // Reset this key manually as it won't be reset by the windowing system.
         m_keyboard.reset(Keys::kEnableGI);
@@ -577,7 +577,7 @@ void Raytracer::setupFramebuffer(const tinyxml2::XMLElement *framebuffer_node, R
     m_fbo_texture.create(framebuffer_width, framebuffer_height, RL_FLOAT, NULL, "Default FBO Texture");
     rlFramebufferTexture2D(RL_FRAMEBUFFER, RL_COLOR_ATTACHMENT0, RL_TEXTURE_2D, m_fbo_texture.getTexture(), 0);
     
-    util::checkRLErrors("Raytracer::setupFramebuffer()", true);
+    util::CheckRLErrors("Raytracer::setupFramebuffer()", true);
 }
 
 /// Setup general rendering settings independent of any object contained within this class.
@@ -627,13 +627,13 @@ void Raytracer::getLighting(gfx::Mesh &mesh)
             light->sample_positions.resize(m_total_pass_count);
             light->sample_normals.resize(m_total_pass_count);
             std::vector<float> randomBarycentrics;
-            util::generateRandomNumbers(0.0f, 1.0f, m_total_pass_count * 3, randomBarycentrics); // * 3 to account of 3 barycentrics per sample point.
+            util::GenerateRandomNumbers(0.0f, 1.0f, m_total_pass_count * 3, randomBarycentrics); // * 3 to account of 3 barycentrics per sample point.
             int barycentricIndex = 0;
 
             for (int ii = 0; ii < m_total_pass_count; ++ii)
             {
                 // Find a random triangle to use for this sample.
-                int triangle_index = util::random(0, num_light_triangles - 1);
+                int triangle_index = util::Random(0, num_light_triangles - 1);
 
                 // Generate 3 random barycentric coordinates.
                 float gamma = randomBarycentrics[barycentricIndex++];

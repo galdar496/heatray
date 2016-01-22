@@ -96,7 +96,7 @@ void render()
 
 void update()
 {
-    raytracer.update(timer.dt());
+    raytracer.update(timer.Dt());
     glutPostRedisplay();
 }
 
@@ -184,7 +184,7 @@ int main(int argc, char **argv)
     // Therefore each pixel value will quickly move beyond 1.0.
     glClampColorARB(GL_CLAMP_FRAGMENT_COLOR, GL_FALSE);
 
-    timer.start();
+    timer.Start();
     glutMainLoop();
     
     return 0;

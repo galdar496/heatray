@@ -15,23 +15,32 @@
 #include <iostream>
 #include <algorithm>
 
+///
+/// Floating utility functions.
+///
+
 namespace util
 {
 
+///
 /// Check the current OpenRL state for errors.
 /// If an error is detected, the system will stop. Returns true if an error occured.
-inline bool checkRLErrors(const std::string tag = "",        // IN: Optional character string to output along with the RL error.
-                          const bool stop_execution = false  // IN: If true, the program will crash if an error is detected and report it to the user.
-                         )
+///
+/// @param tag Optional character string to output along with the RL error.
+/// @param stopExecution If true, the program will crash if an error is detected and report it to the user.
+///
+/// @return If true, an error occured within OpenRL.
+///
+inline bool CheckRLErrors(const std::string tag = "", const bool stopExecution = false)
 {
     RLenum errorID = rlGetError();
     
 	if (errorID != RL_NO_ERROR)
 	{      
-		if (stop_execution)
+		if (stopExecution)
 		{
 			// Throw an unhandled exception to stop the system.
-			// WARNING: only set stop_execution to true if you
+			// WARNING: only set stopExecution to true if you
 			// are checking for a serious system error.
 			throw std::runtime_error(tag.c_str());
 		}
@@ -41,23 +50,26 @@ inline bool checkRLErrors(const std::string tag = "",        // IN: Optional cha
     
 	return false;
 }
-    
+
+///
 /// Write an pixel buffer to an image file. The file type is determined by the extension
 /// on the filename path, e.g. "out.tiff" writes a TIFF file.
-inline void writeImage(const std::string &filename, // IN: Filename to save the image to.
-                       int width,                   // IN: Width of the output image in pixels.
-                       int height,                  // IN: Height of the output image in pixels.
-                       int channels,                // IN: Number of channels in the pixel data (e.g. 3 for RGB).
-                       const float *pixels,         // IN: Pixel data.
-                       float divisor = 1.0f         // IN: Divisor to scale the pixel data by. By default, no scaling is applied.
-                      )
+///
+/// @param filename Filename to save the image to.
+/// @param width Width of the output image in pixels.
+/// @param height Height of the output image in pixels.
+/// @param channels Number of channels in the pixel data (e.g. 3 for RGB).
+/// @param pixels Pixel data to write into the image.
+/// @param divisor Divisor to scale the pixel data by. By default, no scaling is applied.
+///
+inline void WriteImage(const std::string &filename, int width, int height, int channels, const float *pixels, float divisor = 1.0f)
 {
     FreeImage_Initialise();
     
     FIBITMAP *bitmap = FreeImage_Allocate(width, height, 24); // 24 bits per pixel.
     RGBQUAD color;
 
-    float inv_divisor = 1.0f / divisor;
+    float invDivisor = 1.0f / divisor;
     
     // Copy the data into the FreeImage bitmap structure.
     int index = 0;
@@ -66,9 +78,9 @@ inline void writeImage(const std::string &filename, // IN: Filename to save the 
         for (int x = 0; x < width; ++x)
         {
             // Make sure values are clamped within the 0-255 range.
-            color.rgbRed   = static_cast<BYTE>(std::max(std::min((pixels[index + 0] * 255.0f) * inv_divisor, 255.0f), 0.0f));
-            color.rgbGreen = static_cast<BYTE>(std::max(std::min((pixels[index + 1] * 255.0f) * inv_divisor, 255.0f), 0.0f));
-            color.rgbBlue  = static_cast<BYTE>(std::max(std::min((pixels[index + 2] * 255.0f) * inv_divisor, 255.0f), 0.0f));
+            color.rgbRed   = static_cast<BYTE>(std::max(std::min((pixels[index + 0] * 255.0f) * invDivisor, 255.0f), 0.0f));
+            color.rgbGreen = static_cast<BYTE>(std::max(std::min((pixels[index + 1] * 255.0f) * invDivisor, 255.0f), 0.0f));
+            color.rgbBlue  = static_cast<BYTE>(std::max(std::min((pixels[index + 2] * 255.0f) * invDivisor, 255.0f), 0.0f));
             FreeImage_SetPixelColor(bitmap, x, y, &color);
             
             index += channels;
@@ -80,10 +92,15 @@ inline void writeImage(const std::string &filename, // IN: Filename to save the 
     FreeImage_DeInitialise();
 }
     
+///
 /// Read a text file and return its contents in a string.
-inline bool readTextFile(const std::string &filename, //  IN: Filename to read the text data from.
-                         std::string       &content   // OUT: String which will contain the read file contents.
-                        )
+///
+/// @param filename Filename to read the text data from.
+/// @param content String which will contain the read file contents.
+///
+/// @return If true, the file was successfully opened and read.
+///
+inline bool ReadTextFile(const std::string &filename, std::string &content)
 {
     
     std::ifstream fin;
@@ -101,19 +118,6 @@ inline bool readTextFile(const std::string &filename, //  IN: Filename to read t
     
     content.assign(std::istreambuf_iterator<char>(fin), std::istreambuf_iterator<char>());
     
-//    str.assign((std::istreambuf_iterator<char>(t)),
-//               std::istreambuf_iterator<char>());
-//    
-//    std::string tmp;
-//    while (fin.good())
-//    {
-//        tmp = fin.get();
-//        if (fin.good())
-//        {
-//            content += tmp;
-//        }
-//    }
-//    
     fin.close();
     
     return true;

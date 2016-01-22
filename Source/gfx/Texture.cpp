@@ -87,7 +87,7 @@ bool Texture::create(const RLint width, const RLint height, const RLenum data_ty
     m_name = name;
     m_data_type = data_type;
     
-    return !util::checkRLErrors("Texture::create2 - rlTexImage2D", true);
+    return !util::CheckRLErrors("Texture::create2 - rlTexImage2D", true);
     
 }
     
@@ -126,7 +126,7 @@ bool Texture::createFromLoadedData(bool clear_loaded_data)
     
     rlTexImage2D(RL_TEXTURE_2D, 0, m_params.internal_format, m_width, m_height, 0, RL_RGBA, RL_UNSIGNED_BYTE, FreeImage_GetBits(m_data));
     rlGenerateMipmap(RL_TEXTURE_2D);
-    util::checkRLErrors("Texture::create1 - rlTexImage2D", true);
+    util::CheckRLErrors("Texture::create1 - rlTexImage2D", true);
     
     rlBindTexture(RL_TEXTURE_2D, 0);
     m_data_type = RL_UNSIGNED_BYTE;
@@ -167,7 +167,7 @@ bool Texture::randomize(const RLint width, const RLint height, const int compone
 	// Generate the random values.
 	size_t size = width * height * components;
     std::vector<float> data;
-    util::generateRandomNumbers(min, max, size, data);
+    util::GenerateRandomNumbers(min, max, size, data);
 
 	rlGenTextures(1, &m_texture_object);
 	rlBindTexture(RL_TEXTURE_2D, m_texture_object);
@@ -182,7 +182,7 @@ bool Texture::randomize(const RLint width, const RLint height, const int compone
     m_name = name;
     m_data_type = data_type;
     
-	return !util::checkRLErrors("Texture::randomize()");
+	return !util::CheckRLErrors("Texture::randomize()");
 }
    
 /// Generate a texture full of random values in a circular region. Returns success.
@@ -201,7 +201,7 @@ bool Texture::randomizeRadial(const RLint width, const RLint height, const RLenu
     data.resize(size);
 
     std::vector<float> random_values;
-    util::generateRandomNumbers(0.0f, 1.0f, size, random_values);
+    util::GenerateRandomNumbers(0.0f, 1.0f, size, random_values);
     size_t random_index = 0;
 
     for (size_t ii = 0; ii < size; ii += 3)
@@ -210,7 +210,7 @@ bool Texture::randomizeRadial(const RLint width, const RLint height, const RLenu
         {
             // Regenerate the random value, we've ran out. There's a very low probability
             // of this code every actually executing.
-            util::generateRandomNumbers(0.0f, 1.0f, size, random_values);
+            util::GenerateRandomNumbers(0.0f, 1.0f, size, random_values);
             random_index = 0;
         }
 
@@ -242,7 +242,7 @@ bool Texture::randomizeRadial(const RLint width, const RLint height, const RLenu
     m_name = name;
     m_data_type = data_type;
     
-    return !util::checkRLErrors("Texture::randomizeRadial()");
+    return !util::CheckRLErrors("Texture::randomizeRadial()");
 }
     
 /// Destroy this texture.

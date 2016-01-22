@@ -37,7 +37,7 @@ Shader::~Shader()
 bool Shader::load(const std::string &path, const Type type)
 {
     std::string source;
-    if (!util::readTextFile(path, source))
+    if (!util::ReadTextFile(path, source))
     {
         return false;
     }
@@ -83,7 +83,7 @@ RLshader Shader::getShader() const
 bool Shader::compile() const
 {
 	rlCompileShader(m_shader);
-	util::checkRLErrors("Shader::compile() - compiling shader", true);
+	util::CheckRLErrors("Shader::compile() - compiling shader", true);
     
     RLint success = 0;
 	rlGetShaderiv(m_shader, RL_COMPILE_STATUS, &success);
@@ -128,7 +128,7 @@ bool Shader::createShader(const Type type)
     }
     
     m_shader = rlCreateShader(shader_type);
-    return !util::checkRLErrors("Shader::createShader() -- shader created", true);
+    return !util::CheckRLErrors("Shader::createShader() -- shader created", true);
 }
     
 } // namsespace gfx

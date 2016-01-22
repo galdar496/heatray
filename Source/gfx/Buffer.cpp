@@ -55,7 +55,7 @@ bool Buffer::load(const void *data, const size_t size, const char *name)
         rlBindBuffer(m_target, RL_NULL_BUFFER);
         
         m_size = size;
-        returnValue = !util::checkRLErrors("Buffer::load() -- bind and load buffer data");
+        returnValue = !util::CheckRLErrors("Buffer::load() -- bind and load buffer data");
     }
     
     return returnValue;
@@ -102,7 +102,7 @@ void Buffer::setAsVertexAttribute(RLint location, RLint numComponents, RLenum da
     rlVertexAttribBuffer(location, numComponents, dataType, RL_FALSE, stride, offset);
     rlBindBuffer(m_target, RL_NULL_BUFFER);
     
-    util::checkRLErrors("Buffer::setAsVertexAttribute() - setting buffer");
+    util::CheckRLErrors("Buffer::setAsVertexAttribute() - setting buffer");
 }
     
 /// Get the internal buffer.

@@ -14,82 +14,98 @@
 #include <random>
 #include <vector>
 #include <ctime>
-    
+
+///
+/// Random number generation utility functions. All random numbers are generated with a
+/// uniform distibution. To ensure the best possible distribution you should always use
+/// GenerateRandomNumbers().
+///
+
 namespace util
 {
-    /// Generate a group of random floats using a uniform distribution.
-    inline void generateRandomNumbers(const float min_value,            // IN: Minimum value to generate from.
-                                      const float max_value,            // IN: Maximum value to generate from.
-                                      const size_t count,               // IN: Number of random values to generate.
-                                      std::vector<float> &randomNumbers // OUT: Generated random values. Any previous values in this vector will be cleared.
-                                     )
+
+///
+/// Generate a group of random floats using a uniform distribution.
+///
+/// @param minValue Minimum value to generate from.
+/// @param maxValue Maximum value to generate from.
+/// @param count Number of random values to generate.
+/// @param randomNumbers Generated random values. Any previous values in this vector will be cleared.
+///
+inline void GenerateRandomNumbers(const float minValue, const float maxValue, const size_t count, std::vector<float> &randomNumbers)
+{
+    static std::random_device randomDevice;
+    static std::mt19937 generator(randomDevice());
+    
+    // Always seed the generator with the current system time.
+    generator.seed(static_cast<unsigned int>(time(nullptr)));
+
+    std::uniform_real_distribution<float> distribution(minValue, maxValue);
+
+    randomNumbers.resize(count);
+    for (size_t ii = 0; ii < count; ++ii)
     {
-        static std::random_device random_device;
-        static std::mt19937 generator(random_device());
-        generator.seed(static_cast<unsigned int>(time(nullptr)));
-
-        std::uniform_real_distribution<float> distribution(min_value, max_value);
-
-        randomNumbers.resize(count);
-        for (size_t ii = 0; ii < count; ++ii)
-        {
-            randomNumbers[ii] = distribution(generator);
-        }
+        randomNumbers[ii] = distribution(generator);
     }
+}
 
 
-    /// Generate a random integer within a specified range.
-    inline int random(const int nMin, // IN: Minimum value to generate from.
-                      const int nMax  // IN: Maximum value to generate to.
-                     )
+///
+/// Generate a random integer within a specified range.
+///
+/// @param minValue Minimum value to generate from.
+/// @param maxValue Maximum value to generate to.
+///
+/// @return A random int.
+///
+inline int Random(const int minValue, const int maxValue)
+{
+    static std::default_random_engine randomEngine;
+    using Distribution = std::uniform_int_distribution<int>;
+    static Distribution rand;
+    
+    return rand(randomEngine, Distribution::param_type(minValue, maxValue));
+}
+
+///
+/// Generate a random floating-point value within a specified range.
+///
+/// @param minValue Minimum value to generate from.
+/// @param maxValue Maximum value to generate to.
+///
+/// @return A random float.
+///
+inline float Random(const float minValue, const float maxValue)
+{
+    int maxInt = std::numeric_limits<int>::max();
+
+    int r = Random(0, maxInt);
+    float fUnit = static_cast<float>((float)r / maxInt);
+    float fDiff = maxValue - minValue;
+    
+    return minValue + fUnit * fDiff;
+}
+
+///
+/// Generate a random vector.
+/// Each component of the passed-in vectors specify the range for that component.
+///
+/// @param minRange Low-range input vector to generate from.
+/// @param maxRange Hight-range input vector to generate to.
+///
+/// @return A randomized vector value.
+template <class T, unsigned int N>
+inline math::Vector<T,N> Random(const math::Vector<T,N> &minRange, const math::Vector<T,N> &maxRange)
+{
+    math::Vector<T,N> result;
+    
+    for (unsigned int ii = 0; ii < N; ++ii)
     {
-        static std::default_random_engine randomEngine;
-        using Distribution = std::uniform_int_distribution<int>;
-        static Distribution rand;
-        return rand(randomEngine, Distribution::param_type(nMin, nMax));
+        result[ii] = Random(minRange[ii], maxRange[ii]);
     }
     
-    /// Generate a random floating-point value within a specified range.
-    inline float random(const float fMin, // IN: Minimum value to generate from.
-                        const float fMax  // IN: Maximum value to generate to.
-                       )
-    {
-        int max_int = std::numeric_limits<int>::max();
-
-        int r = random(0, max_int);
-        float fUnit = static_cast<float>((float)r / max_int);
-        float fDiff = fMax - fMin;
-        
-        return fMin + fUnit * fDiff;
-    }
-    
-    /// Generate a random 1 or -1 to change the sign of a value.
-    inline int randomSign()
-    {
-        if (random(0, 100) < 50)
-        {
-            return 1;
-        }
-        
-        return -1;
-    }
-    
-    /// Generate a random vector.
-    /// Each component of the passed-in vectors specify the range for that component.
-    template <class T, unsigned int N>
-    inline math::Vector<T,N> random(const math::Vector<T,N> &a, // IN: Low-range input vector to generate from.
-                                    const math::Vector<T,N> &b  // IN: Hight-range input vector to generate to.
-                                   )
-    {
-        math::Vector<T,N> result;
-        
-        for (unsigned int i = 0; i < N; ++i)
-        {
-            result[i] = random(a[i], b[i]);
-        }
-        
-        return result;
-    }
+    return result;
+}
     
 } // namespace util
 

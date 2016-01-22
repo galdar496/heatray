@@ -34,7 +34,7 @@ bool Program::attach(const Shader &shader)
     if (create())
     {
         rlAttachShader(m_program, shader.getShader());
-        returnValue = !util::checkRLErrors("Program::attach() -- attach shader to program", true);
+        returnValue = !util::CheckRLErrors("Program::attach() -- attach shader to program", true);
     }
     
     return returnValue;
@@ -44,7 +44,7 @@ bool Program::attach(const Shader &shader)
 bool Program::link(const std::string &name)
 {
 	rlLinkProgram(m_program);
-	//util::checkRLErrors("Program::link() - Link the program", true);
+	//util::CheckRLErrors("Program::link() - Link the program", true);
     
     RLint success = -1;
 	rlGetProgramiv(m_program, RL_LINK_STATUS, &success);

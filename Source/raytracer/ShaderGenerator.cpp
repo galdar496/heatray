@@ -42,13 +42,13 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
 {
     std::string ray_shader_source;
     std::string light_shader_source;
-    if (!util::readTextFile(ray_shader_path, ray_shader_source))
+    if (!util::ReadTextFile(ray_shader_path, ray_shader_source))
     {
         std::cout << "Unable to read ray shader at path: " << ray_shader_path;
         return false;
     }
 
-    if (!util::readTextFile(light_shader_path, light_shader_source))
+    if (!util::ReadTextFile(light_shader_path, light_shader_source))
     {
         std::cout << "Unable to read light shader at path: " << light_shader_path;
         return false;
@@ -173,7 +173,7 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
         rlDrawArrays(RL_TRIANGLES, 0, piece->num_elements);
         
         rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE);
-		if (util::checkRLErrors("Mesh::prepareForRendering() - Finished uploading a MeshPiece", true))
+		if (util::CheckRLErrors("Mesh::prepareForRendering() - Finished uploading a MeshPiece", true))
         {
             return false;
         }
