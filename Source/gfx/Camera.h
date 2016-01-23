@@ -28,18 +28,18 @@ class Camera
         ~Camera();
     
         /// Set the position of the camera.
-        void setPosition(const math::vec3f &position // IN: Position to set the camera to (in world space).
+        void setPosition(const math::Vec3f &position // IN: Position to set the camera to (in world space).
                         );
     
     	/// Explicitly set the orientation of the camera.
-    	void setOrientation(const math::quatf &orientation // IN: Orientation to force the camera to.
+    	void setOrientation(const math::Quatf &orientation // IN: Orientation to force the camera to.
                            );
     
         /// Get the current position of the camera in world space.
-        const math::vec3f getPosition() const;
+        const math::Vec3f getPosition() const;
     
     	/// Get the current orientation of the camera (as a quaternion).
-        math::quatf getOrientation() const;
+        math::Quatf getOrientation() const;
     
         /// Move the camera along it local axis.
         void move(const float x_distance,  // IN: Distance to move the camera in the x direction.
@@ -64,21 +64,21 @@ class Camera
                  );
     
         /// Rotate about an arbitrary world-space axis (Can contain mutliple rotations).
-        void rotateWorld(const math::quatf &q // IN: Quaternion to apply to the current orientation that rotates about the fixed-world axis.
+        void rotateWorld(const math::Quatf &q // IN: Quaternion to apply to the current orientation that rotates about the fixed-world axis.
                         );
     
         /// Rotate about an arbitrary object-space axis (Can contain mutliple rotations).
-        void rotateLocal(const math::quatf &q // IN: Quaternion to apply to the current rotation that rotates about the orientation's local axis.
+        void rotateLocal(const math::Quatf &q // IN: Quaternion to apply to the current rotation that rotates about the orientation's local axis.
                         );
     
         /// Get the normalized forward vector from the current view.
-        const math::vec3f getForwardVector() const;
+        const math::Vec3f getForwardVector() const;
     
         /// Get the normalized up vector from the current view.
-        const math::vec3f getUpVector() const;
+        const math::Vec3f getUpVector() const;
     
         /// Get the normalized right vector from the current view.
-        const math::vec3f getRightVector() const;
+        const math::Vec3f getRightVector() const;
     
         /// Get the current model view matrix.
         math::Mat4f getModelViewMatrix() const;
@@ -120,8 +120,8 @@ class Camera
         void updateMatrixPosition();
         
         // Member variables.
-        math::vec3f	m_position;	 			// Current position of the camera.
-        math::quatf m_orientation;	 		// Current orientation of the camera.
+        math::Vec3f	m_position;	 			// Current position of the camera.
+        math::Quatf m_orientation;	 		// Current orientation of the camera.
         math::Mat4f m_view_matrix;	  		// Stored modelview matrix for the current orientation of the camera.
         
         float m_field_of_view;   // Field of view of the camera (degrees).

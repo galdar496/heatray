@@ -44,9 +44,9 @@ struct Material
     /// Destroy this material.
     void destroy();
     
-    math::vec3f diffuse;		// RGB values of the diffuse component for this material.
-    math::vec3f specular;		// RGB values of the specular component for this material.
-    math::vec3f transmissive;	// RGB values of the transmissive component for this material.
+    math::Vec3f diffuse;		// RGB values of the diffuse component for this material.
+    math::Vec3f specular;		// RGB values of the specular component for this material.
+    math::Vec3f transmissive;	// RGB values of the transmissive component for this material.
     
     float index_of_refraction;	// Index of refraction for this material.
     float roughness;            // Roughness of this material. 0 means perfectly smooth.

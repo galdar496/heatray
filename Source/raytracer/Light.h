@@ -17,7 +17,7 @@ struct Light
 {
     Light() : primitive(RL_NULL_PRIMITIVE) {}
     
-    typedef std::vector<math::vec3f> Points;
+    typedef std::vector<math::Vec3f> Points;
     
     RLprimitive primitive;        // Primitive which represents the light.
     Points   sample_positions;    // Randomized sample points on the light. Each point is used for a single pass.

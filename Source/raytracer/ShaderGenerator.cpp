@@ -135,13 +135,13 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
         }
         if (piece->material.component_flags.test(gfx::Material::SPECULAR))
         {
-            math::vec4f uniform(piece->material.specular);
+            math::Vec4f uniform(piece->material.specular);
             uniform[3] = piece->material.roughness;
             piece->program.set4fv("ks", uniform.v);
         }
         if (piece->material.component_flags.test(gfx::Material::TRANSMISSIVE))
         {
-            math::vec4f uniform(piece->material.transmissive);
+            math::Vec4f uniform(piece->material.transmissive);
             uniform[3] = piece->material.index_of_refraction;
             piece->program.set4fv("kt", uniform.v);
         }
@@ -154,19 +154,19 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
         render_data.tangent_attribute   = rlGetAttribLocation(piece->program.getProgram(), "tangentAttribute");
         
         piece->buffers[gfx::Mesh::VERTICES].bind();
-        rlVertexAttribBuffer(render_data.position_attribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::vec3f), 0);
+        rlVertexAttribBuffer(render_data.position_attribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
         piece->buffers[gfx::Mesh::VERTICES].unbind();
         
         piece->buffers[gfx::Mesh::NORMALS].bind();
-        rlVertexAttribBuffer(render_data.normal_attribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::vec3f), 0);
+        rlVertexAttribBuffer(render_data.normal_attribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
         piece->buffers[gfx::Mesh::NORMALS].unbind();
         
         piece->buffers[gfx::Mesh::TEX_COORDS].bind();
-        rlVertexAttribBuffer(render_data.tex_coord_attribute, 2, RL_FLOAT, RL_FALSE, sizeof(math::vec2f), 0);
+        rlVertexAttribBuffer(render_data.tex_coord_attribute, 2, RL_FLOAT, RL_FALSE, sizeof(math::Vec2f), 0);
         piece->buffers[gfx::Mesh::TEX_COORDS].unbind();
         
         piece->buffers[gfx::Mesh::TANGENTS].bind();
-        rlVertexAttribBuffer(render_data.tangent_attribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::vec3f), 0);
+        rlVertexAttribBuffer(render_data.tangent_attribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
         piece->buffers[gfx::Mesh::TANGENTS].unbind();
         
         // Submit this mesh to OpenRL for heirarchy building and later on rendering.

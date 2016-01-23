@@ -70,33 +70,35 @@ struct Triangle
     void calculateTangents()
     {
         tangents[0] = getTangent(vertices[0], vertices[1], vertices[2], tex_coords[0], tex_coords[1], tex_coords[2]);
-        tangents[0] = math::normalize(tangents[0] - (normals[0] * math::dot(tangents[0], normals[0])));
+        tangents[0] = tangents[0] - (normals[0] * tangents[0].Dot(normals[0]));
+        tangents[0].Normalize();
         
         tangents[1] = getTangent(vertices[1], vertices[2], vertices[0], tex_coords[1], tex_coords[2], tex_coords[0]);
-        tangents[1] = math::normalize(tangents[1] - (normals[1] * math::dot(tangents[1], normals[1])));
+        tangents[1] = tangents[1] - (normals[1] * tangents[1].Dot(normals[1]));
+        tangents[1].Normalize();
         
         tangents[2] = getTangent(vertices[2], vertices[0], vertices[1], tex_coords[2], tex_coords[0], tex_coords[1]);
-        tangents[2] = math::normalize(tangents[2] - (normals[2] * math::dot(tangents[2], normals[2])));
+        tangents[2] = tangents[2] - (normals[2] * tangents[2].Dot(normals[2]));
     }
     
-    math::vec3f getTangent(const math::vec3f &v1, const math::vec3f &v2, const math::vec3f &v3,
-                           const math::vec2f &t1, const math::vec2f &t2, const math::vec2f &t3)
+    math::Vec3f getTangent(const math::Vec3f &v1, const math::Vec3f &v2, const math::Vec3f &v3,
+                           const math::Vec2f &t1, const math::Vec2f &t2, const math::Vec2f &t3)
     {
-        math::vec3f tangent;
-        math::vec3f q1 = v2 - v1;
-        math::vec3f q2 = v3 - v1;
-        math::vec2f s  = t2 - t1;
-        math::vec2f t  = t3 - t1;
+        math::Vec3f tangent;
+        math::Vec3f q1 = v2 - v1;
+        math::Vec3f q2 = v3 - v1;
+        math::Vec2f s  = t2 - t1;
+        math::Vec2f t  = t3 - t1;
         
         float det = 1.0f / (s[0] * t[1] - s[1] * t[0]);
         tangent = (q1 * -t[1] + q2 * s[1]) * det;
         return tangent;
     }
     
-    math::vec3f vertices[3];
-    math::vec3f normals[3];
-    math::vec3f tangents[3];
-    math::vec2f tex_coords[3];
+    math::Vec3f vertices[3];
+    math::Vec3f normals[3];
+    math::Vec3f tangents[3];
+    math::Vec2f tex_coords[3];
 };
     
 } // namespace gfx

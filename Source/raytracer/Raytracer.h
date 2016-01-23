@@ -122,8 +122,8 @@ private:
             {
             }
             
-            math::vec3f position[MAX_LIGHTS];
-            math::vec3f normal[MAX_LIGHTS];
+            math::Vec3f position[MAX_LIGHTS];
+            math::Vec3f normal[MAX_LIGHTS];
 
             int count;
             RLprimitive primitive[MAX_LIGHTS];

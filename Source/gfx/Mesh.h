@@ -87,10 +87,10 @@ class Mesh
             gfx::Material              material;      // Material associated with this piece.
             gfx::Program               program;       // Material program bound to this primitive.
             RLprimitive                primitive;     // RL primitive which will contain this mesh piece.
-            std::vector<math::vec3f>   vertices;      // Vertices of this mesh.
-            std::vector<math::vec3f>   normals;       // Normals of this mesh.
-            std::vector<math::vec3f>   tangents;      // Calculated tangents of this mesh.
-            std::vector<math::vec2f>   tex_coords;    // Texture coordinates for this mesh.
+            std::vector<math::Vec3f>   vertices;      // Vertices of this mesh.
+            std::vector<math::Vec3f>   normals;       // Normals of this mesh.
+            std::vector<math::Vec3f>   tangents;      // Calculated tangents of this mesh.
+            std::vector<math::Vec2f>   tex_coords;    // Texture coordinates for this mesh.
             size_t                     num_elements;  // Number of elements (vertices) to render.
             
             gfx::Buffer buffers[NUM_VBO_TYPES]; // VBOs which makeup the mesh data for this piece.

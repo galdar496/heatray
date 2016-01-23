@@ -222,23 +222,23 @@ void Raytracer::render(Pixels &outputPixels)
         // Generate a random texture matrix to use for indexing into the textures containing random values.
         // Every frame this matrix will be randomly generated to ensure that random values are sampled
         // in the shaders.
-        math::Mat4f random_texture_matrix = math::Mat4f::identity();
+        math::Mat4f random_texture_matrix = math::Mat4f::Identity();
         {
             math::Mat4f rotation;
 
             // Rotate about the y axis.
-            math::quatf y_rotate(util::Random(-math::PI, math::PI), math::vec3f(0.0f, 1.0f, 0.0f), true);
-            y_rotate.toMatrix(rotation);
+            math::Quatf y_rotate(util::Random(-math::PI, math::PI), math::Vec3f(0.0f, 1.0f, 0.0f), true);
+            y_rotate.ToMatrix(rotation);
             random_texture_matrix *= rotation;
             
             // Rotate about the x axis.
-            math::quatf x_rotate(util::Random(0.0f, math::TWO_PI), math::vec3f(1.0f, 0.0f, 0.0f), true);
-            x_rotate.toMatrix(rotation);
+            math::Quatf x_rotate(util::Random(0.0f, math::TWO_PI), math::Vec3f(1.0f, 0.0f, 0.0f), true);
+            x_rotate.ToMatrix(rotation);
             random_texture_matrix *= rotation;
             
             // Now randomly scale the matrix.
             const float max_scale = 5.0f;
-            math::Mat4f random_scale = math::Mat4f::identity();
+            math::Mat4f random_scale = math::Mat4f::Identity();
             random_scale(0, 0) = util::Random(0.0f, max_scale);
             random_scale(1, 1) = util::Random(0.0f, max_scale);
             random_scale(2, 2) = util::Random(0.0f, max_scale);
@@ -503,7 +503,7 @@ void Raytracer::loadModel(const tinyxml2::XMLElement *mesh_node)
 void Raytracer::setupCamera(const tinyxml2::XMLNode *camera_node)
 {
     const tinyxml2::XMLElement *element = NULL;
-    math::vec3f tmp_vector;
+    math::Vec3f tmp_vector;
     float       tmp_value = 0.0f;
     
     // Setup the camera's position.
@@ -540,7 +540,7 @@ void Raytracer::setupCamera(const tinyxml2::XMLNode *camera_node)
         element->QueryFloatAttribute("Z", &tmp_vector[2]);
         element->QueryFloatAttribute("Angle", &tmp_value);
         
-        math::quatf orientation(tmp_value, tmp_vector);
+        math::Quatf orientation(tmp_value, tmp_vector);
         m_camera.setOrientation(orientation);
     }
     
@@ -648,15 +648,15 @@ void Raytracer::getLighting(gfx::Mesh &mesh)
 
                 // Use the barycentrics to generate a random position within the triangle.
                 int vertex_index = triangle_index * 3;
-                math::vec3f sample_point = (piece->vertices[vertex_index + 0] * gamma) +
+                math::Vec3f sample_point = (piece->vertices[vertex_index + 0] * gamma) +
                                            (piece->vertices[vertex_index + 1] * beta) +
                                            (piece->vertices[vertex_index + 2] * alpha);
 
                 // Similarly set the normal for this sample point.
-                math::vec3f sample_normal = (piece->normals[vertex_index + 0] * gamma) +
+                math::Vec3f sample_normal = (piece->normals[vertex_index + 0] * gamma) +
                                             (piece->normals[vertex_index + 1] * beta) +
                                             (piece->normals[vertex_index + 2] * alpha);
-                sample_normal = math::normalize(sample_normal);
+                sample_normal.Normalize();
 
                 light->sample_positions[ii] = sample_point;
                 light->sample_normals[ii]   = sample_normal;
@@ -702,7 +702,7 @@ void Raytracer::writeConfigFile() const
         tinyxml2::XMLElement *camera_node = config.NewElement("Camera");
     
         tinyxml2::XMLElement *position = config.NewElement("Position");
-        math::vec3f camera_position = m_camera.getPosition();
+        math::Vec3f camera_position = m_camera.getPosition();
         position->SetAttribute("X", camera_position[0]);
         position->SetAttribute("Y", camera_position[1]);
         position->SetAttribute("Z", camera_position[2]);
@@ -714,11 +714,11 @@ void Raytracer::writeConfigFile() const
         camera_node->InsertEndChild(lens);
         
         tinyxml2::XMLElement *orientation = config.NewElement("Orientation");
-        math::quatf camera_orientation = m_camera.getOrientation();
-        orientation->SetAttribute("X", camera_orientation.getAxis()[0]);
-        orientation->SetAttribute("Y", camera_orientation.getAxis()[1]);
-        orientation->SetAttribute("Z", camera_orientation.getAxis()[2]);
-        orientation->SetAttribute("Angle", camera_orientation.getAngle());
+        math::Quatf camera_orientation = m_camera.getOrientation();
+        orientation->SetAttribute("X", camera_orientation.GetAxis()[0]);
+        orientation->SetAttribute("Y", camera_orientation.GetAxis()[1]);
+        orientation->SetAttribute("Z", camera_orientation.GetAxis()[2]);
+        orientation->SetAttribute("Angle", camera_orientation.GetAngle());
         camera_node->InsertEndChild(orientation);
         
         tinyxml2::XMLElement *speed = config.NewElement("Speed");

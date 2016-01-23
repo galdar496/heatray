@@ -57,9 +57,9 @@ bool Mesh::load(const std::string &filename, const bool create_render_data, cons
         Material default_material;
         default_material.name = "default";
         default_material.roughness = 0.0f;
-        default_material.transmissive = math::vec3f::zero();
-        default_material.specular = math::vec3f::zero();
-        default_material.diffuse = math::vec3f::zero();
+        default_material.transmissive = math::Vec3f::Zero();
+        default_material.specular = math::Vec3f::Zero();
+        default_material.diffuse = math::Vec3f::Zero();
         default_material.index_of_refraction = 1.0f;
         m_meshes["default"].material = default_material;
     }
@@ -67,9 +67,9 @@ bool Mesh::load(const std::string &filename, const bool create_render_data, cons
     bool use_normals    = false;
     bool use_tex_coords = false;
     
-    std::vector<math::vec3f> vertices;
-    std::vector<math::vec3f> normals;
-    std::vector<math::vec2f> tex_coords;
+    std::vector<math::Vec3f> vertices;
+    std::vector<math::Vec3f> normals;
+    std::vector<math::Vec2f> tex_coords;
     
     MeshList::iterator current_mesh = m_meshes.find("default");
     
@@ -103,7 +103,7 @@ bool Mesh::load(const std::string &filename, const bool create_render_data, cons
 		// Vertex
 		else if (input_line == "v")
 		{
-			math::vec3f vertex;
+			math::Vec3f vertex;
 			fin >> vertex[0] >> vertex[1] >> vertex[2];
 			vertex *= scale;
             vertices.push_back(vertex);
@@ -119,7 +119,7 @@ bool Mesh::load(const std::string &filename, const bool create_render_data, cons
 		// Vertex normal
 		else if (input_line == "vn")
 		{
-			math::vec3f normal;
+			math::Vec3f normal;
 			fin >> normal[0] >> normal[1] >> normal[2];
             normals.push_back(normal);
             use_normals = true;
@@ -128,7 +128,7 @@ bool Mesh::load(const std::string &filename, const bool create_render_data, cons
 		// Texture coordinate
 		else if (input_line == "vt")
 		{
-			math::vec2f tex_coord;
+			math::Vec2f tex_coord;
 			fin >> tex_coord[0] >> tex_coord[1];
             tex_coords.push_back(tex_coord);
             use_tex_coords = true;
@@ -152,9 +152,9 @@ bool Mesh::load(const std::string &filename, const bool create_render_data, cons
 		// Triangle (face)
 		else if (input_line == "f")
 		{
-            math::vec3i vertex_indices;
-            math::vec3i normal_indices;
-            math::vec3i tex_coord_indices;
+            math::Vec3i vertex_indices;
+            math::Vec3i normal_indices;
+            math::Vec3i tex_coord_indices;
             
 			std::string line;
 			for (int i = 0; i < 3; ++i)
@@ -341,7 +341,7 @@ bool Mesh::loadMaterials(const std::string &filename, MeshList &materials, const
         else if (material_line == "Ka")
         {
             fin >> material_iter->second.material.transmissive[0] >> material_iter->second.material.transmissive[1] >> material_iter->second.material.transmissive[2];
-            if (material_iter->second.material.transmissive != math::vec3f::zero())
+            if (material_iter->second.material.transmissive != math::Vec3f::Zero())
             {
                 material_iter->second.material.component_flags.set(gfx::Material::TRANSMISSIVE);
             }
@@ -350,7 +350,7 @@ bool Mesh::loadMaterials(const std::string &filename, MeshList &materials, const
         else if (material_line == "Kd")
         {
             fin >> material_iter->second.material.diffuse[0] >> material_iter->second.material.diffuse[1] >> material_iter->second.material.diffuse[2];
-            if (material_iter->second.material.diffuse != math::vec3f::zero())
+            if (material_iter->second.material.diffuse != math::Vec3f::Zero())
             {
                 material_iter->second.material.component_flags.set(gfx::Material::DIFFUSE);
             }
@@ -359,7 +359,7 @@ bool Mesh::loadMaterials(const std::string &filename, MeshList &materials, const
         else if (material_line == "Ks")
         {
             fin >> material_iter->second.material.specular[0] >> material_iter->second.material.specular[1] >> material_iter->second.material.specular[2];
-            if (material_iter->second.material.specular != math::vec3f::zero())
+            if (material_iter->second.material.specular != math::Vec3f::Zero())
             {
                 material_iter->second.material.component_flags.set(gfx::Material::SPECULAR);
             }
@@ -368,7 +368,7 @@ bool Mesh::loadMaterials(const std::string &filename, MeshList &materials, const
         else if (material_line == "Ksub")
         {
             fin >> material_iter->second.material.diffuse[0] >> material_iter->second.material.diffuse[1] >> material_iter->second.material.diffuse[2];
-            if (material_iter->second.material.diffuse != math::vec3f::zero())
+            if (material_iter->second.material.diffuse != math::Vec3f::Zero())
             {
                 material_iter->second.material.component_flags.set(gfx::Material::SUBSURFACE);
                 material_iter->second.material.component_flags.set(gfx::Material::DIFFUSE);
@@ -442,10 +442,10 @@ void Mesh::createRenderData()
         size_t num_elements = piece->vertices.size();
         
         // Create and load the VBOs.
-        piece->buffers[VERTICES].load(&(piece->vertices[0]), num_elements * sizeof(math::vec3f), "positions");
-        piece->buffers[NORMALS].load(&(piece->normals[0]), num_elements * sizeof(math::vec3f), "normals");
-        piece->buffers[TEX_COORDS].load(&(piece->tex_coords[0]), num_elements * sizeof(math::vec2f), "tex coords");
-        piece->buffers[TANGENTS].load(&(piece->tangents[0]), num_elements * sizeof(math::vec3f), "tangents");
+        piece->buffers[VERTICES].load(&(piece->vertices[0]), num_elements * sizeof(math::Vec3f), "positions");
+        piece->buffers[NORMALS].load(&(piece->normals[0]), num_elements * sizeof(math::Vec3f), "normals");
+        piece->buffers[TEX_COORDS].load(&(piece->tex_coords[0]), num_elements * sizeof(math::Vec2f), "tex coords");
+        piece->buffers[TANGENTS].load(&(piece->tangents[0]), num_elements * sizeof(math::Vec3f), "tangents");
         
         piece->num_elements = num_elements;
 	}
