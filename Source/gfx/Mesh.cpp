@@ -199,11 +199,11 @@ bool Mesh::Load(const std::string &filename, const bool createRenderData, const 
             
 			if (useTexCoords)
 			{
-                triangle.tex_coords[0] = texCoords[texCoordIndices[0] - 1];
-                triangle.tex_coords[1] = texCoords[texCoordIndices[1] - 1];
-                triangle.tex_coords[2] = texCoords[texCoordIndices[2] - 1];
+                triangle.texCoords[0] = texCoords[texCoordIndices[0] - 1];
+                triangle.texCoords[1] = texCoords[texCoordIndices[1] - 1];
+                triangle.texCoords[2] = texCoords[texCoordIndices[2] - 1];
                 
-                triangle.calculateTangents();
+                triangle.CalculateTangents();
 			}
             
             // Push the triangle information into the mesh data lists.
@@ -212,7 +212,7 @@ bool Mesh::Load(const std::string &filename, const bool createRenderData, const 
                 currentMesh->second.vertices.push_back(triangle.vertices[jj]);
                 currentMesh->second.normals.push_back(triangle.normals[jj]);
                 currentMesh->second.tangents.push_back(triangle.tangents[jj]);
-                currentMesh->second.texCoords.push_back(triangle.tex_coords[jj]);
+                currentMesh->second.texCoords.push_back(triangle.texCoords[jj]);
             }
             
 		}
@@ -385,7 +385,7 @@ bool Mesh::LoadMaterials(const std::string &filename, const std::string &basePat
             fin >> texturePath;
             
             texturePath = basePath + texturePath;
-            materialIter->second.material.diffuseTexture.loadTextureData(texturePath);
+            materialIter->second.material.diffuseTexture.LoadTextureData(texturePath);
             materialIter->second.material.componentFlags.set(gfx::Material::DIFFUSE_TEXTURE);
         }
         
@@ -395,7 +395,7 @@ bool Mesh::LoadMaterials(const std::string &filename, const std::string &basePat
             fin >> texturePath;
             
             texturePath = basePath + texturePath;
-            materialIter->second.material.normalTexture.loadTextureData(texturePath);
+            materialIter->second.material.normalTexture.LoadTextureData(texturePath);
             materialIter->second.material.componentFlags.set(gfx::Material::NORMALMAP);
         }
         
@@ -426,8 +426,8 @@ void Mesh::CreateRenderData()
         rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE);
 
         // Generate any textures that this mesh needs.
-        piece->material.diffuseTexture.createFromLoadedData(true);
-        piece->material.normalTexture.createFromLoadedData(true);
+        piece->material.diffuseTexture.CreateFromLoadedData(true);
+        piece->material.normalTexture.CreateFromLoadedData(true);
 
         size_t numElements = piece->vertices.size();
         

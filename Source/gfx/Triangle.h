@@ -13,15 +13,16 @@
 namespace gfx
 {
 
+///
 /// Encapsulation of a triangle. Essentially just three vertices.
+///
+
 struct Triangle
 {
-    /// Default constructor.
     Triangle()
     {
     }
     
-    /// Copy constructor.
     Triangle(const Triangle &other)
     {
         vertices[0] = other.vertices[0];
@@ -32,16 +33,15 @@ struct Triangle
         normals[1] = other.normals[1];
         normals[2] = other.normals[2];
         
-        tex_coords[0] = other.tex_coords[0];
-        tex_coords[1] = other.tex_coords[1];
-        tex_coords[2] = other.tex_coords[2];
+        texCoords[0] = other.texCoords[0];
+        texCoords[1] = other.texCoords[1];
+        texCoords[2] = other.texCoords[2];
         
         tangents[0] = other.tangents[0];
         tangents[1] = other.tangents[1];
         tangents[2] = other.tangents[2];
     }
     
-    /// Assignment operator.
     Triangle & operator=(const Triangle &other)
     {
         if (this != &other)
@@ -54,9 +54,9 @@ struct Triangle
             normals[1] = other.normals[1];
             normals[2] = other.normals[2];
             
-            tex_coords[0] = other.tex_coords[0];
-            tex_coords[1] = other.tex_coords[1];
-            tex_coords[2] = other.tex_coords[2];
+            texCoords[0] = other.texCoords[0];
+            texCoords[1] = other.texCoords[1];
+            texCoords[2] = other.texCoords[2];
             
             tangents[0] = other.tangents[0];
             tangents[1] = other.tangents[1];
@@ -66,22 +66,24 @@ struct Triangle
         return *this;
     }
     
+    ///
     /// Calculate the tangents for this triangle and store them into the 'tangents' member variable.
-    void calculateTangents()
+    ///
+    void CalculateTangents()
     {
-        tangents[0] = getTangent(vertices[0], vertices[1], vertices[2], tex_coords[0], tex_coords[1], tex_coords[2]);
+        tangents[0] = GetTangent(vertices[0], vertices[1], vertices[2], texCoords[0], texCoords[1], texCoords[2]);
         tangents[0] = tangents[0] - (normals[0] * tangents[0].Dot(normals[0]));
         tangents[0].Normalize();
         
-        tangents[1] = getTangent(vertices[1], vertices[2], vertices[0], tex_coords[1], tex_coords[2], tex_coords[0]);
+        tangents[1] = GetTangent(vertices[1], vertices[2], vertices[0], texCoords[1], texCoords[2], texCoords[0]);
         tangents[1] = tangents[1] - (normals[1] * tangents[1].Dot(normals[1]));
         tangents[1].Normalize();
         
-        tangents[2] = getTangent(vertices[2], vertices[0], vertices[1], tex_coords[2], tex_coords[0], tex_coords[1]);
+        tangents[2] = GetTangent(vertices[2], vertices[0], vertices[1], texCoords[2], texCoords[0], texCoords[1]);
         tangents[2] = tangents[2] - (normals[2] * tangents[2].Dot(normals[2]));
     }
     
-    math::Vec3f getTangent(const math::Vec3f &v1, const math::Vec3f &v2, const math::Vec3f &v3,
+    math::Vec3f GetTangent(const math::Vec3f &v1, const math::Vec3f &v2, const math::Vec3f &v3,
                            const math::Vec2f &t1, const math::Vec2f &t2, const math::Vec2f &t3)
     {
         math::Vec3f tangent;
@@ -98,7 +100,7 @@ struct Triangle
     math::Vec3f vertices[3];
     math::Vec3f normals[3];
     math::Vec3f tangents[3];
-    math::Vec2f tex_coords[3];
+    math::Vec2f texCoords[3];
 };
     
 } // namespace gfx

@@ -29,8 +29,8 @@ Material::Material() :
 
 void Material::Destroy()
 {
-    diffuseTexture.destroy();
-    normalTexture.destroy();
+    diffuseTexture.Destroy();
+    normalTexture.Destroy();
 }
 
 } // namespace gfx

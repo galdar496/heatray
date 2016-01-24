@@ -73,7 +73,7 @@ bool Raytracer::initialize(const std::string &config_file_path, RLint &screen_wi
 {
     // Set all sampling textures to use linear filtering.
     gfx::Texture::Params texture_params;
-    texture_params.min_filter = RL_LINEAR;
+    texture_params.minFilter = RL_LINEAR;
     
     tinyxml2::XMLDocument config_file;
     const tinyxml2::XMLElement *root_config_node;
@@ -102,7 +102,7 @@ bool Raytracer::initialize(const std::string &config_file_path, RLint &screen_wi
     // Setup the frameshader to generate the primary rays and bind it to the frame primitive.
     {
         bool error = false;
-		error  = m_raytracing_frame_program.AddShader("Resources/shaders/perspective.frame", gfx::Shader::FRAME);
+		error  = m_raytracing_frame_program.AddShader("Resources/shaders/perspective.frame", gfx::Shader::kFrame);
         error |= m_raytracing_frame_program.Link();
         
         if (!error)
@@ -128,7 +128,7 @@ bool Raytracer::initialize(const std::string &config_file_path, RLint &screen_wi
     
     // Setup the vertex shader to use for all ray shaders.
     {
-        bool error = m_vertex_shader.load("Resources/shaders/passthrough.vert", gfx::Shader::VERTEX);
+        bool error = m_vertex_shader.Load("Resources/shaders/passthrough.vert", gfx::Shader::kVertex);
         if (!error)
         {
             return false;
@@ -193,12 +193,12 @@ void Raytracer::destroy()
     }
     
     m_mesh.Destroy();
-    m_random_values_texture.destroy();
-    m_aperture_sample_texture.destroy();
+    m_random_values_texture.Destroy();
+    m_aperture_sample_texture.Destroy();
     m_raytracing_frame_program.Destroy();
-    m_vertex_shader.destroy();
-    m_fbo_texture.destroy();
-    m_jitter_texture.destroy();
+    m_vertex_shader.Destroy();
+    m_fbo_texture.Destroy();
+    m_jitter_texture.Destroy();
     m_light_buffer.Destroy();
     m_gi_buffer.Destroy();
     
@@ -269,8 +269,8 @@ void Raytracer::render(Pixels &outputPixels)
         m_raytracing_frame_program.Set1f(m_frameUniforms.fovTan, tanf((math::DEGREE_TO_RADIAN * m_camera.GetFOV()) * 0.5f));
         m_raytracing_frame_program.Set1f(m_frameUniforms.focalLength, m_camera.GetFocalLength());
         m_raytracing_frame_program.Set1f(m_frameUniforms.aspectRatio, m_camera.GetAspectRatio());
-        m_raytracing_frame_program.SetTexture(m_frameUniforms.jitterTexture, m_jitter_texture.getTexture());
-        m_raytracing_frame_program.SetTexture(m_frameUniforms.apertureSampleTexture, m_aperture_sample_texture.getTexture());
+        m_raytracing_frame_program.SetTexture(m_frameUniforms.jitterTexture, m_jitter_texture.GetTexture());
+        m_raytracing_frame_program.SetTexture(m_frameUniforms.apertureSampleTexture, m_aperture_sample_texture.GetTexture());
         m_raytracing_frame_program.SetMatrix4fv(m_frameUniforms.randomTextureMatrix, random_texture_matrix.v);
         rlRenderFrame();
 
@@ -281,11 +281,11 @@ void Raytracer::render(Pixels &outputPixels)
     {
         // Write the rendered image to an output file.
 		std::vector<float> pixels;
-        pixels.resize(m_fbo_texture.width() * m_fbo_texture.height() * Pixels::NUM_PIXEL_CHANNELS);
-        rlBindTexture(RL_TEXTURE_2D, m_fbo_texture.getTexture());
+        pixels.resize(m_fbo_texture.Width() * m_fbo_texture.Height() * Pixels::NUM_PIXEL_CHANNELS);
+        rlBindTexture(RL_TEXTURE_2D, m_fbo_texture.GetTexture());
         rlBindBuffer(RL_PIXEL_PACK_BUFFER, RL_NULL_BUFFER); // Make sure no pixel-pack buffer is bound, we want to copy into 'pixels'.
         rlGetTexImage(RL_TEXTURE_2D, 0, RL_RGB, RL_FLOAT, &pixels[0]);
-        util::WriteImage("out.tiff", m_fbo_texture.width(), m_fbo_texture.height(), Pixels::NUM_PIXEL_CHANNELS, &pixels[0], static_cast<float>(m_passes_performed));
+        util::WriteImage("out.tiff", m_fbo_texture.Width(), m_fbo_texture.Height(), Pixels::NUM_PIXEL_CHANNELS, &pixels[0], static_cast<float>(m_passes_performed));
         
         m_save_image = false;
     }
@@ -309,13 +309,13 @@ void Raytracer::resize(RLint width, RLint height)
     m_camera.SetAspectRatio((float)((float)width / (float)height));
     
     // Regenerate the render textures to be the proper size.
-    if (m_fbo_texture.isValid())
+    if (m_fbo_texture.IsValid())
     {
-        m_fbo_texture.resize(width, height);
+        m_fbo_texture.Resize(width, height);
 
         // Generate a random texture to use for pixel offsets while rendering. This texture has components which are uniformly
         // distrubuted over a circle. This allows for a radial filter during anti-aliasing.
-        m_jitter_texture.randomizeRadial(m_fbo_texture.width(), m_fbo_texture.height(), RL_FLOAT, 1.2f, "random");
+        m_jitter_texture.RandomizeRadial(m_fbo_texture.Width(), m_fbo_texture.Height(), RL_FLOAT, 1.2f, "random");
         resetRenderingState();
     }
 }
@@ -436,7 +436,7 @@ void Raytracer::checkKeys(const float dt)
         reset_rendering_state = true;
         
         // Regenerate the aperture sampling texture to reflect the new aperture radius.
-        m_aperture_sample_texture.randomizeRadial(m_fbo_texture.width(), m_fbo_texture.height(), RL_FLOAT, aperture_width, "random");
+        m_aperture_sample_texture.RandomizeRadial(m_fbo_texture.Width(), m_fbo_texture.Height(), RL_FLOAT, aperture_width, "random");
         
         m_camera.SetApertureRadius(aperture_width);
     }
@@ -447,7 +447,7 @@ void Raytracer::checkKeys(const float dt)
         reset_rendering_state = true;
         
         // Regenerate the aperture sampling texture to reflect the new aperture radius.
-        m_aperture_sample_texture.randomizeRadial(m_fbo_texture.width(), m_fbo_texture.height(), RL_FLOAT, aperture_width, "random");
+        m_aperture_sample_texture.RandomizeRadial(m_fbo_texture.Width(), m_fbo_texture.Height(), RL_FLOAT, aperture_width, "random");
         
         m_camera.SetApertureRadius(aperture_width);
     }
@@ -540,7 +540,7 @@ void Raytracer::setupCamera(const tinyxml2::XMLNode *camera_node)
         m_camera.SetApertureRadius(tmp_value);
         
         // Generate the aperture sampling texture to reflect the aperture radius.
-        m_aperture_sample_texture.randomizeRadial(m_fbo_texture.width(), m_fbo_texture.height(), RL_FLOAT, m_camera.GetApertureRadius(), "random");
+        m_aperture_sample_texture.RandomizeRadial(m_fbo_texture.Width(), m_fbo_texture.Height(), RL_FLOAT, m_camera.GetApertureRadius(), "random");
     }
     
     // Setup the camera's orientation.
@@ -577,16 +577,16 @@ void Raytracer::setupFramebuffer(const tinyxml2::XMLElement *framebuffer_node, R
     framebuffer_node->QueryIntAttribute("Height", &framebuffer_height);
     
     gfx::Texture::Params texture_params;
-    texture_params.min_filter      = RL_LINEAR;
-    texture_params.format          = RL_RGB;
-    texture_params.internal_format = RL_RGB;
+    texture_params.minFilter      = RL_LINEAR;
+    texture_params.format         = RL_RGB;
+    texture_params.internalFormat = RL_RGB;
     
     // Create the default FBO for rendering into.
     rlGenFramebuffers(1, &m_fbo);
     rlBindFramebuffer(RL_FRAMEBUFFER, m_fbo);
-    m_fbo_texture.setParams(texture_params);
-    m_fbo_texture.create(framebuffer_width, framebuffer_height, RL_FLOAT, nullptr, "Default FBO Texture");
-    rlFramebufferTexture2D(RL_FRAMEBUFFER, RL_COLOR_ATTACHMENT0, RL_TEXTURE_2D, m_fbo_texture.getTexture(), 0);
+    m_fbo_texture.SetParams(texture_params);
+    m_fbo_texture.Create(framebuffer_width, framebuffer_height, RL_FLOAT, nullptr, "Default FBO Texture");
+    rlFramebufferTexture2D(RL_FRAMEBUFFER, RL_COLOR_ATTACHMENT0, RL_TEXTURE_2D, m_fbo_texture.GetTexture(), 0);
     
     CheckRLErrors();
 }
@@ -596,9 +596,9 @@ void Raytracer::setupRenderSettings(const tinyxml2::XMLElement *render_settings_
 {
     // Create the random values uniform block data. These values will be used in all diffuse shaders to bounce rays
     // and achieve indirect illumination.
-    m_random_values_texture.randomize(m_fbo_texture.width(), m_fbo_texture.height(), 4, RL_FLOAT, 0.0f, 1.0f, "Random 0-1 texture");
+    m_random_values_texture.Randomize(m_fbo_texture.Width(), m_fbo_texture.Height(), 3, RL_FLOAT, 0.0f, 1.0f, "Random 0-1 texture");
     GIUniformBuffer gi_uniform_buffer;
-    gi_uniform_buffer.texture = m_random_values_texture.getTexture();
+    gi_uniform_buffer.texture = m_random_values_texture.GetTexture();
     render_settings_node->QueryIntAttribute("DefaultGIOn", &(gi_uniform_buffer.enabled));
     m_gi_buffer.SetTarget(RL_UNIFORM_BLOCK_BUFFER);
     m_gi_buffer.Load(&gi_uniform_buffer, sizeof(GIUniformBuffer), "Random buffer");
@@ -694,8 +694,8 @@ void Raytracer::writeConfigFile() const
     // Write the framebuffer info.
 	{
         tinyxml2::XMLElement *node = config.NewElement("Framebuffer");
-        node->SetAttribute("Width", m_fbo_texture.width());
-        node->SetAttribute("Height", m_fbo_texture.height());
+        node->SetAttribute("Width", m_fbo_texture.Width());
+        node->SetAttribute("Height", m_fbo_texture.Height());
         
         root_element->InsertEndChild(node);
     }

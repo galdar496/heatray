@@ -109,15 +109,15 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
             RLint location = piece->program.GetUniformLocation("kd");
             piece->program.Set3fv(location, piece->material.diffuse.v);
             
-            if (piece->material.diffuseTexture.isValid())
+            if (piece->material.diffuseTexture.IsValid())
             {
                 location = piece->program.GetUniformLocation("diffuseTexture");
-                piece->program.SetTexture(location, piece->material.diffuseTexture.getTexture());
+                piece->program.SetTexture(location, piece->material.diffuseTexture.GetTexture());
             }
-            if (piece->material.normalTexture.isValid())
+            if (piece->material.normalTexture.IsValid())
             {
                 location = piece->program.GetUniformLocation("normalmap");
-            	piece->program.SetTexture(location, piece->material.normalTexture.getTexture());
+            	piece->program.SetTexture(location, piece->material.normalTexture.GetTexture());
             }
             /*if (piece->material.component_flags.test(gfx::Material::SUBSURFACE))
             {
@@ -219,7 +219,7 @@ gfx::Shader *ShaderGenerator::findOrCreateRayShader(const gfx::Material &materia
 
     // create the shader from the assembled shader source string.
     gfx::Shader *shader = new gfx::Shader;
-    if (!shader->createFromString(final_source, gfx::Shader::RAY, material.name))
+    if (!shader->CreateFromString(final_source, gfx::Shader::kRay, material.name))
     {
         delete shader;
         shader = nullptr;

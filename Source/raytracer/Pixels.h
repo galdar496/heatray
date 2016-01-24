@@ -68,7 +68,7 @@ class Pixels
         {
             assert(!m_isMapped);
             m_buffer.Bind();
-            rlBindTexture(RL_TEXTURE_2D, texture.getTexture());
+            rlBindTexture(RL_TEXTURE_2D, texture.GetTexture());
             rlGetTexImage(RL_TEXTURE_2D, 0, RL_RGB, RL_FLOAT, nullptr);
             m_buffer.Unbind();
         }

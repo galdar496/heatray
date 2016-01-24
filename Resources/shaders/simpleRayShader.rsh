@@ -109,7 +109,7 @@ vec3 GetNormal()
 
 // Generate a random sample in the hemisphere using cosine-weighted sampling. This random
 // sample is represented in tangent space.
-vec3 CosineSampleHemisphere(vec4 rand)
+vec3 CosineSampleHemisphere(vec3 rand)
 {
     float r = sqrt(rand.x);
     float theta = 2.0 * 3.14159 * rand.y;
@@ -121,7 +121,7 @@ vec3 CosineSampleHemisphere(vec4 rand)
 // Generate a diffuse bounce ray and emit it.
 void DiffuseBounce(vec3 baseColor, vec3 surfaceNormal)
 {
-    vec4 rand = texture2D(GI.randomValues, noise2(Light.position[0].xy * rl_FrameCoord.xy));
+    vec3 rand = texture2D(GI.randomValues, noise2(Light.position[0].xy * rl_FrameCoord.xy)).xyz;
     
     // Russian roulette.
     if (rand.z <= bounceProbablility)

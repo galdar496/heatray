@@ -14,7 +14,6 @@
 namespace gfx
 {
 
-    /// Default constructor.
 Shader::Shader() :
     m_shader(RL_NULL_SHADER),
     m_name("<unnamed>")
@@ -22,7 +21,6 @@ Shader::Shader() :
     
 }
 
-/// Destructor.
 Shader::~Shader()
 {
     if (m_shader != RL_NULL_SHADER)
@@ -32,9 +30,7 @@ Shader::~Shader()
     }
 }
 
-/// Load a shader from a filepath and compile it for the specified shader type.
-/// Returns true if the shader is loaded and compiled successfully.
-bool Shader::load(const std::string &path, const Type type)
+bool Shader::Load(const std::string &path, const Type type)
 {
     std::string source;
     if (!util::ReadTextFile(path, source))
@@ -42,14 +38,13 @@ bool Shader::load(const std::string &path, const Type type)
         return false;
     }
     
-    return createFromString(source, type, path);
+    return CreateFromString(source, type, path);
 }
     
-/// Create and compile a shader from a passed-in source string.
-bool Shader::createFromString(const std::string &shaderSource, const Type type, const std::string &name)
+bool Shader::CreateFromString(const std::string &shaderSource, const Type type, const std::string &name)
 {
 	bool returnValue = false;
-    if (shaderSource.length() && createShader(type))
+    if (shaderSource.length() && CreateShader(type))
     {
         rlShaderString(m_shader, RL_SHADER_NAME, name.c_str());
         
@@ -57,14 +52,13 @@ bool Shader::createFromString(const std::string &shaderSource, const Type type, 
         rlShaderSource(m_shader, 1, &s, nullptr);
 
         m_name = name;
-        returnValue = compile();
+        returnValue = Compile();
     }
     
     return returnValue;
 }
     
-/// Destroy this shader.
-void Shader::destroy()
+void Shader::Destroy()
 {
     if (m_shader != RL_NULL_SHADER)
     {
@@ -73,8 +67,7 @@ void Shader::destroy()
     }
 }
     
-/// Get access to the internal RL shader object.
-RLshader Shader::getShader() const
+RLshader Shader::GetShader() const
 {
 	return m_shader;
 }
@@ -86,8 +79,7 @@ bool Shader::IsValid() const
     return (success == RL_TRUE);
 }
 
-/// Compile the shader for use. Returns true on a successful compile.
-bool Shader::compile() const
+bool Shader::Compile() const
 {
 	rlCompileShader(m_shader);
     CheckRLErrors();
@@ -103,27 +95,26 @@ bool Shader::compile() const
 	return true;
 }
 
-/// Create the shader. Returns true on success.
-bool Shader::createShader(const Type type)
+bool Shader::CreateShader(const Type type)
 {
-    RLenum shader_type = ~0;
+    RLenum shaderType = ~0;
     
     switch (type)
     {
-        case VERTEX:
-            shader_type = RL_VERTEX_SHADER;
+        case kVertex:
+            shaderType = RL_VERTEX_SHADER;
             break;
             
-        case FRAME:
-            shader_type = RL_FRAME_SHADER;
+        case kFrame:
+            shaderType = RL_FRAME_SHADER;
             break;
             
-        case RAY:
-            shader_type = RL_RAY_SHADER;
+        case kRay:
+            shaderType = RL_RAY_SHADER;
             break;
             
-        case PREFIX:
-            shader_type = RL_PREFIX_RAY_SHADER;
+        case kPrefix:
+            shaderType = RL_PREFIX_RAY_SHADER;
             break;
             
         default:
@@ -131,7 +122,7 @@ bool Shader::createShader(const Type type)
 			return false;
     }
     
-    m_shader = rlCreateShader(shader_type);
+    m_shader = rlCreateShader(shaderType);
     CheckRLErrors();
     return true;
 }

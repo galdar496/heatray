@@ -32,7 +32,7 @@ bool Program::Attach(const Shader &shader)
     
     if (Create())
     {
-        rlAttachShader(m_program, shader.getShader());
+        rlAttachShader(m_program, shader.GetShader());
         
         CheckRLErrors();
         returnValue = true;
@@ -64,7 +64,7 @@ bool Program::Link(const std::string &name)
 bool Program::AddShader(const std::string &filename, const Shader::Type type)
 {
 	Shader shader;
-	if (shader.load(filename, type) == false)
+	if (shader.Load(filename, type) == false)
 	{
 		return false;
 	}
