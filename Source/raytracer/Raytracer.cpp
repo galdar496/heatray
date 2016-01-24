@@ -126,8 +126,8 @@ bool Raytracer::initialize(const std::string &config_file_path, RLint &screen_wi
     {
         // Create lighting dummy uniform block in order to setup the bindings for shader generation.
         LightUniformBuffer dummy_block;
-        m_light_buffer.setTarget(RL_UNIFORM_BLOCK_BUFFER);
-        m_light_buffer.load(&dummy_block, sizeof(LightUniformBuffer), "Light buffer");
+        m_light_buffer.SetTarget(RL_UNIFORM_BLOCK_BUFFER);
+        m_light_buffer.Load(&dummy_block, sizeof(LightUniformBuffer), "Light buffer");
         
         // Wait for the mesh to finish loading before we continue.
         mesh_thread.join();
@@ -154,15 +154,15 @@ bool Raytracer::initialize(const std::string &config_file_path, RLint &screen_wi
         
         // Create the uniform block buffer which will store the current light subregion to sample. Every ray shader
         // shares this same buffer so we only need to update it once.
-        m_light_buffer.bind();
-        LightUniformBuffer *block = m_light_buffer.mapBuffer<LightUniformBuffer>();
+        m_light_buffer.Bind();
+        LightUniformBuffer *block = m_light_buffer.MapBuffer<LightUniformBuffer>();
         block->count = static_cast<int>(m_lights.size());
         for (int ii = 0; ii < block->count; ++ii)
         {
             block->primitive[ii] = m_lights[ii].primitive;
         }
-        m_light_buffer.unmapBuffer();
-        m_light_buffer.unbind();
+        m_light_buffer.UnmapBuffer();
+        m_light_buffer.Unbind();
         
         m_mesh.clearLoadedData();
     }
@@ -187,8 +187,8 @@ void Raytracer::destroy()
     m_vertex_shader.destroy();
     m_fbo_texture.destroy();
     m_jitter_texture.destroy();
-    m_light_buffer.destroy();
-    m_gi_buffer.destroy();
+    m_light_buffer.Destroy();
+    m_gi_buffer.Destroy();
     
     OpenRLDestroyContext(m_rl_context);
 }
@@ -208,15 +208,15 @@ void Raytracer::render(Pixels &outputPixels)
 		// Update the light position for soft shadowing.
         {
             // Update the lighting uniform block to use the next position for sampling.
-            m_light_buffer.bind();
-            LightUniformBuffer *block = m_light_buffer.mapBuffer<LightUniformBuffer>();
+            m_light_buffer.Bind();
+            LightUniformBuffer *block = m_light_buffer.MapBuffer<LightUniformBuffer>();
             for (size_t ii = 0; ii < m_lights.size(); ++ii)
             {
                 block->position[ii] = m_lights[ii].sample_positions[m_passes_performed - 1]; // -1 because m_passes_performed does not start at 0.
                 block->normal[ii]   = m_lights[ii].sample_normals[m_passes_performed - 1];
             }
-            m_light_buffer.unmapBuffer();
-            m_light_buffer.unbind();
+            m_light_buffer.UnmapBuffer();
+            m_light_buffer.Unbind();
         }
 
         // Generate a random texture matrix to use for indexing into the textures containing random values.
@@ -281,7 +281,7 @@ void Raytracer::render(Pixels &outputPixels)
     // Map the rendered texture to a pixelpack buffer so that the calling function can properly display it.
     outputPixels.setData(m_fbo_texture);
     
-    util::CheckRLErrors();
+    CheckRLErrors();
 }
 
 /// Resize the render viewport.
@@ -453,11 +453,11 @@ void Raytracer::checkKeys(const float dt)
     
     if (m_keyboard.test(Keys::kEnableGI) && currentTime.GetElapsedTime() > time_delta) // perform GI.
     {
-        m_gi_buffer.bind();
-		GIUniformBuffer *block = m_gi_buffer.mapBuffer<GIUniformBuffer>();
+        m_gi_buffer.Bind();
+		GIUniformBuffer *block = m_gi_buffer.MapBuffer<GIUniformBuffer>();
         block->enabled = (block->enabled + 1) & 1;
-		m_gi_buffer.unmapBuffer();
-        m_gi_buffer.unbind();
+		m_gi_buffer.UnmapBuffer();
+        m_gi_buffer.Unbind();
         reset_rendering_state = true;
         currentTime.Restart();
 
@@ -576,7 +576,7 @@ void Raytracer::setupFramebuffer(const tinyxml2::XMLElement *framebuffer_node, R
     m_fbo_texture.create(framebuffer_width, framebuffer_height, RL_FLOAT, NULL, "Default FBO Texture");
     rlFramebufferTexture2D(RL_FRAMEBUFFER, RL_COLOR_ATTACHMENT0, RL_TEXTURE_2D, m_fbo_texture.getTexture(), 0);
     
-    util::CheckRLErrors("Raytracer::setupFramebuffer()", true);
+    CheckRLErrors();
 }
 
 /// Setup general rendering settings independent of any object contained within this class.
@@ -588,8 +588,8 @@ void Raytracer::setupRenderSettings(const tinyxml2::XMLElement *render_settings_
     GIUniformBuffer gi_uniform_buffer;
     gi_uniform_buffer.texture = m_random_values_texture.getTexture();
     render_settings_node->QueryIntAttribute("DefaultGIOn", &(gi_uniform_buffer.enabled));
-    m_gi_buffer.setTarget(RL_UNIFORM_BLOCK_BUFFER);
-    m_gi_buffer.load(&gi_uniform_buffer, sizeof(GIUniformBuffer), "Random buffer");
+    m_gi_buffer.SetTarget(RL_UNIFORM_BLOCK_BUFFER);
+    m_gi_buffer.Load(&gi_uniform_buffer, sizeof(GIUniformBuffer), "Random buffer");
     
     // Setup the number of passes to perform per the config file.
     render_settings_node->QueryIntAttribute("RaysPerPixel", &m_total_pass_count);
@@ -735,11 +735,11 @@ void Raytracer::writeConfigFile() const
         
         // Read the current status of the GI from the uniform block data.
         int gi_on = 0;
-        m_gi_buffer.bind();
-		GIUniformBuffer *block = m_gi_buffer.mapBuffer<GIUniformBuffer>();
+        m_gi_buffer.Bind();
+		GIUniformBuffer *block = m_gi_buffer.MapBuffer<GIUniformBuffer>();
         gi_on = block->enabled;
-		m_gi_buffer.unmapBuffer();
-        m_gi_buffer.unbind();
+		m_gi_buffer.UnmapBuffer();
+        m_gi_buffer.Unbind();
 
         render_settings_node->SetAttribute("RaysPerPixel", m_total_pass_count);
         render_settings_node->SetAttribute("DefaultGIOn", gi_on);

@@ -83,7 +83,7 @@ RLshader Shader::getShader() const
 bool Shader::compile() const
 {
 	rlCompileShader(m_shader);
-	util::CheckRLErrors("Shader::compile() - compiling shader", true);
+    CheckRLErrors();
     
     RLint success = 0;
 	rlGetShaderiv(m_shader, RL_COMPILE_STATUS, &success);
@@ -128,7 +128,8 @@ bool Shader::createShader(const Type type)
     }
     
     m_shader = rlCreateShader(shader_type);
-    return !util::CheckRLErrors("Shader::createShader() -- shader created", true);
+    CheckRLErrors();
+    return true;
 }
     
 } // namsespace gfx

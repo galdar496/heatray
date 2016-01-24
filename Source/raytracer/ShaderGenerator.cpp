@@ -80,7 +80,7 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
             
             // Attach the uniform buffer for the light position to this primitive.
             RLuint light_block_index = rlGetUniformBlockIndex(piece->program.getProgram(), "Light");
-            rlUniformBlockBuffer(light_block_index, light_buffer.getBuffer());
+            rlUniformBlockBuffer(light_block_index, light_buffer.GetBuffer());
         }
         else
         {
@@ -127,7 +127,7 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
             RLuint gi_block_index = rlGetUniformBlockIndex(piece->program.getProgram(), "GI");
             if (gi_block_index != ~0) // All 0xF's returned if this block is invalid (this could be a light source).
             {
-                rlUniformBlockBuffer(gi_block_index, gi_buffer.getBuffer());
+                rlUniformBlockBuffer(gi_block_index, gi_buffer.GetBuffer());
                 
                 float bounce_probablility = (piece->material.diffuse[0] + piece->material.diffuse[1] + piece->material.diffuse[2]) / 3.0f;
                 piece->program.set1f("bounceProbablility", bounce_probablility);
@@ -153,30 +153,28 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
         render_data.tex_coord_attribute = rlGetAttribLocation(piece->program.getProgram(), "texCoordAttribute");
         render_data.tangent_attribute   = rlGetAttribLocation(piece->program.getProgram(), "tangentAttribute");
         
-        piece->buffers[gfx::Mesh::VERTICES].bind();
+        piece->buffers[gfx::Mesh::VERTICES].Bind();
         rlVertexAttribBuffer(render_data.position_attribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
-        piece->buffers[gfx::Mesh::VERTICES].unbind();
+        piece->buffers[gfx::Mesh::VERTICES].Unbind();
         
-        piece->buffers[gfx::Mesh::NORMALS].bind();
+        piece->buffers[gfx::Mesh::NORMALS].Bind();
         rlVertexAttribBuffer(render_data.normal_attribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
-        piece->buffers[gfx::Mesh::NORMALS].unbind();
+        piece->buffers[gfx::Mesh::NORMALS].Unbind();
         
-        piece->buffers[gfx::Mesh::TEX_COORDS].bind();
+        piece->buffers[gfx::Mesh::TEX_COORDS].Bind();
         rlVertexAttribBuffer(render_data.tex_coord_attribute, 2, RL_FLOAT, RL_FALSE, sizeof(math::Vec2f), 0);
-        piece->buffers[gfx::Mesh::TEX_COORDS].unbind();
+        piece->buffers[gfx::Mesh::TEX_COORDS].Unbind();
         
-        piece->buffers[gfx::Mesh::TANGENTS].bind();
+        piece->buffers[gfx::Mesh::TANGENTS].Bind();
         rlVertexAttribBuffer(render_data.tangent_attribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
-        piece->buffers[gfx::Mesh::TANGENTS].unbind();
+        piece->buffers[gfx::Mesh::TANGENTS].Unbind();
         
         // Submit this mesh to OpenRL for heirarchy building and later on rendering.
         rlDrawArrays(RL_TRIANGLES, 0, piece->num_elements);
         
         rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE);
-		if (util::CheckRLErrors("Mesh::prepareForRendering() - Finished uploading a MeshPiece", true))
-        {
-            return false;
-        }
+        
+        CheckRLErrors();
     }
     
     return true;

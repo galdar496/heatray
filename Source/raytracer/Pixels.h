@@ -24,7 +24,7 @@ class Pixels
             m_height(0),
             m_isMapped(false)
         {
-            m_buffer.setTarget(RL_PIXEL_PACK_BUFFER);
+            m_buffer.SetTarget(RL_PIXEL_PACK_BUFFER);
         }
 
         ~Pixels()
@@ -37,7 +37,7 @@ class Pixels
         ///
         inline void destroy()
         {
-            m_buffer.destroy();
+            m_buffer.Destroy();
         }
 
         ///
@@ -49,11 +49,11 @@ class Pixels
         inline void resize(size_t width, size_t height)
         {
             assert(!m_isMapped);
-            m_buffer.destroy();
+            m_buffer.Destroy();
 
             // Allocate a pixel-pack buffer with enough memory to store a m_num_pixel_channels-channel
             // floating-point image.
-            m_buffer.load(nullptr, width * height * sizeof(float) * NUM_PIXEL_CHANNELS, "Rendered Pixels");
+            m_buffer.Load(nullptr, width * height * sizeof(float) * NUM_PIXEL_CHANNELS, "Rendered Pixels");
 
             m_width  = width;
             m_height = height;
@@ -67,10 +67,10 @@ class Pixels
         inline void setData(const gfx::Texture &texture)
         {
             assert(!m_isMapped);
-            m_buffer.bind();
+            m_buffer.Bind();
             rlBindTexture(RL_TEXTURE_2D, texture.getTexture());
             rlGetTexImage(RL_TEXTURE_2D, 0, RL_RGB, RL_FLOAT, nullptr);
-            m_buffer.unbind();
+            m_buffer.Unbind();
         }
 
         ///
@@ -83,8 +83,8 @@ class Pixels
         {
             assert(!m_isMapped);
 
-            m_buffer.bind();
-            float *image_pixels = m_buffer.mapBuffer<float>(RL_READ_ONLY);
+            m_buffer.Bind();
+            float *image_pixels = m_buffer.MapBuffer<float>(RL_READ_ONLY);
             m_isMapped = true;
             return image_pixels;
         }
@@ -96,8 +96,8 @@ class Pixels
         {
             assert(m_isMapped);
 
-            m_buffer.unmapBuffer();
-            m_buffer.unbind();
+            m_buffer.UnmapBuffer();
+            m_buffer.Unbind();
             m_isMapped = false;
         }
 

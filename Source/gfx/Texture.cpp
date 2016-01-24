@@ -87,8 +87,8 @@ bool Texture::create(const RLint width, const RLint height, const RLenum data_ty
     m_name = name;
     m_data_type = data_type;
     
-    return !util::CheckRLErrors("Texture::create2 - rlTexImage2D", true);
-    
+    CheckRLErrors();
+    return true;
 }
     
 /// Load texture data but do not yet create the in OpenRL.
@@ -126,7 +126,7 @@ bool Texture::createFromLoadedData(bool clear_loaded_data)
     
     rlTexImage2D(RL_TEXTURE_2D, 0, m_params.internal_format, m_width, m_height, 0, RL_RGBA, RL_UNSIGNED_BYTE, FreeImage_GetBits(m_data));
     rlGenerateMipmap(RL_TEXTURE_2D);
-    util::CheckRLErrors("Texture::create1 - rlTexImage2D", true);
+    CheckRLErrors();
     
     rlBindTexture(RL_TEXTURE_2D, 0);
     m_data_type = RL_UNSIGNED_BYTE;
@@ -182,7 +182,8 @@ bool Texture::randomize(const RLint width, const RLint height, const int compone
     m_name = name;
     m_data_type = data_type;
     
-	return !util::CheckRLErrors("Texture::randomize()");
+    CheckRLErrors();
+    return true;
 }
    
 /// Generate a texture full of random values in a circular region. Returns success.
@@ -242,7 +243,8 @@ bool Texture::randomizeRadial(const RLint width, const RLint height, const RLenu
     m_name = name;
     m_data_type = data_type;
     
-    return !util::CheckRLErrors("Texture::randomizeRadial()");
+    CheckRLErrors();
+    return true;
 }
     
 /// Destroy this texture.

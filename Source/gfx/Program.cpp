@@ -34,7 +34,9 @@ bool Program::attach(const Shader &shader)
     if (create())
     {
         rlAttachShader(m_program, shader.getShader());
-        returnValue = !util::CheckRLErrors("Program::attach() -- attach shader to program", true);
+        
+        CheckRLErrors();
+        returnValue = true;
     }
     
     return returnValue;

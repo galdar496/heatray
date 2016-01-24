@@ -14,41 +14,39 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
+#include <sstream>
 
 ///
 /// Floating utility functions.
 ///
+
+#define CheckRLErrors() util::CheckError(__FILE__, __LINE__)
 
 namespace util
 {
 
 ///
 /// Check the current OpenRL state for errors.
-/// If an error is detected, the system will stop. Returns true if an error occured.
+/// If an error is detected, the system will stop. It is recommended to use the macro
+/// CheckRLErrors() instead of this function directly.
 ///
-/// @param tag Optional character string to output along with the RL error.
-/// @param stopExecution If true, the program will crash if an error is detected and report it to the user.
+/// @param filename Filename where the error check is being performed.
+/// @param lineNumber Line number where this error check is being performed.
 ///
-/// @return If true, an error occured within OpenRL.
 ///
-inline bool CheckRLErrors(const std::string tag = "", const bool stopExecution = false)
+inline void CheckError(const char *filename, int lineNumber)
 {
     RLenum errorID = rlGetError();
     
 	if (errorID != RL_NO_ERROR)
-	{      
-		if (stopExecution)
-		{
-			// Throw an unhandled exception to stop the system.
-			// WARNING: only set stopExecution to true if you
-			// are checking for a serious system error.
-			throw std::runtime_error(tag.c_str());
-		}
-        
-		return true;
+	{
+        // An OpenRL error has occured, report it to the user.
+        std::stringstream stream;
+        stream << filename << " (" << lineNumber << ") - An OpenRL error occured: " << errorID;
+       
+        // Throw an unhandled exception to stop the system.
+        throw std::runtime_error(stream.str().c_str());
 	}
-    
-	return false;
 }
 
 ///

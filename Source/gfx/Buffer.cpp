@@ -12,7 +12,6 @@
 namespace gfx
 {
     
-/// Default constructor.
 Buffer::Buffer(const RLenum target, const RLenum usage) :
     m_buffer(RL_NULL_BUFFER),
     m_target(target),
@@ -21,7 +20,6 @@ Buffer::Buffer(const RLenum target, const RLenum usage) :
 {
 }
     
-/// Copy constructor.
 Buffer::Buffer(const Buffer &other)
 {
 	m_buffer = other.m_buffer;
@@ -30,14 +28,12 @@ Buffer::Buffer(const Buffer &other)
     m_size   = other.m_size;
 }
 
-/// Default destructor.
 Buffer::~Buffer()
 {
-    destroy();
+    Destroy();
 }
 
-/// Generate the buffer id and load the data. Returns true on a successful load.
-bool Buffer::load(const void *data, const size_t size, const char *name)
+bool Buffer::Load(const void *data, const size_t size, const char *name)
 {
     bool returnValue = false;
     //if (data != NULL)
@@ -55,14 +51,14 @@ bool Buffer::load(const void *data, const size_t size, const char *name)
         rlBindBuffer(m_target, RL_NULL_BUFFER);
         
         m_size = size;
-        returnValue = !util::CheckRLErrors("Buffer::load() -- bind and load buffer data");
+        returnValue = true;
+        CheckRLErrors();
     }
     
     return returnValue;
 }
     
-/// Destroy the buffer.
-void Buffer::destroy()
+void Buffer::Destroy()
 {
     if (m_buffer != RL_NULL_BUFFER)
     {
@@ -71,48 +67,41 @@ void Buffer::destroy()
     }
 }
     
-/// Change the target type for this buffer.
-void Buffer::setTarget(const RLenum target)
+void Buffer::SetTarget(const RLenum target)
 {
     m_target = target;
 }
 
-// Change the usage type for this buffer.
-void Buffer::setUsage(const RLenum usage)
+void Buffer::SetUsage(const RLenum usage)
 {
     m_usage = usage;
 }
     
-/// Bind this buffer for use at its stored target point.
-void Buffer::bind() const
+void Buffer::Bind() const
 {
 	rlBindBuffer(m_target, m_buffer);
 }
 
-/// Unbind this buffer from use at its stored target point.
-void Buffer::unbind() const
+void Buffer::Unbind() const
 {
 	rlBindBuffer(m_target, RL_NULL_BUFFER);
 }
 
-/// Set this buffer as an attribute for a vertex shader.
-void Buffer::setAsVertexAttribute(RLint location, RLint numComponents, RLenum dataType, RLsize stride, RLsize offset) const
+void Buffer::SetAsVertexAttribute(RLint location, RLint numComponents, RLenum dataType, RLsize stride, RLsize offset) const
 {
 	rlBindBuffer(m_target, m_buffer);
     rlVertexAttribBuffer(location, numComponents, dataType, RL_FALSE, stride, offset);
     rlBindBuffer(m_target, RL_NULL_BUFFER);
     
-    util::CheckRLErrors("Buffer::setAsVertexAttribute() - setting buffer");
+    CheckRLErrors();
 }
     
-/// Get the internal buffer.
-RLbuffer Buffer::getBuffer() const
+RLbuffer Buffer::GetBuffer() const
 {
     return m_buffer;
 }
     
-/// Unmap a buffer that is currently mapped to the CPU.
-void Buffer::unmapBuffer() const
+void Buffer::UnmapBuffer() const
 {
    rlUnmapBuffer(m_target);
 }
