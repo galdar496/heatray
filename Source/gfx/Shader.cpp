@@ -54,7 +54,7 @@ bool Shader::createFromString(const std::string &shaderSource, const Type type, 
         rlShaderString(m_shader, RL_SHADER_NAME, name.c_str());
         
 		const char *s = shaderSource.c_str();
-        rlShaderSource(m_shader, 1, &s, NULL);
+        rlShaderSource(m_shader, 1, &s, nullptr);
 
         m_name = name;
         returnValue = compile();
@@ -79,18 +79,22 @@ RLshader Shader::getShader() const
 	return m_shader;
 }
 
+bool Shader::IsValid() const
+{
+    RLint success = 0;
+    rlGetShaderiv(m_shader, RL_COMPILE_STATUS, &success);
+    return (success == RL_TRUE);
+}
+
 /// Compile the shader for use. Returns true on a successful compile.
 bool Shader::compile() const
 {
 	rlCompileShader(m_shader);
     CheckRLErrors();
     
-    RLint success = 0;
-	rlGetShaderiv(m_shader, RL_COMPILE_STATUS, &success);
-    
-    if (success != RL_TRUE)
+    if (!IsValid())
     {
-        const char *log = NULL;
+        const char *log = nullptr;
         rlGetShaderString(m_shader, RL_COMPILE_LOG, &log);
         std::cout << "Shader::compile() -- Unable to compile shader " << m_name << "\n\t" << log << std::endl;
         return false;

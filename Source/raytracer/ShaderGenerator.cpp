@@ -73,13 +73,13 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
                 return false;
             }
 
-            piece->program.attach(vertex_shader);
-            piece->program.attach(*ray_shader);
-            piece->program.link(piece->material.name);
-            rlUseProgram(piece->program.getProgram());
+            piece->program.Attach(vertex_shader);
+            piece->program.Attach(*ray_shader);
+            piece->program.Link(piece->material.name);
+            rlUseProgram(piece->program.GetProgram());
             
             // Attach the uniform buffer for the light position to this primitive.
-            RLuint light_block_index = rlGetUniformBlockIndex(piece->program.getProgram(), "Light");
+            RLuint light_block_index = rlGetUniformBlockIndex(piece->program.GetProgram(), "Light");
             rlUniformBlockBuffer(light_block_index, light_buffer.GetBuffer());
         }
         else
@@ -97,24 +97,27 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
                 return false;
             }
             
-            piece->program.attach(*light_shader);
-            piece->program.attach(vertex_shader);
-            piece->program.link("light");
-            rlUseProgram(piece->program.getProgram());
+            piece->program.Attach(*light_shader);
+            piece->program.Attach(vertex_shader);
+            piece->program.Link("light");
+            rlUseProgram(piece->program.GetProgram());
         }
         
         // Set the shader's uniforms.
         if (piece->material.componentFlags.test(gfx::Material::DIFFUSE))
         {
-            piece->program.set3fv("kd", piece->material.diffuse.v);
+            RLint location = piece->program.GetUniformLocation("kd");
+            piece->program.Set3fv(location, piece->material.diffuse.v);
             
             if (piece->material.diffuseTexture.isValid())
             {
-                piece->program.setTexture("diffuseTexture", piece->material.diffuseTexture.getTexture());
+                location = piece->program.GetUniformLocation("diffuseTexture");
+                piece->program.SetTexture(location, piece->material.diffuseTexture.getTexture());
             }
             if (piece->material.normalTexture.isValid())
             {
-            	piece->program.setTexture("normalmap", piece->material.normalTexture.getTexture());
+                location = piece->program.GetUniformLocation("normalmap");
+            	piece->program.SetTexture(location, piece->material.normalTexture.getTexture());
             }
             /*if (piece->material.component_flags.test(gfx::Material::SUBSURFACE))
             {
@@ -124,34 +127,35 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
             
             // Attach the uniform buffer for the random data to this primitive. Also setup the bounce probability
             // for russian roulette for this particual material.
-            RLuint gi_block_index = rlGetUniformBlockIndex(piece->program.getProgram(), "GI");
+            RLuint gi_block_index = rlGetUniformBlockIndex(piece->program.GetProgram(), "GI");
             if (gi_block_index != ~0) // All 0xF's returned if this block is invalid (this could be a light source).
             {
                 rlUniformBlockBuffer(gi_block_index, gi_buffer.GetBuffer());
                 
                 float bounce_probablility = (piece->material.diffuse[0] + piece->material.diffuse[1] + piece->material.diffuse[2]) / 3.0f;
-                piece->program.set1f("bounceProbablility", bounce_probablility);
+                location = piece->program.GetUniformLocation("bounceProbablility");
+                piece->program.Set1f(location, bounce_probablility);
             }
         }
         if (piece->material.componentFlags.test(gfx::Material::SPECULAR))
         {
             math::Vec4f uniform(piece->material.specular);
             uniform[3] = piece->material.roughness;
-            piece->program.set4fv("ks", uniform.v);
+            piece->program.Set4fv(piece->program.GetUniformLocation("ks"), uniform.v);
         }
         if (piece->material.componentFlags.test(gfx::Material::TRANSMISSIVE))
         {
             math::Vec4f uniform(piece->material.transmissive);
             uniform[3] = piece->material.indexOfRefraction;
-            piece->program.set4fv("kt", uniform.v);
+            piece->program.Set4fv(piece->program.GetUniformLocation("kt"), uniform.v);
         }
         
         // Attach the proper vbos to the attributes for this shader.
         gfx::Mesh::RenderData render_data;
-        render_data.positionAttribute  = rlGetAttribLocation(piece->program.getProgram(), "positionAttribute");
-        render_data.normalAttribute    = rlGetAttribLocation(piece->program.getProgram(), "normalAttribute");
-        render_data.texCoordAttribute = rlGetAttribLocation(piece->program.getProgram(), "texCoordAttribute");
-        render_data.tangentAttribute   = rlGetAttribLocation(piece->program.getProgram(), "tangentAttribute");
+        render_data.positionAttribute  = rlGetAttribLocation(piece->program.GetProgram(), "positionAttribute");
+        render_data.normalAttribute    = rlGetAttribLocation(piece->program.GetProgram(), "normalAttribute");
+        render_data.texCoordAttribute = rlGetAttribLocation(piece->program.GetProgram(), "texCoordAttribute");
+        render_data.tangentAttribute   = rlGetAttribLocation(piece->program.GetProgram(), "tangentAttribute");
         
         piece->buffers[gfx::Mesh::VERTICES].Bind();
         rlVertexAttribBuffer(render_data.positionAttribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);

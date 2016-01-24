@@ -52,6 +52,14 @@ class Shader
     	/// Get access to the internal RL shader object.
     	RLshader getShader() const;
     
+        ///
+        /// Check the status of this shader.
+        ///
+        /// @return If true, this shader is considered to be valid and ready to be
+        ///         attached to a program.
+        ///
+        bool IsValid() const;
+    
     private:
     
         /// Compile the shader for use. Returns true on a successful compile.

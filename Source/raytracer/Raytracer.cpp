@@ -91,7 +91,7 @@ bool Raytracer::initialize(const std::string &config_file_path, RLint &screen_wi
     
     // Construct the OpenRL context.
 //    OpenRLContextAttribute attributes[] = {kOpenRL_EnableRayPrefixShaders, 1, NULL};
-    m_rl_context = OpenRLCreateContext(NULL, NULL, NULL);
+    m_rl_context = OpenRLCreateContext(nullptr, nullptr, nullptr);
     OpenRLSetCurrentContext(m_rl_context);
     
     // Setup configurable objects.
@@ -102,16 +102,28 @@ bool Raytracer::initialize(const std::string &config_file_path, RLint &screen_wi
     // Setup the frameshader to generate the primary rays and bind it to the frame primitive.
     {
         bool error = false;
-		error  = m_raytracing_frame_program.addShader("Resources/shaders/perspective.frame", gfx::Shader::FRAME);
-        error |= m_raytracing_frame_program.link();
+		error  = m_raytracing_frame_program.AddShader("Resources/shaders/perspective.frame", gfx::Shader::FRAME);
+        error |= m_raytracing_frame_program.Link();
         
         if (!error)
         {
             return false;
         }
+
+        // Read the uniform locations from the frame shader.
+        m_frameUniforms.cameraPosition          = m_raytracing_frame_program.GetUniformLocation("cameraPosition");
+        m_frameUniforms.forward                 = m_raytracing_frame_program.GetUniformLocation("forward");
+        m_frameUniforms.up                      = m_raytracing_frame_program.GetUniformLocation("up");
+        m_frameUniforms.right                   = m_raytracing_frame_program.GetUniformLocation("right");
+        m_frameUniforms.fovTan                  = m_raytracing_frame_program.GetUniformLocation("fovTan");
+        m_frameUniforms.focalLength             = m_raytracing_frame_program.GetUniformLocation("focalLength");
+        m_frameUniforms.aspectRatio             = m_raytracing_frame_program.GetUniformLocation("aspectRatio");
+        m_frameUniforms.jitterTexture           = m_raytracing_frame_program.GetUniformLocation("jitterTexture");
+        m_frameUniforms.apertureSampleTexture   = m_raytracing_frame_program.GetUniformLocation("apertureSampleTexture");
+        m_frameUniforms.randomTextureMatrix     = m_raytracing_frame_program.GetUniformLocation("randomTextureMatrix");
         
         rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE);
-		m_raytracing_frame_program.bind();
+		m_raytracing_frame_program.Bind();
     }
     
     // Setup the vertex shader to use for all ray shaders.
@@ -183,7 +195,7 @@ void Raytracer::destroy()
     m_mesh.Destroy();
     m_random_values_texture.destroy();
     m_aperture_sample_texture.destroy();
-    m_raytracing_frame_program.destroy();
+    m_raytracing_frame_program.Destroy();
     m_vertex_shader.destroy();
     m_fbo_texture.destroy();
     m_jitter_texture.destroy();
@@ -249,17 +261,17 @@ void Raytracer::render(Pixels &outputPixels)
         rlBindFramebuffer(RL_FRAMEBUFFER, m_fbo);
         // Setup the camera parameters to the frameshader.
         rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE);
-        m_raytracing_frame_program.bind();
-        m_raytracing_frame_program.set3fv("cameraPosition", m_camera.GetPosition().v);
-        m_raytracing_frame_program.set3fv("forward", m_camera.GetForwardVector().v);
-        m_raytracing_frame_program.set3fv("up", m_camera.GetUpVector().v);
-        m_raytracing_frame_program.set3fv("right", m_camera.GetRightVector().v);
-        m_raytracing_frame_program.set1f("fovTan", tanf((math::DEGREE_TO_RADIAN * m_camera.GetFOV()) * 0.5f));
-        m_raytracing_frame_program.set1f("focalLength", m_camera.GetFocalLength());
-        m_raytracing_frame_program.set1f("aspectRatio", m_camera.GetAspectRatio());
-        m_raytracing_frame_program.setTexture("jitterTexture", m_jitter_texture.getTexture());
-        m_raytracing_frame_program.setTexture("apertureSampleTexture", m_aperture_sample_texture.getTexture());
-        m_raytracing_frame_program.setMatrix4fv("randomTextureMatrix", random_texture_matrix.v);
+        m_raytracing_frame_program.Bind();
+        m_raytracing_frame_program.Set3fv(m_frameUniforms.cameraPosition, m_camera.GetPosition().v);
+        m_raytracing_frame_program.Set3fv(m_frameUniforms.forward, m_camera.GetForwardVector().v);
+        m_raytracing_frame_program.Set3fv(m_frameUniforms.up, m_camera.GetUpVector().v);
+        m_raytracing_frame_program.Set3fv(m_frameUniforms.right, m_camera.GetRightVector().v);
+        m_raytracing_frame_program.Set1f(m_frameUniforms.fovTan, tanf((math::DEGREE_TO_RADIAN * m_camera.GetFOV()) * 0.5f));
+        m_raytracing_frame_program.Set1f(m_frameUniforms.focalLength, m_camera.GetFocalLength());
+        m_raytracing_frame_program.Set1f(m_frameUniforms.aspectRatio, m_camera.GetAspectRatio());
+        m_raytracing_frame_program.SetTexture(m_frameUniforms.jitterTexture, m_jitter_texture.getTexture());
+        m_raytracing_frame_program.SetTexture(m_frameUniforms.apertureSampleTexture, m_aperture_sample_texture.getTexture());
+        m_raytracing_frame_program.SetMatrix4fv(m_frameUniforms.randomTextureMatrix, random_texture_matrix.v);
         rlRenderFrame();
 
         ++m_passes_performed;
@@ -502,7 +514,7 @@ void Raytracer::loadModel(const tinyxml2::XMLElement *mesh_node)
 /// Setup the camera based on the defaults specified in the config file.
 void Raytracer::setupCamera(const tinyxml2::XMLNode *camera_node)
 {
-    const tinyxml2::XMLElement *element = NULL;
+    const tinyxml2::XMLElement *element = nullptr;
     math::Vec3f tmp_vector;
     float       tmp_value = 0.0f;
     
@@ -573,7 +585,7 @@ void Raytracer::setupFramebuffer(const tinyxml2::XMLElement *framebuffer_node, R
     rlGenFramebuffers(1, &m_fbo);
     rlBindFramebuffer(RL_FRAMEBUFFER, m_fbo);
     m_fbo_texture.setParams(texture_params);
-    m_fbo_texture.create(framebuffer_width, framebuffer_height, RL_FLOAT, NULL, "Default FBO Texture");
+    m_fbo_texture.create(framebuffer_width, framebuffer_height, RL_FLOAT, nullptr, "Default FBO Texture");
     rlFramebufferTexture2D(RL_FRAMEBUFFER, RL_COLOR_ATTACHMENT0, RL_TEXTURE_2D, m_fbo_texture.getTexture(), 0);
     
     CheckRLErrors();

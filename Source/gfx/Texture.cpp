@@ -21,7 +21,7 @@ Texture::Texture() :
     m_width(0),
     m_height(0),
     m_name("<unnamed>"),
-    m_data(NULL)
+    m_data(nullptr)
 {
     
 }
@@ -35,10 +35,10 @@ Texture::~Texture()
         m_texture_object = RL_NULL_TEXTURE;
     }
     
-    if (m_data != NULL)
+    if (m_data != nullptr)
     {
         FreeImage_Unload(m_data);
-        m_data = NULL;
+        m_data = nullptr;
     }
 }
     
@@ -96,7 +96,7 @@ bool Texture::loadTextureData(const std::string &path)
 {
     FREE_IMAGE_FORMAT format = FreeImage_GetFileType(path.c_str (), 0);
 	FIBITMAP* unconverted_data = FreeImage_Load(format, path.c_str ());
-	if (unconverted_data == NULL)
+	if (unconverted_data == nullptr)
 	{
         std::cout << "Texture::create() - Unable to load " << path << std::endl;
 		return false;
@@ -134,7 +134,7 @@ bool Texture::createFromLoadedData(bool clear_loaded_data)
     if (clear_loaded_data)
 	{
 		FreeImage_Unload(m_data);
-		m_data = NULL;
+		m_data = nullptr;
 	}
     
     return true;
@@ -256,10 +256,10 @@ void Texture::destroy()
         m_texture_object = RL_NULL_TEXTURE;
     }
     
-    if (m_data != NULL)
+    if (m_data != nullptr)
     {
         FreeImage_Unload(m_data);
-        m_data = NULL;
+        m_data = nullptr;
     }
 }
     

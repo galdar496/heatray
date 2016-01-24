@@ -146,8 +146,26 @@ private:
     
     	gfx::Texture m_aperture_sample_texture; // Texture which has random values within the current radius of the aperture for depth of field.
     
+        ///
+        /// Uniform locations for the uniforms that control the main frame shader.
+        ///
+        struct FrameProgramUniforms
+        {
+            RLint cameraPosition;
+            RLint forward;
+            RLint up;
+            RLint right;
+            RLint fovTan;
+            RLint focalLength;
+            RLint aspectRatio;
+            RLint jitterTexture;
+            RLint apertureSampleTexture;
+            RLint randomTextureMatrix;
+        };
+    
+        FrameProgramUniforms m_frameUniforms;
     	gfx::Program m_raytracing_frame_program; // RLSL program which generates the primary rays to start raytracing.
-    	gfx::Shader m_vertex_shader;             // Vertex shader to use for all ray shader.
+    	gfx::Shader m_vertex_shader;             // Vertex shader to use for all ray shaders.
    
         gfx::Mesh m_mesh; // Mesh to use for rendering.
     

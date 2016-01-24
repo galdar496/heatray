@@ -8,114 +8,175 @@
 
 #pragma once
 
-#include <OpenRL/rl.h>
 #include "Shader.h"
+#include <OpenRL/rl.h>
 
 namespace gfx
 {
-    
+
+///
 /// Encapsulates a RLSL program.
+///
+
 class Program
 {
     public:
     
-        /// Default constructor.
         Program();
-    
-        /// Destructor.
         ~Program();
     
+        ///
         /// Attach the specified shader. The shader must already be valid.
-        bool attach(const Shader &shader // IN: Shader to attach to this program.
-                   );
+        ///
+        /// @param shader Shader to attach to this program. This shader must have already been compiled.
+        ///
+        /// @return If true, the shader was properly attached.
+        ///
+        bool Attach(const Shader &shader);
     
-        /// Link the program. Call this after all shaders have been attached.
-        bool link(const std::string &name = "Program" // IN: Name of the program (optional).
-                 );
+        ///
+        /// Link the program. Call this after all shaders have been attached to finish program creation.
+        ///
+        /// @param name Optional parameter to name the program for debug output.
+        ///
+        bool Link(const std::string &name = "Program");
     
+        ///
         /// Add a shader directly to the program.
-        bool addShader(const std::string &filename, // IN: Path to the shader code.
-                       const Shader::Type type      // IN: Type of the shader.
-                      );
+        ///
+        /// @param filename Path to the shader code.
+        /// @param type Type of the shader.
+        ///
+        /// @return If true, the shader was successfully attached.
+        ///
+        bool AddShader(const std::string &filename, const Shader::Type type);
     
+        ///
         /// Destroy this program.
-        void destroy();
+        ///
+        void Destroy();
     
+        ///
+        /// Get the location of a uniform by name.
+        ///
+        RLint GetUniformLocation(const std::string &name) const;
+    
+        ///
         /// Set an integer uniform in the program.
-        void set1i(const std::string &name, // IN: Name of the uniform.
-                   const int i              // IN: Value of the uniform.
-                  ) const;
+        ///
+        /// @param location Location of this uniform in the shader.
+        /// @param i Value of the uniform.
+        ///
+        void Set1i(const RLint location, const int i) const;
     
+        ///
         /// Set a float uniform in the program.
-        void set1f(const std::string &name, // IN: Name of the uniform.
-                   const float f            // IN: Value of the uniform.
-                  ) const;
+        ///
+        /// @param location Location of this uniform in the shader.
+        /// @param f Value of the uniform.
+        ///
+        void Set1f(const RLint location, const float f) const;
     
+        ///
         /// Set a 2 component float uniform in the program.
-        void set2fv(const std::string &name, // IN: Name of the uniform.
-                    const float *f           // IN: Value of the uniform.
-                   ) const;
+        ///
+        /// @param location Location of this uniform in the shader.
+        /// @param f Value of the uniform.
+        ///
+        void Set2fv(const RLint location, const float *f) const;
     
+        ///
         /// Set a 2 component int uniform in the program.
-        void set2iv(const std::string &name, // IN: Name of the uniform.
-                    const int *i             // IN: Value of the uniform.
-                   ) const;
+        ///
+        /// @param location Location of this uniform in the shader.
+        /// @param i Value of the uniform.
+        ///
+        void Set2iv(const RLint location, const int *i) const;
     
+        ///
         /// Set a 3 component float uniform in the program.
-        void set3fv(const std::string &name, // IN: Name of the uniform.
-                    const float *f           // IN: Value of the uniform.
-                   ) const;
+        ///
+        /// @param location Location of this uniform in the shader.
+        /// @param f Value of the uniform.
+        ///
+        void Set3fv(const RLint location, const float *f) const;
     
+        ///
         /// Set a 4 component float uniform in the program.
-        void set4fv(const std::string &name, // IN: Name of the uniform.
-                    const float *f           // IN: Value of the uniform.
-                   ) const;
+        ///
+        /// @param location Location of this uniform in the shader.
+        /// @param f Value of the uniform.
+        ///
+        void Set4fv(const RLint location, const float *f) const;
     
+        ///
         /// Set a 4 component int uniform in the program.
-        void set4iv(const std::string &name, // IN: Name of the uniform.
-                    const int *i             // IN: Value of the uniform.
-                   ) const;
+        ///
+        /// @param location Location of this uniform in the shader.
+        /// @param fiValue of the uniform.
+        ///
+        void Set4iv(const RLint location, const int *i) const;
     
+        ///
         /// Set a 4x4 matrix uniform in the program.
-        void setMatrix4fv(const std::string &name, // IN: Name of the uniform.
-                          const float *f           // IN: Value of the uniform.
-                         ) const;
+        ///
+        /// @param location Location of this uniform in the shader.
+        /// @param f Value of the uniform.
+        ///
+        void SetMatrix4fv(const RLint location, const float *f) const;
     
-    	/// Set a texture uniform in the program.
-    	void setTexture(const std::string &name, // IN: Name of the uniform.
-                        const RLtexture &texture // IN: Value of the uniform.
-                       );
+        ///
+        /// Set a texture uniform in the program.
+        ///
+        /// @param location Location of this uniform in the shader.
+        /// @param texture Value of the uniform.
+        ///
+    	void SetTexture(const RLint location, const RLtexture &texture);
     
+        ///
         /// Set a primitive uniform in the program.
-        void setPrimitive(const std::string &name,     // IN: Name of the uniform.
-                          const RLprimitive &primitive // IN: Value of the uniform.
-                         );
+        ///
+        /// @param location Location of this uniform in the shader.
+        /// @param primitive Value of the uniform.
+        ///
+        void SetPrimitive(const RLint location, const RLprimitive &primitive);
     
+        ///
         /// Bind this program for use.
-        void bind() const;
+        ///
+        void Bind() const;
     
+        ///
         /// Unbind this program from use.
-        void unbind() const;
+        ///
+        void Unbind() const;
     
+        ///
         /// Get a location of an attribute variable in the program.
-        RLint getAttributeLocation(const std::string &name // IN: Name of the attribute variable.
-                                  ) const;
+        ///
+        /// @param name Name of the attribute variable.
+        ///
+        RLint GetAttributeLocation(const std::string &name) const;
     
+        ///
     	/// Get access to the internal program object.
-    	RLprogram getProgram() const;
+        ///
+    	RLprogram GetProgram() const;
         
     private:
     
-        // Create the RL program.
-        bool create();
+        ///
+        /// Create the RL program.
+        ///
+        bool Create();
     
     	// Programs are not copyable.
-    	Program(const Program &other);
-    	Program & operator=(const Program &other);
+    	Program(const Program &other) = delete;
+    	Program & operator=(const Program &other) = delete;
         
         // Member variables.
-        RLprogram   m_program;      // RL program object.
-        std::string m_program_name;	// The name of this program (optional).
+        RLprogram   m_program;      ///< RL program object.
+        std::string m_programName;	///< The name of this program (optional).
     };
     
 }

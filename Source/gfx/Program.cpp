@@ -9,29 +9,28 @@
 #include "Program.h"
 #include "../utility/util.h"
 #include <iostream>
+#include <assert.h>
 
 namespace gfx
 {
 
-/// Default constructor.
 Program::Program() :
 	m_program(RL_NULL_PROGRAM),
-	m_program_name("<unnamed>")
+	m_programName("<unnamed>")
 {
 }
 
-/// Destructor.
 Program::~Program()
 {
-    destroy();
+    Destroy();
 }
 
-/// Attach the specified shader. The shader must already be valid.
-bool Program::attach(const Shader &shader)
+bool Program::Attach(const Shader &shader)
 {
 	bool returnValue = false;
+    assert(shader.IsValid());
     
-    if (create())
+    if (Create())
     {
         rlAttachShader(m_program, shader.getShader());
         
@@ -42,8 +41,7 @@ bool Program::attach(const Shader &shader)
     return returnValue;
 }
 
-/// Link the program. Call this after all shaders have been attached.
-bool Program::link(const std::string &name)
+bool Program::Link(const std::string &name)
 {
 	rlLinkProgram(m_program);
 	//util::CheckRLErrors("Program::link() - Link the program", true);
@@ -59,12 +57,11 @@ bool Program::link(const std::string &name)
         return false;
 	}
     
-	m_program_name = name;
+	m_programName = name;
 	return true;
 }
 
-/// Add a shader directly to the program.
-bool Program::addShader(const std::string &filename, const Shader::Type type)
+bool Program::AddShader(const std::string &filename, const Shader::Type type)
 {
 	Shader shader;
 	if (shader.load(filename, type) == false)
@@ -72,7 +69,7 @@ bool Program::addShader(const std::string &filename, const Shader::Type type)
 		return false;
 	}
     
-	if (attach(shader) == false)
+	if (Attach(shader) == false)
 	{
 		return false;
 	}
@@ -80,8 +77,7 @@ bool Program::addShader(const std::string &filename, const Shader::Type type)
 	return true;
 }
     
-/// Destroy this program.
-void Program::destroy()
+void Program::Destroy()
 {
     if (m_program != RL_NULL_PROGRAM)
     {
@@ -90,91 +86,85 @@ void Program::destroy()
     }
 }
 
-/// Set an integer uniform in the program.
-void Program::set1i(const std::string &name, const int i) const
+RLint Program::GetUniformLocation(const std::string &name) const
 {
-    rlUniform1i(rlGetUniformLocation(m_program, name.c_str()), i);
+    RLint location = rlGetUniformLocation(m_program, name.c_str());
+    
+    assert(location >= 0);
+    return location;
 }
 
-/// Set a float uniform in the program.
-void Program::set1f(const std::string &name, const float f) const
+void Program::Set1i(const RLint location, const int i) const
 {
-    rlUniform1f(rlGetUniformLocation(m_program, name.c_str()), f);
+    rlUniform1i(location, i);
 }
 
-/// Set a 2 component float uniform in the program.
-void Program::set2fv(const std::string &name, const float *f) const
+void Program::Set1f(const RLint location, const float f) const
 {
-	rlUniform2fv(rlGetUniformLocation(m_program, name.c_str()), 1, f);
+    rlUniform1f(location, f);
 }
 
-/// Set a 2 component int uniform in the program.
-void Program::set2iv(const std::string &name, const int *i) const
+void Program::Set2fv(const RLint location, const float *f) const
 {
-	rlUniform2iv(rlGetUniformLocation(m_program, name.c_str()), 1, i);
+	rlUniform2fv(location, 1, f);
 }
 
-/// Set a 3 component float uniform in the program.
-void Program::set3fv(const std::string &name, const float *f) const
+void Program::Set2iv(const RLint location, const int *i) const
 {
-    rlUniform3fv(rlGetUniformLocation(m_program, name.c_str()), 1, f);
+	rlUniform2iv(location, 1, i);
 }
 
-/// Set a 4 component int uniform in the program.
-void Program::set4iv(const std::string &name, const int *i) const
+void Program::Set3fv(const RLint location, const float *f) const
 {
-    rlUniform4iv(rlGetUniformLocation(m_program, name.c_str()), 1, i);
+    rlUniform3fv(location, 1, f);
+}
+
+void Program::Set4iv(const RLint location, const int *i) const
+{
+    rlUniform4iv(location, 1, i);
 }
     
-/// Set a 4 component float uniform in the program.
-void Program::set4fv(const std::string &name, const float *f) const
+void Program::Set4fv(const RLint location, const float *f) const
 {
-    rlUniform4fv(rlGetUniformLocation(m_program, name.c_str()), 1, f);
+    rlUniform4fv(location, 1, f);
 }
 
-/// Set a 4x4 matrix uniform in the program.
-void Program::setMatrix4fv(const std::string &name, const float *f) const
+void Program::SetMatrix4fv(const RLint location, const float *f) const
 {
-    rlUniformMatrix4fv(rlGetUniformLocation(m_program, name.c_str()), 1, RL_FALSE, f);
+    rlUniformMatrix4fv(location, 1, RL_FALSE, f);
 }
     
-/// Set a texture uniform in the program.
-void Program::setTexture(const std::string &name, const RLtexture &texture)
+void Program::SetTexture(const RLint location, const RLtexture &texture)
 {
-	rlUniformt(rlGetUniformLocation(m_program, name.c_str()), texture);
+	rlUniformt(location, texture);
 }
     
-/// Set a primitive uniform in the program.
-void Program::setPrimitive(const std::string &name, const RLprimitive &primitive)
+void Program::SetPrimitive(const RLint location, const RLprimitive &primitive)
 {
-    rlUniformp(rlGetUniformLocation(m_program, name.c_str()), primitive);
+    rlUniformp(location, primitive);
 }
 
-/// Bind this program for use.
-void Program::bind() const
+void Program::Bind() const
 {
     rlUseProgram(m_program);
 }
 
-/// Unbind this program from use.
-void Program::unbind() const
+void Program::Unbind() const
 {
 	rlUseProgram(RL_NULL_PROGRAM);
 }
 
-/// Get a location of an attribute variable in the program.
-RLint Program::getAttributeLocation(const std::string &name) const
+RLint Program::GetAttributeLocation(const std::string &name) const
 {
     return rlGetAttribLocation(m_program, name.c_str());
 }
     
-/// Get access to the internal program object.
-RLprogram Program::getProgram() const
+RLprogram Program::GetProgram() const
 {
     return m_program;
 }
     
-bool Program::create()
+bool Program::Create()
 {
     if (m_program != RL_NULL_PROGRAM)
     {

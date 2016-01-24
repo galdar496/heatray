@@ -249,7 +249,7 @@ void Mesh::Destroy()
             piece->buffers[ii].Destroy();
         }
         
-        piece->program.destroy();
+        piece->program.Destroy();
         piece->material.Destroy();
     }
     
