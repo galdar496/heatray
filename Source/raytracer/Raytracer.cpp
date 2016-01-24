@@ -134,7 +134,7 @@ bool Raytracer::initialize(const std::string &config_file_path, RLint &screen_wi
         
         // Get the lighting information from the mesh and then create the mesh rendering info.
         getLighting(m_mesh);
-        m_mesh.createRenderData();
+        m_mesh.CreateRenderData();
         
         {
             // Read the paths to the shader files from the config file.
@@ -164,7 +164,7 @@ bool Raytracer::initialize(const std::string &config_file_path, RLint &screen_wi
         m_light_buffer.UnmapBuffer();
         m_light_buffer.Unbind();
         
-        m_mesh.clearLoadedData();
+        m_mesh.ClearLoadedData();
     }
 
     return true;
@@ -180,7 +180,7 @@ void Raytracer::destroy()
         m_fbo = RL_NULL_FRAMEBUFFER;
     }
     
-    m_mesh.destroy();
+    m_mesh.Destroy();
     m_random_values_texture.destroy();
     m_aperture_sample_texture.destroy();
     m_raytracing_frame_program.destroy();
@@ -493,7 +493,7 @@ void Raytracer::loadModel(const tinyxml2::XMLElement *mesh_node)
     
     mesh_node->QueryFloatAttribute("Scale", &model_scaling);
     
-    if (!m_mesh.load(model_path, false, model_scaling, false))
+    if (!m_mesh.Load(model_path, false, model_scaling, false))
     {
         exit(0);
     }
@@ -604,7 +604,7 @@ void Raytracer::getLighting(gfx::Mesh &mesh)
 {
     // Go over each mesh piece and look for anything that is a light. For all lights that are found, populate a
     // 'Light' struct with information about that light to use for later rendering.
-    gfx::Mesh::MeshList &meshes = mesh.getMeshList();
+    gfx::Mesh::MeshList &meshes = mesh.GetMeshList();
     for (gfx::Mesh::MeshList::const_iterator iter = meshes.begin(); iter != meshes.end(); ++iter)
     {
         const gfx::Mesh::MeshPiece *piece = &(iter->second);
@@ -691,8 +691,8 @@ void Raytracer::writeConfigFile() const
     // Write the mesh info.
     {
         tinyxml2::XMLElement *node = config.NewElement("Mesh");
-        node->SetAttribute("Model", m_mesh.getName().c_str());
-        node->SetAttribute("Scale", m_mesh.getScale());
+        node->SetAttribute("Model", m_mesh.GetName().c_str());
+        node->SetAttribute("Scale", m_mesh.GetScale());
         
         root_element->InsertEndChild(node);
     }

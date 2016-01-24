@@ -58,7 +58,7 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
 
     // Iterate over each mesh piece and create a shader for it. Afterwards bind the VBOs to the proper
     // locations in the newly compiled programs.
-    gfx::Mesh::MeshList &meshes = mesh.getMeshList();
+    gfx::Mesh::MeshList &meshes = mesh.GetMeshList();
     for (gfx::Mesh::MeshList::iterator iter = meshes.begin(); iter != meshes.end(); ++iter)
     {
         gfx::Mesh::MeshPiece *piece = &(iter->second);
@@ -148,29 +148,29 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
         
         // Attach the proper vbos to the attributes for this shader.
         gfx::Mesh::RenderData render_data;
-        render_data.position_attribute  = rlGetAttribLocation(piece->program.getProgram(), "positionAttribute");
-        render_data.normal_attribute    = rlGetAttribLocation(piece->program.getProgram(), "normalAttribute");
-        render_data.tex_coord_attribute = rlGetAttribLocation(piece->program.getProgram(), "texCoordAttribute");
-        render_data.tangent_attribute   = rlGetAttribLocation(piece->program.getProgram(), "tangentAttribute");
+        render_data.positionAttribute  = rlGetAttribLocation(piece->program.getProgram(), "positionAttribute");
+        render_data.normalAttribute    = rlGetAttribLocation(piece->program.getProgram(), "normalAttribute");
+        render_data.texCoordAttribute = rlGetAttribLocation(piece->program.getProgram(), "texCoordAttribute");
+        render_data.tangentAttribute   = rlGetAttribLocation(piece->program.getProgram(), "tangentAttribute");
         
         piece->buffers[gfx::Mesh::VERTICES].Bind();
-        rlVertexAttribBuffer(render_data.position_attribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
+        rlVertexAttribBuffer(render_data.positionAttribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
         piece->buffers[gfx::Mesh::VERTICES].Unbind();
         
         piece->buffers[gfx::Mesh::NORMALS].Bind();
-        rlVertexAttribBuffer(render_data.normal_attribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
+        rlVertexAttribBuffer(render_data.normalAttribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
         piece->buffers[gfx::Mesh::NORMALS].Unbind();
         
         piece->buffers[gfx::Mesh::TEX_COORDS].Bind();
-        rlVertexAttribBuffer(render_data.tex_coord_attribute, 2, RL_FLOAT, RL_FALSE, sizeof(math::Vec2f), 0);
+        rlVertexAttribBuffer(render_data.texCoordAttribute, 2, RL_FLOAT, RL_FALSE, sizeof(math::Vec2f), 0);
         piece->buffers[gfx::Mesh::TEX_COORDS].Unbind();
         
         piece->buffers[gfx::Mesh::TANGENTS].Bind();
-        rlVertexAttribBuffer(render_data.tangent_attribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
+        rlVertexAttribBuffer(render_data.tangentAttribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
         piece->buffers[gfx::Mesh::TANGENTS].Unbind();
         
         // Submit this mesh to OpenRL for heirarchy building and later on rendering.
-        rlDrawArrays(RL_TRIANGLES, 0, piece->num_elements);
+        rlDrawArrays(RL_TRIANGLES, 0, piece->numElements);
         
         rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE);
         
