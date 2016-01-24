@@ -60,7 +60,7 @@ bool Mesh::load(const std::string &filename, const bool create_render_data, cons
         default_material.transmissive = math::Vec3f::Zero();
         default_material.specular = math::Vec3f::Zero();
         default_material.diffuse = math::Vec3f::Zero();
-        default_material.index_of_refraction = 1.0f;
+        default_material.indexOfRefraction = 1.0f;
         m_meshes["default"].material = default_material;
     }
     
@@ -253,7 +253,7 @@ void Mesh::destroy()
         }
         
         piece->program.destroy();
-        piece->material.destroy();
+        piece->material.Destroy();
     }
     
     clearLoadedData();
@@ -328,7 +328,7 @@ bool Mesh::loadMaterials(const std::string &filename, MeshList &materials, const
             if (material_name.find("Light") != std::string::npos)
             {
                 // This material is going to be used as a light source.
-                material_iter->second.material.component_flags.set(gfx::Material::LIGHT);
+                material_iter->second.material.componentFlags.set(gfx::Material::LIGHT);
             }
         }
         
@@ -343,7 +343,7 @@ bool Mesh::loadMaterials(const std::string &filename, MeshList &materials, const
             fin >> material_iter->second.material.transmissive[0] >> material_iter->second.material.transmissive[1] >> material_iter->second.material.transmissive[2];
             if (material_iter->second.material.transmissive != math::Vec3f::Zero())
             {
-                material_iter->second.material.component_flags.set(gfx::Material::TRANSMISSIVE);
+                material_iter->second.material.componentFlags.set(gfx::Material::TRANSMISSIVE);
             }
         }
         
@@ -352,7 +352,7 @@ bool Mesh::loadMaterials(const std::string &filename, MeshList &materials, const
             fin >> material_iter->second.material.diffuse[0] >> material_iter->second.material.diffuse[1] >> material_iter->second.material.diffuse[2];
             if (material_iter->second.material.diffuse != math::Vec3f::Zero())
             {
-                material_iter->second.material.component_flags.set(gfx::Material::DIFFUSE);
+                material_iter->second.material.componentFlags.set(gfx::Material::DIFFUSE);
             }
         }
         
@@ -361,7 +361,7 @@ bool Mesh::loadMaterials(const std::string &filename, MeshList &materials, const
             fin >> material_iter->second.material.specular[0] >> material_iter->second.material.specular[1] >> material_iter->second.material.specular[2];
             if (material_iter->second.material.specular != math::Vec3f::Zero())
             {
-                material_iter->second.material.component_flags.set(gfx::Material::SPECULAR);
+                material_iter->second.material.componentFlags.set(gfx::Material::SPECULAR);
             }
         }
         
@@ -370,14 +370,14 @@ bool Mesh::loadMaterials(const std::string &filename, MeshList &materials, const
             fin >> material_iter->second.material.diffuse[0] >> material_iter->second.material.diffuse[1] >> material_iter->second.material.diffuse[2];
             if (material_iter->second.material.diffuse != math::Vec3f::Zero())
             {
-                material_iter->second.material.component_flags.set(gfx::Material::SUBSURFACE);
-                material_iter->second.material.component_flags.set(gfx::Material::DIFFUSE);
+                material_iter->second.material.componentFlags.set(gfx::Material::SUBSURFACE);
+                material_iter->second.material.componentFlags.set(gfx::Material::DIFFUSE);
             }
         }
         
         else if (material_line == "Ni")
         {
-            fin >> material_iter->second.material.index_of_refraction;
+            fin >> material_iter->second.material.indexOfRefraction;
         }
         
         // Unused.
@@ -393,8 +393,8 @@ bool Mesh::loadMaterials(const std::string &filename, MeshList &materials, const
             fin >> texture_path;
             
             texture_path = base_path + texture_path;
-            material_iter->second.material.diffuse_texture.loadTextureData(texture_path);
-            material_iter->second.material.component_flags.set(gfx::Material::DIFFUSE_TEXTURE);
+            material_iter->second.material.diffuseTexture.loadTextureData(texture_path);
+            material_iter->second.material.componentFlags.set(gfx::Material::DIFFUSE_TEXTURE);
         }
         
         else if (material_line == "map_Bump")
@@ -403,8 +403,8 @@ bool Mesh::loadMaterials(const std::string &filename, MeshList &materials, const
             fin >> texture_path;
             
             texture_path = base_path + texture_path;
-            material_iter->second.material.normal_texture.loadTextureData(texture_path);
-            material_iter->second.material.component_flags.set(gfx::Material::NORMALMAP);
+            material_iter->second.material.normalTexture.loadTextureData(texture_path);
+            material_iter->second.material.componentFlags.set(gfx::Material::NORMALMAP);
         }
         
         // Unused.
@@ -436,8 +436,8 @@ void Mesh::createRenderData()
         rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE);
 
         // Generate any textures that this mesh needs.
-        piece->material.diffuse_texture.createFromLoadedData(true);
-        piece->material.normal_texture.createFromLoadedData(true);
+        piece->material.diffuseTexture.createFromLoadedData(true);
+        piece->material.normalTexture.createFromLoadedData(true);
 
         size_t num_elements = piece->vertices.size();
         

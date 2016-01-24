@@ -104,17 +104,17 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
         }
         
         // Set the shader's uniforms.
-        if (piece->material.component_flags.test(gfx::Material::DIFFUSE))
+        if (piece->material.componentFlags.test(gfx::Material::DIFFUSE))
         {
             piece->program.set3fv("kd", piece->material.diffuse.v);
             
-            if (piece->material.diffuse_texture.isValid())
+            if (piece->material.diffuseTexture.isValid())
             {
-                piece->program.setTexture("diffuseTexture", piece->material.diffuse_texture.getTexture());
+                piece->program.setTexture("diffuseTexture", piece->material.diffuseTexture.getTexture());
             }
-            if (piece->material.normal_texture.isValid())
+            if (piece->material.normalTexture.isValid())
             {
-            	piece->program.setTexture("normalmap", piece->material.normal_texture.getTexture());
+            	piece->program.setTexture("normalmap", piece->material.normalTexture.getTexture());
             }
             /*if (piece->material.component_flags.test(gfx::Material::SUBSURFACE))
             {
@@ -133,16 +133,16 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
                 piece->program.set1f("bounceProbablility", bounce_probablility);
             }
         }
-        if (piece->material.component_flags.test(gfx::Material::SPECULAR))
+        if (piece->material.componentFlags.test(gfx::Material::SPECULAR))
         {
             math::Vec4f uniform(piece->material.specular);
             uniform[3] = piece->material.roughness;
             piece->program.set4fv("ks", uniform.v);
         }
-        if (piece->material.component_flags.test(gfx::Material::TRANSMISSIVE))
+        if (piece->material.componentFlags.test(gfx::Material::TRANSMISSIVE))
         {
             math::Vec4f uniform(piece->material.transmissive);
-            uniform[3] = piece->material.index_of_refraction;
+            uniform[3] = piece->material.indexOfRefraction;
             piece->program.set4fv("kt", uniform.v);
         }
         
@@ -185,7 +185,7 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
 gfx::Shader *ShaderGenerator::findOrCreateRayShader(const gfx::Material &material, const std::string &shader_source, const int max_light_count)
 {
     // Look for this shader in the cache first.
-    ShaderFlags shader_flags = material.component_flags.to_ulong();
+    ShaderFlags shader_flags = material.componentFlags.to_ulong();
     ShaderCache::iterator iter = m_shaderCache.find(shader_flags);
 
     if (iter != m_shaderCache.end())
@@ -202,11 +202,11 @@ gfx::Shader *ShaderGenerator::findOrCreateRayShader(const gfx::Material &materia
     // Add the proper defines to the top of the shader for this material.
     for (int ii = 0; ii < gfx::Material::NUM_COMPONENT_FLAGS; ++ii)
     {
-        if (material.component_flags.test(ii))
+        if (material.componentFlags.test(ii))
         {
             // Essentially write "#define MATERIAL_TYPE".
             final_source += "#define ";
-            final_source += gfx::Material::material_names[ii];
+            final_source += gfx::Material::materialNames[ii];
             final_source += "\n";
         }
     }

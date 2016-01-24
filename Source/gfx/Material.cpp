@@ -12,7 +12,7 @@ namespace gfx
 {
 
 #define X(type) "MATERIAL_" + std::string(#type),
-    const std::string Material::material_names[] =
+    const std::string Material::materialNames[] =
     {
         MATERIAL_TYPES
     };
@@ -20,18 +20,17 @@ namespace gfx
 #undef X
 
 Material::Material() :
-    index_of_refraction(0.0f),
+    indexOfRefraction(0.0f),
     roughness(0.0f),
     name("<unnamed>"),
-    component_flags(0)
+    componentFlags(0)
 {
 }
 
-/// Destroy this material.
-void Material::destroy()
+void Material::Destroy()
 {
-    diffuse_texture.destroy();
-    normal_texture.destroy();
+    diffuseTexture.destroy();
+    normalTexture.destroy();
 }
 
 } // namespace gfx

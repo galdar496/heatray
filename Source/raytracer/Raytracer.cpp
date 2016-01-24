@@ -250,13 +250,13 @@ void Raytracer::render(Pixels &outputPixels)
         // Setup the camera parameters to the frameshader.
         rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE);
         m_raytracing_frame_program.bind();
-        m_raytracing_frame_program.set3fv("cameraPosition", m_camera.getPosition().v);
-        m_raytracing_frame_program.set3fv("forward", m_camera.getForwardVector().v);
-        m_raytracing_frame_program.set3fv("up", m_camera.getUpVector().v);
-        m_raytracing_frame_program.set3fv("right", m_camera.getRightVector().v);
-        m_raytracing_frame_program.set1f("fovTan", tanf((math::DEGREE_TO_RADIAN * m_camera.getFOV()) * 0.5f));
-        m_raytracing_frame_program.set1f("focalLength", m_camera.getFocalLength());
-        m_raytracing_frame_program.set1f("aspectRatio", m_camera.getAspectRatio());
+        m_raytracing_frame_program.set3fv("cameraPosition", m_camera.GetPosition().v);
+        m_raytracing_frame_program.set3fv("forward", m_camera.GetForwardVector().v);
+        m_raytracing_frame_program.set3fv("up", m_camera.GetUpVector().v);
+        m_raytracing_frame_program.set3fv("right", m_camera.GetRightVector().v);
+        m_raytracing_frame_program.set1f("fovTan", tanf((math::DEGREE_TO_RADIAN * m_camera.GetFOV()) * 0.5f));
+        m_raytracing_frame_program.set1f("focalLength", m_camera.GetFocalLength());
+        m_raytracing_frame_program.set1f("aspectRatio", m_camera.GetAspectRatio());
         m_raytracing_frame_program.setTexture("jitterTexture", m_jitter_texture.getTexture());
         m_raytracing_frame_program.setTexture("apertureSampleTexture", m_aperture_sample_texture.getTexture());
         m_raytracing_frame_program.setMatrix4fv("randomTextureMatrix", random_texture_matrix.v);
@@ -294,7 +294,7 @@ void Raytracer::resize(RLint width, RLint height)
     
     // Set the new viewport.
 	rlViewport(0, 0, width, height);
-    m_camera.setAspectRatio((float)((float)width / (float)height));
+    m_camera.SetAspectRatio((float)((float)width / (float)height));
     
     // Regenerate the render textures to be the proper size.
     if (m_fbo_texture.isValid())
@@ -346,56 +346,56 @@ void Raytracer::checkKeys(const float dt)
     
     if (m_keyboard.test(Keys::kCameraForward))
     {
-        m_camera.move(0.0f, 0.0f, -m_camera_movement_speed * dt);
+        m_camera.Move(0.0f, 0.0f, -m_camera_movement_speed * dt);
         reset_rendering_state = true;
     }
     else if (m_keyboard.test(Keys::kCameraBackward))
     {
-        m_camera.move(0.0f, 0.0f, m_camera_movement_speed * dt);
+        m_camera.Move(0.0f, 0.0f, m_camera_movement_speed * dt);
         reset_rendering_state = true;
     }
     
     if (m_keyboard.test(Keys::kCameraPanLeft))
     {
-        m_camera.move(-m_camera_movement_speed * dt, 0.0f, 0.0f);
+        m_camera.Move(-m_camera_movement_speed * dt, 0.0f, 0.0f);
         reset_rendering_state = true;
     }
     else if (m_keyboard.test(Keys::kCameraPanRight))
     {
-        m_camera.move(m_camera_movement_speed * dt, 0.0f, 0.0f);
+        m_camera.Move(m_camera_movement_speed * dt, 0.0f, 0.0f);
         reset_rendering_state = true;
     }
     
     if (m_keyboard.test(Keys::kCameraRotateUp))
     {
-        m_camera.pitch(-m_camera_rotation_speed * dt);
+        m_camera.Pitch(-m_camera_rotation_speed * dt);
         reset_rendering_state = true;
     }
     else if (m_keyboard.test(Keys::kCameraRotateDown))
     {
-        m_camera.pitch(m_camera_rotation_speed * dt);
+        m_camera.Pitch(m_camera_rotation_speed * dt);
         reset_rendering_state = true;
     }
     
     if (m_keyboard.test(Keys::kCameraRotateRight))
     {
-        m_camera.yaw(m_camera_rotation_speed * dt);
+        m_camera.Yaw(m_camera_rotation_speed * dt);
         reset_rendering_state = true;
     }
     else if (m_keyboard.test(Keys::kCameraRotateLeft))
     {
-        m_camera.yaw(-m_camera_rotation_speed * dt);
+        m_camera.Yaw(-m_camera_rotation_speed * dt);
         reset_rendering_state = true;
     }
     
     if (m_keyboard.test(Keys::kCameraRollLeft))
     {
-        m_camera.roll(-m_camera_rotation_speed * dt);
+        m_camera.Roll(-m_camera_rotation_speed * dt);
         reset_rendering_state = true;
     }
     else if (m_keyboard.test(Keys::kCameraRollRight))
     {
-        m_camera.roll(m_camera_rotation_speed * dt);
+        m_camera.Roll(m_camera_rotation_speed * dt);
         reset_rendering_state = true;
     }
     
@@ -419,35 +419,35 @@ void Raytracer::checkKeys(const float dt)
     
     if (m_keyboard.test(Keys::kIncreaseApertureWidth))
     {
-        float aperture_width = m_camera.getApertureRadius();
+        float aperture_width = m_camera.GetApertureRadius();
         aperture_width += aperature_increment;
         reset_rendering_state = true;
         
         // Regenerate the aperture sampling texture to reflect the new aperture radius.
         m_aperture_sample_texture.randomizeRadial(m_fbo_texture.width(), m_fbo_texture.height(), RL_FLOAT, aperture_width, "random");
         
-        m_camera.setApertureRadius(aperture_width);
+        m_camera.SetApertureRadius(aperture_width);
     }
     else if (m_keyboard.test(Keys::kDecreaseApertureWidth))
     {
-        float aperture_width = m_camera.getApertureRadius();
+        float aperture_width = m_camera.GetApertureRadius();
         aperture_width = std::max(0.0f, aperture_width - aperature_increment);
         reset_rendering_state = true;
         
         // Regenerate the aperture sampling texture to reflect the new aperture radius.
         m_aperture_sample_texture.randomizeRadial(m_fbo_texture.width(), m_fbo_texture.height(), RL_FLOAT, aperture_width, "random");
         
-        m_camera.setApertureRadius(aperture_width);
+        m_camera.SetApertureRadius(aperture_width);
     }
     
     if (m_keyboard.test(Keys::kIncreaseFocalLength))
     {
-        m_camera.setFocalLength(m_camera.getFocalLength() + focal_length_increment);
+        m_camera.SetFocalLength(m_camera.GetFocalLength() + focal_length_increment);
         reset_rendering_state = true;
     }
 	else if (m_keyboard.test(Keys::kDecreaseFocalLength))
     {
-        m_camera.setFocalLength(std::max(0.0f, m_camera.getFocalLength() - focal_length_increment));
+        m_camera.SetFocalLength(std::max(0.0f, m_camera.GetFocalLength() - focal_length_increment));
         reset_rendering_state = true;
     }
     
@@ -514,7 +514,7 @@ void Raytracer::setupCamera(const tinyxml2::XMLNode *camera_node)
         element->QueryFloatAttribute("Y", &tmp_vector[1]);
         element->QueryFloatAttribute("Z", &tmp_vector[2]);
 
-        m_camera.setPosition(tmp_vector);
+        m_camera.SetPosition(tmp_vector);
     }
     
     // Setup the camera's lens attributes.
@@ -522,13 +522,13 @@ void Raytracer::setupCamera(const tinyxml2::XMLNode *camera_node)
         element = camera_node->FirstChildElement("Lens");
         
         element->QueryFloatAttribute("FocalLength", &tmp_value);
-        m_camera.setFocalLength(tmp_value);
+        m_camera.SetFocalLength(tmp_value);
         
 		element->QueryFloatAttribute("ApertureRadius", &tmp_value);
-        m_camera.setApertureRadius(tmp_value);
+        m_camera.SetApertureRadius(tmp_value);
         
         // Generate the aperture sampling texture to reflect the aperture radius.
-        m_aperture_sample_texture.randomizeRadial(m_fbo_texture.width(), m_fbo_texture.height(), RL_FLOAT, m_camera.getApertureRadius(), "random");
+        m_aperture_sample_texture.randomizeRadial(m_fbo_texture.width(), m_fbo_texture.height(), RL_FLOAT, m_camera.GetApertureRadius(), "random");
     }
     
     // Setup the camera's orientation.
@@ -541,7 +541,7 @@ void Raytracer::setupCamera(const tinyxml2::XMLNode *camera_node)
         element->QueryFloatAttribute("Angle", &tmp_value);
         
         math::Quatf orientation(tmp_value, tmp_vector);
-        m_camera.setOrientation(orientation);
+        m_camera.SetOrientation(orientation);
     }
     
     // Setup the camera's movement speed parameters.
@@ -702,19 +702,19 @@ void Raytracer::writeConfigFile() const
         tinyxml2::XMLElement *camera_node = config.NewElement("Camera");
     
         tinyxml2::XMLElement *position = config.NewElement("Position");
-        math::Vec3f camera_position = m_camera.getPosition();
+        math::Vec3f camera_position = m_camera.GetPosition();
         position->SetAttribute("X", camera_position[0]);
         position->SetAttribute("Y", camera_position[1]);
         position->SetAttribute("Z", camera_position[2]);
         camera_node->InsertEndChild(position);
         
         tinyxml2::XMLElement *lens = config.NewElement("Lens");
-        lens->SetAttribute("FocalLength", m_camera.getFocalLength());
-        lens->SetAttribute("ApertureRadius", m_camera.getApertureRadius());
+        lens->SetAttribute("FocalLength", m_camera.GetFocalLength());
+        lens->SetAttribute("ApertureRadius", m_camera.GetApertureRadius());
         camera_node->InsertEndChild(lens);
         
         tinyxml2::XMLElement *orientation = config.NewElement("Orientation");
-        math::Quatf camera_orientation = m_camera.getOrientation();
+        math::Quatf camera_orientation = m_camera.GetOrientation();
         orientation->SetAttribute("X", camera_orientation.GetAxis()[0]);
         orientation->SetAttribute("Y", camera_orientation.GetAxis()[1]);
         orientation->SetAttribute("Z", camera_orientation.GetAxis()[2]);
