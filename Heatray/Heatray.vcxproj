@@ -107,17 +107,17 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\Windows Files;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\3rdParty\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>freeglut.lib;FreeImage.lib;OpenRL.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)..\Windows Files</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\3rdParty\Libs\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y /D "$(ProjectDir)..\Source\defaultconfig.xml" "$(OutDir)defaultconfig.xml"
-copy /Y /D "$(ProjectDir)..\Windows Files\*.dll" "$(OutDir)"
+copy /Y /D "$(ProjectDir)..\3rdParty\libs\*.dll" "$(OutDir)"
 xcopy /Y /D /S /I "$(ProjectDir)..\Resources\*" "$(OutDir)Resources"
 
 </Command>
@@ -151,7 +151,7 @@ xcopy /Y /D /S /I "$(ProjectDir)..\Resources\*" "$(OutDir)Resources"
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\Windows Files;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\3rdParty\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -159,11 +159,11 @@ xcopy /Y /D /S /I "$(ProjectDir)..\Resources\*" "$(OutDir)Resources"
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>freeglut.lib;FreeImage.lib;OpenRL.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)..\Windows Files</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\3rdParty\Libs\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y /D "$(ProjectDir)..\Source\defaultconfig.xml" "$(OutDir)defaultconfig.xml"
-copy /Y /D "$(ProjectDir)..\Windows Files\*.dll" "$(OutDir)"
+copy /Y /D "$(ProjectDir)..\3rdParty\libs\*.dll" "$(OutDir)"
 xcopy /Y /D /S /I "$(ProjectDir)..\Resources\*" "$(OutDir)Resources"
 
 </Command>
@@ -183,8 +183,8 @@ xcopy /Y /D /S /I "$(ProjectDir)..\Resources\*" "$(OutDir)Resources"
     <ClCompile Include="..\Source\gfx\Shader.cpp" />
     <ClCompile Include="..\Source\gfx\Texture.cpp" />
     <ClCompile Include="..\Source\main.cpp" />
+    <ClCompile Include="..\Source\raytracer\Raytracer.cpp" />
     <ClCompile Include="..\Source\raytracer\ShaderGenerator.cpp" />
-    <ClCompile Include="..\Source\raytracer\World.cpp" />
     <ClCompile Include="..\Source\utility\tinyxml2.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -202,8 +202,8 @@ xcopy /Y /D /S /I "$(ProjectDir)..\Resources\*" "$(OutDir)Resources"
     <ClInclude Include="..\Source\math\Vector.h" />
     <ClInclude Include="..\Source\raytracer\Light.h" />
     <ClInclude Include="..\Source\raytracer\Pixels.h" />
+    <ClInclude Include="..\Source\raytracer\Raytracer.h" />
     <ClInclude Include="..\Source\raytracer\ShaderGenerator.h" />
-    <ClInclude Include="..\Source\raytracer\World.h" />
     <ClInclude Include="..\Source\utility\rng.h" />
     <ClInclude Include="..\Source\utility\Timer.h" />
     <ClInclude Include="..\Source\utility\tinyxml2.h" />

@@ -56,11 +56,11 @@
     <ClCompile Include="..\Source\raytracer\ShaderGenerator.cpp">
       <Filter>Source\raytracer</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\raytracer\World.cpp">
-      <Filter>Source\raytracer</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\gfx\Material.cpp">
       <Filter>Source\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\raytracer\Raytracer.cpp">
+      <Filter>Source\raytracer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -118,10 +118,10 @@
     <ClInclude Include="..\Source\raytracer\ShaderGenerator.h">
       <Filter>Source\raytracer</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\raytracer\World.h">
+    <ClInclude Include="..\Source\raytracer\Pixels.h">
       <Filter>Source\raytracer</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\raytracer\Pixels.h">
+    <ClInclude Include="..\Source\raytracer\Raytracer.h">
       <Filter>Source\raytracer</Filter>
     </ClInclude>
   </ItemGroup>
