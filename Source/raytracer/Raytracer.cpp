@@ -350,7 +350,12 @@ void Raytracer::GetDimensions(RLint &width, RLint &height)
 
 float Raytracer::GetPixelDivisor() const
 {
-    return (1.0f / m_passesPerformed) + m_exposureCompensation;
+    float divisor = 1.0f / m_passesPerformed;
+
+    // Apply exposure compensation. m_exposureCompensation stores the power but no the final value.
+    float exposure = (m_exposureCompensation != 0.0f) ? powf(2.0f, m_exposureCompensation) : 1.0f;
+
+    return divisor * (1.0f / exposure);
 }
 
 void Raytracer::CheckKeys(const float dt)
@@ -363,7 +368,6 @@ void Raytracer::CheckKeys(const float dt)
 
     float aperatureIncrement = 0.1f;
     float focalLengthIncrement = 1.0f;
-    float exposureIncrement = 0.0001f;
     
     bool resetRenderer = false;
     
@@ -488,14 +492,14 @@ void Raytracer::CheckKeys(const float dt)
         m_keyboard.reset(Keys::kEnableGI);
     }
 
+    float exposureStep = 0.1f;
     if (m_keyboard.test(Keys::kIncreaseExposure))
     {
-        m_exposureCompensation += exposureIncrement;
+        m_exposureCompensation -= exposureStep;
     }
     else if (m_keyboard.test(Keys::kDecreaseExposure))
     {
-        m_exposureCompensation -= exposureIncrement;
-        m_exposureCompensation = std::max(0.0f, m_exposureCompensation);
+        m_exposureCompensation += exposureStep;
     }
     
     if (resetRenderer)
