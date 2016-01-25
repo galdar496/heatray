@@ -244,7 +244,7 @@ void Mesh::Destroy()
             piece->primitive = RL_NULL_PRIMITIVE;
         }
         
-        for (int ii = 0; ii < NUM_VBO_TYPES; ++ii)
+        for (int ii = 0; ii < kNumVBOTypes; ++ii)
         {
             piece->buffers[ii].Destroy();
         }
@@ -432,10 +432,10 @@ void Mesh::CreateRenderData()
         size_t numElements = piece->vertices.size();
         
         // Create and load the VBOs.
-        piece->buffers[VERTICES].Load(&(piece->vertices[0]), numElements * sizeof(math::Vec3f), "positions");
-        piece->buffers[NORMALS].Load(&(piece->normals[0]), numElements * sizeof(math::Vec3f), "normals");
-        piece->buffers[TEX_COORDS].Load(&(piece->texCoords[0]), numElements * sizeof(math::Vec2f), "tex coords");
-        piece->buffers[TANGENTS].Load(&(piece->tangents[0]), numElements * sizeof(math::Vec3f), "tangents");
+        piece->buffers[kVertices].Load(&(piece->vertices[0]), numElements * sizeof(math::Vec3f), "positions");
+        piece->buffers[kNormals].Load(&(piece->normals[0]), numElements * sizeof(math::Vec3f), "normals");
+        piece->buffers[kTexCoords].Load(&(piece->texCoords[0]), numElements * sizeof(math::Vec2f), "tex coords");
+        piece->buffers[kTangents].Load(&(piece->tangents[0]), numElements * sizeof(math::Vec3f), "tangents");
         
         piece->numElements = numElements;
 	}

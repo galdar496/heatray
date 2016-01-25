@@ -8,18 +8,21 @@
 
 #pragma once
 
-#include <OpenRL/rl.h>
 #include "../math/Vector.h"
+#include <OpenRL/rl.h>
 #include <vector>
 
+///
 /// Object which stores the properties of a single light.
+///
+
 struct Light
 {
     Light() : primitive(RL_NULL_PRIMITIVE) {}
     
     typedef std::vector<math::Vec3f> Points;
     
-    RLprimitive primitive;        // Primitive which represents the light.
-    Points   sample_positions;    // Randomized sample points on the light. Each point is used for a single pass.
-    Points   sample_normals;      // Normals for each sample point on the light.
+    RLprimitive primitive;        ///< Primitive which represents the light.
+    Points   samplePositions;     ///< Randomized sample points on the light. Each point is used for a single pass.
+    Points   sampleNormals;       ///< Normals for each sample point on the light.
 };

@@ -15,6 +15,7 @@
 ///
 /// Pixel object which is used to get the pixel info out of the renderer.
 ///
+
 class Pixels
 {
     public:
@@ -29,13 +30,13 @@ class Pixels
 
         ~Pixels()
         {
-            destroy();
+            Destroy();
         }
 
         ///
         /// Destroy the pixel object.
         ///
-        inline void destroy()
+        inline void Destroy()
         {
             m_buffer.Destroy();
         }
@@ -46,7 +47,7 @@ class Pixels
         /// @param width New width (in pixels).
         /// @param height New height (in pixels).
         ///
-        inline void resize(size_t width, size_t height)
+        inline void Resize(size_t width, size_t height)
         {
             assert(!m_isMapped);
             m_buffer.Destroy();
@@ -64,7 +65,7 @@ class Pixels
         ///
         /// @param texture Texture to copy the data from. This texture should be in floating-point format.
         ///
-        inline void setData(const gfx::Texture &texture)
+        inline void SetData(const gfx::Texture &texture)
         {
             assert(!m_isMapped);
             m_buffer.Bind();
@@ -79,7 +80,7 @@ class Pixels
         ///
         /// @return Pointer to the mapped pixel data on the CPU.
         ///
-        inline const float *mapPixelData()
+        inline const float *MapPixelData()
         {
             assert(!m_isMapped);
 
@@ -92,7 +93,7 @@ class Pixels
         ///
         /// Unmap the pixel data.
         ///
-        inline void unmapPixelData()
+        inline void UnmapPixelData()
         {
             assert(m_isMapped);
 
@@ -107,7 +108,7 @@ class Pixels
         /// @param width Populated width (in pixels).
         /// @param height Populated height (in pixels).
         ///
-        inline void getDimensions(size_t &width, size_t &height)
+        inline void GetDimensions(size_t &width, size_t &height)
         {
             width  = m_width;
             height = m_height;

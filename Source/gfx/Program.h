@@ -49,7 +49,7 @@ class Program
         ///
         /// @return If true, the shader was successfully attached.
         ///
-        bool AddShader(const std::string &filename, const Shader::Type type);
+        bool AddShader(const std::string &filename, const Shader::ShaderType type);
     
         ///
         /// Destroy this program.

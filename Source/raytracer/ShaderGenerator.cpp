@@ -11,12 +11,10 @@
 #include <assert.h>
 #include <sstream>
 
-/// Default constructor.
 ShaderGenerator::ShaderGenerator()
 {
 }
 
-/// Destructor.
 ShaderGenerator::~ShaderGenerator()
 {
     ShaderCache::iterator iter = m_shaderCache.begin();
@@ -29,36 +27,27 @@ ShaderGenerator::~ShaderGenerator()
     m_shaderCache.clear();
 }
 
-/// Generate all of the necessary shaders for the current mesh. After a shader has been generated,
-/// it is automatically setup and bound to the proper mesh piece.
-bool ShaderGenerator::generateShaders(gfx::Mesh &mesh, 
-                                      gfx::Shader &vertex_shader, 
-                                      gfx::Buffer &light_buffer,
-                                      gfx::Buffer &gi_buffer, 
-                                      const std::string &ray_shader_path,
-                                      const std::string &light_shader_path,
-                                      const int max_light_count,
-                                      std::vector<Light> &lights)
+bool ShaderGenerator::GenerateShaders(const GenerationInfo &info)
 {
-    std::string ray_shader_source;
-    std::string light_shader_source;
-    if (!util::ReadTextFile(ray_shader_path, ray_shader_source))
+    std::string rayShaderSource;
+    std::string lightShaderSource;
+    if (!util::ReadTextFile(info.rayShaderPath, rayShaderSource))
     {
-        std::cout << "Unable to read ray shader at path: " << ray_shader_path;
+        std::cout << "Unable to read ray shader at path: " << info.rayShaderPath;
         return false;
     }
 
-    if (!util::ReadTextFile(light_shader_path, light_shader_source))
+    if (!util::ReadTextFile(info.lightShaderPath, lightShaderSource))
     {
-        std::cout << "Unable to read light shader at path: " << light_shader_path;
+        std::cout << "Unable to read light shader at path: " << info.lightShaderPath;
         return false;
     }
 
-    int light_count = 0;
+    int lightCount = 0;
 
     // Iterate over each mesh piece and create a shader for it. Afterwards bind the VBOs to the proper
     // locations in the newly compiled programs.
-    gfx::Mesh::MeshList &meshes = mesh.GetMeshList();
+    gfx::Mesh::MeshList &meshes = info.mesh->GetMeshList();
     for (gfx::Mesh::MeshList::iterator iter = meshes.begin(); iter != meshes.end(); ++iter)
     {
         gfx::Mesh::MeshPiece *piece = &(iter->second);
@@ -67,38 +56,44 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
         if (piece->material.name.find("Light") == std::string::npos)
         {
             // Create the ray shader based on the materials from this mesh piece.
-            gfx::Shader *ray_shader = findOrCreateRayShader(piece->material, ray_shader_source, max_light_count);
+            gfx::Shader *ray_shader = FindOrCreateRayShader(piece->material, rayShaderSource, info.maxLightCount);
             if (ray_shader == nullptr)
             {
                 return false;
             }
 
-            piece->program.Attach(vertex_shader);
+            piece->program.Attach(*(info.vertexShader));
             piece->program.Attach(*ray_shader);
             piece->program.Link(piece->material.name);
             rlUseProgram(piece->program.GetProgram());
             
             // Attach the uniform buffer for the light position to this primitive.
             RLuint light_block_index = rlGetUniformBlockIndex(piece->program.GetProgram(), "Light");
-            rlUniformBlockBuffer(light_block_index, light_buffer.GetBuffer());
+            rlUniformBlockBuffer(light_block_index, info.lightBuffer->GetBuffer());
         }
         else
         {
+            if ((lightCount + 1) > info.maxLightCount)
+            {
+                std::cout << "Too many lights specified in the mesh. Maximum count allowed is " << info.maxLightCount << std::endl;
+                return false;
+            }
+        
             // Setup the lighting primitive and program to use along with it.
             rlPrimitiveParameter1i(RL_PRIMITIVE, RL_PRIMITIVE_IS_OCCLUDER, RL_FALSE);
             
             // Set the corresponding light primitive to this new primitive.
-            lights[light_count++].primitive = piece->primitive;
+            info.lights->at(lightCount++).primitive = piece->primitive;
 
             // Create the light shader for this light source.
-            gfx::Shader *light_shader = findOrCreateRayShader(piece->material, light_shader_source, max_light_count);
-            if (light_shader == nullptr)
+            gfx::Shader *lightShader = FindOrCreateRayShader(piece->material, lightShaderSource, info.maxLightCount);
+            if (lightShader == nullptr)
             {
                 return false;
             }
             
-            piece->program.Attach(*light_shader);
-            piece->program.Attach(vertex_shader);
+            piece->program.Attach(*(info.vertexShader));
+            piece->program.Attach(*lightShader);
             piece->program.Link("light");
             rlUseProgram(piece->program.GetProgram());
         }
@@ -127,10 +122,10 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
             
             // Attach the uniform buffer for the random data to this primitive. Also setup the bounce probability
             // for russian roulette for this particual material.
-            RLuint gi_block_index = rlGetUniformBlockIndex(piece->program.GetProgram(), "GI");
-            if (gi_block_index != ~0) // All 0xF's returned if this block is invalid (this could be a light source).
+            RLuint giBlockIndex = rlGetUniformBlockIndex(piece->program.GetProgram(), "GI");
+            if (giBlockIndex != ~0) // All 0xF's returned if this block is invalid (this could be a light source).
             {
-                rlUniformBlockBuffer(gi_block_index, gi_buffer.GetBuffer());
+                rlUniformBlockBuffer(giBlockIndex, info.giBuffer->GetBuffer());
                 
                 float bounce_probablility = (piece->material.diffuse[0] + piece->material.diffuse[1] + piece->material.diffuse[2]) / 3.0f;
                 location = piece->program.GetUniformLocation("bounceProbablility");
@@ -151,27 +146,27 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
         }
         
         // Attach the proper vbos to the attributes for this shader.
-        gfx::Mesh::RenderData render_data;
-        render_data.positionAttribute  = rlGetAttribLocation(piece->program.GetProgram(), "positionAttribute");
-        render_data.normalAttribute    = rlGetAttribLocation(piece->program.GetProgram(), "normalAttribute");
-        render_data.texCoordAttribute = rlGetAttribLocation(piece->program.GetProgram(), "texCoordAttribute");
-        render_data.tangentAttribute   = rlGetAttribLocation(piece->program.GetProgram(), "tangentAttribute");
+        gfx::Mesh::RenderData renderData;
+        renderData.positionAttribute  = rlGetAttribLocation(piece->program.GetProgram(), "positionAttribute");
+        renderData.normalAttribute    = rlGetAttribLocation(piece->program.GetProgram(), "normalAttribute");
+        renderData.texCoordAttribute = rlGetAttribLocation(piece->program.GetProgram(), "texCoordAttribute");
+        renderData.tangentAttribute   = rlGetAttribLocation(piece->program.GetProgram(), "tangentAttribute");
         
-        piece->buffers[gfx::Mesh::VERTICES].Bind();
-        rlVertexAttribBuffer(render_data.positionAttribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
-        piece->buffers[gfx::Mesh::VERTICES].Unbind();
+        piece->buffers[gfx::Mesh::kVertices].Bind();
+        rlVertexAttribBuffer(renderData.positionAttribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
+        piece->buffers[gfx::Mesh::kVertices].Unbind();
         
-        piece->buffers[gfx::Mesh::NORMALS].Bind();
-        rlVertexAttribBuffer(render_data.normalAttribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
-        piece->buffers[gfx::Mesh::NORMALS].Unbind();
+        piece->buffers[gfx::Mesh::kNormals].Bind();
+        rlVertexAttribBuffer(renderData.normalAttribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
+        piece->buffers[gfx::Mesh::kNormals].Unbind();
         
-        piece->buffers[gfx::Mesh::TEX_COORDS].Bind();
-        rlVertexAttribBuffer(render_data.texCoordAttribute, 2, RL_FLOAT, RL_FALSE, sizeof(math::Vec2f), 0);
-        piece->buffers[gfx::Mesh::TEX_COORDS].Unbind();
+        piece->buffers[gfx::Mesh::kTexCoords].Bind();
+        rlVertexAttribBuffer(renderData.texCoordAttribute, 2, RL_FLOAT, RL_FALSE, sizeof(math::Vec2f), 0);
+        piece->buffers[gfx::Mesh::kTexCoords].Unbind();
         
-        piece->buffers[gfx::Mesh::TANGENTS].Bind();
-        rlVertexAttribBuffer(render_data.tangentAttribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
-        piece->buffers[gfx::Mesh::TANGENTS].Unbind();
+        piece->buffers[gfx::Mesh::kTangents].Bind();
+        rlVertexAttribBuffer(renderData.tangentAttribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
+        piece->buffers[gfx::Mesh::kTangents].Unbind();
         
         // Submit this mesh to OpenRL for heirarchy building and later on rendering.
         rlDrawArrays(RL_TRIANGLES, 0, piece->numElements);
@@ -184,13 +179,11 @@ bool ShaderGenerator::generateShaders(gfx::Mesh &mesh,
     return true;
 }
 
-/// Generate a ray shader based on a material OR find the existing shader in the shader cache. If a ray shader was not found and
-/// count not be created, null is returned.
-gfx::Shader *ShaderGenerator::findOrCreateRayShader(const gfx::Material &material, const std::string &shader_source, const int max_light_count)
+gfx::Shader *ShaderGenerator::FindOrCreateRayShader(const gfx::Material &material, const std::string &shaderSource, const int maxLightCount)
 {
     // Look for this shader in the cache first.
-    ShaderFlags shader_flags = material.componentFlags.to_ulong();
-    ShaderCache::iterator iter = m_shaderCache.find(shader_flags);
+    ShaderFlags shaderFlags = material.componentFlags.to_ulong();
+    ShaderCache::iterator iter = m_shaderCache.find(shaderFlags);
 
     if (iter != m_shaderCache.end())
     {
@@ -200,7 +193,7 @@ gfx::Shader *ShaderGenerator::findOrCreateRayShader(const gfx::Material &materia
 
     // The shader doesn't already exist, so create one.
     std::stringstream stream;
-    stream << "#define MAX_LIGHTS " << max_light_count << std::endl;
+    stream << "#define MAX_LIGHTS " << maxLightCount << std::endl;
     std::string final_source = stream.str();
 
     // Add the proper defines to the top of the shader for this material.
@@ -215,17 +208,17 @@ gfx::Shader *ShaderGenerator::findOrCreateRayShader(const gfx::Material &materia
         }
     }
 
-    final_source += shader_source;
+    final_source += shaderSource;
 
     // create the shader from the assembled shader source string.
     gfx::Shader *shader = new gfx::Shader;
-    if (!shader->CreateFromString(final_source, gfx::Shader::kRay, material.name))
+    if (!shader->CreateFromString(final_source, gfx::Shader::ShaderType::kRay, material.name))
     {
         delete shader;
         shader = nullptr;
         return nullptr;
     }
 
-    m_shaderCache[shader_flags] = shader;
+    m_shaderCache[shaderFlags] = shader;
     return shader;
 }

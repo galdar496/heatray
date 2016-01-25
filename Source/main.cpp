@@ -25,6 +25,7 @@
 // Raytracer exists as a global variable to be accessed by all
 // functions in the main file.
 Raytracer raytracer;
+
 Pixels pixels;          // Pixel object which contains the rendered pixels from the raytracer.
 GLuint pixelBuffer;     // PBO to use to put the pixels on the GPU.
 GLuint displayTexture;  // Texture which contains the final result for display.
@@ -32,7 +33,7 @@ util::Timer timer;
 
 #define GLUT_KEY_ESCAPE 27
 
-void resizeGLData(int width, int height)
+void ResizeGLData(int width, int height)
 {
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pixelBuffer);
     glBufferData(GL_PIXEL_UNPACK_BUFFER, width * height * sizeof(float) * Pixels::NUM_PIXEL_CHANNELS, nullptr, GL_STREAM_DRAW);
@@ -45,33 +46,33 @@ void resizeGLData(int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void resizeWindow(int width, int height)
+void ResizeWindow(int width, int height)
 {
-    raytracer.resize(width, height);
-    pixels.resize(width, height);
+    raytracer.Resize(width, height);
+    pixels.Resize(width, height);
 
-    resizeGLData(width, height);
+    ResizeGLData(width, height);
 }
 
-void render()
+void Render()
 {
     std::stringstream windowTitle;
-    int render_passed_performed = raytracer.getNumPassesPerformed();
-    windowTitle << "Heatray - Pass " << render_passed_performed;
+    int renderPassedPerformed = raytracer.GetNumPassesPerformed();
+    windowTitle << "Heatray - Pass " << renderPassedPerformed;
     glutSetWindowTitle(windowTitle.str().c_str());
 
     // Perform the actual rendering of the raytracer into a pixel buffer.
-    raytracer.render(pixels);
+    raytracer.Render(pixels);
 
     size_t width, height;
-    pixels.getDimensions(width, height);
+    pixels.GetDimensions(width, height);
     
-    const float *image_pixels = pixels.mapPixelData();
+    const float *imagePixels = pixels.MapPixelData();
     
     // Copy the data into a PBO and upload it to a texture for rendering.
     glBindTexture(GL_TEXTURE_2D, displayTexture);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pixelBuffer);
-    glBufferSubData(GL_PIXEL_UNPACK_BUFFER, 0, width * height * sizeof(float) * Pixels::NUM_PIXEL_CHANNELS, image_pixels); 
+    glBufferSubData(GL_PIXEL_UNPACK_BUFFER, 0, width * height * sizeof(float) * Pixels::NUM_PIXEL_CHANNELS, imagePixels);
 
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height), GL_RGB, GL_FLOAT, nullptr);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
@@ -79,8 +80,8 @@ void render()
     // The raytraced result is actually an accumulation of every pass so far. In order to properly display it,
     // it must be averaged by the number of passes that have been ran to far.
     // Utilize the rasterization hardware to perform the averaging.
-    float inv_num_passes = 1.0f / static_cast<float>(render_passed_performed);
-    glColor3f(inv_num_passes, inv_num_passes, inv_num_passes);
+    float invNumPasses = 1.0f / static_cast<float>(renderPassedPerformed);
+    glColor3f(invNumPasses, invNumPasses, invNumPasses);
     glBegin(GL_QUADS);
         glTexCoord2d(0.0, 0.0); glVertex2f(-1.0f, -1.0f);
         glTexCoord2d(1.0, 0.0); glVertex2f(1.0f, -1.0f);
@@ -89,45 +90,45 @@ void render()
     glEnd();
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    pixels.unmapPixelData();
+    pixels.UnmapPixelData();
 
     glutSwapBuffers();
 }
 
-void update()
+void Update()
 {
-    raytracer.update(timer.Dt());
+    raytracer.Update(timer.Dt());
     glutPostRedisplay();
 }
 
-void shutdown()
+void Shutdown()
 {
-    pixels.destroy();
-    raytracer.destroy();
+    pixels.Destroy();
+    raytracer.Destroy();
 
     glDeleteBuffers(1, &pixelBuffer);
     glDeleteTextures(1, &displayTexture);
 }
 
-void keyPressed(unsigned char key, int mouseX, int mouseY)
+void KeyPressed(unsigned char key, int mouseX, int mouseY)
 {
     if (key == GLUT_KEY_ESCAPE)
     {
-        shutdown();
+        Shutdown();
         exit(0);
     }
     
-    raytracer.getKeys().set(key);
+    raytracer.GetKeys().set(key);
 }
 
-void keyReleased(unsigned char key, int mouseX, int mouseY)
+void KeyReleased(unsigned char key, int mouseX, int mouseY)
 {
     // Certain keys (keys that aren't held down) may not be properly processed if they're reset too soon (such as enabling GI).
     // Ask the raytracer which keys those might be to make sure we don't prematurely reset it. In those cases, the raytracer will handle
     // resetting any special keys.
-    if (!raytracer.isSpecialKey(key))
+    if (!raytracer.IsSpecialKey(key))
     {
-        raytracer.getKeys().reset(key);
+        raytracer.GetKeys().reset(key);
     }
 }
 
@@ -140,28 +141,30 @@ int main(int argc, char **argv)
         config_file = argv[1];
     }
     
-    RLint screen_width, screen_height;
-    if (!raytracer.initialize(config_file, screen_width, screen_height))
+    if (!raytracer.Initialize(config_file))
     {
         std::cout << "Unable to properly initialize Heatray, exiting..." << std::endl;
         exit(1);
     }
+    
+    RLint screenWidth, screenHeight;
+    raytracer.GetDimensions(screenWidth, screenHeight);
 
     glutInit(&argc, argv);
     glutInitWindowPosition(100,100);
-    glutInitWindowSize(screen_width, screen_height);
+    glutInitWindowSize(screenWidth, screenHeight);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
     glutCreateWindow("Heatray");
 
-    glutReshapeFunc(resizeWindow);
-    glutDisplayFunc(render);
-    glutKeyboardFunc(keyPressed);
-    glutKeyboardUpFunc(keyReleased);
-    glutIdleFunc(update);
+    glutReshapeFunc(ResizeWindow);
+    glutDisplayFunc(Render);
+    glutKeyboardFunc(KeyPressed);
+    glutKeyboardUpFunc(KeyReleased);
+    glutIdleFunc(Update);
 
     GLenum result = glewInit();
 
-    pixels.resize(screen_width, screen_height);
+    pixels.Resize(screenWidth, screenHeight);
 
     // Create the pixel-pack buffer and gl texture to use for displaying the raytraced result.
     glEnable(GL_TEXTURE_2D);
@@ -177,7 +180,7 @@ int main(int argc, char **argv)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    resizeGLData(screen_width, screen_height);
+    ResizeGLData(screenWidth, screenHeight);
     
     // Make sure that OpenGL doesn't automatically clamp our display texture. This is because the raytraced image
     // that will be stored in it is actually an accumulation of every ray that has gone through a given pixel.

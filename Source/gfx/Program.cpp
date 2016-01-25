@@ -61,7 +61,7 @@ bool Program::Link(const std::string &name)
 	return true;
 }
 
-bool Program::AddShader(const std::string &filename, const Shader::Type type)
+bool Program::AddShader(const std::string &filename, const Shader::ShaderType type)
 {
 	Shader shader;
 	if (shader.Load(filename, type) == false)

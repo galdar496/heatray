@@ -49,61 +49,57 @@ namespace Keys
     };
 } // namespace Keys
 
-/// Default constructor.
 Raytracer::Raytracer() :
-	m_camera_movement_speed(5.5f),
-	m_camera_rotation_speed(0.2f),
+	m_cameraMovementSpeed(5.5f),
+	m_cameraRotationSpeed(0.2f),
 	m_fbo(RL_NULL_FRAMEBUFFER),
-    m_passes_performed(0),
-	m_save_image(false),
-    m_total_pass_count(1024),
-    m_max_ray_depth(5)
+    m_passesPerformed(0),
+	m_saveImage(false),
+    m_totalPassCount(1024),
+    m_maxRayDepth(5)
 {
     m_keyboard.reset();
 }
 
-/// Destructor.
 Raytracer::~Raytracer()
 {
 }
 
-/// Initialize the raytracer for use. Returns true if
-/// initialization was successful.
-bool Raytracer::initialize(const std::string &config_file_path, RLint &screen_width, RLint &screen_height)
+bool Raytracer::Initialize(const std::string &configFilePath)
 {
     // Set all sampling textures to use linear filtering.
     gfx::Texture::Params texture_params;
     texture_params.minFilter = RL_LINEAR;
     
-    tinyxml2::XMLDocument config_file;
-    const tinyxml2::XMLElement *root_config_node;
-    if (config_file.LoadFile(config_file_path.c_str()) != tinyxml2::XML_SUCCESS)
+    tinyxml2::XMLDocument configFile;
+    const tinyxml2::XMLElement *rootConfigNode = nullptr;
+    if (configFile.LoadFile(configFilePath.c_str()) != tinyxml2::XML_SUCCESS)
     {
-        std::cout << "Unable to load configuration file " << config_file_path << std::endl;
+        std::cout << "Unable to load configuration file " << configFilePath << std::endl;
         return false;
     }
     
-    root_config_node = config_file.FirstChildElement("HeatRayConfig");
+    rootConfigNode = configFile.FirstChildElement("HeatRayConfig");
     
 	// Spawn a thread to load the mesh. This just puts the mesh data into memory, still have to create
     // VBOs out of the data later.
-    std::thread mesh_thread(&Raytracer::loadModel, this, root_config_node->FirstChildElement("Mesh"));
+    std::thread meshThread(&Raytracer::LoadModel, this, rootConfigNode->FirstChildElement("Mesh"));
     
     // Construct the OpenRL context.
 //    OpenRLContextAttribute attributes[] = {kOpenRL_EnableRayPrefixShaders, 1, NULL};
-    m_rl_context = OpenRLCreateContext(nullptr, nullptr, nullptr);
-    OpenRLSetCurrentContext(m_rl_context);
+    m_rlContext = OpenRLCreateContext(nullptr, nullptr, nullptr);
+    OpenRLSetCurrentContext(m_rlContext);
     
     // Setup configurable objects.
-    setupFramebuffer(root_config_node->FirstChildElement("Framebuffer"), screen_width, screen_height);
-    setupCamera(root_config_node->FirstChildElement("Camera"));
-    setupRenderSettings(root_config_node->FirstChildElement("RenderSettings"));
+    SetupFramebuffer(rootConfigNode->FirstChildElement("Framebuffer"));
+    SetupCamera(rootConfigNode->FirstChildElement("Camera"));
+    SetupRenderSettings(rootConfigNode->FirstChildElement("RenderSettings"));
 
     // Setup the frameshader to generate the primary rays and bind it to the frame primitive.
     {
         bool error = false;
-		error  = m_raytracing_frame_program.AddShader("Resources/shaders/perspective.frame", gfx::Shader::kFrame);
-        error |= m_raytracing_frame_program.Link();
+		error  = m_raytracingFrameProgram.AddShader("Resources/shaders/perspective.frame", gfx::Shader::ShaderType::kFrame);
+        error |= m_raytracingFrameProgram.Link();
         
         if (!error)
         {
@@ -111,24 +107,24 @@ bool Raytracer::initialize(const std::string &config_file_path, RLint &screen_wi
         }
 
         // Read the uniform locations from the frame shader.
-        m_frameUniforms.cameraPosition          = m_raytracing_frame_program.GetUniformLocation("cameraPosition");
-        m_frameUniforms.forward                 = m_raytracing_frame_program.GetUniformLocation("forward");
-        m_frameUniforms.up                      = m_raytracing_frame_program.GetUniformLocation("up");
-        m_frameUniforms.right                   = m_raytracing_frame_program.GetUniformLocation("right");
-        m_frameUniforms.fovTan                  = m_raytracing_frame_program.GetUniformLocation("fovTan");
-        m_frameUniforms.focalLength             = m_raytracing_frame_program.GetUniformLocation("focalLength");
-        m_frameUniforms.aspectRatio             = m_raytracing_frame_program.GetUniformLocation("aspectRatio");
-        m_frameUniforms.jitterTexture           = m_raytracing_frame_program.GetUniformLocation("jitterTexture");
-        m_frameUniforms.apertureSampleTexture   = m_raytracing_frame_program.GetUniformLocation("apertureSampleTexture");
-        m_frameUniforms.randomTextureMatrix     = m_raytracing_frame_program.GetUniformLocation("randomTextureMatrix");
+        m_frameUniforms.cameraPosition          = m_raytracingFrameProgram.GetUniformLocation("cameraPosition");
+        m_frameUniforms.forward                 = m_raytracingFrameProgram.GetUniformLocation("forward");
+        m_frameUniforms.up                      = m_raytracingFrameProgram.GetUniformLocation("up");
+        m_frameUniforms.right                   = m_raytracingFrameProgram.GetUniformLocation("right");
+        m_frameUniforms.fovTan                  = m_raytracingFrameProgram.GetUniformLocation("fovTan");
+        m_frameUniforms.focalLength             = m_raytracingFrameProgram.GetUniformLocation("focalLength");
+        m_frameUniforms.aspectRatio             = m_raytracingFrameProgram.GetUniformLocation("aspectRatio");
+        m_frameUniforms.jitterTexture           = m_raytracingFrameProgram.GetUniformLocation("jitterTexture");
+        m_frameUniforms.apertureSampleTexture   = m_raytracingFrameProgram.GetUniformLocation("apertureSampleTexture");
+        m_frameUniforms.randomTextureMatrix     = m_raytracingFrameProgram.GetUniformLocation("randomTextureMatrix");
         
         rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE);
-		m_raytracing_frame_program.Bind();
+		m_raytracingFrameProgram.Bind();
     }
     
     // Setup the vertex shader to use for all ray shaders.
     {
-        bool error = m_vertex_shader.Load("Resources/shaders/passthrough.vert", gfx::Shader::kVertex);
+        bool error = m_vertexShader.Load("Resources/shaders/passthrough.vert", gfx::Shader::ShaderType::kVertex);
         if (!error)
         {
             return false;
@@ -137,28 +133,38 @@ bool Raytracer::initialize(const std::string &config_file_path, RLint &screen_wi
     
     {
         // Create lighting dummy uniform block in order to setup the bindings for shader generation.
-        LightUniformBuffer dummy_block;
-        m_light_buffer.SetTarget(RL_UNIFORM_BLOCK_BUFFER);
-        m_light_buffer.Load(&dummy_block, sizeof(LightUniformBuffer), "Light buffer");
+        LightUniformBuffer dummyBlock;
+        m_lightBuffer.SetTarget(RL_UNIFORM_BLOCK_BUFFER);
+        m_lightBuffer.Load(&dummyBlock, sizeof(LightUniformBuffer), "Light buffer");
         
         // Wait for the mesh to finish loading before we continue.
-        mesh_thread.join();
+        meshThread.join();
         
         // Get the lighting information from the mesh and then create the mesh rendering info.
-        getLighting(m_mesh);
+        GetLighting(m_mesh);
         m_mesh.CreateRenderData();
         
         {
             // Read the paths to the shader files from the config file.
-            std::string ray_shader_path;
-            std::string light_shader_path;
+            std::string rayShaderPath;
+            std::string lightShaderPath;
 
-            const tinyxml2::XMLElement *shader_node = root_config_node->FirstChildElement("Shader");
-            ray_shader_path = shader_node->FindAttribute("Ray")->Value();
-            light_shader_path = shader_node->FindAttribute("Light")->Value();
+            const tinyxml2::XMLElement *shaderNode = rootConfigNode->FirstChildElement("Shader");
+            rayShaderPath = shaderNode->FindAttribute("Ray")->Value();
+            lightShaderPath = shaderNode->FindAttribute("Light")->Value();
 
+            ShaderGenerator::GenerationInfo generatorInfo;
+            generatorInfo.mesh            = &m_mesh;
+            generatorInfo.vertexShader    = &m_vertexShader;
+            generatorInfo.lightBuffer     = &m_lightBuffer;
+            generatorInfo.giBuffer        = &m_giBuffer;
+            generatorInfo.rayShaderPath   = rayShaderPath;
+            generatorInfo.lightShaderPath = lightShaderPath;
+            generatorInfo.maxLightCount   = MAX_LIGHTS;
+            generatorInfo.lights          = &m_lights;
+            
             ShaderGenerator generator;
-            if (!generator.generateShaders(m_mesh, m_vertex_shader, m_light_buffer, m_gi_buffer, ray_shader_path, light_shader_path, MAX_LIGHTS, m_lights))
+            if (!generator.GenerateShaders(generatorInfo))
             {
                 return false;
             }
@@ -166,15 +172,15 @@ bool Raytracer::initialize(const std::string &config_file_path, RLint &screen_wi
         
         // Create the uniform block buffer which will store the current light subregion to sample. Every ray shader
         // shares this same buffer so we only need to update it once.
-        m_light_buffer.Bind();
-        LightUniformBuffer *block = m_light_buffer.MapBuffer<LightUniformBuffer>();
+        m_lightBuffer.Bind();
+        LightUniformBuffer *block = m_lightBuffer.MapBuffer<LightUniformBuffer>();
         block->count = static_cast<int>(m_lights.size());
         for (int ii = 0; ii < block->count; ++ii)
         {
             block->primitive[ii] = m_lights[ii].primitive;
         }
-        m_light_buffer.UnmapBuffer();
-        m_light_buffer.Unbind();
+        m_lightBuffer.UnmapBuffer();
+        m_lightBuffer.Unbind();
         
         m_mesh.ClearLoadedData();
     }
@@ -182,9 +188,7 @@ bool Raytracer::initialize(const std::string &config_file_path, RLint &screen_wi
     return true;
 }
 
-/// Deallocate any internal data and
-/// prepare for shutdown.
-void Raytracer::destroy()
+void Raytracer::Destroy()
 {
     if (m_fbo != RL_NULL_FRAMEBUFFER)
     {
@@ -193,60 +197,58 @@ void Raytracer::destroy()
     }
     
     m_mesh.Destroy();
-    m_random_values_texture.Destroy();
-    m_aperture_sample_texture.Destroy();
-    m_raytracing_frame_program.Destroy();
-    m_vertex_shader.Destroy();
-    m_fbo_texture.Destroy();
-    m_jitter_texture.Destroy();
-    m_light_buffer.Destroy();
-    m_gi_buffer.Destroy();
+    m_randomValuesTexture.Destroy();
+    m_apertureSampleTexture.Destroy();
+    m_raytracingFrameProgram.Destroy();
+    m_vertexShader.Destroy();
+    m_fboTexture.Destroy();
+    m_jitterTexture.Destroy();
+    m_lightBuffer.Destroy();
+    m_giBuffer.Destroy();
     
-    OpenRLDestroyContext(m_rl_context);
+    OpenRLDestroyContext(m_rlContext);
 }
 
-/// Update this class.
-void Raytracer::update(const float dt)
+void Raytracer::Update(const float dt)
 {
-    checkKeys(dt);
+    CheckKeys(dt);
 }
 
-/// Render a frame.
-void Raytracer::render(Pixels &outputPixels)
+void Raytracer::Render(Pixels &outputPixels)
 {
     // Only render if we actually need to, otherwise the finished render will just be displayed by GLUT.
-    if (m_passes_performed <= m_total_pass_count)
+    if (m_passesPerformed <= m_totalPassCount)
     {
 		// Update the light position for soft shadowing.
         {
             // Update the lighting uniform block to use the next position for sampling.
-            m_light_buffer.Bind();
-            LightUniformBuffer *block = m_light_buffer.MapBuffer<LightUniformBuffer>();
+            m_lightBuffer.Bind();
+            LightUniformBuffer *block = m_lightBuffer.MapBuffer<LightUniformBuffer>();
             for (size_t ii = 0; ii < m_lights.size(); ++ii)
             {
-                block->position[ii] = m_lights[ii].sample_positions[m_passes_performed - 1]; // -1 because m_passes_performed does not start at 0.
-                block->normal[ii]   = m_lights[ii].sample_normals[m_passes_performed - 1];
+                block->position[ii] = m_lights[ii].samplePositions[m_passesPerformed - 1]; // -1 because m_passesPerformed does not start at 0.
+                block->normal[ii]   = m_lights[ii].sampleNormals[m_passesPerformed - 1];
             }
-            m_light_buffer.UnmapBuffer();
-            m_light_buffer.Unbind();
+            m_lightBuffer.UnmapBuffer();
+            m_lightBuffer.Unbind();
         }
 
         // Generate a random texture matrix to use for indexing into the textures containing random values.
         // Every frame this matrix will be randomly generated to ensure that random values are sampled
         // in the shaders.
-        math::Mat4f random_texture_matrix = math::Mat4f::Identity();
+        math::Mat4f randomTextureMatrix = math::Mat4f::Identity();
         {
             math::Mat4f rotation;
 
             // Rotate about the y axis.
-            math::Quatf y_rotate(util::Random(-math::PI, math::PI), math::Vec3f(0.0f, 1.0f, 0.0f), true);
-            y_rotate.ToMatrix(rotation);
-            random_texture_matrix *= rotation;
+            math::Quatf yRotate(util::Random(-math::PI, math::PI), math::Vec3f(0.0f, 1.0f, 0.0f), true);
+            yRotate.ToMatrix(rotation);
+            randomTextureMatrix *= rotation;
             
             // Rotate about the x axis.
-            math::Quatf x_rotate(util::Random(0.0f, math::TWO_PI), math::Vec3f(1.0f, 0.0f, 0.0f), true);
-            x_rotate.ToMatrix(rotation);
-            random_texture_matrix *= rotation;
+            math::Quatf xRotate(util::Random(0.0f, math::TWO_PI), math::Vec3f(1.0f, 0.0f, 0.0f), true);
+            xRotate.ToMatrix(rotation);
+            randomTextureMatrix *= rotation;
             
             // Now randomly scale the matrix.
             const float max_scale = 5.0f;
@@ -255,49 +257,48 @@ void Raytracer::render(Pixels &outputPixels)
             random_scale(1, 1) = util::Random(0.0f, max_scale);
             random_scale(2, 2) = util::Random(0.0f, max_scale);
 
-            random_texture_matrix *= random_scale;
+            randomTextureMatrix *= random_scale;
         }
         
         rlBindFramebuffer(RL_FRAMEBUFFER, m_fbo);
         // Setup the camera parameters to the frameshader.
         rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE);
-        m_raytracing_frame_program.Bind();
-        m_raytracing_frame_program.Set3fv(m_frameUniforms.cameraPosition, m_camera.GetPosition().v);
-        m_raytracing_frame_program.Set3fv(m_frameUniforms.forward, m_camera.GetForwardVector().v);
-        m_raytracing_frame_program.Set3fv(m_frameUniforms.up, m_camera.GetUpVector().v);
-        m_raytracing_frame_program.Set3fv(m_frameUniforms.right, m_camera.GetRightVector().v);
-        m_raytracing_frame_program.Set1f(m_frameUniforms.fovTan, tanf((math::DEGREE_TO_RADIAN * m_camera.GetFOV()) * 0.5f));
-        m_raytracing_frame_program.Set1f(m_frameUniforms.focalLength, m_camera.GetFocalLength());
-        m_raytracing_frame_program.Set1f(m_frameUniforms.aspectRatio, m_camera.GetAspectRatio());
-        m_raytracing_frame_program.SetTexture(m_frameUniforms.jitterTexture, m_jitter_texture.GetTexture());
-        m_raytracing_frame_program.SetTexture(m_frameUniforms.apertureSampleTexture, m_aperture_sample_texture.GetTexture());
-        m_raytracing_frame_program.SetMatrix4fv(m_frameUniforms.randomTextureMatrix, random_texture_matrix.v);
+        m_raytracingFrameProgram.Bind();
+        m_raytracingFrameProgram.Set3fv(m_frameUniforms.cameraPosition, m_camera.GetPosition().v);
+        m_raytracingFrameProgram.Set3fv(m_frameUniforms.forward, m_camera.GetForwardVector().v);
+        m_raytracingFrameProgram.Set3fv(m_frameUniforms.up, m_camera.GetUpVector().v);
+        m_raytracingFrameProgram.Set3fv(m_frameUniforms.right, m_camera.GetRightVector().v);
+        m_raytracingFrameProgram.Set1f(m_frameUniforms.fovTan, tanf((math::DEGREE_TO_RADIAN * m_camera.GetFOV()) * 0.5f));
+        m_raytracingFrameProgram.Set1f(m_frameUniforms.focalLength, m_camera.GetFocalLength());
+        m_raytracingFrameProgram.Set1f(m_frameUniforms.aspectRatio, m_camera.GetAspectRatio());
+        m_raytracingFrameProgram.SetTexture(m_frameUniforms.jitterTexture, m_jitterTexture.GetTexture());
+        m_raytracingFrameProgram.SetTexture(m_frameUniforms.apertureSampleTexture, m_apertureSampleTexture.GetTexture());
+        m_raytracingFrameProgram.SetMatrix4fv(m_frameUniforms.randomTextureMatrix, randomTextureMatrix.v);
         rlRenderFrame();
 
-        ++m_passes_performed;
+        ++m_passesPerformed;
     }
     
-    if (m_save_image)
+    if (m_saveImage)
     {
         // Write the rendered image to an output file.
 		std::vector<float> pixels;
-        pixels.resize(m_fbo_texture.Width() * m_fbo_texture.Height() * Pixels::NUM_PIXEL_CHANNELS);
-        rlBindTexture(RL_TEXTURE_2D, m_fbo_texture.GetTexture());
+        pixels.resize(m_fboTexture.Width() * m_fboTexture.Height() * Pixels::NUM_PIXEL_CHANNELS);
+        rlBindTexture(RL_TEXTURE_2D, m_fboTexture.GetTexture());
         rlBindBuffer(RL_PIXEL_PACK_BUFFER, RL_NULL_BUFFER); // Make sure no pixel-pack buffer is bound, we want to copy into 'pixels'.
         rlGetTexImage(RL_TEXTURE_2D, 0, RL_RGB, RL_FLOAT, &pixels[0]);
-        util::WriteImage("out.tiff", m_fbo_texture.Width(), m_fbo_texture.Height(), Pixels::NUM_PIXEL_CHANNELS, &pixels[0], static_cast<float>(m_passes_performed));
+        util::WriteImage("out.tiff", m_fboTexture.Width(), m_fboTexture.Height(), Pixels::NUM_PIXEL_CHANNELS, &pixels[0], static_cast<float>(m_passesPerformed));
         
-        m_save_image = false;
+        m_saveImage = false;
     }
 
     // Map the rendered texture to a pixelpack buffer so that the calling function can properly display it.
-    outputPixels.setData(m_fbo_texture);
+    outputPixels.SetData(m_fboTexture);
     
     CheckRLErrors();
 }
 
-/// Resize the render viewport.
-void Raytracer::resize(RLint width, RLint height)
+void Raytracer::Resize(RLint width, RLint height)
 {
     if (height == 0)
     {
@@ -309,26 +310,23 @@ void Raytracer::resize(RLint width, RLint height)
     m_camera.SetAspectRatio((float)((float)width / (float)height));
     
     // Regenerate the render textures to be the proper size.
-    if (m_fbo_texture.IsValid())
+    if (m_fboTexture.IsValid())
     {
-        m_fbo_texture.Resize(width, height);
+        m_fboTexture.Resize(width, height);
 
         // Generate a random texture to use for pixel offsets while rendering. This texture has components which are uniformly
         // distrubuted over a circle. This allows for a radial filter during anti-aliasing.
-        m_jitter_texture.RandomizeRadial(m_fbo_texture.Width(), m_fbo_texture.Height(), RL_FLOAT, 1.2f, "random");
-        resetRenderingState();
+        m_jitterTexture.RandomizeRadial(m_fboTexture.Width(), m_fboTexture.Height(), RL_FLOAT, 1.2f, "random");
+        ResetRenderingState();
     }
 }
 
-/// Get a reference to the keyboard keys.
-std::bitset<256> &Raytracer::getKeys()
+std::bitset<256> &Raytracer::GetKeys()
 {
     return m_keyboard;
 }
 
-/// If true, this key will be reset by the raytracer itself and should not be reset
-/// by the windowing system.
-bool Raytracer::isSpecialKey(const char key) const
+bool Raytracer::IsSpecialKey(const char key) const
 {
     return ((key == Keys::kEnableGI)   ||
             (key == Keys::kScreenshot) ||
@@ -336,93 +334,97 @@ bool Raytracer::isSpecialKey(const char key) const
            );
 }
 
-/// Get the number of passes performed so far.
-int Raytracer::getNumPassesPerformed() const
+int Raytracer::GetNumPassesPerformed() const
 {
-    return m_passes_performed;
+    return m_passesPerformed;
 }
 
-/// Check the current state of the keyboard.
-void Raytracer::checkKeys(const float dt)
+void Raytracer::GetDimensions(RLint &width, RLint &height)
+{
+    width  = m_fboTexture.Width();
+    height = m_fboTexture.Height();
+}
+
+void Raytracer::CheckKeys(const float dt)
 {
     static util::Timer currentTime(true);
 
     // Ignore non-camera movement keypresses for this much time to account for 
     // the key being held accidentally.
-    const float time_delta = 0.5f;
+    const float timeDelta = 0.5f;
 
-    float aperature_increment = 0.1f;
-    float focal_length_increment = 1.0f;
+    float aperatureIncrement = 0.1f;
+    float focalLengthIncrement = 1.0f;
     
-    bool reset_rendering_state = false;
+    bool resetRenderer = false;
     
     if (m_keyboard.test(Keys::kCameraForward))
     {
-        m_camera.Move(0.0f, 0.0f, -m_camera_movement_speed * dt);
-        reset_rendering_state = true;
+        m_camera.Move(0.0f, 0.0f, -m_cameraMovementSpeed * dt);
+        resetRenderer = true;
     }
     else if (m_keyboard.test(Keys::kCameraBackward))
     {
-        m_camera.Move(0.0f, 0.0f, m_camera_movement_speed * dt);
-        reset_rendering_state = true;
+        m_camera.Move(0.0f, 0.0f, m_cameraMovementSpeed * dt);
+        resetRenderer = true;
     }
     
     if (m_keyboard.test(Keys::kCameraPanLeft))
     {
-        m_camera.Move(-m_camera_movement_speed * dt, 0.0f, 0.0f);
-        reset_rendering_state = true;
+        m_camera.Move(-m_cameraMovementSpeed * dt, 0.0f, 0.0f);
+        resetRenderer = true;
     }
     else if (m_keyboard.test(Keys::kCameraPanRight))
     {
-        m_camera.Move(m_camera_movement_speed * dt, 0.0f, 0.0f);
-        reset_rendering_state = true;
+        m_camera.Move(m_cameraMovementSpeed * dt, 0.0f, 0.0f);
+        resetRenderer = true;
     }
     
     if (m_keyboard.test(Keys::kCameraRotateUp))
     {
-        m_camera.Pitch(-m_camera_rotation_speed * dt);
-        reset_rendering_state = true;
+        m_camera.Pitch(-m_cameraRotationSpeed * dt);
+        resetRenderer = true;
     }
     else if (m_keyboard.test(Keys::kCameraRotateDown))
     {
-        m_camera.Pitch(m_camera_rotation_speed * dt);
-        reset_rendering_state = true;
+        m_camera.Pitch(m_cameraRotationSpeed * dt);
+        resetRenderer = true;
     }
     
     if (m_keyboard.test(Keys::kCameraRotateRight))
     {
-        m_camera.Yaw(m_camera_rotation_speed * dt);
-        reset_rendering_state = true;
+        m_camera.Yaw(m_cameraRotationSpeed * dt);
+        resetRenderer = true;
     }
     else if (m_keyboard.test(Keys::kCameraRotateLeft))
     {
-        m_camera.Yaw(-m_camera_rotation_speed * dt);
-        reset_rendering_state = true;
+        m_camera.Yaw(-m_cameraRotationSpeed * dt);
+        resetRenderer = true;
     }
     
     if (m_keyboard.test(Keys::kCameraRollLeft))
     {
-        m_camera.Roll(-m_camera_rotation_speed * dt);
-        reset_rendering_state = true;
+        m_camera.Roll(-m_cameraRotationSpeed * dt);
+        resetRenderer = true;
     }
     else if (m_keyboard.test(Keys::kCameraRollRight))
     {
-        m_camera.Roll(m_camera_rotation_speed * dt);
-        reset_rendering_state = true;
+        m_camera.Roll(m_cameraRotationSpeed * dt);
+        resetRenderer = true;
     }
     
-    if (m_keyboard.test(Keys::kScreenshot) && currentTime.GetElapsedTime() > time_delta)
+    if (m_keyboard.test(Keys::kScreenshot) && currentTime.GetElapsedTime() > timeDelta)
     {
-        m_save_image = true;
+        m_saveImage = true;
         currentTime.Restart();
 
         // Reset this key manually as it won't be reset by the windowing system.
         m_keyboard.reset(Keys::kScreenshot);
     }
-    else if (m_keyboard.test(Keys::kSaveConfig) && currentTime.GetElapsedTime() > time_delta)
+    else if (m_keyboard.test(Keys::kSaveConfig) && currentTime.GetElapsedTime() > timeDelta)
     {
         // Write out a configuration file with the current rendering settings.
-        writeConfigFile();
+        WriteConfigFile();
         currentTime.Restart();
 
         // Reset this key manually as it won't be reset by the windowing system.
@@ -431,61 +433,59 @@ void Raytracer::checkKeys(const float dt)
     
     if (m_keyboard.test(Keys::kIncreaseApertureWidth))
     {
-        float aperture_width = m_camera.GetApertureRadius();
-        aperture_width += aperature_increment;
-        reset_rendering_state = true;
+        float apertureWidth = m_camera.GetApertureRadius();
+        apertureWidth += aperatureIncrement;
+        resetRenderer = true;
         
         // Regenerate the aperture sampling texture to reflect the new aperture radius.
-        m_aperture_sample_texture.RandomizeRadial(m_fbo_texture.Width(), m_fbo_texture.Height(), RL_FLOAT, aperture_width, "random");
+        m_apertureSampleTexture.RandomizeRadial(m_fboTexture.Width(), m_fboTexture.Height(), RL_FLOAT, apertureWidth, "random");
         
-        m_camera.SetApertureRadius(aperture_width);
+        m_camera.SetApertureRadius(apertureWidth);
     }
     else if (m_keyboard.test(Keys::kDecreaseApertureWidth))
     {
-        float aperture_width = m_camera.GetApertureRadius();
-        aperture_width = std::max(0.0f, aperture_width - aperature_increment);
-        reset_rendering_state = true;
+        float apertureWidth = m_camera.GetApertureRadius();
+        apertureWidth = std::max(0.0f, apertureWidth - aperatureIncrement);
+        resetRenderer = true;
         
         // Regenerate the aperture sampling texture to reflect the new aperture radius.
-        m_aperture_sample_texture.RandomizeRadial(m_fbo_texture.Width(), m_fbo_texture.Height(), RL_FLOAT, aperture_width, "random");
+        m_apertureSampleTexture.RandomizeRadial(m_fboTexture.Width(), m_fboTexture.Height(), RL_FLOAT, apertureWidth, "random");
         
-        m_camera.SetApertureRadius(aperture_width);
+        m_camera.SetApertureRadius(apertureWidth);
     }
     
     if (m_keyboard.test(Keys::kIncreaseFocalLength))
     {
-        m_camera.SetFocalLength(m_camera.GetFocalLength() + focal_length_increment);
-        reset_rendering_state = true;
+        m_camera.SetFocalLength(m_camera.GetFocalLength() + focalLengthIncrement);
+        resetRenderer = true;
     }
 	else if (m_keyboard.test(Keys::kDecreaseFocalLength))
     {
-        m_camera.SetFocalLength(std::max(0.0f, m_camera.GetFocalLength() - focal_length_increment));
-        reset_rendering_state = true;
+        m_camera.SetFocalLength(std::max(0.0f, m_camera.GetFocalLength() - focalLengthIncrement));
+        resetRenderer = true;
     }
     
-    if (m_keyboard.test(Keys::kEnableGI) && currentTime.GetElapsedTime() > time_delta) // perform GI.
+    if (m_keyboard.test(Keys::kEnableGI) && currentTime.GetElapsedTime() > timeDelta) // perform GI.
     {
-        m_gi_buffer.Bind();
-		GIUniformBuffer *block = m_gi_buffer.MapBuffer<GIUniformBuffer>();
+        m_giBuffer.Bind();
+		GIUniformBuffer *block = m_giBuffer.MapBuffer<GIUniformBuffer>();
         block->enabled = (block->enabled + 1) & 1;
-		m_gi_buffer.UnmapBuffer();
-        m_gi_buffer.Unbind();
-        reset_rendering_state = true;
+		m_giBuffer.UnmapBuffer();
+        m_giBuffer.Unbind();
+        resetRenderer = true;
         currentTime.Restart();
 
         // Reset this key manually as it won't be reset by the windowing system.
         m_keyboard.reset(Keys::kEnableGI);
     }
     
-    if (reset_rendering_state)
+    if (resetRenderer)
     {
-        resetRenderingState();
+        ResetRenderingState();
     }
 }
 
-/// Reset the rendering state. This is done if the camera moved or the window got resized
-/// and rendering needs to start over from the beginning.
-void Raytracer::resetRenderingState()
+void Raytracer::ResetRenderingState()
 {
     if (m_fbo != RL_NULL_FRAMEBUFFER)
     {
@@ -493,126 +493,125 @@ void Raytracer::resetRenderingState()
         rlClear(RL_COLOR_BUFFER_BIT);
     }
     
-    m_passes_performed = 1;
+    m_passesPerformed = 1;
 }
 
-/// Load the model specified in the config file and all materials associated with it. After this is finished,
-/// a mesh will be ready for rendering.
-void Raytracer::loadModel(const tinyxml2::XMLElement *mesh_node)
+void Raytracer::LoadModel(const tinyxml2::XMLElement *meshNode)
 {
-    std::string model_path = mesh_node->Attribute("Model");
-    float model_scaling = 1.0f;
+    std::string modelPath = meshNode->Attribute("Model");
+    float modelScaling = 1.0f;
     
-    mesh_node->QueryFloatAttribute("Scale", &model_scaling);
+    meshNode->QueryFloatAttribute("Scale", &modelScaling);
     
-    if (!m_mesh.Load(model_path, false, model_scaling, false))
+    if (!m_mesh.Load(modelPath, false, modelScaling, false))
     {
         exit(0);
     }
 }
 
-/// Setup the camera based on the defaults specified in the config file.
-void Raytracer::setupCamera(const tinyxml2::XMLNode *camera_node)
+void Raytracer::SetupCamera(const tinyxml2::XMLNode *cameraNode)
 {
     const tinyxml2::XMLElement *element = nullptr;
-    math::Vec3f tmp_vector;
-    float       tmp_value = 0.0f;
+    math::Vec3f tmpVector;
+    float       tmpValue = 0.0f;
     
     // Setup the camera's position.
     {
-        element = camera_node->FirstChildElement("Position");
+        element = cameraNode->FirstChildElement("Position");
         
-		element->QueryFloatAttribute("X", &tmp_vector[0]);
-        element->QueryFloatAttribute("Y", &tmp_vector[1]);
-        element->QueryFloatAttribute("Z", &tmp_vector[2]);
+		element->QueryFloatAttribute("X", &tmpVector[0]);
+        element->QueryFloatAttribute("Y", &tmpVector[1]);
+        element->QueryFloatAttribute("Z", &tmpVector[2]);
 
-        m_camera.SetPosition(tmp_vector);
+        m_camera.SetPosition(tmpVector);
     }
     
     // Setup the camera's lens attributes.
     {
-        element = camera_node->FirstChildElement("Lens");
+        element = cameraNode->FirstChildElement("Lens");
         
-        element->QueryFloatAttribute("FocalLength", &tmp_value);
-        m_camera.SetFocalLength(tmp_value);
+        element->QueryFloatAttribute("FocalLength", &tmpValue);
+        m_camera.SetFocalLength(tmpValue);
         
-		element->QueryFloatAttribute("ApertureRadius", &tmp_value);
-        m_camera.SetApertureRadius(tmp_value);
+		element->QueryFloatAttribute("ApertureRadius", &tmpValue);
+        m_camera.SetApertureRadius(tmpValue);
         
         // Generate the aperture sampling texture to reflect the aperture radius.
-        m_aperture_sample_texture.RandomizeRadial(m_fbo_texture.Width(), m_fbo_texture.Height(), RL_FLOAT, m_camera.GetApertureRadius(), "random");
+        m_apertureSampleTexture.RandomizeRadial(m_fboTexture.Width(), m_fboTexture.Height(), RL_FLOAT, m_camera.GetApertureRadius(), "random");
     }
     
     // Setup the camera's orientation.
     {
-        element = camera_node->FirstChildElement("Orientation");
+        element = cameraNode->FirstChildElement("Orientation");
         
-        element->QueryFloatAttribute("X", &tmp_vector[0]);
-        element->QueryFloatAttribute("Y", &tmp_vector[1]);
-        element->QueryFloatAttribute("Z", &tmp_vector[2]);
-        element->QueryFloatAttribute("Angle", &tmp_value);
+        element->QueryFloatAttribute("X", &tmpVector[0]);
+        element->QueryFloatAttribute("Y", &tmpVector[1]);
+        element->QueryFloatAttribute("Z", &tmpVector[2]);
+        element->QueryFloatAttribute("Angle", &tmpValue);
         
-        math::Quatf orientation(tmp_value, tmp_vector);
+        math::Quatf orientation(tmpValue, tmpVector);
         m_camera.SetOrientation(orientation);
     }
     
     // Setup the camera's movement speed parameters.
     {
-        element = camera_node->FirstChildElement("Speed");
+        element = cameraNode->FirstChildElement("Speed");
         
-        element->QueryFloatAttribute("Movement", &m_camera_movement_speed);
-        element->QueryFloatAttribute("Rotation", &m_camera_rotation_speed);
+        element->QueryFloatAttribute("Movement", &m_cameraMovementSpeed);
+        element->QueryFloatAttribute("Rotation", &m_cameraRotationSpeed);
     }
 }
 
-/// Setup the default framebuffer to perform all rendering into.
-void Raytracer::setupFramebuffer(const tinyxml2::XMLElement *framebuffer_node, RLint &framebuffer_width, RLint &framebuffer_height)
+void Raytracer::SetupFramebuffer(const tinyxml2::XMLElement *framebufferNode)
 {
     // Heatray renders every pass to the same framebuffer without ever clearing it. Therefore, the framebuffer created below will
     // contain the pixel information for every pass. This FBO must be processed by a shader program which divides each pixel by
     // the current number of passes ran, producing an image that is actually viewable.
     
     // Read the width and height from the config file.
-    framebuffer_node->QueryIntAttribute("Width", &framebuffer_width);
-    framebuffer_node->QueryIntAttribute("Height", &framebuffer_height);
+    RLint framebufferWidth  = 0;
+    RLint framebufferHeight = 0;
+    framebufferNode->QueryIntAttribute("Width", &framebufferWidth);
+    framebufferNode->QueryIntAttribute("Height", &framebufferHeight);
     
-    gfx::Texture::Params texture_params;
-    texture_params.minFilter      = RL_LINEAR;
-    texture_params.format         = RL_RGB;
-    texture_params.internalFormat = RL_RGB;
+    gfx::Texture::Params textureParams;
+    textureParams.minFilter      = RL_LINEAR;
+    textureParams.format         = RL_RGB;
+    textureParams.internalFormat = RL_RGB;
     
     // Create the default FBO for rendering into.
     rlGenFramebuffers(1, &m_fbo);
     rlBindFramebuffer(RL_FRAMEBUFFER, m_fbo);
-    m_fbo_texture.SetParams(texture_params);
-    m_fbo_texture.Create(framebuffer_width, framebuffer_height, RL_FLOAT, nullptr, "Default FBO Texture");
-    rlFramebufferTexture2D(RL_FRAMEBUFFER, RL_COLOR_ATTACHMENT0, RL_TEXTURE_2D, m_fbo_texture.GetTexture(), 0);
+    m_fboTexture.SetParams(textureParams);
+    m_fboTexture.Create(framebufferWidth, framebufferHeight, RL_FLOAT, nullptr, "Default FBO Texture");
+    rlFramebufferTexture2D(RL_FRAMEBUFFER, RL_COLOR_ATTACHMENT0, RL_TEXTURE_2D, m_fboTexture.GetTexture(), 0);
     
     CheckRLErrors();
 }
 
-/// Setup general rendering settings independent of any object contained within this class.
-void Raytracer::setupRenderSettings(const tinyxml2::XMLElement *render_settings_node)
+void Raytracer::SetupRenderSettings(const tinyxml2::XMLElement *renderSettingsNode)
 {
     // Create the random values uniform block data. These values will be used in all diffuse shaders to bounce rays
     // and achieve indirect illumination.
-    m_random_values_texture.Randomize(m_fbo_texture.Width(), m_fbo_texture.Height(), 3, RL_FLOAT, 0.0f, 1.0f, "Random 0-1 texture");
-    GIUniformBuffer gi_uniform_buffer;
-    gi_uniform_buffer.texture = m_random_values_texture.GetTexture();
-    render_settings_node->QueryIntAttribute("DefaultGIOn", &(gi_uniform_buffer.enabled));
-    m_gi_buffer.SetTarget(RL_UNIFORM_BLOCK_BUFFER);
-    m_gi_buffer.Load(&gi_uniform_buffer, sizeof(GIUniformBuffer), "Random buffer");
+    m_randomValuesTexture.Randomize(m_fboTexture.Width(), m_fboTexture.Height(), 3, RL_FLOAT, 0.0f, 1.0f, "Random 0-1 texture");
+    
+    GIUniformBuffer gi_uniformBuffer;
+    gi_uniformBuffer.texture = m_randomValuesTexture.GetTexture();
+    renderSettingsNode->QueryIntAttribute("DefaultGIOn", &(gi_uniformBuffer.enabled));
+    m_giBuffer.SetTarget(RL_UNIFORM_BLOCK_BUFFER);
+    m_giBuffer.Load(&gi_uniformBuffer, sizeof(GIUniformBuffer), "Random buffer");
     
     // Setup the number of passes to perform per the config file.
-    render_settings_node->QueryIntAttribute("RaysPerPixel", &m_total_pass_count);
+    renderSettingsNode->QueryIntAttribute("RaysPerPixel", &m_totalPassCount);
     
     // Set the maximum number of bounces any ray in the system can have before being terminated.
-    render_settings_node->QueryIntAttribute("MaxRayDepth", &m_max_ray_depth);
-    rlFrameParameter1i(RL_FRAME_RAY_DEPTH_LIMIT, m_max_ray_depth);
+    renderSettingsNode->QueryIntAttribute("MaxRayDepth", &m_maxRayDepth);
+    rlFrameParameter1i(RL_FRAME_RAY_DEPTH_LIMIT, m_maxRayDepth);
+    
+    CheckRLErrors();
 }
 
-/// Get the light information from the mesh and populate the m_light member variable.
-void Raytracer::getLighting(gfx::Mesh &mesh)
+void Raytracer::GetLighting(gfx::Mesh &mesh)
 {
     // Go over each mesh piece and look for anything that is a light. For all lights that are found, populate a
     // 'Light' struct with information about that light to use for later rendering.
@@ -631,20 +630,20 @@ void Raytracer::getLighting(gfx::Mesh &mesh)
             m_lights.push_back(Light());
             Light *light = &m_lights[m_lights.size() - 1];
 
-            int num_light_triangles = static_cast<int>(piece->vertices.size()) / 3;
+            int num_lightTriangles = static_cast<int>(piece->vertices.size()) / 3;
 
             // Generate the randomized light positions to sample for each pass. Every pass of the render will use one of these generated
             // light positions.
-            light->sample_positions.resize(m_total_pass_count);
-            light->sample_normals.resize(m_total_pass_count);
+            light->samplePositions.resize(m_totalPassCount);
+            light->sampleNormals.resize(m_totalPassCount);
             std::vector<float> randomBarycentrics;
-            util::GenerateRandomNumbers(0.0f, 1.0f, m_total_pass_count * 3, randomBarycentrics); // * 3 to account of 3 barycentrics per sample point.
+            util::GenerateRandomNumbers(0.0f, 1.0f, m_totalPassCount * 3, randomBarycentrics); // * 3 to account of 3 barycentrics per sample point.
             int barycentricIndex = 0;
 
-            for (int ii = 0; ii < m_total_pass_count; ++ii)
+            for (int ii = 0; ii < m_totalPassCount; ++ii)
             {
                 // Find a random triangle to use for this sample.
-                int triangle_index = util::Random(0, num_light_triangles - 1);
+                int triangleIndex = util::Random(0, num_lightTriangles - 1);
 
                 // Generate 3 random barycentric coordinates.
                 float gamma = randomBarycentrics[barycentricIndex++];
@@ -659,19 +658,19 @@ void Raytracer::getLighting(gfx::Mesh &mesh)
                 alpha = 1.0f - (gamma + beta);
 
                 // Use the barycentrics to generate a random position within the triangle.
-                int vertex_index = triangle_index * 3;
-                math::Vec3f sample_point = (piece->vertices[vertex_index + 0] * gamma) +
-                                           (piece->vertices[vertex_index + 1] * beta) +
-                                           (piece->vertices[vertex_index + 2] * alpha);
+                int vertexIndex = triangleIndex * 3;
+                math::Vec3f samplePoint = (piece->vertices[vertexIndex + 0] * gamma) +
+                                          (piece->vertices[vertexIndex + 1] * beta) +
+                                          (piece->vertices[vertexIndex + 2] * alpha);
 
                 // Similarly set the normal for this sample point.
-                math::Vec3f sample_normal = (piece->normals[vertex_index + 0] * gamma) +
-                                            (piece->normals[vertex_index + 1] * beta) +
-                                            (piece->normals[vertex_index + 2] * alpha);
-                sample_normal.Normalize();
+                math::Vec3f sampleNormal = (piece->normals[vertexIndex + 0] * gamma) +
+                                           (piece->normals[vertexIndex + 1] * beta) +
+                                           (piece->normals[vertexIndex + 2] * alpha);
+                sampleNormal.Normalize();
 
-                light->sample_positions[ii] = sample_point;
-                light->sample_normals[ii]   = sample_normal;
+                light->samplePositions[ii] = samplePoint;
+                light->sampleNormals[ii]   = sampleNormal;
             }
         }
     }
@@ -683,21 +682,19 @@ void Raytracer::getLighting(gfx::Mesh &mesh)
     }
 }
 
-/// Write a configuration file with the current rendering settings which can be reloaded with a new instance
-/// of Heatray.
-void Raytracer::writeConfigFile() const
+void Raytracer::WriteConfigFile() const
 {
 	tinyxml2::XMLDocument config;
-	tinyxml2::XMLElement *root_element = config.NewElement("HeatRayConfig");
-    config.InsertFirstChild(root_element);
+	tinyxml2::XMLElement *rootElement = config.NewElement("HeatRayConfig");
+    config.InsertFirstChild(rootElement);
     
     // Write the framebuffer info.
 	{
         tinyxml2::XMLElement *node = config.NewElement("Framebuffer");
-        node->SetAttribute("Width", m_fbo_texture.Width());
-        node->SetAttribute("Height", m_fbo_texture.Height());
+        node->SetAttribute("Width", m_fboTexture.Width());
+        node->SetAttribute("Height", m_fboTexture.Height());
         
-        root_element->InsertEndChild(node);
+        rootElement->InsertEndChild(node);
     }
     
     // Write the mesh info.
@@ -706,58 +703,58 @@ void Raytracer::writeConfigFile() const
         node->SetAttribute("Model", m_mesh.GetName().c_str());
         node->SetAttribute("Scale", m_mesh.GetScale());
         
-        root_element->InsertEndChild(node);
+        rootElement->InsertEndChild(node);
     }
     
     // Write the camera info.
     {
-        tinyxml2::XMLElement *camera_node = config.NewElement("Camera");
+        tinyxml2::XMLElement *cameraNode = config.NewElement("Camera");
     
         tinyxml2::XMLElement *position = config.NewElement("Position");
-        math::Vec3f camera_position = m_camera.GetPosition();
-        position->SetAttribute("X", camera_position[0]);
-        position->SetAttribute("Y", camera_position[1]);
-        position->SetAttribute("Z", camera_position[2]);
-        camera_node->InsertEndChild(position);
+        math::Vec3f cameraPosition = m_camera.GetPosition();
+        position->SetAttribute("X", cameraPosition[0]);
+        position->SetAttribute("Y", cameraPosition[1]);
+        position->SetAttribute("Z", cameraPosition[2]);
+        cameraNode->InsertEndChild(position);
         
         tinyxml2::XMLElement *lens = config.NewElement("Lens");
         lens->SetAttribute("FocalLength", m_camera.GetFocalLength());
         lens->SetAttribute("ApertureRadius", m_camera.GetApertureRadius());
-        camera_node->InsertEndChild(lens);
+        cameraNode->InsertEndChild(lens);
         
         tinyxml2::XMLElement *orientation = config.NewElement("Orientation");
-        math::Quatf camera_orientation = m_camera.GetOrientation();
-        orientation->SetAttribute("X", camera_orientation.GetAxis()[0]);
-        orientation->SetAttribute("Y", camera_orientation.GetAxis()[1]);
-        orientation->SetAttribute("Z", camera_orientation.GetAxis()[2]);
-        orientation->SetAttribute("Angle", camera_orientation.GetAngle());
-        camera_node->InsertEndChild(orientation);
+        math::Quatf cameraOrientation = m_camera.GetOrientation();
+        orientation->SetAttribute("X", cameraOrientation.GetAxis()[0]);
+        orientation->SetAttribute("Y", cameraOrientation.GetAxis()[1]);
+        orientation->SetAttribute("Z", cameraOrientation.GetAxis()[2]);
+        orientation->SetAttribute("Angle", cameraOrientation.GetAngle());
+        cameraNode->InsertEndChild(orientation);
         
         tinyxml2::XMLElement *speed = config.NewElement("Speed");
-        speed->SetAttribute("Movement", m_camera_movement_speed);
-        speed->SetAttribute("Rotatino", m_camera_rotation_speed);
-        camera_node->InsertEndChild(speed);
+        speed->SetAttribute("Movement", m_cameraMovementSpeed);
+        speed->SetAttribute("Rotatino", m_cameraRotationSpeed);
+        cameraNode->InsertEndChild(speed);
         
-        root_element->InsertEndChild(camera_node);
+        rootElement->InsertEndChild(cameraNode);
     }
     
     // Write render settings.
     {
-        tinyxml2::XMLElement *render_settings_node = config.NewElement("RenderSettings");
+        tinyxml2::XMLElement *renderSettingsNode = config.NewElement("RenderSettings");
         
         // Read the current status of the GI from the uniform block data.
-        int gi_on = 0;
-        m_gi_buffer.Bind();
-		GIUniformBuffer *block = m_gi_buffer.MapBuffer<GIUniformBuffer>();
-        gi_on = block->enabled;
-		m_gi_buffer.UnmapBuffer();
-        m_gi_buffer.Unbind();
+        int giOn = 0;
+        m_giBuffer.Bind();
+		GIUniformBuffer *block = m_giBuffer.MapBuffer<GIUniformBuffer>();
+        giOn = block->enabled;
+		m_giBuffer.UnmapBuffer();
+        m_giBuffer.Unbind();
 
-        render_settings_node->SetAttribute("RaysPerPixel", m_total_pass_count);
-        render_settings_node->SetAttribute("DefaultGIOn", gi_on);
-        render_settings_node->SetAttribute("MaxRayDepth", m_max_ray_depth);
+        renderSettingsNode->SetAttribute("RaysPerPixel", m_totalPassCount);
+        renderSettingsNode->SetAttribute("DefaultGIOn", giOn);
+        renderSettingsNode->SetAttribute("MaxRayDepth", m_maxRayDepth);
         
-        root_element->InsertEndChild(render_settings_node);
+        rootElement->InsertEndChild(renderSettingsNode);
     }
 
     // Write out the document.

@@ -30,7 +30,7 @@ Shader::~Shader()
     }
 }
 
-bool Shader::Load(const std::string &path, const Type type)
+bool Shader::Load(const std::string &path, const ShaderType type)
 {
     std::string source;
     if (!util::ReadTextFile(path, source))
@@ -41,7 +41,7 @@ bool Shader::Load(const std::string &path, const Type type)
     return CreateFromString(source, type, path);
 }
     
-bool Shader::CreateFromString(const std::string &shaderSource, const Type type, const std::string &name)
+bool Shader::CreateFromString(const std::string &shaderSource, const ShaderType type, const std::string &name)
 {
 	bool returnValue = false;
     if (shaderSource.length() && CreateShader(type))
@@ -95,25 +95,25 @@ bool Shader::Compile() const
 	return true;
 }
 
-bool Shader::CreateShader(const Type type)
+bool Shader::CreateShader(const ShaderType type)
 {
     RLenum shaderType = ~0;
     
     switch (type)
     {
-        case kVertex:
+        case ShaderType::kVertex:
             shaderType = RL_VERTEX_SHADER;
             break;
             
-        case kFrame:
+        case ShaderType::kFrame:
             shaderType = RL_FRAME_SHADER;
             break;
             
-        case kRay:
+        case ShaderType::kRay:
             shaderType = RL_RAY_SHADER;
             break;
             
-        case kPrefix:
+        case ShaderType::kPrefix:
             shaderType = RL_PREFIX_RAY_SHADER;
             break;
             

@@ -85,11 +85,12 @@ class Mesh
         // A separate VBO is created for each type of data, defined by this enum.
         enum VBOType
         {
-            VERTICES = 0,
-            NORMALS,
-            TEX_COORDS,
-            TANGENTS,
-            NUM_VBO_TYPES
+            kVertices = 0,
+            kNormals,
+            kTexCoords,
+            kTangents,
+            
+            kNumVBOTypes // This should always be last.
         };
     
         ///
@@ -109,7 +110,7 @@ class Mesh
             std::vector<math::Vec2f>   texCoords;     ///< Texture coordinates for this mesh.
             size_t                     numElements;   ///< Number of elements (vertices) to render.
             
-            gfx::Buffer buffers[NUM_VBO_TYPES]; ///< VBOs which makeup the mesh data for this piece.
+            gfx::Buffer buffers[kNumVBOTypes]; ///< VBOs which makeup the mesh data for this piece.
         };
     
         typedef std::unordered_map<std::string, MeshPiece>	MeshList;

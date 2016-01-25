@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include <OpenRL/OpenRL.h>
 #include "../gfx/Camera.h"
 #include "../gfx/Program.h"
 #include "../gfx/Shader.h"
@@ -18,56 +17,84 @@
 #include "../utility/tinyxml2.h"
 #include "Light.h"
 #include "Pixels.h"
+#include <OpenRL/OpenRL.h>
 #include <bitset>
 
 #define MAX_LIGHTS 5
 
+///
 /// Class to control raytracing via OpenRL. All rendering setup
 /// and execution is performed via the public interface to
 /// this class.
+///
+
 class Raytracer
 {
     public:
     
-    	/// Default constructor.
     	Raytracer();
-    
-    	/// Destructor.
     	~Raytracer();
     
-    	/// Initialize the raytracer for use. Returns true if
-    	/// initialization was successful.
-    	bool initialize(const std::string &config_file_path, //  IN: Path to the xml configuration file to configure the render.
-                        RLint             &screen_width,     // OUT: Initial width to set the screen to.
-                        RLint             &screen_height     // OUT: Initial height to set the screen to.
-                       );
+        ///
+    	/// Initialize the raytracer for use.
+        ///
+        /// @param configFilePath Relative path to the xml configuration file to configure the render.
+        ///
+        /// @return If true, the raytracer is successfully initialized and ready for rendering.
+        ///
+        bool Initialize(const std::string &configFilePath);
     
+        ///
     	/// Deallocate any internal data and
     	/// prepare for shutdown.
-    	void destroy();
+        ///
+    	void Destroy();
     
-    	/// Update this class.
-    	void update(const float dt // IN: Change in time since the last call to update() (in seconds).
-                   );
+        ///
+    	/// Update the renderer. During the update phase the raytracer will test for various user
+        /// input and update the raytracing environment accordingly.
+        ///
+        /// @param dt Change in time since the last call to Update() (in seconds).
+        ///
+    	void Update(const float dt);
     
-    	/// Render a frame.
-    	void render(Pixels &outputPixels // OUT: Rendered pixels from EVERY pass, should be averaged for proper viewing.
-                   );
+        ///
+    	/// Render a frame. Each render accumulates the new pass data over the existing render data. Therefore every pass
+        /// is the accumulation of EVERY pass that has come before it. To properly display this data, it should be divided
+        /// by the number of passes that have been performed so far (to get a proper color average for each pixel).
+        ///
+        /// @param outputPixels Rendered pixels from EVERY pass, should be averaged for proper viewing.
+        ///
+    	void Render(Pixels &outputPixels);
     
-    	/// Resize the render viewport.
-    	void resize(RLint width, // IN: Width of the screen in pixels.
-                    RLint height // IN: Height of the screen in pixels.
-                   );
+        ///
+    	/// Resize the raytracer output.
+        ///
+        /// @param width New width of the raytraced output buffer (in pixels).
+        /// @param height New height of the raytraced output buffer (in pixels).
+        ///
+    	void Resize(RLint width, RLint height);
     
+        ///
         /// Get a reference to the keyboard keys.
-        std::bitset<256> &getKeys();
+        ///
+        std::bitset<256> &GetKeys();
 
+        ///
         /// If true, this key will be reset by the raytracer itself and should not be reset
         /// by the windowing system.
-        bool isSpecialKey(const char key) const;
+        ///
+        bool IsSpecialKey(const char key) const;
 
+        ///
         /// Get the number of passes performed so far.
-        int getNumPassesPerformed() const;
+        ///
+        int GetNumPassesPerformed() const;
+    
+        ///
+        /// Get the dimensions of the raytracer's output buffer (in screen pixels).
+        ///
+        void GetDimensions(RLint &width, RLint &height);
     
     private:
     
@@ -75,45 +102,66 @@ class Raytracer
     	Raytracer(const Raytracer &other) = delete;
     	Raytracer & operator=(const Raytracer &other) = delete;
     
+        ///
         /// Check the current state of the keyboard.
-        void checkKeys(const float dt // IN: Change in time since the last frame (in seconds).
-                      );
+        ///
+        /// @param dt Change in time since the last frame (in seconds).
+        ///
+        void CheckKeys(const float dt);
     
+        //
     	/// Reset the rendering state. This is done if the camera moved or the window got resized
     	/// and rendering needs to start over from the beginning.
-    	void resetRenderingState();
+        ///
+    	void ResetRenderingState();
     
+        ///
     	/// Load the model specified in the config file and all materials associated with it. After this is finished,
         /// a mesh will be ready for rendering.
-    	void loadModel(const tinyxml2::XMLElement *mesh_node // IN: XML element which has the mesh attributes to load (<Mesh>).
-                      );
+        ///
+        /// @param meshNode XML element which has the mesh attributes to load (<Mesh>).
+        ///
+    	void LoadModel(const tinyxml2::XMLElement *meshNode);
     
+        ///
     	/// Setup the camera based on the defaults specified in the config file.
-    	void setupCamera(const tinyxml2::XMLNode *camera_node // IN: XML node which specifies the camera properties (<Camera>).
-                        );
+        ///
+        /// @param cameraNode XML node which specifies the camera propertices (<Camera>).
+        ///
+    	void SetupCamera(const tinyxml2::XMLNode *cameraNode);
     
+        ///
     	/// Setup the default framebuffer to perform all rendering into.
-    	void setupFramebuffer(const tinyxml2::XMLElement *framebuffer_node,  //  IN: XML node which specifies the framebuffer size (<Framebuffer>).
-    						  RLint                      &framebuffer_width, // OUT: Width that the framebuffer is configured to use. Read from the config file.
-    						  RLint                      &framebuffer_height // OUT: Height that the framebuffer is configured to use. Read from the config file.
-    						);
+        ///
+        /// @param framebufferNode XML node which specifies the framebuffer size (<Framebuffer>).
+        ///
+    	void SetupFramebuffer(const tinyxml2::XMLElement *framebuffer_node);
     
+        ///
         /// Setup general rendering settings independent of any object contained within this class.
-        void setupRenderSettings(const tinyxml2::XMLElement *render_settings_node // IN: XML node which specifies the render settings (<RenderSettings>).
-                                );
+        ///
+        /// @param renderSettingsNode XML node which specifies the render settings (<RenderSettings>).
+        ///
+        void SetupRenderSettings(const tinyxml2::XMLElement *render_settings_node);
     
-        /// Get the light information from the mesh and populate the m_light member variable.
-        void getLighting(gfx::Mesh &mesh  //  IN: Mesh to read the light from.
-                        );
+        ///
+        /// Get the light information from the mesh and populate the m_lights member variable.
+        ///
+        /// @param mesh Mesh to read the light from.
+        ///
+        void GetLighting(gfx::Mesh &mesh);
     
+        ///
     	/// Write a configuration file with the current rendering settings which can be reloaded with a new instance
     	/// of Heatray.
-    	void writeConfigFile() const;
-public:
-    	std::vector<Light> m_lights; // Lighting info. Read from the mesh file. At most 5 lights are supported.
-private:
+        ///
+    	void WriteConfigFile() const;
     
+    	std::vector<Light> m_lights; ///< Lighting info. Read from the mesh file. At most MAX_LIGHTS lights are supported.
+    
+        ///
         /// Structure which represents the uniform block in all shaders for lighting information.
+        ///
         struct LightUniformBuffer
         {
             LightUniformBuffer() :
@@ -136,15 +184,13 @@ private:
             int enabled;       // Enable/disable global illumination.
         };
     
-        gfx::Texture m_random_values_texture; // Texture to use in the RandomUniformBuffer uniform block.
+        gfx::Texture m_randomValuesTexture; ///< Texture to use in the RandomUniformBuffer uniform block.
     
-        public:
-    	gfx::Camera m_camera;          // Camera which controls the raytracing view.
-        private:
-    	float m_camera_movement_speed; // Speed at which to move the camera.
-    	float m_camera_rotation_speed; // Speed at which to rotate the camera.
+    	gfx::Camera m_camera;        ///< Camera which controls the raytracing view.
+    	float m_cameraMovementSpeed; ///< Speed at which to move the camera.
+    	float m_cameraRotationSpeed; ///< Speed at which to rotate the camera.
     
-    	gfx::Texture m_aperture_sample_texture; // Texture which has random values within the current radius of the aperture for depth of field.
+    	gfx::Texture m_apertureSampleTexture; ///< Texture which has random values within the current radius of the aperture for depth of field.
     
         ///
         /// Uniform locations for the uniforms that control the main frame shader.
@@ -163,26 +209,26 @@ private:
             RLint randomTextureMatrix;
         };
     
-        FrameProgramUniforms m_frameUniforms;
-    	gfx::Program m_raytracing_frame_program; // RLSL program which generates the primary rays to start raytracing.
-    	gfx::Shader m_vertex_shader;             // Vertex shader to use for all ray shaders.
+        FrameProgramUniforms m_frameUniforms;    ///< Frame program uniform locations. Cached so that they're not read every frame.
+    	gfx::Program m_raytracingFrameProgram;   ///< RLSL program which generates the primary rays to start raytracing.
+    	gfx::Shader m_vertexShader;              ///< Vertex shader to use for all ray shaders.
    
-        gfx::Mesh m_mesh; // Mesh to use for rendering.
+        gfx::Mesh m_mesh; ///< Mesh to use for rendering.
     
-        std::bitset<256> m_keyboard; // Current state of the keyboard keys.
+        std::bitset<256> m_keyboard; ///< Current state of the keyboard keys.
     
-    	RLframebuffer m_fbo;                    // FBO to use for raytrace rendering.
-		gfx::Texture  m_fbo_texture;            // Texture to use for the FBO.
-        gfx::Texture  m_jitter_texture;         // Texture storing jitter values.
-        int           m_passes_performed;       // Number of passes rendered so far.
+    	RLframebuffer m_fbo;                   ///< FBO to use for raytrace rendering.
+		gfx::Texture  m_fboTexture;            ///< Texture to use for the FBO.
+        gfx::Texture  m_jitterTexture;         ///< Texture storing jitter values.
+        int           m_passesPerformed;       ///< Number of passes rendered so far.
     
-        gfx::Buffer   m_light_buffer;  // Current rendering position of the light as a shared buffer between all shaders.
-        gfx::Buffer   m_gi_buffer;     // Buffer filled with random values in a texture (used for path tracing) and an enable flag.
+        gfx::Buffer   m_lightBuffer;  ///< Current rendering position of the light as a shared buffer between all shaders.
+        gfx::Buffer   m_giBuffer;     ///< Buffer filled with random values in a texture (used for path tracing) and an enable flag.
     
-    	bool m_save_image; // If true, write the next rendered image to an output file.
+    	bool m_saveImage; ///< If true, write the next rendered image to an output file.
     
-        int m_total_pass_count; // Total number of render passes to perform.
-    	int m_max_ray_depth;    // Maximum depth that any ray can have in the system.
+        int m_totalPassCount; ///< Total number of render passes to perform.
+    	int m_maxRayDepth;    ///< Maximum depth that any ray can have in the system.
     
-        OpenRLContext m_rl_context; // Main context for OpenRL.
+        OpenRLContext m_rlContext; ///< Main context for OpenRL.
 };

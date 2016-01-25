@@ -15,39 +15,54 @@
 #include <string>
 #include <unordered_map>
 
+///
 /// Class to auto-generate shaders based a given mesh.
+///
+
 class ShaderGenerator
 {
     public:
     
-    	/// Default constructor.
         ShaderGenerator();
-    
-    	/// Destructor.
     	~ShaderGenerator();
     
-    	/// Generate all of the necessary shaders for the current mesh. After a shader has been generated,
+        struct GenerationInfo
+        {
+            gfx::Mesh   *mesh;           ///< Mesh to generate all shaders for. A shader is generated per-material.
+            gfx::Shader *vertexShader;   ///< Vertex shader to link all ray shaders with.
+            gfx::Buffer *lightBuffer;    ///< Buffer to bind to the light uniform block for each shader.
+            gfx::Buffer *giBuffer;       ///< Buffer to bind to diffuse objects which contains GI information.
+            std::string rayShaderPath;   ///< Relative path to the ray shader source file.
+            std::string lightShaderPath; ///< Relative path to the light shader source file.
+            int         maxLightCount;   ///< Maximum number of lights supported.
+            
+            std::vector<Light> *lights; ///< Information about the lights. This value will be updated after a call to GenerateShaders().
+        };
+    
+        ///
+        /// Generate all of the necessary shaders for the current mesh. After a shader has been generated,
         /// it is automatically setup and bound to the proper mesh piece.
-    	bool generateShaders(gfx::Mesh   		&mesh,             //     IN: Mesh to generate shaders for.
-                             gfx::Shader 		&vertex_shader,    //     IN: Vertex shader to link all ray shaders with.
-                             gfx::Buffer 		&light_buffer,     //     IN: Buffer to bind to the light uniform block for each shader.
-                             gfx::Buffer 		&gi_buffer,        //     IN: Buffer to bind to diffuse objects which contains GI information.
-                             const std::string &ray_shader_path,   //     IN: Path to the ray shader source file.
-                             const std::string &light_shader_path, //     IN: Path to the light shader source file.
-                             const int          max_light_count,   //     IN: Maximum number of lights supported.
-    						 std::vector<Light> &lights  		   // IN/OUT: Information about the lights. This function will generate programs that the lights will use.
-                            );
+        ///
+        /// @param info A GenerationInfo object that specifies necessary info for generating the shaders.
+        ///
+        /// @return If true, the shaders were all properly generated.
+    	bool GenerateShaders(const GenerationInfo &info);
     
     private:
     
+        ///
         /// Generate a ray shader based on a material OR find the existing shader in the shader cache. If a ray shader was not found and
         /// count not be created, null is returned.
-        gfx::Shader *findOrCreateRayShader(const gfx::Material &material,    // IN: Material definition to generate the ray shader from.
-                                           const std::string &shader_source, // IN: Shader source to use to generate a shader.
-                                           const int max_light_count         // IN: Maximum number of lights supported.
-                                          );
+        ///
+        /// @param material Material definition to generate the ray shader from.
+        /// @param shaderSource Shader source to use to generate a shader.
+        /// @param maxLightCount Maximum number of lights supported.
+        ///
+        /// @return A shader to use for binding to a program. If the shader could not be create, null is returned.
+        ///
+        gfx::Shader *FindOrCreateRayShader(const gfx::Material &material, const std::string &shaderSource, const int maxLightCount);
 
         typedef unsigned int ShaderFlags;
         typedef std::unordered_map<ShaderFlags, gfx::Shader *> ShaderCache;
-        ShaderCache m_shaderCache; // Cache of the generated shaders.
+        ShaderCache m_shaderCache; ///< Cache of the generated shaders.
 };

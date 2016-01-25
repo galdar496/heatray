@@ -181,8 +181,8 @@
 		32A4E542191D304F00972E11 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				32A4E545191D34EF00972E11 /* gfx */,
 				32A4E548191D350500972E11 /* main.cpp */,
+				32A4E545191D34EF00972E11 /* gfx */,
 				C367313E191F2F7A0092EDC9 /* math */,
 				32A4E546191D34EF00972E11 /* raytracer */,
 				32A4E547191D34EF00972E11 /* utility */,
