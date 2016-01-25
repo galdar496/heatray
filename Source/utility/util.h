@@ -66,8 +66,6 @@ inline void WriteImage(const std::string &filename, int width, int height, int c
     
     FIBITMAP *bitmap = FreeImage_Allocate(width, height, 24); // 24 bits per pixel.
     RGBQUAD color;
-
-    float invDivisor = 1.0f / divisor;
     
     // Copy the data into the FreeImage bitmap structure.
     int index = 0;
@@ -76,9 +74,9 @@ inline void WriteImage(const std::string &filename, int width, int height, int c
         for (int x = 0; x < width; ++x)
         {
             // Make sure values are clamped within the 0-255 range.
-            color.rgbRed   = static_cast<BYTE>(std::max(std::min((pixels[index + 0] * 255.0f) * invDivisor, 255.0f), 0.0f));
-            color.rgbGreen = static_cast<BYTE>(std::max(std::min((pixels[index + 1] * 255.0f) * invDivisor, 255.0f), 0.0f));
-            color.rgbBlue  = static_cast<BYTE>(std::max(std::min((pixels[index + 2] * 255.0f) * invDivisor, 255.0f), 0.0f));
+            color.rgbRed   = static_cast<BYTE>(std::max(std::min((pixels[index + 0] * 255.0f) * divisor, 255.0f), 0.0f));
+            color.rgbGreen = static_cast<BYTE>(std::max(std::min((pixels[index + 1] * 255.0f) * divisor, 255.0f), 0.0f));
+            color.rgbBlue  = static_cast<BYTE>(std::max(std::min((pixels[index + 2] * 255.0f) * divisor, 255.0f), 0.0f));
             FreeImage_SetPixelColor(bitmap, x, y, &color);
             
             index += channels;

@@ -45,18 +45,21 @@ namespace Keys
         kIncreaseFocalLength   = 'p',
         kDecreaseFocalLength   = 'o',
         kIncreaseApertureWidth = ']',
-        kDecreaseApertureWidth = '['
+        kDecreaseApertureWidth = '[',
+        kIncreaseExposure      = 'k',
+        kDecreaseExposure      = 'l'
     };
 } // namespace Keys
 
 Raytracer::Raytracer() :
-	m_cameraMovementSpeed(5.5f),
-	m_cameraRotationSpeed(0.2f),
-	m_fbo(RL_NULL_FRAMEBUFFER),
+    m_cameraMovementSpeed(5.5f),
+    m_cameraRotationSpeed(0.2f),
+    m_fbo(RL_NULL_FRAMEBUFFER),
     m_passesPerformed(0),
-	m_saveImage(false),
+    m_saveImage(false),
     m_totalPassCount(1024),
-    m_maxRayDepth(5)
+    m_maxRayDepth(5),
+    m_exposureCompensation(0.0f)
 {
     m_keyboard.reset();
 }
@@ -287,7 +290,7 @@ void Raytracer::Render(Pixels &outputPixels)
         rlBindTexture(RL_TEXTURE_2D, m_fboTexture.GetTexture());
         rlBindBuffer(RL_PIXEL_PACK_BUFFER, RL_NULL_BUFFER); // Make sure no pixel-pack buffer is bound, we want to copy into 'pixels'.
         rlGetTexImage(RL_TEXTURE_2D, 0, RL_RGB, RL_FLOAT, &pixels[0]);
-        util::WriteImage("out.tiff", m_fboTexture.Width(), m_fboTexture.Height(), Pixels::NUM_PIXEL_CHANNELS, &pixels[0], static_cast<float>(m_passesPerformed));
+        util::WriteImage("out.tiff", m_fboTexture.Width(), m_fboTexture.Height(), Pixels::NUM_PIXEL_CHANNELS, &pixels[0], GetPixelDivisor());
         
         m_saveImage = false;
     }
@@ -345,6 +348,11 @@ void Raytracer::GetDimensions(RLint &width, RLint &height)
     height = m_fboTexture.Height();
 }
 
+float Raytracer::GetPixelDivisor() const
+{
+    return (1.0f / m_passesPerformed) + m_exposureCompensation;
+}
+
 void Raytracer::CheckKeys(const float dt)
 {
     static util::Timer currentTime(true);
@@ -355,6 +363,7 @@ void Raytracer::CheckKeys(const float dt)
 
     float aperatureIncrement = 0.1f;
     float focalLengthIncrement = 1.0f;
+    float exposureIncrement = 0.0001f;
     
     bool resetRenderer = false;
     
@@ -477,6 +486,16 @@ void Raytracer::CheckKeys(const float dt)
 
         // Reset this key manually as it won't be reset by the windowing system.
         m_keyboard.reset(Keys::kEnableGI);
+    }
+
+    if (m_keyboard.test(Keys::kIncreaseExposure))
+    {
+        m_exposureCompensation += exposureIncrement;
+    }
+    else if (m_keyboard.test(Keys::kDecreaseExposure))
+    {
+        m_exposureCompensation -= exposureIncrement;
+        m_exposureCompensation = std::max(0.0f, m_exposureCompensation);
     }
     
     if (resetRenderer)

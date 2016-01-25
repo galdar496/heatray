@@ -80,8 +80,8 @@ void Render()
     // The raytraced result is actually an accumulation of every pass so far. In order to properly display it,
     // it must be averaged by the number of passes that have been ran to far.
     // Utilize the rasterization hardware to perform the averaging.
-    float invNumPasses = 1.0f / static_cast<float>(renderPassedPerformed);
-    glColor3f(invNumPasses, invNumPasses, invNumPasses);
+    float pixelDivisor = raytracer.GetPixelDivisor();
+    glColor3f(pixelDivisor, pixelDivisor, pixelDivisor);
     glBegin(GL_QUADS);
         glTexCoord2d(0.0, 0.0); glVertex2f(-1.0f, -1.0f);
         glTexCoord2d(1.0, 0.0); glVertex2f(1.0f, -1.0f);

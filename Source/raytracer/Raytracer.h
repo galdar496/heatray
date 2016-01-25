@@ -95,6 +95,12 @@ class Raytracer
         /// Get the dimensions of the raytracer's output buffer (in screen pixels).
         ///
         void GetDimensions(RLint &width, RLint &height);
+
+        ///
+        /// Get pixel divisor for proper display of the pixels. This divisor will take into
+        /// account any exposure changes that the user has requested.
+        ///
+        float GetPixelDivisor() const;
     
     private:
     
@@ -231,4 +237,6 @@ class Raytracer
     	int m_maxRayDepth;    ///< Maximum depth that any ray can have in the system.
     
         OpenRLContext m_rlContext; ///< Main context for OpenRL.
+
+        float m_exposureCompensation; ///< Exposure compensation to apply to the rendered pixels.
 };

@@ -29,6 +29,7 @@ Heat Ray 2.0 is a ray tracer/photon mapper written entirely in C++ with an OpenG
 * Full global illumination through path tracing
 * Simple material modeling via RLSL shaders
 * Take screenshots at anytime
+* Exposure compensation
 
 ## Notes
 
