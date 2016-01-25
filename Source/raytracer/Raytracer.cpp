@@ -353,9 +353,9 @@ float Raytracer::GetPixelDivisor() const
     float divisor = 1.0f / m_passesPerformed;
 
     // Apply exposure compensation. m_exposureCompensation stores the power but no the final value.
-    float exposure = (m_exposureCompensation != 0.0f) ? powf(2.0f, m_exposureCompensation) : 1.0f;
+    float exposure = powf(2.0f, m_exposureCompensation);
 
-    return divisor * (1.0f / exposure);
+    return divisor * exposure;
 }
 
 void Raytracer::CheckKeys(const float dt)
@@ -495,11 +495,11 @@ void Raytracer::CheckKeys(const float dt)
     float exposureStep = 0.1f;
     if (m_keyboard.test(Keys::kIncreaseExposure))
     {
-        m_exposureCompensation -= exposureStep;
+        m_exposureCompensation += exposureStep;
     }
     else if (m_keyboard.test(Keys::kDecreaseExposure))
     {
-        m_exposureCompensation += exposureStep;
+        m_exposureCompensation -= exposureStep;
     }
     
     if (resetRenderer)
