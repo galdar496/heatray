@@ -62,6 +62,8 @@ struct Variable
 
 #undef X
 
+const std::string g_rootConfigNodeName = "HeatrayConfig";
+
 // Group the config variables based on their specified "VariableGroup" defined in HEATRAY_CONFIG_VARIABLES.
 typedef std::unordered_map<std::string, std::vector<Variable *> > VariableMap;
 static VariableMap g_configVariableMap;
@@ -103,11 +105,10 @@ bool ConfigVariables::ParseConfigFile(const std::string &filename)
     }
     else
     {
-        static const char *rootConfigNodeName = "HeatRayConfig";
-        rootConfigNode = xmlConfigFile.FirstChildElement(rootConfigNodeName);
+        rootConfigNode = xmlConfigFile.FirstChildElement(g_rootConfigNodeName.c_str());
         if (rootConfigNode == nullptr)
         {
-            std::cout << "Unable to load root config node " << rootConfigNodeName << " in configuration file " << filename << std::endl;
+            std::cout << "Unable to load root config node " << g_rootConfigNodeName << " in configuration file " << filename << std::endl;
             result = false;
         }
         else

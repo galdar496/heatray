@@ -75,6 +75,14 @@ class ConfigVariables
         ///
         bool ParseConfigFile(const std::string &filename);
     
+        ///
+        /// Get the value of a specific config variable. If ParseConfigFile() has not
+        /// been called before making a call to these functions then only the variable
+        /// default values will be returned.
+        ///
+        /// @param variable The specific variable that is being requested.
+        /// @param value The value of the variable to be passed back to the calling function (OUT).
+        ///
         void GetVariableValue(const ConfigVariable &variable, int &value) const;
         void GetVariableValue(const ConfigVariable &variable, bool &value) const;
         void GetVariableValue(const ConfigVariable &variable, float &value) const;
