@@ -74,19 +74,15 @@ bool Raytracer::Initialize(const std::string &configFilePath)
     gfx::Texture::Params texture_params;
     texture_params.minFilter = RL_LINEAR;
     
-    tinyxml2::XMLDocument configFile;
-    const tinyxml2::XMLElement *rootConfigNode = nullptr;
-    if (configFile.LoadFile(configFilePath.c_str()) != tinyxml2::XML_SUCCESS)
+    config::ConfigVariables configVariables;
+    if (!configVariables.ParseConfigFile(configFilePath))
     {
-        std::cout << "Unable to load configuration file " << configFilePath << std::endl;
         return false;
     }
     
-    rootConfigNode = configFile.FirstChildElement("HeatRayConfig");
-    
 	// Spawn a thread to load the mesh. This just puts the mesh data into memory, still have to create
     // VBOs out of the data later.
-    std::thread meshThread(&Raytracer::LoadModel, this, rootConfigNode->FirstChildElement("Mesh"));
+    std::thread meshThread(&Raytracer::LoadModel, this, configVariables);
     
     // Construct the OpenRL context.
 //    OpenRLContextAttribute attributes[] = {kOpenRL_EnableRayPrefixShaders, 1, NULL};
@@ -94,9 +90,9 @@ bool Raytracer::Initialize(const std::string &configFilePath)
     OpenRLSetCurrentContext(m_rlContext);
     
     // Setup configurable objects.
-    SetupFramebuffer(rootConfigNode->FirstChildElement("Framebuffer"));
-    SetupCamera(rootConfigNode->FirstChildElement("Camera"));
-    SetupRenderSettings(rootConfigNode->FirstChildElement("RenderSettings"));
+    SetupFramebuffer(configVariables);
+    SetupCamera(configVariables);
+    SetupRenderSettings(configVariables);
 
     // Setup the frameshader to generate the primary rays and bind it to the frame primitive.
     {
@@ -151,10 +147,8 @@ bool Raytracer::Initialize(const std::string &configFilePath)
             // Read the paths to the shader files from the config file.
             std::string rayShaderPath;
             std::string lightShaderPath;
-
-            const tinyxml2::XMLElement *shaderNode = rootConfigNode->FirstChildElement("Shader");
-            rayShaderPath = shaderNode->FindAttribute("Ray")->Value();
-            lightShaderPath = shaderNode->FindAttribute("Light")->Value();
+            configVariables.GetVariableValue(config::ConfigVariables::kRayShaderPath, rayShaderPath);
+            configVariables.GetVariableValue(config::ConfigVariables::kLightShaderPath, lightShaderPath);
 
             ShaderGenerator::GenerationInfo generatorInfo;
             generatorInfo.mesh            = &m_mesh;
@@ -519,44 +513,40 @@ void Raytracer::ResetRenderingState()
     m_passesPerformed = 1;
 }
 
-void Raytracer::LoadModel(const tinyxml2::XMLElement *meshNode)
+void Raytracer::LoadModel(const config::ConfigVariables &configVariables)
 {
-    std::string modelPath = meshNode->Attribute("Model");
-    float modelScaling = 1.0f;
+    std::string modelPath;
+    float scaling = 1.0f;
     
-    meshNode->QueryFloatAttribute("Scale", &modelScaling);
+    configVariables.GetVariableValue(config::ConfigVariables::kModelPath, modelPath);
+    configVariables.GetVariableValue(config::ConfigVariables::kScale, scaling);
     
-    if (!m_mesh.Load(modelPath, false, modelScaling, false))
+    if (!m_mesh.Load(modelPath, false, scaling, false))
     {
         exit(0);
     }
 }
 
-void Raytracer::SetupCamera(const tinyxml2::XMLNode *cameraNode)
+void Raytracer::SetupCamera(const config::ConfigVariables &configVariables)
 {
-    const tinyxml2::XMLElement *element = nullptr;
     math::Vec3f tmpVector;
     float       tmpValue = 0.0f;
     
     // Setup the camera's position.
     {
-        element = cameraNode->FirstChildElement("Position");
-        
-		element->QueryFloatAttribute("X", &tmpVector[0]);
-        element->QueryFloatAttribute("Y", &tmpVector[1]);
-        element->QueryFloatAttribute("Z", &tmpVector[2]);
+        configVariables.GetVariableValue(config::ConfigVariables::kPositionX, tmpVector[0]);
+        configVariables.GetVariableValue(config::ConfigVariables::kPositionY, tmpVector[1]);
+        configVariables.GetVariableValue(config::ConfigVariables::kPositionZ, tmpVector[2]);
 
         m_camera.SetPosition(tmpVector);
     }
     
     // Setup the camera's lens attributes.
     {
-        element = cameraNode->FirstChildElement("Lens");
-        
-        element->QueryFloatAttribute("FocalLength", &tmpValue);
+        configVariables.GetVariableValue(config::ConfigVariables::kLensFocalLength, tmpValue);
         m_camera.SetFocalLength(tmpValue);
         
-		element->QueryFloatAttribute("ApertureRadius", &tmpValue);
+        configVariables.GetVariableValue(config::ConfigVariables::kApertureRadius, tmpValue);
         m_camera.SetApertureRadius(tmpValue);
         
         // Generate the aperture sampling texture to reflect the aperture radius.
@@ -565,12 +555,10 @@ void Raytracer::SetupCamera(const tinyxml2::XMLNode *cameraNode)
     
     // Setup the camera's orientation.
     {
-        element = cameraNode->FirstChildElement("Orientation");
-        
-        element->QueryFloatAttribute("X", &tmpVector[0]);
-        element->QueryFloatAttribute("Y", &tmpVector[1]);
-        element->QueryFloatAttribute("Z", &tmpVector[2]);
-        element->QueryFloatAttribute("Angle", &tmpValue);
+        configVariables.GetVariableValue(config::ConfigVariables::kOrientationX, tmpVector[0]);
+        configVariables.GetVariableValue(config::ConfigVariables::kOrientationY, tmpVector[1]);
+        configVariables.GetVariableValue(config::ConfigVariables::kOrientationZ, tmpVector[2]);
+        configVariables.GetVariableValue(config::ConfigVariables::kOrientationAngle, tmpValue);
         
         math::Quatf orientation(tmpValue, tmpVector);
         m_camera.SetOrientation(orientation);
@@ -578,14 +566,12 @@ void Raytracer::SetupCamera(const tinyxml2::XMLNode *cameraNode)
     
     // Setup the camera's movement speed parameters.
     {
-        element = cameraNode->FirstChildElement("Speed");
-        
-        element->QueryFloatAttribute("Movement", &m_cameraMovementSpeed);
-        element->QueryFloatAttribute("Rotation", &m_cameraRotationSpeed);
+        configVariables.GetVariableValue(config::ConfigVariables::kMovementSpeed, m_cameraMovementSpeed);
+        configVariables.GetVariableValue(config::ConfigVariables::kRotationSpeed, m_cameraRotationSpeed);
     }
 }
 
-void Raytracer::SetupFramebuffer(const tinyxml2::XMLElement *framebufferNode)
+void Raytracer::SetupFramebuffer(const config::ConfigVariables &configVariables)
 {
     // Heatray renders every pass to the same framebuffer without ever clearing it. Therefore, the framebuffer created below will
     // contain the pixel information for every pass. This FBO must be processed by a shader program which divides each pixel by
@@ -594,8 +580,8 @@ void Raytracer::SetupFramebuffer(const tinyxml2::XMLElement *framebufferNode)
     // Read the width and height from the config file.
     RLint framebufferWidth  = 0;
     RLint framebufferHeight = 0;
-    framebufferNode->QueryIntAttribute("Width", &framebufferWidth);
-    framebufferNode->QueryIntAttribute("Height", &framebufferHeight);
+    configVariables.GetVariableValue(config::ConfigVariables::kFramebufferWidth, framebufferWidth);
+    configVariables.GetVariableValue(config::ConfigVariables::kFramebufferHeight, framebufferHeight);
     
     gfx::Texture::Params textureParams;
     textureParams.minFilter      = RL_LINEAR;
@@ -612,24 +598,26 @@ void Raytracer::SetupFramebuffer(const tinyxml2::XMLElement *framebufferNode)
     CheckRLErrors();
 }
 
-void Raytracer::SetupRenderSettings(const tinyxml2::XMLElement *renderSettingsNode)
+void Raytracer::SetupRenderSettings(const config::ConfigVariables &configVariables)
 {
     // Create the random values uniform block data. These values will be used in all diffuse shaders to bounce rays
     // and achieve indirect illumination.
     m_randomValuesTexture.Randomize(m_fboTexture.Width(), m_fboTexture.Height(), 3, RL_FLOAT, 0.0f, 1.0f, "Random 0-1 texture");
     
-    GIUniformBuffer gi_uniformBuffer;
-    gi_uniformBuffer.texture = m_randomValuesTexture.GetTexture();
-    renderSettingsNode->QueryIntAttribute("DefaultGIOn", &(gi_uniformBuffer.enabled));
+    GIUniformBuffer giUniformBuffer;
+    giUniformBuffer.texture = m_randomValuesTexture.GetTexture();
+    configVariables.GetVariableValue(config::ConfigVariables::kGIOn, giUniformBuffer.enabled);
     m_giBuffer.SetTarget(RL_UNIFORM_BLOCK_BUFFER);
-    m_giBuffer.Load(&gi_uniformBuffer, sizeof(GIUniformBuffer), "Random buffer");
+    m_giBuffer.Load(&giUniformBuffer, sizeof(GIUniformBuffer), "Random buffer");
     
     // Setup the number of passes to perform per the config file.
-    renderSettingsNode->QueryIntAttribute("RaysPerPixel", &m_totalPassCount);
+    configVariables.GetVariableValue(config::ConfigVariables::kRaysPerPixel, m_totalPassCount);
     
     // Set the maximum number of bounces any ray in the system can have before being terminated.
-    renderSettingsNode->QueryIntAttribute("MaxRayDepth", &m_maxRayDepth);
+    configVariables.GetVariableValue(config::ConfigVariables::kMaxRayDepth, m_maxRayDepth);
     rlFrameParameter1i(RL_FRAME_RAY_DEPTH_LIMIT, m_maxRayDepth);
+    
+    configVariables.GetVariableValue(config::ConfigVariables::kExposureCompensation, m_exposureCompensation);
     
     CheckRLErrors();
 }

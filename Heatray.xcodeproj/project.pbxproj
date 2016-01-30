@@ -26,6 +26,7 @@
 		C3462BA81C51E99300D3C763 /* defaultconfig.xml in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3AA72F419908C8400AE91CB /* defaultconfig.xml */; };
 		C3462BAA1C51EB8F00D3C763 /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C3462BA91C51EB8F00D3C763 /* libfreeimage.a */; };
 		C3462BAD1C51ECB600D3C763 /* Raytracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3462BAC1C51ECB600D3C763 /* Raytracer.cpp */; };
+		C3462BB21C5D580300D3C763 /* ConfigVariables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3462BB01C5D580300D3C763 /* ConfigVariables.cpp */; };
 		C3673145191F31C60092EDC9 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3673143191F31C60092EDC9 /* Buffer.cpp */; };
 		C36A5E8B19A8F525007B01FC /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3B2D2321972550C00665B05 /* GLUT.framework */; };
 		C3AA72F919908D5A00AE91CB /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3AA72F719908D5A00AE91CB /* tinyxml2.cpp */; };
@@ -103,6 +104,9 @@
 		C3462BA91C51EB8F00D3C763 /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreeimage.a; path = 3rdParty/libs/libfreeimage.a; sourceTree = SOURCE_ROOT; };
 		C3462BAB1C51ECB600D3C763 /* Raytracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Raytracer.h; sourceTree = "<group>"; };
 		C3462BAC1C51ECB600D3C763 /* Raytracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Raytracer.cpp; sourceTree = "<group>"; };
+		C3462BAF1C5D580300D3C763 /* ConfigVariables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConfigVariables.h; path = Config/ConfigVariables.h; sourceTree = "<group>"; };
+		C3462BB01C5D580300D3C763 /* ConfigVariables.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConfigVariables.cpp; path = Config/ConfigVariables.cpp; sourceTree = "<group>"; };
+		C3462BB11C5D580300D3C763 /* ConfigFileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConfigFileReader.h; path = Config/ConfigFileReader.h; sourceTree = "<group>"; };
 		C367313F191F2F7A0092EDC9 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		C3673140191F2F7A0092EDC9 /* Matrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix.h; sourceTree = "<group>"; };
 		C3673141191F2F7A0092EDC9 /* Quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quaternion.h; sourceTree = "<group>"; };
@@ -216,6 +220,7 @@
 		32A4E546191D34EF00972E11 /* raytracer */ = {
 			isa = PBXGroup;
 			children = (
+				C3462BAE1C5D57F400D3C763 /* Config */,
 				C3462BAB1C51ECB600D3C763 /* Raytracer.h */,
 				C3462BAC1C51ECB600D3C763 /* Raytracer.cpp */,
 				C3462B811C50AC0B00D3C763 /* Pixels.h */,
@@ -236,6 +241,16 @@
 				C3AA72F819908D5A00AE91CB /* tinyxml2.h */,
 			);
 			path = utility;
+			sourceTree = "<group>";
+		};
+		C3462BAE1C5D57F400D3C763 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				C3462BAF1C5D580300D3C763 /* ConfigVariables.h */,
+				C3462BB01C5D580300D3C763 /* ConfigVariables.cpp */,
+				C3462BB11C5D580300D3C763 /* ConfigFileReader.h */,
+			);
+			name = Config;
 			sourceTree = "<group>";
 		};
 		C367313E191F2F7A0092EDC9 /* math */ = {
@@ -330,6 +345,7 @@
 				32A4E55C19217B7200972E11 /* Mesh.cpp in Sources */,
 				32A4E557191D57B000972E11 /* Program.cpp in Sources */,
 				C3462BAD1C51ECB600D3C763 /* Raytracer.cpp in Sources */,
+				C3462BB21C5D580300D3C763 /* ConfigVariables.cpp in Sources */,
 				3209E1BE19366E4B00D19D3B /* ShaderGenerator.cpp in Sources */,
 				32766C691937E4500017F493 /* Texture.cpp in Sources */,
 				C3462B941C50B37A00D3C763 /* Material.cpp in Sources */,

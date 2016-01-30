@@ -17,6 +17,7 @@
 #include "../utility/tinyxml2.h"
 #include "Light.h"
 #include "Pixels.h"
+#include "Config/ConfigVariables.h"
 #include <OpenRL/OpenRL.h>
 #include <bitset>
 
@@ -125,30 +126,30 @@ class Raytracer
     	/// Load the model specified in the config file and all materials associated with it. After this is finished,
         /// a mesh will be ready for rendering.
         ///
-        /// @param meshNode XML element which has the mesh attributes to load (<Mesh>).
+        /// @param configVariables Heatray configuration variables as defined in ConfigVariables.h.
         ///
-    	void LoadModel(const tinyxml2::XMLElement *meshNode);
+    	void LoadModel(const config::ConfigVariables &configVariables);
     
         ///
     	/// Setup the camera based on the defaults specified in the config file.
         ///
-        /// @param cameraNode XML node which specifies the camera propertices (<Camera>).
+        /// @param configVariables Heatray configuration variables as defined in ConfigVariables.h.
         ///
-    	void SetupCamera(const tinyxml2::XMLNode *cameraNode);
+    	void SetupCamera(const config::ConfigVariables &configVariables);
     
         ///
     	/// Setup the default framebuffer to perform all rendering into.
         ///
-        /// @param framebufferNode XML node which specifies the framebuffer size (<Framebuffer>).
+        /// @param configVariables Heatray configuration variables as defined in ConfigVariables.h.
         ///
-    	void SetupFramebuffer(const tinyxml2::XMLElement *framebuffer_node);
+    	void SetupFramebuffer(const config::ConfigVariables &configVariables);
     
         ///
         /// Setup general rendering settings independent of any object contained within this class.
         ///
-        /// @param renderSettingsNode XML node which specifies the render settings (<RenderSettings>).
+        /// @param configVariables Heatray configuration variables as defined in ConfigVariables.h.
         ///
-        void SetupRenderSettings(const tinyxml2::XMLElement *render_settings_node);
+        void SetupRenderSettings(const config::ConfigVariables &configVariables);
     
         ///
         /// Get the light information from the mesh and populate the m_lights member variable.

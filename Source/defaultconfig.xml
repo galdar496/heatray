@@ -1,12 +1,32 @@
 <HeatRayConfig>
-    <Framebuffer Width="512" Height="512" />
-    <Mesh Model="Resources/models/chess.obj" Scale="1" />
+    <Mesh>
+        <ModelPath>Resources/models/chess.obj</ModelPath>
+        <Scale>1.0</Scale>
+    </Mesh>
     <Camera>
-        <Position X="0" Y="0" Z="50" />
-        <Lens FocalLength="25" ApertureRadius="0" />
-        <Orientation X="0" Y="0" Z="0" Angle="1" /> <!-- Orientation is a quaternion -->
-        <Speed Movement="5.5" Rotation="0.2" />
+        <PositionX>0.0</PositionX>
+        <PositionY>0.0</PositionY>
+        <PositionZ>50.0</PositionZ>
+        <!-- Orientation is a quaternion -->
+        <OrientationX>0.0></OrientationX>
+        <OrientationY>0.0></OrientationY>
+        <OrientationZ>0.0></OrientationZ>
+        <OrientationAngle>1.0</OrientationAngle>
+        <MovementSpeed>5.5</MovementSpeed>
+        <RotationSpeed>0.2</RotationSpeed>
+        <LensFocalLength>25.0</LensFocalLength>
+        <ApertureRadius>0.0</ApertureRadius>
     </Camera>
-    <RenderSettings RaysPerPixel="1024" DefaultGIOn="0" MaxRayDepth="5" />
-    <Shader Ray="Resources/shaders/simpleRayShader.rsh" Light="Resources/shaders/simpleLight.rsh" />
+    <Render>
+        <FramebufferWidth>512</FramebufferWidth>
+        <FramebufferHeight>512</FramebufferHeight>
+        <RaysPerPixel>1024</RaysPerPixel>
+        <GIOn>0</GIOn>
+        <MaxRayDepth>5</MaxRayDepth>
+        <ExposureCompensation>0.0</ExposureCompensation>
+    </Render>
+    <Shader>
+        <RayShaderPath>Resources/shaders/simpleRayShader.rsh</RayShaderPath>
+        <LightShaderPath>Resources/shaders/simpleLight.rsh</LightShaderPath>
+    </Shader>
 </HeatRayConfig>
