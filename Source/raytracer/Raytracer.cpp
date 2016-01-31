@@ -695,81 +695,58 @@ void Raytracer::GetLighting(gfx::Mesh &mesh)
 
 void Raytracer::WriteConfigFile() const
 {
-	tinyxml2::XMLDocument config;
-	tinyxml2::XMLElement *rootElement = config.NewElement("HeatRayConfig");
-    config.InsertFirstChild(rootElement);
+    config::ConfigVariables configVars;
     
-    // Write the framebuffer info.
-	{
-        tinyxml2::XMLElement *node = config.NewElement("Framebuffer");
-        node->SetAttribute("Width", m_fboTexture.Width());
-        node->SetAttribute("Height", m_fboTexture.Height());
-        
-        rootElement->InsertEndChild(node);
+    // Set the values of the config variables to be written.
+    
+    // Mesh
+    {
+        configVars.SetVariableValue(config::ConfigVariables::kModelPath, m_mesh.GetName());
+        configVars.SetVariableValue(config::ConfigVariables::kScale, m_mesh.GetScale());
     }
     
-    // Write the mesh info.
+    // Camera settings
     {
-        tinyxml2::XMLElement *node = config.NewElement("Mesh");
-        node->SetAttribute("Model", m_mesh.GetName().c_str());
-        node->SetAttribute("Scale", m_mesh.GetScale());
-        
-        rootElement->InsertEndChild(node);
-    }
-    
-    // Write the camera info.
-    {
-        tinyxml2::XMLElement *cameraNode = config.NewElement("Camera");
-    
-        tinyxml2::XMLElement *position = config.NewElement("Position");
-        math::Vec3f cameraPosition = m_camera.GetPosition();
-        position->SetAttribute("X", cameraPosition[0]);
-        position->SetAttribute("Y", cameraPosition[1]);
-        position->SetAttribute("Z", cameraPosition[2]);
-        cameraNode->InsertEndChild(position);
-        
-        tinyxml2::XMLElement *lens = config.NewElement("Lens");
-        lens->SetAttribute("FocalLength", m_camera.GetFocalLength());
-        lens->SetAttribute("ApertureRadius", m_camera.GetApertureRadius());
-        cameraNode->InsertEndChild(lens);
-        
-        tinyxml2::XMLElement *orientation = config.NewElement("Orientation");
+        math::Vec3f cameraPosition    = m_camera.GetPosition();
         math::Quatf cameraOrientation = m_camera.GetOrientation();
-        orientation->SetAttribute("X", cameraOrientation.GetAxis()[0]);
-        orientation->SetAttribute("Y", cameraOrientation.GetAxis()[1]);
-        orientation->SetAttribute("Z", cameraOrientation.GetAxis()[2]);
-        orientation->SetAttribute("Angle", cameraOrientation.GetAngle());
-        cameraNode->InsertEndChild(orientation);
         
-        tinyxml2::XMLElement *speed = config.NewElement("Speed");
-        speed->SetAttribute("Movement", m_cameraMovementSpeed);
-        speed->SetAttribute("Rotatino", m_cameraRotationSpeed);
-        cameraNode->InsertEndChild(speed);
+        configVars.SetVariableValue(config::ConfigVariables::kPositionX, cameraPosition[0]);
+        configVars.SetVariableValue(config::ConfigVariables::kPositionY, cameraPosition[1]);
+        configVars.SetVariableValue(config::ConfigVariables::kPositionZ, cameraPosition[2]);
         
-        rootElement->InsertEndChild(cameraNode);
+        configVars.SetVariableValue(config::ConfigVariables::kOrientationX, cameraOrientation.GetAxis()[0]);
+        configVars.SetVariableValue(config::ConfigVariables::kOrientationY, cameraOrientation.GetAxis()[1]);
+        configVars.SetVariableValue(config::ConfigVariables::kOrientationZ, cameraOrientation.GetAxis()[2]);
+        configVars.SetVariableValue(config::ConfigVariables::kOrientationAngle, cameraOrientation.GetAngle());
+        
+        configVars.SetVariableValue(config::ConfigVariables::kLensFocalLength, m_camera.GetFocalLength());
+        configVars.SetVariableValue(config::ConfigVariables::kApertureRadius,  m_camera.GetApertureRadius());
+        
+        configVars.SetVariableValue(config::ConfigVariables::kMovementSpeed, m_cameraMovementSpeed);
+        configVars.SetVariableValue(config::ConfigVariables::kRotationSpeed, m_cameraRotationSpeed);
     }
     
-    // Write render settings.
+    // Render settings
     {
-        tinyxml2::XMLElement *renderSettingsNode = config.NewElement("RenderSettings");
+        configVars.SetVariableValue(config::ConfigVariables::kFramebufferWidth, m_fboTexture.Width());
+        configVars.SetVariableValue(config::ConfigVariables::kFramebufferHeight, m_fboTexture.Height());
+        configVars.SetVariableValue(config::ConfigVariables::kRaysPerPixel, m_totalPassCount);
+        configVars.SetVariableValue(config::ConfigVariables::kMaxRayDepth, m_maxRayDepth);
+        configVars.SetVariableValue(config::ConfigVariables::kExposureCompensation, m_exposureCompensation);
         
         // Read the current status of the GI from the uniform block data.
         int giOn = 0;
         m_giBuffer.Bind();
-		GIUniformBuffer *block = m_giBuffer.MapBuffer<GIUniformBuffer>();
+        GIUniformBuffer *block = m_giBuffer.MapBuffer<GIUniformBuffer>();
         giOn = block->enabled;
-		m_giBuffer.UnmapBuffer();
+        m_giBuffer.UnmapBuffer();
         m_giBuffer.Unbind();
-
-        renderSettingsNode->SetAttribute("RaysPerPixel", m_totalPassCount);
-        renderSettingsNode->SetAttribute("DefaultGIOn", giOn);
-        renderSettingsNode->SetAttribute("MaxRayDepth", m_maxRayDepth);
         
-        rootElement->InsertEndChild(renderSettingsNode);
+        configVars.SetVariableValue(config::ConfigVariables::kGIOn, giOn);
     }
-
-    // Write out the document.
-    config.SaveFile("scene.xml");
+    
+    // Write the config variables to a file.
+    configVars.WriteConfigFile("scene.xml");
 }
 
 

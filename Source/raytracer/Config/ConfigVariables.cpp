@@ -62,7 +62,7 @@ struct Variable
 
 #undef X
 
-const std::string g_rootConfigNodeName = "HeatrayConfig";
+const std::string g_rootConfigNodeName = "HeatRayConfig";
 
 // Group the config variables based on their specified "VariableGroup" defined in HEATRAY_CONFIG_VARIABLES.
 typedef std::unordered_map<std::string, std::vector<Variable *> > VariableMap;
@@ -164,6 +164,64 @@ bool ConfigVariables::ParseConfigFile(const std::string &filename)
     return result;
 }
 
+bool ConfigVariables::WriteConfigFile(const std::string &filename) const
+{
+    tinyxml2::XMLDocument file;
+    tinyxml2::XMLElement *rootElement = file.NewElement(g_rootConfigNodeName.c_str());
+    file.InsertFirstChild(rootElement);
+    
+    // Create an XML element for each config group with a sub element for each variable.
+    VariableMap::iterator iter = g_configVariableMap.begin();
+    for (; iter != g_configVariableMap.end(); ++iter)
+    {
+        std::string groupName = iter->first;
+        tinyxml2::XMLElement *groupNode = file.NewElement(groupName.c_str());
+        
+        // Write the variables for this config group.
+        for (size_t ii = 0; ii < iter->second.size(); ++ii)
+        {
+            const Variable *variable = iter->second[ii];
+            
+            tinyxml2::XMLElement *newVariable = file.NewElement(variable->name.c_str());
+            
+            switch (variable->type)
+            {
+                case VariableType::kInt:
+                {
+                    newVariable->SetText(variable->value.i);
+                    break;
+                }
+                case VariableType::kFloat:
+                {
+                    newVariable->SetText(variable->value.f);
+                    break;
+                }
+                case VariableType::kBool:
+                {
+                    newVariable->SetText(variable->value.b);
+                    break;
+                }
+                case VariableType::kString:
+                {
+                    newVariable->SetText(variable->value.c);
+                    break;
+                }
+                default:
+                {
+                    assert(0 && "Unimplemented config variable type");
+                    break;
+                }
+            }
+            
+            groupNode->InsertEndChild(newVariable);
+        }
+        
+        rootElement->InsertEndChild(groupNode);
+    }
+    
+    return (file.SaveFile(filename.c_str()) == tinyxml2::XML_NO_ERROR);
+}
+
 void ConfigVariables::GetVariableValue(const ConfigVariable &variable, int &value) const
 {
     value = g_configVariables[variable].value.i;
@@ -182,6 +240,26 @@ void ConfigVariables::GetVariableValue(const ConfigVariable &variable, float &va
 void ConfigVariables::GetVariableValue(const ConfigVariable &variable, std::string &value) const
 {
     value = std::string(g_configVariables[variable].value.c);
+}
+
+void ConfigVariables::SetVariableValue(const ConfigVariable &variable, int value) const
+{
+    g_configVariables[variable].value.i = value;
+}
+
+void ConfigVariables::SetVariableValue(const ConfigVariable &variable, bool value) const
+{
+    g_configVariables[variable].value.b = value;
+}
+
+void ConfigVariables::SetVariableValue(const ConfigVariable &variable, float value) const
+{
+    g_configVariables[variable].value.f = value;
+}
+
+void ConfigVariables::SetVariableValue(const ConfigVariable &variable, const std::string &value) const
+{
+    strcpy(g_configVariables[variable].value.c, value.c_str());
 }
 
 } // namespace config

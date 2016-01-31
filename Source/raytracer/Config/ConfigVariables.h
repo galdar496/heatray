@@ -70,10 +70,20 @@ class ConfigVariables
         ///
         /// Read the config file and populate the list of config variables.
         /// 
-        /// @filename Path to the config XML file which contains the engine configuration.
-        /// @return If valid, the file was successfully parsed.
+        /// @param filename Path to the config XML file which contains the engine configuration.
+        ///
+        /// @return If true, the file was successfully parsed.
         ///
         bool ParseConfigFile(const std::string &filename);
+    
+        ///
+        /// Write a new XML config file to disk using the current values of the config variables.
+        ///
+        /// @param filename Path to save the new config file to.
+        ///
+        /// @return If true, the new config file was successfully written.
+        ///
+        bool WriteConfigFile(const std::string &filename) const;
     
         ///
         /// Get the value of a specific config variable. If ParseConfigFile() has not
@@ -87,6 +97,18 @@ class ConfigVariables
         void GetVariableValue(const ConfigVariable &variable, bool &value) const;
         void GetVariableValue(const ConfigVariable &variable, float &value) const;
         void GetVariableValue(const ConfigVariable &variable, std::string &value) const;
+    
+        ///
+        /// Set the value of a specific config variable. This can be used to manually override
+        /// config variable values (usually in the case of writing the config file to disk).
+        ///
+        /// @param variable The specific variable that is begin set.
+        /// @param value The value of the variable to override with.
+        ///
+        void SetVariableValue(const ConfigVariable &variable, int value) const;
+        void SetVariableValue(const ConfigVariable &variable, bool value) const;
+        void SetVariableValue(const ConfigVariable &variable, float value) const;
+        void SetVariableValue(const ConfigVariable &variable, const std::string &value) const;
 };
 
 } // namespace config
