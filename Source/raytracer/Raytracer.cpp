@@ -261,9 +261,7 @@ void Raytracer::Render(Pixels &outputPixels)
             randomTextureMatrix *= random_scale;
         }
         
-        rlBindFramebuffer(RL_FRAMEBUFFER, m_fbo);
         // Setup the camera parameters to the frameshader.
-        rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE);
         m_raytracingFrameProgram.Bind();
         m_raytracingFrameProgram.Set3fv(m_frameUniforms.cameraPosition, m_camera.GetPosition().v);
         m_raytracingFrameProgram.Set3fv(m_frameUniforms.forward, m_camera.GetForwardVector().v);
@@ -296,7 +294,7 @@ void Raytracer::Render(Pixels &outputPixels)
     // Map the rendered texture to a pixelpack buffer so that the calling function can properly display it.
     outputPixels.SetData(m_fboTexture);
     
-    CheckRLErrors();
+    //CheckRLErrors();
 }
 
 void Raytracer::Resize(RLint width, RLint height)
@@ -510,7 +508,6 @@ void Raytracer::ResetRenderingState()
 {
     if (m_fbo != RL_NULL_FRAMEBUFFER)
     {
-        rlBindFramebuffer(RL_FRAMEBUFFER, m_fbo);
         rlClear(RL_COLOR_BUFFER_BIT);
     }
     
@@ -598,6 +595,9 @@ void Raytracer::SetupFramebuffer(const config::ConfigVariables &configVariables)
     m_fboTexture.SetParams(textureParams);
     m_fboTexture.Create(framebufferWidth, framebufferHeight, RL_FLOAT, nullptr, "Default FBO Texture");
     rlFramebufferTexture2D(RL_FRAMEBUFFER, RL_COLOR_ATTACHMENT0, RL_TEXTURE_2D, m_fboTexture.GetTexture(), 0);
+    
+    // Set this framebuffer as the default one for all raytraced rendering.
+    rlBindFramebuffer(RL_FRAMEBUFFER, m_fbo);
     
     CheckRLErrors();
 }
