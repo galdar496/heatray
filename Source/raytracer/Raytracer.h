@@ -17,7 +17,7 @@
 #include "../utility/tinyxml2.h"
 #include "Light.h"
 #include "Pixels.h"
-#include "Config/ConfigVariables.h"
+#include "ConfigVariables/ConfigVariables.h"
 #include <OpenRL/OpenRL.h>
 #include <bitset>
 
