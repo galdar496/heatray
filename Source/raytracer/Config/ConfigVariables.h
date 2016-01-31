@@ -109,6 +109,11 @@ class ConfigVariables
         void SetVariableValue(const ConfigVariable &variable, bool value) const;
         void SetVariableValue(const ConfigVariable &variable, float value) const;
         void SetVariableValue(const ConfigVariable &variable, const std::string &value) const;
+    
+    private:
+    
+        constexpr static const char * const s_rootConfigNodeName = "HeatRayConfig";
+        constexpr static const char * const s_attributeName      = "value";
 };
 
 } // namespace config

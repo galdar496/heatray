@@ -106,7 +106,6 @@
 		C3462BAC1C51ECB600D3C763 /* Raytracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Raytracer.cpp; sourceTree = "<group>"; };
 		C3462BAF1C5D580300D3C763 /* ConfigVariables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConfigVariables.h; path = Config/ConfigVariables.h; sourceTree = "<group>"; };
 		C3462BB01C5D580300D3C763 /* ConfigVariables.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConfigVariables.cpp; path = Config/ConfigVariables.cpp; sourceTree = "<group>"; };
-		C3462BB11C5D580300D3C763 /* ConfigFileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConfigFileReader.h; path = Config/ConfigFileReader.h; sourceTree = "<group>"; };
 		C367313F191F2F7A0092EDC9 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		C3673140191F2F7A0092EDC9 /* Matrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix.h; sourceTree = "<group>"; };
 		C3673141191F2F7A0092EDC9 /* Quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quaternion.h; sourceTree = "<group>"; };
@@ -248,7 +247,6 @@
 			children = (
 				C3462BAF1C5D580300D3C763 /* ConfigVariables.h */,
 				C3462BB01C5D580300D3C763 /* ConfigVariables.cpp */,
-				C3462BB11C5D580300D3C763 /* ConfigFileReader.h */,
 			);
 			name = Config;
 			sourceTree = "<group>";
