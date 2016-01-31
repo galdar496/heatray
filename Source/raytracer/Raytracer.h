@@ -21,8 +21,6 @@
 #include <OpenRL/OpenRL.h>
 #include <bitset>
 
-#define MAX_LIGHTS 5
-
 ///
 /// Class to control raytracing via OpenRL. All rendering setup
 /// and execution is performed via the public interface to
@@ -164,7 +162,9 @@ class Raytracer
         ///
     	void WriteConfigFile() const;
     
-    	std::vector<Light> m_lights; ///< Lighting info. Read from the mesh file. At most MAX_LIGHTS lights are supported.
+        static const int g_MaxNumLights = 5; ///< Maximum number of light sources. Increase this value to be able to use more lights.
+    
+    	std::vector<Light> m_lights; ///< Lighting info. Read from the mesh file. At most g_MaxNumLights lights are supported.
     
         ///
         /// Structure which represents the uniform block in all shaders for lighting information.
@@ -177,11 +177,11 @@ class Raytracer
             {
             }
             
-            math::Vec3f position[MAX_LIGHTS];
-            math::Vec3f normal[MAX_LIGHTS];
+            math::Vec3f position[g_MaxNumLights];
+            math::Vec3f normal[g_MaxNumLights];
 
             int count;
-            RLprimitive primitive[MAX_LIGHTS];
+            RLprimitive primitive[g_MaxNumLights];
         };
     
         /// Structure which represents the uniform block in diffuse shaders for global illumination (GI).

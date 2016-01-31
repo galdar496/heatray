@@ -157,7 +157,7 @@ bool Raytracer::Initialize(const std::string &configFilePath)
             generatorInfo.giBuffer        = &m_giBuffer;
             generatorInfo.rayShaderPath   = rayShaderPath;
             generatorInfo.lightShaderPath = lightShaderPath;
-            generatorInfo.maxLightCount   = MAX_LIGHTS;
+            generatorInfo.maxLightCount   = g_MaxNumLights;
             generatorInfo.lights          = &m_lights;
             
             // Create the shading programs to use and properly bind then along with all mesh inputs into the programs.
@@ -636,7 +636,7 @@ void Raytracer::GetLighting(gfx::Mesh &mesh)
         const gfx::Mesh::MeshPiece *piece = &(iter->second);
         if (piece->material.name.find("Light") != std::string::npos)
         {
-            if (m_lights.size() >= MAX_LIGHTS)
+            if (m_lights.size() >= g_MaxNumLights)
             {
             	std::cout << "Too many lights in mesh file, only 5 are currently supported, exiting..." << std::endl;
                 exit(0);
