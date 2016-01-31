@@ -104,12 +104,12 @@ bool ShaderGenerator::GenerateShaders(const GenerationInfo &info)
             RLint location = piece->program.GetUniformLocation("kd");
             piece->program.Set3fv(location, piece->material.diffuse.v);
             
-            if (piece->material.diffuseTexture.IsValid())
+            if (piece->material.componentFlags.test(gfx::Material::DIFFUSE_TEXTURE))
             {
                 location = piece->program.GetUniformLocation("diffuseTexture");
                 piece->program.SetTexture(location, piece->material.diffuseTexture.GetTexture());
             }
-            if (piece->material.normalTexture.IsValid())
+            if (piece->material.componentFlags.test(gfx::Material::NORMALMAP))
             {
                 location = piece->program.GetUniformLocation("normalmap");
             	piece->program.SetTexture(location, piece->material.normalTexture.GetTexture());

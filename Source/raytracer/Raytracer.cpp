@@ -136,6 +136,12 @@ bool Raytracer::Initialize(const std::string &configFilePath)
         m_lightBuffer.SetTarget(RL_UNIFORM_BLOCK_BUFFER);
         m_lightBuffer.Load(&dummyBlock, sizeof(LightUniformBuffer), "Light buffer");
         
+        // Read the paths to the shader files from the config file.
+        std::string rayShaderPath;
+        std::string lightShaderPath;
+        configVariables.GetVariableValue(config::ConfigVariables::kRayShaderPath, rayShaderPath);
+        configVariables.GetVariableValue(config::ConfigVariables::kLightShaderPath, lightShaderPath);
+        
         // Wait for the mesh to finish loading before we continue.
         meshThread.join();
         
@@ -144,12 +150,6 @@ bool Raytracer::Initialize(const std::string &configFilePath)
         m_mesh.CreateRenderData();
         
         {
-            // Read the paths to the shader files from the config file.
-            std::string rayShaderPath;
-            std::string lightShaderPath;
-            configVariables.GetVariableValue(config::ConfigVariables::kRayShaderPath, rayShaderPath);
-            configVariables.GetVariableValue(config::ConfigVariables::kLightShaderPath, lightShaderPath);
-
             ShaderGenerator::GenerationInfo generatorInfo;
             generatorInfo.mesh            = &m_mesh;
             generatorInfo.vertexShader    = &m_vertexShader;
@@ -160,6 +160,10 @@ bool Raytracer::Initialize(const std::string &configFilePath)
             generatorInfo.maxLightCount   = MAX_LIGHTS;
             generatorInfo.lights          = &m_lights;
             
+            // Create the shading programs to use and properly bind then along with all mesh inputs into the programs.
+            // This includes the proper uniform values (read from the mesh material files), lighting information,
+            // and mesh buffer inputs. The mesh MUST have its render data created before calling this function otherwise
+            // the call will fail.
             ShaderGenerator generator;
             if (!generator.GenerateShaders(generatorInfo))
             {
