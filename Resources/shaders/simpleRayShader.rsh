@@ -147,7 +147,13 @@ void Diffuse()
 	
 	#ifdef MATERIAL_DIFFUSE_TEXTURE
         // Texture coordinates are revered because the texture is read backwards from FreeImage.
-		baseColor *= texture2D(diffuseTexture, texCoords).zyx;
+		vec3 texColor = texture2D(diffuseTexture, texCoords).zyx;
+    
+        // Gamma-correc this texture.
+        float gamma = 2.2;
+        texColor = pow(texColor, vec3(gamma));
+    
+        baseColor *= texColor;
 	#endif
 
     for (int ii = 0; ii < Light.count; ++ii)

@@ -31,6 +31,83 @@ GLuint pixelBuffer;     // PBO to use to put the pixels on the GPU.
 GLuint displayTexture;  // Texture which contains the final result for display.
 util::Timer timer;
 
+///
+/// Display object that handles the GL program used for displaying the
+/// final raytraced result.
+///
+struct DisplayProgram
+{
+    ///
+    /// Create the GL display program info and any other necessary data.
+    ///
+    void Create()
+    {
+        // Create the display shader.
+        shader = glCreateShader(GL_FRAGMENT_SHADER);
+        std::string shaderSource;
+        util::ReadTextFile("Resources/shaders/displayGL.frag", shaderSource);
+        const char *source = shaderSource.c_str();
+        glShaderSource(shader, 1, &source, nullptr);
+        glCompileShader(shader);
+        RLint success = 0;
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+        assert(success == GL_TRUE);
+        
+        // Create the display program.
+        program = glCreateProgram();
+        glAttachShader(program, shader);
+        glLinkProgram(program);
+        glGetProgramiv(program, GL_LINK_STATUS, &success);
+        assert(success == GL_TRUE);
+        
+        // Read the necessary uniform locations.
+        textureLocation = glGetUniformLocation(program, "raytracedTexture");
+        divisorLocation = glGetUniformLocation(program, "passDivisor");
+
+    }
+    
+    ///
+    /// Destroy the internally allocated GL data.
+    ///
+    void Destroy()
+    {
+        glDeleteShader(shader);
+        glDeleteProgram(program);
+    }
+    
+    ///
+    /// This this program up in the current GL render state. After this call is
+    /// made, the program is ready to be used. Be sure to call Unbind() when finished
+    /// with displaying.
+    ///
+    /// @param texture The location of the current texture in the active texture states.
+    /// @param divisor Divisor value to apply to the display output (for pixel averaging).
+    ///
+    void Bind(int texture, float divisor)
+    {
+        glUseProgram(program);
+        glUniform1i(textureLocation, texture);
+        glUniform1f(divisorLocation, divisor);
+    }
+    
+    ///
+    /// Release this program from the current GL state.
+    ///
+    void Unbind()
+    {
+        glUseProgram(0);
+    }
+    
+    GLuint program; ///< GL display program.
+    GLuint shader;  ///< GL display fragment shader.
+    
+    // Uniform locations.
+    GLint textureLocation;
+    GLint divisorLocation;
+};
+
+DisplayProgram displayProgram;
+
 #define GLUT_KEY_ESCAPE 27
 
 void ResizeGLData(int width, int height)
@@ -81,7 +158,9 @@ void Render()
     // it must be averaged by the number of passes that have been ran to far.
     // Utilize the rasterization hardware to perform the averaging.
     float pixelDivisor = raytracer.GetPixelDivisor();
-    glColor3f(pixelDivisor, pixelDivisor, pixelDivisor);
+
+    displayProgram.Bind(0, pixelDivisor);
+    
     glBegin(GL_QUADS);
         glTexCoord2d(0.0, 0.0); glVertex2f(-1.0f, -1.0f);
         glTexCoord2d(1.0, 0.0); glVertex2f(1.0f, -1.0f);
@@ -90,6 +169,7 @@ void Render()
     glEnd();
 
     glBindTexture(GL_TEXTURE_2D, 0);
+    displayProgram.Unbind();
     pixels.UnmapPixelData();
 
     glutSwapBuffers();
@@ -108,6 +188,8 @@ void Shutdown()
 
     glDeleteBuffers(1, &pixelBuffer);
     glDeleteTextures(1, &displayTexture);
+    
+    displayProgram.Destroy();
 }
 
 void KeyPressed(unsigned char key, int mouseX, int mouseY)
@@ -176,11 +258,13 @@ int main(int argc, char **argv)
 
     // Setup the texture state.
     glBindTexture(GL_TEXTURE_2D, displayTexture);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glBindTexture(GL_TEXTURE_2D, 0);
-
+    
     ResizeGLData(screenWidth, screenHeight);
+    
+    displayProgram.Create();
     
     // Make sure that OpenGL doesn't automatically clamp our display texture. This is because the raytraced image
     // that will be stored in it is actually an accumulation of every ray that has gone through a given pixel.
