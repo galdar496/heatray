@@ -63,7 +63,8 @@ struct Variable
 
 #undef X
 
-const std::string g_rootConfigNodeName = "HeatRayConfig";
+const char *g_rootConfigNodeName = "HeatRayConfig";
+const char *g_attributeName      = "value"; // Every attribute has the same name.
 
 // Group the config variables based on their specified "VariableGroup" defined in HEATRAY_CONFIG_VARIABLES.
 typedef std::unordered_map<std::string, std::vector<Variable *> > VariableMap;
@@ -106,7 +107,7 @@ bool ConfigVariables::ParseConfigFile(const std::string &filename)
     }
     else
     {
-        rootConfigNode = xmlConfigFile.FirstChildElement(g_rootConfigNodeName.c_str());
+        rootConfigNode = xmlConfigFile.FirstChildElement(g_rootConfigNodeName);
         if (rootConfigNode == nullptr)
         {
             std::cout << "Unable to load root config node " << g_rootConfigNodeName << " in configuration file " << filename << std::endl;
@@ -168,7 +169,7 @@ bool ConfigVariables::ParseConfigFile(const std::string &filename)
 bool ConfigVariables::WriteConfigFile(const std::string &filename) const
 {
     tinyxml2::XMLDocument file;
-    tinyxml2::XMLElement *rootElement = file.NewElement(g_rootConfigNodeName.c_str());
+    tinyxml2::XMLElement *rootElement = file.NewElement(g_rootConfigNodeName);
     file.InsertFirstChild(rootElement);
     
     // Create an XML element for each config group with a sub element for each variable.
@@ -189,22 +190,22 @@ bool ConfigVariables::WriteConfigFile(const std::string &filename) const
             {
                 case VariableType::kInt:
                 {
-                    newVariable->SetText(variable->value.i);
+                    newVariable->SetAttribute(g_attributeName, variable->value.i);
                     break;
                 }
                 case VariableType::kFloat:
                 {
-                    newVariable->SetText(variable->value.f);
+                    newVariable->SetAttribute(g_attributeName, variable->value.f);
                     break;
                 }
                 case VariableType::kBool:
                 {
-                    newVariable->SetText(variable->value.b);
+                    newVariable->SetAttribute(g_attributeName, variable->value.b);
                     break;
                 }
                 case VariableType::kString:
                 {
-                    newVariable->SetText(variable->value.c);
+                    newVariable->SetAttribute(g_attributeName, variable->value.c);
                     break;
                 }
                 default:

@@ -47,7 +47,7 @@ class ConfigFileReader
         template<class T>
         void ReadVariable(const tinyxml2::XMLElement *element, T &value) const
         {
-            assert(0 && "Unimplemented ConfigVariable type");
+            element->QueryAttribute("value", &value);
         }
 
         const tinyxml2::XMLElement *m_configNode; ///< Root config node for a group of options. Should be ready by a call to SystemBase::GetConfigNodeName().
@@ -55,27 +55,9 @@ class ConfigFileReader
 
 // Template specializations.
 template<>
-void ConfigFileReader::ReadVariable(const tinyxml2::XMLElement *element, int &value) const
-{
-    element->QueryIntText(&value);
-}
-
-template<>
-void ConfigFileReader::ReadVariable(const tinyxml2::XMLElement *element, float &value) const
-{
-    element->QueryFloatText(&value);
-}
-
-template<>
-void ConfigFileReader::ReadVariable(const tinyxml2::XMLElement *element, bool &value) const
-{
-    element->QueryBoolText(&value);
-}
-
-template<>
 void ConfigFileReader::ReadVariable(const tinyxml2::XMLElement *element, std::string &value) const
 {
-    value = element->GetText();
+    value = element->Attribute("value");
 }
 
 } // namespace config

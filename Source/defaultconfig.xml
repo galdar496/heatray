@@ -1,32 +1,32 @@
 <HeatRayConfig>
     <Mesh>
-        <ModelPath>Resources/models/chess.obj</ModelPath>
-        <Scale>1.0</Scale>
+        <ModelPath value="Resources/models/chess.obj" />
+        <Scale value="1.0" />
     </Mesh>
     <Camera>
-        <PositionX>0.0</PositionX>
-        <PositionY>0.0</PositionY>
-        <PositionZ>50.0</PositionZ>
+        <PositionX value="0.0" />
+        <PositionY value="0.0" />
+        <PositionZ value="50.0" />
         <!-- Orientation is a quaternion -->
-        <OrientationX>0.0></OrientationX>
-        <OrientationY>0.0></OrientationY>
-        <OrientationZ>0.0></OrientationZ>
-        <OrientationAngle>1.0</OrientationAngle>
-        <MovementSpeed>5.5</MovementSpeed>
-        <RotationSpeed>0.2</RotationSpeed>
-        <LensFocalLength>25.0</LensFocalLength>
-        <ApertureRadius>0.0</ApertureRadius>
+        <OrientationX value="0.0" />
+        <OrientationY value="0.0" />
+        <OrientationZ value="0.0" />
+        <OrientationAngle value="1.0" />
+        <MovementSpeed value="5.5" />
+        <RotationSpeed value="0.2" />
+        <LensFocalLength value="25.0" />
+        <ApertureRadius value="0.0" />
     </Camera>
     <Render>
-        <FramebufferWidth>512</FramebufferWidth>
-        <FramebufferHeight>512</FramebufferHeight>
-        <RaysPerPixel>1024</RaysPerPixel>
-        <GIOn>0</GIOn>
-        <MaxRayDepth>5</MaxRayDepth>
-        <ExposureCompensation>0.0</ExposureCompensation>
+        <FramebufferWidth value="512" />
+        <FramebufferHeight value="512" />
+        <RaysPerPixel value="1024" />
+        <GIOn value="0" />
+        <MaxRayDepth value="5" />
+        <ExposureCompensation value="0.0" />
     </Render>
     <Shader>
-        <RayShaderPath>Resources/shaders/simpleRayShader.rsh</RayShaderPath>
-        <LightShaderPath>Resources/shaders/simpleLight.rsh</LightShaderPath>
+        <RayShaderPath value="Resources/shaders/simpleRayShader.rsh" />
+        <LightShaderPath value="Resources/shaders/simpleLight.rsh" />
     </Shader>
 </HeatRayConfig>
