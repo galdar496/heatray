@@ -41,13 +41,16 @@ class ConfigFileReader
                 ReadVariable<T>(element, value);
             }
         }
+    
+        constexpr static const char * const s_rootConfigNodeName = "HeatRayConfig";
+        constexpr static const char * const s_attributeName      = "value";
 
     private:
 
         template<class T>
         void ReadVariable(const tinyxml2::XMLElement *element, T &value) const
         {
-            element->QueryAttribute("value", &value);
+            element->QueryAttribute(s_attributeName, &value);
         }
 
         const tinyxml2::XMLElement *m_configNode; ///< Root config node for a group of options. Should be ready by a call to SystemBase::GetConfigNodeName().
@@ -57,7 +60,7 @@ class ConfigFileReader
 template<>
 void ConfigFileReader::ReadVariable(const tinyxml2::XMLElement *element, std::string &value) const
 {
-    value = element->Attribute("value");
+    value = element->Attribute(s_attributeName);
 }
 
 } // namespace config

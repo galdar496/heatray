@@ -63,9 +63,6 @@ struct Variable
 
 #undef X
 
-const char *g_rootConfigNodeName = "HeatRayConfig";
-const char *g_attributeName      = "value"; // Every attribute has the same name.
-
 // Group the config variables based on their specified "VariableGroup" defined in HEATRAY_CONFIG_VARIABLES.
 typedef std::unordered_map<std::string, std::vector<Variable *> > VariableMap;
 static VariableMap g_configVariableMap;
@@ -87,7 +84,6 @@ ConfigVariables::ConfigVariables()
 
 ConfigVariables::~ConfigVariables()
 {
-
 }
 
 bool ConfigVariables::ParseConfigFile(const std::string &filename)
@@ -107,10 +103,10 @@ bool ConfigVariables::ParseConfigFile(const std::string &filename)
     }
     else
     {
-        rootConfigNode = xmlConfigFile.FirstChildElement(g_rootConfigNodeName);
+        rootConfigNode = xmlConfigFile.FirstChildElement(ConfigFileReader::s_rootConfigNodeName);
         if (rootConfigNode == nullptr)
         {
-            std::cout << "Unable to load root config node " << g_rootConfigNodeName << " in configuration file " << filename << std::endl;
+            std::cout << "Unable to load root config node " << ConfigFileReader::s_rootConfigNodeName << " in configuration file " << filename << std::endl;
             result = false;
         }
         else
@@ -169,7 +165,7 @@ bool ConfigVariables::ParseConfigFile(const std::string &filename)
 bool ConfigVariables::WriteConfigFile(const std::string &filename) const
 {
     tinyxml2::XMLDocument file;
-    tinyxml2::XMLElement *rootElement = file.NewElement(g_rootConfigNodeName);
+    tinyxml2::XMLElement *rootElement = file.NewElement(ConfigFileReader::s_rootConfigNodeName);
     file.InsertFirstChild(rootElement);
     
     // Create an XML element for each config group with a sub element for each variable.
@@ -190,22 +186,22 @@ bool ConfigVariables::WriteConfigFile(const std::string &filename) const
             {
                 case VariableType::kInt:
                 {
-                    newVariable->SetAttribute(g_attributeName, variable->value.i);
+                    newVariable->SetAttribute(ConfigFileReader::s_attributeName, variable->value.i);
                     break;
                 }
                 case VariableType::kFloat:
                 {
-                    newVariable->SetAttribute(g_attributeName, variable->value.f);
+                    newVariable->SetAttribute(ConfigFileReader::s_attributeName, variable->value.f);
                     break;
                 }
                 case VariableType::kBool:
                 {
-                    newVariable->SetAttribute(g_attributeName, variable->value.b);
+                    newVariable->SetAttribute(ConfigFileReader::s_attributeName, variable->value.b);
                     break;
                 }
                 case VariableType::kString:
                 {
-                    newVariable->SetAttribute(g_attributeName, variable->value.c);
+                    newVariable->SetAttribute(ConfigFileReader::s_attributeName, variable->value.c);
                     break;
                 }
                 default:
