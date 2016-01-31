@@ -15,6 +15,7 @@
 #include <iostream>
 #include <algorithm>
 #include <sstream>
+#include <cmath>
 
 ///
 /// Floating utility functions.
@@ -73,10 +74,20 @@ inline void WriteImage(const std::string &filename, int width, int height, int c
     {
         for (int x = 0; x < width; ++x)
         {
+            float red   = pixels[index + 0] * divisor;
+            float green = pixels[index + 1] * divisor;
+            float blue  = pixels[index + 2] * divisor;
+            
+            // Apply gamma correction.
+            const float gamma = 2.2f;
+            red   = powf(red,   1.0f / gamma);
+            green = powf(green, 1.0f / gamma);
+            blue  = powf(blue,  1.0f / gamma);
+            
             // Make sure values are clamped within the 0-255 range.
-            color.rgbRed   = static_cast<BYTE>(std::max(std::min((pixels[index + 0] * 255.0f) * divisor, 255.0f), 0.0f));
-            color.rgbGreen = static_cast<BYTE>(std::max(std::min((pixels[index + 1] * 255.0f) * divisor, 255.0f), 0.0f));
-            color.rgbBlue  = static_cast<BYTE>(std::max(std::min((pixels[index + 2] * 255.0f) * divisor, 255.0f), 0.0f));
+            color.rgbRed   = static_cast<BYTE>(std::max(std::min(red   * 255.0f, 255.0f), 0.0f));
+            color.rgbGreen = static_cast<BYTE>(std::max(std::min(green * 255.0f, 255.0f), 0.0f));
+            color.rgbBlue  = static_cast<BYTE>(std::max(std::min(blue  * 255.0f, 255.0f), 0.0f));
             FreeImage_SetPixelColor(bitmap, x, y, &color);
             
             index += channels;
