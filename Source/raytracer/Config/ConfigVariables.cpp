@@ -25,6 +25,7 @@ enum class VariableType
 
 struct Variable
 {
+    // Supported config variables are stored within the following union.
     union Value
     {
         Value() {}
