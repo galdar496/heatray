@@ -11,15 +11,14 @@ d 1.000000
 illum 2
 
 newmtl Buddha_granite.jpg_gr_granite.jpg
-Ns 0.2
+Ns 0.0
 Ka 0.000000 0.000000 0.0000000
-Kd 0.000000 0.000000 0.0000000
-Ks 0.000000 0.000000 0.000000
-Ksub 0.990000 0.500000 0.500000
+Kd 0.700000 0.700000 0.7000000
+Ks 0.300000 0.300000 0.300000
 Ni 1.570000
 d 1.000000
 illum 2
-#map_Kd marble.jpg
+map_Kd OLDWOOD.jpg
 
 newmtl Ceiling
 Ns 54.901961
