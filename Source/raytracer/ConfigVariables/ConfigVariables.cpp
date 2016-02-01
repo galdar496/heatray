@@ -12,6 +12,10 @@
 #include <unordered_map>
 #include <vector>
 
+#if defined(_WIN32) || defined(_WIN64)
+    #define strcpy strcpy_s
+#endif
+
 namespace config
 {
 

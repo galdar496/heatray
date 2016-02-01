@@ -22,6 +22,9 @@
     <Filter Include="Resources\shaders">
       <UniqueIdentifier>{2daf43e7-f73b-48d0-9941-20991ca4cda0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\raytracer\ConfigVariables">
+      <UniqueIdentifier>{6cfe7cb4-5dec-419c-b07f-7f8945ade5ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="..\Source\defaultconfig.xml">
@@ -61,6 +64,9 @@
     </ClCompile>
     <ClCompile Include="..\Source\raytracer\Raytracer.cpp">
       <Filter>Source\raytracer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\raytracer\ConfigVariables\ConfigVariables.cpp">
+      <Filter>Source\raytracer\ConfigVariables</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -123,6 +129,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\raytracer\Raytracer.h">
       <Filter>Source\raytracer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\raytracer\ConfigVariables\ConfigVariables.h">
+      <Filter>Source\raytracer\ConfigVariables</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

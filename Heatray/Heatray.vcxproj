@@ -183,6 +183,7 @@ xcopy /Y /D /S /I "$(ProjectDir)..\Resources\*" "$(OutDir)Resources"
     <ClCompile Include="..\Source\gfx\Shader.cpp" />
     <ClCompile Include="..\Source\gfx\Texture.cpp" />
     <ClCompile Include="..\Source\main.cpp" />
+    <ClCompile Include="..\Source\raytracer\ConfigVariables\ConfigVariables.cpp" />
     <ClCompile Include="..\Source\raytracer\Raytracer.cpp" />
     <ClCompile Include="..\Source\raytracer\ShaderGenerator.cpp" />
     <ClCompile Include="..\Source\utility\tinyxml2.cpp" />
@@ -200,6 +201,7 @@ xcopy /Y /D /S /I "$(ProjectDir)..\Resources\*" "$(OutDir)Resources"
     <ClInclude Include="..\Source\math\Matrix.h" />
     <ClInclude Include="..\Source\math\Quaternion.h" />
     <ClInclude Include="..\Source\math\Vector.h" />
+    <ClInclude Include="..\Source\raytracer\ConfigVariables\ConfigVariables.h" />
     <ClInclude Include="..\Source\raytracer\Light.h" />
     <ClInclude Include="..\Source\raytracer\Pixels.h" />
     <ClInclude Include="..\Source\raytracer\Raytracer.h" />
