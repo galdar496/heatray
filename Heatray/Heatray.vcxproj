@@ -210,6 +210,7 @@ xcopy /Y /D /S /I "$(ProjectDir)..\Resources\*" "$(OutDir)Resources"
     <ClInclude Include="..\Source\utility\Timer.h" />
     <ClInclude Include="..\Source\utility\tinyxml2.h" />
     <ClInclude Include="..\Source\utility\util.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resources\shaders\passthrough.vert">
@@ -226,6 +227,13 @@ xcopy /Y /D /S /I "$(ProjectDir)..\Resources\*" "$(OutDir)Resources"
     </None>
     <None Include="..\Resources\shaders\simpleLight.rsh" />
     <None Include="..\Resources\shaders\simpleRayShader.rsh" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Resources\logo.ico" />
+    <Image Include="icon1.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Heatray.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

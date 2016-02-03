@@ -133,6 +133,7 @@
     <ClInclude Include="..\Source\raytracer\ConfigVariables\ConfigVariables.h">
       <Filter>Source\raytracer\ConfigVariables</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resources\shaders\passthrough.vert">
@@ -150,5 +151,12 @@
     <None Include="..\Resources\shaders\simpleRayShader.rsh">
       <Filter>Resources\shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Resources\logo.ico" />
+    <Image Include="icon1.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Heatray.rc" />
   </ItemGroup>
 </Project>
