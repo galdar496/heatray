@@ -1,4 +1,4 @@
-# Heatray
+![alt text](https://github.com/galdar496/heatray/blob/master/Resources/logo.png "Heatray") # Heatray
 
 ## Overview
 
