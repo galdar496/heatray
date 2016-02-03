@@ -1,4 +1,8 @@
-# Heatray     ![alt text](https://github.com/galdar496/heatray/blob/master/Resources/logo.png "Heatray") 
+<p align="center">
+  <img https://github.com/galdar496/heatray/blob/master/Resources/logo.png/>
+</p>
+
+# Heatray 
 
 ## Overview
 
