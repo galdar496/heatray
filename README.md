@@ -1,5 +1,5 @@
-<p align="center">
-  <img https://github.com/galdar496/heatray/blob/master/Resources/logo.png/>
+<p align="right">
+  <img src="https://github.com/galdar496/heatray/blob/master/Resources/logo.png" />
 </p>
 
 # Heatray 
