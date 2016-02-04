@@ -244,7 +244,7 @@ int main(int argc, char **argv)
     glutKeyboardUpFunc(KeyReleased);
     glutIdleFunc(Update);
 
-    GLenum result = glewInit();
+    glewInit();
 
     pixels.Resize(screenWidth, screenHeight);
 

@@ -316,7 +316,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = "";
-				LastUpgradeCheck = 0630;
+				LastUpgradeCheck = 0720;
 			};
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "Heatray" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -421,6 +421,7 @@
 		1DEB923608733DC60010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ENABLE_TESTABILITY = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/3rdParty/frameworks/**";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
