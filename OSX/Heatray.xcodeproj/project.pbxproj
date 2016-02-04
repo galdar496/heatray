@@ -7,33 +7,31 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3209E1BE19366E4B00D19D3B /* ShaderGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3209E1BC19366E4B00D19D3B /* ShaderGenerator.cpp */; };
 		32766C691937E4500017F493 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32766C671937E4500017F493 /* Texture.cpp */; };
-		32A4E54A191D350500972E11 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32A4E548191D350500972E11 /* main.cpp */; };
 		32A4E554191D4A6F00972E11 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32A4E552191D4A6F00972E11 /* Shader.cpp */; };
 		32A4E557191D57B000972E11 /* Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32A4E555191D57B000972E11 /* Program.cpp */; };
 		32A4E55C19217B7200972E11 /* Mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32A4E55A19217B7200972E11 /* Mesh.cpp */; };
 		32A4E56019219CA100972E11 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32A4E55E19219CA100972E11 /* Camera.cpp */; };
-		C3462B821C50AE8E00D3C763 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3B2D2341972551200665B05 /* OpenGL.framework */; };
+		C34481151C633DC7002BCD56 /* OpenRL.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3E3F65E1C63373100E1D2CD /* OpenRL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C3462B941C50B37A00D3C763 /* Material.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3462B931C50B37A00D3C763 /* Material.cpp */; };
-		C3462B961C50B8C900D3C763 /* libGLEW.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C3462B951C50B8C900D3C763 /* libGLEW.a */; };
-		C3462B991C50BA1700D3C763 /* OpenRL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3462B971C50BA1700D3C763 /* OpenRL.framework */; settings = {ATTRIBUTES = (Required, ); }; };
-		C3462B9E1C50BEEC00D3C763 /* OpenRL.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462B971C50BA1700D3C763 /* OpenRL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C3462BA11C50C21700D3C763 /* libGLEW.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462BA01C50C21700D3C763 /* libGLEW.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		C3462BA41C50C29200D3C763 /* libGLEW.1.13.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462BA21C50C29200D3C763 /* libGLEW.1.13.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		C3462BA51C50C29200D3C763 /* libGLEW.1.13.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462BA31C50C29200D3C763 /* libGLEW.1.13.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		C3462BA71C51E93600D3C763 /* Resources in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3462BA61C51E93600D3C763 /* Resources */; };
 		C3462BA81C51E99300D3C763 /* defaultconfig.xml in CopyFiles */ = {isa = PBXBuildFile; fileRef = C3AA72F419908C8400AE91CB /* defaultconfig.xml */; };
-		C3462BAA1C51EB8F00D3C763 /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C3462BA91C51EB8F00D3C763 /* libfreeimage.a */; };
-		C3462BAD1C51ECB600D3C763 /* Raytracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3462BAC1C51ECB600D3C763 /* Raytracer.cpp */; };
 		C3673145191F31C60092EDC9 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3673143191F31C60092EDC9 /* Buffer.cpp */; };
-		C36A5E8B19A8F525007B01FC /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3B2D2321972550C00665B05 /* GLUT.framework */; };
-		C3AA72F919908D5A00AE91CB /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3AA72F719908D5A00AE91CB /* tinyxml2.cpp */; };
-		C3B2D22C197254E800665B05 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3B2D22B197254E800665B05 /* main.cpp */; };
 		C3B2D239197259D800665B05 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32766C671937E4500017F493 /* Texture.cpp */; };
 		C3B2D23A19725A2600665B05 /* Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32A4E555191D57B000972E11 /* Program.cpp */; };
 		C3B2D23B19725A3B00665B05 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32A4E552191D4A6F00972E11 /* Shader.cpp */; };
-		C3D8148F1C5EA613004BEDB9 /* ConfigVariables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3D8148E1C5EA613004BEDB9 /* ConfigVariables.cpp */; };
+		C3E3F65D1C6336ED00E1D2CD /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3E3F65C1C6336ED00E1D2CD /* main.cpp */; };
+		C3E3F6711C633AA400E1D2CD /* ConfigVariables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3E3F6701C633AA400E1D2CD /* ConfigVariables.cpp */; };
+		C3E3F6771C633AC000E1D2CD /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3E3F6741C633AC000E1D2CD /* tinyxml2.cpp */; };
+		C3E3F67E1C633AE700E1D2CD /* ShaderGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3E3F6791C633AE700E1D2CD /* ShaderGenerator.cpp */; };
+		C3E3F67F1C633AE700E1D2CD /* Raytracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C3E3F67B1C633AE700E1D2CD /* Raytracer.cpp */; };
+		C3E3F6811C633C0200E1D2CD /* OpenRL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3E3F65E1C63373100E1D2CD /* OpenRL.framework */; };
+		C3E3F6821C633C2000E1D2CD /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3B2D2321972550C00665B05 /* GLUT.framework */; };
+		C3E3F6831C633C3400E1D2CD /* libGLEW.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C3462B951C50B8C900D3C763 /* libGLEW.a */; };
+		C3E3F6841C633C4B00E1D2CD /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C3462BA91C51EB8F00D3C763 /* libfreeimage.a */; };
+		C3E3F6851C633D4A00E1D2CD /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3B2D2341972551200665B05 /* OpenGL.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -44,7 +42,6 @@
 			dstSubfolderSpec = 16;
 			files = (
 				C3462BA81C51E99300D3C763 /* defaultconfig.xml in CopyFiles */,
-				C3462BA71C51E93600D3C763 /* Resources in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -54,10 +51,10 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
+				C34481151C633DC7002BCD56 /* OpenRL.framework in CopyFiles */,
 				C3462BA41C50C29200D3C763 /* libGLEW.1.13.dylib in CopyFiles */,
 				C3462BA51C50C29200D3C763 /* libGLEW.1.13.0.dylib in CopyFiles */,
 				C3462BA11C50C21700D3C763 /* libGLEW.dylib in CopyFiles */,
-				C3462B9E1C50BEEC00D3C763 /* OpenRL.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -73,52 +70,51 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		3209E1BC19366E4B00D19D3B /* ShaderGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderGenerator.cpp; sourceTree = "<group>"; };
-		3209E1BD19366E4B00D19D3B /* ShaderGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderGenerator.h; sourceTree = "<group>"; };
 		32766C671937E4500017F493 /* Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Texture.cpp; sourceTree = "<group>"; };
 		32766C681937E4500017F493 /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Texture.h; sourceTree = "<group>"; };
-		3293A4D31992E5DA00630E05 /* Light.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Light.h; sourceTree = "<group>"; };
-		32A4E548191D350500972E11 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		32A4E550191D45A900972E11 /* Timer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
-		32A4E551191D471B00972E11 /* util.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
 		32A4E552191D4A6F00972E11 /* Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Shader.cpp; sourceTree = "<group>"; };
 		32A4E553191D4A6F00972E11 /* Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shader.h; sourceTree = "<group>"; };
 		32A4E555191D57B000972E11 /* Program.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Program.cpp; sourceTree = "<group>"; };
 		32A4E556191D57B000972E11 /* Program.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Program.h; sourceTree = "<group>"; };
 		32A4E55819215B8D00972E11 /* Material.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Material.h; sourceTree = "<group>"; };
-		32A4E5591921776D00972E11 /* rng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = rng.h; sourceTree = "<group>"; };
 		32A4E55A19217B7200972E11 /* Mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mesh.cpp; sourceTree = "<group>"; };
 		32A4E55B19217B7200972E11 /* Mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mesh.h; sourceTree = "<group>"; };
 		32A4E55D19217C3700972E11 /* Triangle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Triangle.h; sourceTree = "<group>"; };
 		32A4E55E19219CA100972E11 /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		32A4E55F19219CA100972E11 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* Heatray */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Heatray; sourceTree = BUILT_PRODUCTS_DIR; };
-		C3462B811C50AC0B00D3C763 /* Pixels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pixels.h; sourceTree = "<group>"; };
 		C3462B931C50B37A00D3C763 /* Material.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Material.cpp; sourceTree = "<group>"; };
-		C3462B951C50B8C900D3C763 /* libGLEW.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libGLEW.a; path = 3rdParty/libs/libGLEW.a; sourceTree = SOURCE_ROOT; };
-		C3462B971C50BA1700D3C763 /* OpenRL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenRL.framework; path = 3rdParty/frameworks/OpenRL.framework; sourceTree = SOURCE_ROOT; };
-		C3462BA01C50C21700D3C763 /* libGLEW.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.dylib; path = 3rdParty/libs/libGLEW.dylib; sourceTree = "<group>"; };
-		C3462BA21C50C29200D3C763 /* libGLEW.1.13.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.13.dylib; path = 3rdParty/libs/libGLEW.1.13.dylib; sourceTree = "<group>"; };
-		C3462BA31C50C29200D3C763 /* libGLEW.1.13.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.13.0.dylib; path = 3rdParty/libs/libGLEW.1.13.0.dylib; sourceTree = "<group>"; };
-		C3462BA61C51E93600D3C763 /* Resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources; sourceTree = "<group>"; };
-		C3462BA91C51EB8F00D3C763 /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreeimage.a; path = 3rdParty/libs/libfreeimage.a; sourceTree = SOURCE_ROOT; };
-		C3462BAB1C51ECB600D3C763 /* Raytracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Raytracer.h; sourceTree = "<group>"; };
-		C3462BAC1C51ECB600D3C763 /* Raytracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Raytracer.cpp; sourceTree = "<group>"; };
+		C3462B951C50B8C900D3C763 /* libGLEW.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libGLEW.a; path = ../3rdParty/libs/libGLEW.a; sourceTree = SOURCE_ROOT; };
+		C3462BA01C50C21700D3C763 /* libGLEW.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.dylib; path = ../3rdParty/libs/libGLEW.dylib; sourceTree = "<group>"; };
+		C3462BA21C50C29200D3C763 /* libGLEW.1.13.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.13.dylib; path = ../3rdParty/libs/libGLEW.1.13.dylib; sourceTree = "<group>"; };
+		C3462BA31C50C29200D3C763 /* libGLEW.1.13.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.13.0.dylib; path = ../3rdParty/libs/libGLEW.1.13.0.dylib; sourceTree = "<group>"; };
+		C3462BA91C51EB8F00D3C763 /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreeimage.a; path = ../3rdParty/libs/libfreeimage.a; sourceTree = SOURCE_ROOT; };
 		C367313F191F2F7A0092EDC9 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		C3673140191F2F7A0092EDC9 /* Matrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix.h; sourceTree = "<group>"; };
 		C3673141191F2F7A0092EDC9 /* Quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quaternion.h; sourceTree = "<group>"; };
 		C3673142191F2F7A0092EDC9 /* Vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vector.h; sourceTree = "<group>"; };
 		C3673143191F31C60092EDC9 /* Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Buffer.cpp; sourceTree = "<group>"; };
 		C3673144191F31C60092EDC9 /* Buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Buffer.h; sourceTree = "<group>"; };
-		C3AA72F419908C8400AE91CB /* defaultconfig.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = defaultconfig.xml; sourceTree = "<group>"; };
-		C3AA72F719908D5A00AE91CB /* tinyxml2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tinyxml2.cpp; sourceTree = "<group>"; };
-		C3AA72F819908D5A00AE91CB /* tinyxml2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tinyxml2.h; sourceTree = "<group>"; };
+		C3AA72F419908C8400AE91CB /* defaultconfig.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = defaultconfig.xml; path = ../Source/defaultconfig.xml; sourceTree = "<group>"; };
 		C3B2D229197254E800665B05 /* BumpMapGenerator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BumpMapGenerator; sourceTree = BUILT_PRODUCTS_DIR; };
-		C3B2D22B197254E800665B05 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		C3B2D2321972550C00665B05 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 		C3B2D2341972551200665B05 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
-		C3D8148D1C5EA613004BEDB9 /* ConfigVariables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConfigVariables.h; path = ConfigVariables/ConfigVariables.h; sourceTree = "<group>"; };
-		C3D8148E1C5EA613004BEDB9 /* ConfigVariables.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConfigVariables.cpp; path = ConfigVariables/ConfigVariables.cpp; sourceTree = "<group>"; };
+		C3D8148D1C5EA613004BEDB9 /* ConfigVariables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConfigVariables.h; path = ../Source/raytracer/ConfigVariables/ConfigVariables.h; sourceTree = SOURCE_ROOT; };
+		C3E3F65C1C6336ED00E1D2CD /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../Source/main.cpp; sourceTree = "<group>"; };
+		C3E3F65E1C63373100E1D2CD /* OpenRL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OpenRL.framework; sourceTree = "<group>"; };
+		C3E3F6701C633AA400E1D2CD /* ConfigVariables.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigVariables.cpp; sourceTree = "<group>"; };
+		C3E3F6721C633AC000E1D2CD /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
+		C3E3F6731C633AC000E1D2CD /* tinyxml2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tinyxml2.h; sourceTree = "<group>"; };
+		C3E3F6741C633AC000E1D2CD /* tinyxml2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tinyxml2.cpp; sourceTree = "<group>"; };
+		C3E3F6751C633AC000E1D2CD /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
+		C3E3F6761C633AC000E1D2CD /* rng.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rng.h; sourceTree = "<group>"; };
+		C3E3F6781C633AE700E1D2CD /* ShaderGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderGenerator.h; sourceTree = "<group>"; };
+		C3E3F6791C633AE700E1D2CD /* ShaderGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderGenerator.cpp; sourceTree = "<group>"; };
+		C3E3F67A1C633AE700E1D2CD /* Raytracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Raytracer.h; sourceTree = "<group>"; };
+		C3E3F67B1C633AE700E1D2CD /* Raytracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Raytracer.cpp; sourceTree = "<group>"; };
+		C3E3F67C1C633AE700E1D2CD /* Pixels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pixels.h; sourceTree = "<group>"; };
+		C3E3F67D1C633AE700E1D2CD /* Light.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Light.h; sourceTree = "<group>"; };
+		C3E3F6801C633BA800E1D2CD /* Resources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Resources; path = ../Resources; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,11 +122,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C3462BAA1C51EB8F00D3C763 /* libfreeimage.a in Frameworks */,
-				C3462B991C50BA1700D3C763 /* OpenRL.framework in Frameworks */,
-				C3462B961C50B8C900D3C763 /* libGLEW.a in Frameworks */,
-				C3462B821C50AE8E00D3C763 /* OpenGL.framework in Frameworks */,
-				C36A5E8B19A8F525007B01FC /* GLUT.framework in Frameworks */,
+				C3E3F6851C633D4A00E1D2CD /* OpenGL.framework in Frameworks */,
+				C3E3F6831C633C3400E1D2CD /* libGLEW.a in Frameworks */,
+				C3E3F6841C633C4B00E1D2CD /* libfreeimage.a in Frameworks */,
+				C3E3F6821C633C2000E1D2CD /* GLUT.framework in Frameworks */,
+				C3E3F6811C633C0200E1D2CD /* OpenRL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -147,11 +143,10 @@
 		08FB7794FE84155DC02AAC07 /* Heatray */ = {
 			isa = PBXGroup;
 			children = (
-				C3462BA61C51E93600D3C763 /* Resources */,
+				C3E3F6801C633BA800E1D2CD /* Resources */,
 				C3462BA21C50C29200D3C763 /* libGLEW.1.13.dylib */,
 				C3462BA31C50C29200D3C763 /* libGLEW.1.13.0.dylib */,
 				C3462BA01C50C21700D3C763 /* libGLEW.dylib */,
-				C3B2D22A197254E800665B05 /* BumpMapGenerator */,
 				32A4E541191D304F00972E11 /* Frameworks */,
 				32A4E542191D304F00972E11 /* Source */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
@@ -172,26 +167,28 @@
 		32A4E541191D304F00972E11 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C3E3F65E1C63373100E1D2CD /* OpenRL.framework */,
 				C3462BA91C51EB8F00D3C763 /* libfreeimage.a */,
-				C3462B971C50BA1700D3C763 /* OpenRL.framework */,
 				C3462B951C50B8C900D3C763 /* libGLEW.a */,
 				C3B2D2341972551200665B05 /* OpenGL.framework */,
 				C3B2D2321972550C00665B05 /* GLUT.framework */,
 			);
-			path = Frameworks;
+			name = Frameworks;
+			path = ../3rdParty/frameworks;
 			sourceTree = "<group>";
 		};
 		32A4E542191D304F00972E11 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				32A4E548191D350500972E11 /* main.cpp */,
+				C3E3F65C1C6336ED00E1D2CD /* main.cpp */,
 				32A4E545191D34EF00972E11 /* gfx */,
 				C367313E191F2F7A0092EDC9 /* math */,
 				32A4E546191D34EF00972E11 /* raytracer */,
 				32A4E547191D34EF00972E11 /* utility */,
 				C3AA72F419908C8400AE91CB /* defaultconfig.xml */,
 			);
-			path = Source;
+			name = Source;
+			path = ../Source;
 			sourceTree = "<group>";
 		};
 		32A4E545191D34EF00972E11 /* gfx */ = {
@@ -213,34 +210,37 @@
 				32766C681937E4500017F493 /* Texture.h */,
 				32A4E55D19217C3700972E11 /* Triangle.h */,
 			);
-			path = gfx;
-			sourceTree = "<group>";
+			name = gfx;
+			path = ../Source/gfx;
+			sourceTree = SOURCE_ROOT;
 		};
 		32A4E546191D34EF00972E11 /* raytracer */ = {
 			isa = PBXGroup;
 			children = (
+				C3E3F6781C633AE700E1D2CD /* ShaderGenerator.h */,
+				C3E3F6791C633AE700E1D2CD /* ShaderGenerator.cpp */,
+				C3E3F67A1C633AE700E1D2CD /* Raytracer.h */,
+				C3E3F67B1C633AE700E1D2CD /* Raytracer.cpp */,
+				C3E3F67C1C633AE700E1D2CD /* Pixels.h */,
+				C3E3F67D1C633AE700E1D2CD /* Light.h */,
 				C3D8148C1C5EA604004BEDB9 /* ConfigVariables */,
-				C3462BAB1C51ECB600D3C763 /* Raytracer.h */,
-				C3462BAC1C51ECB600D3C763 /* Raytracer.cpp */,
-				C3462B811C50AC0B00D3C763 /* Pixels.h */,
-				3209E1BC19366E4B00D19D3B /* ShaderGenerator.cpp */,
-				3209E1BD19366E4B00D19D3B /* ShaderGenerator.h */,
-				3293A4D31992E5DA00630E05 /* Light.h */,
 			);
-			path = raytracer;
-			sourceTree = "<group>";
+			name = raytracer;
+			path = ../Source/raytracer;
+			sourceTree = SOURCE_ROOT;
 		};
 		32A4E547191D34EF00972E11 /* utility */ = {
 			isa = PBXGroup;
 			children = (
-				32A4E550191D45A900972E11 /* Timer.h */,
-				32A4E551191D471B00972E11 /* util.h */,
-				32A4E5591921776D00972E11 /* rng.h */,
-				C3AA72F719908D5A00AE91CB /* tinyxml2.cpp */,
-				C3AA72F819908D5A00AE91CB /* tinyxml2.h */,
+				C3E3F6721C633AC000E1D2CD /* util.h */,
+				C3E3F6731C633AC000E1D2CD /* tinyxml2.h */,
+				C3E3F6741C633AC000E1D2CD /* tinyxml2.cpp */,
+				C3E3F6751C633AC000E1D2CD /* Timer.h */,
+				C3E3F6761C633AC000E1D2CD /* rng.h */,
 			);
-			path = utility;
-			sourceTree = "<group>";
+			name = utility;
+			path = ../Source/utility;
+			sourceTree = SOURCE_ROOT;
 		};
 		C367313E191F2F7A0092EDC9 /* math */ = {
 			isa = PBXGroup;
@@ -250,25 +250,19 @@
 				C3673141191F2F7A0092EDC9 /* Quaternion.h */,
 				C3673142191F2F7A0092EDC9 /* Vector.h */,
 			);
-			path = math;
-			sourceTree = "<group>";
-		};
-		C3B2D22A197254E800665B05 /* BumpMapGenerator */ = {
-			isa = PBXGroup;
-			children = (
-				C3B2D22B197254E800665B05 /* main.cpp */,
-			);
-			path = BumpMapGenerator;
-			sourceTree = "<group>";
+			name = math;
+			path = ../Source/math;
+			sourceTree = SOURCE_ROOT;
 		};
 		C3D8148C1C5EA604004BEDB9 /* ConfigVariables */ = {
 			isa = PBXGroup;
 			children = (
+				C3E3F6701C633AA400E1D2CD /* ConfigVariables.cpp */,
 				C3D8148D1C5EA613004BEDB9 /* ConfigVariables.h */,
-				C3D8148E1C5EA613004BEDB9 /* ConfigVariables.cpp */,
 			);
 			name = ConfigVariables;
-			sourceTree = "<group>";
+			path = ../Source/raytracer/ConfigVariables;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
@@ -340,17 +334,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C3E3F6771C633AC000E1D2CD /* tinyxml2.cpp in Sources */,
+				C3E3F67E1C633AE700E1D2CD /* ShaderGenerator.cpp in Sources */,
 				32A4E55C19217B7200972E11 /* Mesh.cpp in Sources */,
+				C3E3F67F1C633AE700E1D2CD /* Raytracer.cpp in Sources */,
+				C3E3F6711C633AA400E1D2CD /* ConfigVariables.cpp in Sources */,
 				32A4E557191D57B000972E11 /* Program.cpp in Sources */,
-				C3462BAD1C51ECB600D3C763 /* Raytracer.cpp in Sources */,
-				C3D8148F1C5EA613004BEDB9 /* ConfigVariables.cpp in Sources */,
-				3209E1BE19366E4B00D19D3B /* ShaderGenerator.cpp in Sources */,
+				C3E3F65D1C6336ED00E1D2CD /* main.cpp in Sources */,
 				32766C691937E4500017F493 /* Texture.cpp in Sources */,
 				C3462B941C50B37A00D3C763 /* Material.cpp in Sources */,
-				C3AA72F919908D5A00AE91CB /* tinyxml2.cpp in Sources */,
 				32A4E56019219CA100972E11 /* Camera.cpp in Sources */,
 				C3673145191F31C60092EDC9 /* Buffer.cpp in Sources */,
-				32A4E54A191D350500972E11 /* main.cpp in Sources */,
 				32A4E554191D4A6F00972E11 /* Shader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -360,7 +354,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C3B2D23A19725A2600665B05 /* Program.cpp in Sources */,
-				C3B2D22C197254E800665B05 /* main.cpp in Sources */,
 				C3B2D23B19725A3B00665B05 /* Shader.cpp in Sources */,
 				C3B2D239197259D800665B05 /* Texture.cpp in Sources */,
 			);
@@ -374,6 +367,7 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../3rdParty/frameworks/**";
 				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_ENABLE_FLOATING_POINT_LIBRARY_CALLS = YES;
@@ -384,9 +378,14 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_UNUSED_VALUE = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					../3rdParty/include,
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/3rdParty/libs",
+					"$(PROJECT_DIR)/../3rdParty/libs",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = Heatray;
@@ -399,6 +398,7 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../3rdParty/frameworks/**";
 				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_ENABLE_FLOATING_POINT_LIBRARY_CALLS = YES;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.cpp;
@@ -408,9 +408,14 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_UNUSED_VALUE = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					../3rdParty/include,
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/3rdParty/libs",
+					"$(PROJECT_DIR)/../3rdParty/libs",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = Heatray;
