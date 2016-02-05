@@ -213,6 +213,7 @@ xcopy /Y /D /S /I "$(ProjectDir)..\Resources\*" "$(OutDir)Resources"
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Resources\shaders\displayGL.frag" />
     <None Include="..\Resources\shaders\passthrough.vert">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

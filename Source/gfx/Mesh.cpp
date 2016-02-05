@@ -385,7 +385,7 @@ bool Mesh::LoadMaterials(const std::string &filename, const std::string &basePat
             fin >> texturePath;
             
             texturePath = basePath + texturePath;
-            materialIter->second.material.diffuseTexture.LoadTextureData(texturePath);
+            materialIter->second.material.diffuseTexture.LoadTextureData(texturePath, true);
             materialIter->second.material.componentFlags.set(gfx::Material::DIFFUSE_TEXTURE);
         }
         
@@ -395,7 +395,7 @@ bool Mesh::LoadMaterials(const std::string &filename, const std::string &basePat
             fin >> texturePath;
             
             texturePath = basePath + texturePath;
-            materialIter->second.material.normalTexture.LoadTextureData(texturePath);
+            materialIter->second.material.normalTexture.LoadTextureData(texturePath, false);
             materialIter->second.material.componentFlags.set(gfx::Material::NORMALMAP);
         }
         

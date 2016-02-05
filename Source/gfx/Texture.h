@@ -64,10 +64,11 @@ class Texture
         /// Load texture data but do not yet create the texture in OpenRL.
         ///
         /// @path Path to the texture.
+        /// @param gammaCorrect If true, perform gamma correction on the image before creating it.
         ///
         /// @return If true, the texture data was found and loaded.
         ///
-        bool LoadTextureData(const std::string &path);
+        bool LoadTextureData(const std::string &path, bool gammaCorrect);
     
         ///
         /// Create a texture from already loaded data.

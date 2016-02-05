@@ -21,6 +21,7 @@ namespace math
 	const double GRAVITATIONAL_CONSTANT	= 6.67300e-11;
 	const float  FEET_TO_METERS			= 0.3048f;
 	const float  METERS_TO_FEET			= 3.2808399f;
-	const float  MEGABYTES_TO_BYTES		= 1048576;
+	const float  MEGABYTES_TO_BYTES		= 1048576.0f;
+    const float  GAMMA                  = 2.2f;
 } // namespace math
 

@@ -9,6 +9,7 @@
 #include "Texture.h"
 #include "../utility/util.h"
 #include "../utility/rng.h"
+#include "../math/Constants.h"
 #include <iostream>
 #include <vector>
 #include <assert.h>
@@ -48,7 +49,7 @@ void Texture::SetParams(const Params &p)
     
 bool Texture::Create(const std::string &path, const bool clear_data)
 {
-    if (!LoadTextureData(path))
+    if (!LoadTextureData(path, false))
     {
         return false;
     }
@@ -86,7 +87,7 @@ bool Texture::Create(const RLint width, const RLint height, const RLenum dataTyp
     return true;
 }
     
-bool Texture::LoadTextureData(const std::string &path)
+bool Texture::LoadTextureData(const std::string &path, bool gammaCorrect)
 {
     FREE_IMAGE_FORMAT format = FreeImage_GetFileType(path.c_str (), 0);
 	FIBITMAP* unconvertedData = FreeImage_Load(format, path.c_str ());
@@ -101,6 +102,13 @@ bool Texture::LoadTextureData(const std::string &path)
 	m_width = FreeImage_GetWidth(m_data);
 	m_height = FreeImage_GetHeight(m_data);
     m_name = path;
+
+    if (gammaCorrect)
+    {
+        // Apply inverse gamma correction in order to linearize the color data.
+        const double gamma = 1.0 / math::GAMMA;
+        FreeImage_AdjustGamma(m_data, gamma);
+    }
     
     return true;
 }
