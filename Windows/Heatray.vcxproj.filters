@@ -157,7 +157,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Resources\logo.ico" />
-    <Image Include="icon1.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Heatray.rc" />
