@@ -106,7 +106,7 @@ class AssimpStream : public Assimp::LogStream
 public:
     AssimpStream() {}
     virtual ~AssimpStream() {}
-    virtual void write(const char *message) { std::cout << message << std::endl; }
+    virtual void write(const char *message) { std::cout << "Assimp: " << message << std::endl; }
 };
 
 Mesh::Mesh() :
