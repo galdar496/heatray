@@ -22,6 +22,9 @@
 #include <iostream>
 #include <sstream>
 
+const std::string heatrayVersion = "3.1";
+const std::string heatrayTitle   = "Heatray " + heatrayVersion;
+
 // Raytracer exists as a global variable to be accessed by all
 // functions in the main file.
 Raytracer raytracer;
@@ -135,7 +138,7 @@ void Render()
 {
     std::stringstream windowTitle;
     int renderPassedPerformed = raytracer.GetNumPassesPerformed();
-    windowTitle << "Heatray - Pass " << renderPassedPerformed;
+    windowTitle << heatrayTitle << " - Pass " << renderPassedPerformed;
     glutSetWindowTitle(windowTitle.str().c_str());
 
     // Perform the actual rendering of the raytracer into a pixel buffer.
