@@ -299,6 +299,11 @@ bool Texture::IsValid() const
 {
     return (m_textureObject != RL_NULL_TEXTURE);
 }
+
+bool Texture::HasData() const
+{
+    return (m_data != nullptr);
+}
     
 void Texture::ApplyParams()
 {

@@ -18,7 +18,7 @@ Ks 0.300000 0.300000 0.300000
 Ni 1.570000
 d 1.000000
 illum 2
-map_Kd OLDWOOD.jpg
+map_Kd Resources/models/OLDWOOD.jpg
 
 newmtl Ceiling
 Ns 54.901961
@@ -37,7 +37,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd checker.jpg
+map_Kd Resources/models/checker.jpg
 
 newmtl LeftWall
 Ns 54.901961

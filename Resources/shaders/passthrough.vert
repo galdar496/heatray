@@ -10,6 +10,7 @@ attribute vec3 positionAttribute;
 attribute vec3 normalAttribute;
 attribute vec2 texCoordAttribute;
 attribute vec3 tangentAttribute;
+attribute vec3 bitangentAttribute;
 
 varying vec3 normal;
 varying vec2 texCoords;
@@ -24,5 +25,5 @@ void main()
     normal      = normalAttribute;
     texCoords   = texCoordAttribute;
     tangent     = tangentAttribute;
-    bitangent   = cross(normal, tangent);
+    bitangent   = bitangentAttribute;
 }

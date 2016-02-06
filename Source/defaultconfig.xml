@@ -1,7 +1,6 @@
 <HeatRayConfig>
     <Mesh>
         <ModelPath value="Resources/models/chess.obj" />
-        <Scale value="1.0" />
     </Mesh>
     <Camera>
         <PositionX value="0.0" />

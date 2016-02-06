@@ -10,7 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd OLDWOOD.JPG
+map_Kd Resources/models/OLDWOOD.JPG
 
 newmtl BackWall_cher.jpg_che_checker.jpg
 Ns 0.000000
@@ -41,7 +41,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd chinese.jpg
+map_Kd Resources/models/chinese.jpg
 
 newmtl Floor_cher.jpg_wood.jpg
 Ns 0.000000
@@ -52,7 +52,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd OLDWOOD.JPG
+map_Kd Resources/models/OLDWOOD.JPG
 
 newmtl LampShadeLight
 Ns 31.372549
@@ -63,7 +63,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd shader_unwrap.jpg
+map_Kd Resources/models/shader_unwrap.jpg
 
 newmtl LeftWall
 Ns 0.000000
@@ -114,7 +114,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Concrete.Cast-In-Place.Flat.Grey.1.jpg
+map_Kd Resources/models/Concrete.Cast-In-Place.Flat.Grey.1.jpg
 
 newmtl wire_177028149
 Ns 31.372549
@@ -125,4 +125,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd OLDWOOD.JPG
+map_Kd Resources/models/OLDWOOD.JPG

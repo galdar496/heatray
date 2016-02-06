@@ -9,7 +9,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/UpDoMBr.jpg
+map_Kd Resources/models/Maps/UpDoMBr.jpg
 
 newmtl Base
 Ns 0.000000
@@ -19,7 +19,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/UpDoMBr.jpg
+map_Kd Resources/models/Maps/UpDoMBr.jpg
 
 newmtl BaseMess
 Ns 0.000000
@@ -29,7 +29,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/UpDoMBr.jpg
+map_Kd Resources/models/Maps/UpDoMBr.jpg
 
 newmtl Bodice
 Ns 0.000000
@@ -39,7 +39,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FaerieDressM.jpg
+map_Kd Resources/models/Maps/FaerieDressM.jpg
 
 newmtl BodiceBottom
 Ns 0.000000
@@ -49,7 +49,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FaerieDressM.jpg
+map_Kd Resources/models/Maps/FaerieDressM.jpg
 
 newmtl BtmLgBall
 Ns 0.000000
@@ -77,7 +77,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/UpDoMBr.jpg
+map_Kd Resources/models/Maps/UpDoMBr.jpg
 
 newmtl BunMess
 Ns 0.000000
@@ -87,7 +87,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/UpDoMBr.jpg
+map_Kd Resources/models/Maps/UpDoMBr.jpg
 
 newmtl BurnMess
 Ns 0.000000
@@ -97,7 +97,7 @@ Ks 0.315686 0.292157 0.254902
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/UpDoMBr.jpg
+map_Kd Resources/models/Maps/UpDoMBr.jpg
 
 newmtl Cap
 Ns 0.000000
@@ -107,7 +107,7 @@ Ks 0.376471 0.376471 0.376471
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFMushroom1.jpg
+map_Kd Resources/models/Maps/FFMushroom1.jpg
 
 newmtl Cap_Mushroom2
 Ns 0.000000
@@ -117,7 +117,7 @@ Ks 0.405883 0.407843 0.360785
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFMushroom2.jpg
+map_Kd Resources/models/Maps/FFMushroom2.jpg
 
 newmtl Cap_Mushroom2_(2)
 Ns 0.000000
@@ -127,7 +127,7 @@ Ks 0.405883 0.407843 0.360785
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFMushroom2.jpg
+map_Kd Resources/models/Maps/FFMushroom2.jpg
 
 newmtl Cloud_Centre
 Ns 0.000000
@@ -200,7 +200,7 @@ Ks 0.323530 0.323530 0.323530
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_HeadM.jpg
+map_Kd Resources/models/Maps/V3Lo_HeadM.jpg
 
 newmtl Eyebrows
 Ns 0.000000
@@ -219,7 +219,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_d ConvertedMaps/V3Lo_Trans.tif.jpg
+map_d ConvertedResources/models/Maps/V3Lo_Trans.tif.jpg
 
 newmtl Fingernails
 Ns 0.000000
@@ -229,7 +229,7 @@ Ks 0.335294 0.335294 0.335294
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_BodyM(NG).jpg
+map_Kd Resources/models/Maps/V3Lo_BodyM(NG).jpg
 
 newmtl Gills
 Ns 0.000000
@@ -239,7 +239,7 @@ Ks 0.376471 0.376471 0.376471
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFMushroom1.jpg
+map_Kd Resources/models/Maps/FFMushroom1.jpg
 
 newmtl Gills_Mushroom2
 Ns 0.000000
@@ -249,7 +249,7 @@ Ks 0.405883 0.407843 0.360785
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFMushroom2.jpg
+map_Kd Resources/models/Maps/FFMushroom2.jpg
 
 newmtl Gills_Mushroom2_(2)
 Ns 0.000000
@@ -259,7 +259,7 @@ Ks 0.405883 0.407843 0.360785
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFMushroom2.jpg
+map_Kd Resources/models/Maps/FFMushroom2.jpg
 
 newmtl Grass
 Ns 0.000000
@@ -296,7 +296,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_TeethGumsM.jpg
+map_Kd Resources/models/Maps/V3Lo_TeethGumsM.jpg
 
 newmtl InnerMouth
 Ns 0.000000
@@ -306,7 +306,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_HeadM.jpg
+map_Kd Resources/models/Maps/V3Lo_HeadM.jpg
 
 newmtl LCornea
 Ns 0.000000
@@ -316,7 +316,7 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 0.000000
 illum 2
-map_Kd Maps/V3Lo_EyeBlueM.jpg
+map_Kd Resources/models/Maps/V3Lo_EyeBlueM.jpg
 
 newmtl LEyewhite
 Ns 0.000000
@@ -326,7 +326,7 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_EyeBlueM.jpg
+map_Kd Resources/models/Maps/V3Lo_EyeBlueM.jpg
 
 newmtl LIris
 Ns 0.000000
@@ -336,7 +336,7 @@ Ks 0.213726 0.213726 0.213726
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_EyeBlueM.jpg
+map_Kd Resources/models/Maps/V3Lo_EyeBlueM.jpg
 
 newmtl LPupil
 Ns 0.000000
@@ -346,7 +346,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_EyeBlueM.jpg
+map_Kd Resources/models/Maps/V3Lo_EyeBlueM.jpg
 
 newmtl Lacrimal
 Ns 0.000000
@@ -356,7 +356,7 @@ Ks 0.323530 0.323530 0.323530
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_HeadM.jpg
+map_Kd Resources/models/Maps/V3Lo_HeadM.jpg
 
 newmtl Leaves
 Ns 0.700000
@@ -366,7 +366,7 @@ Ks 0.376471 0.376471 0.376471
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFfern.jpg
+map_Kd Resources/models/Maps/FFfern.jpg
 
 newmtl Leaves_Fern_(2)
 Ns 0.700000
@@ -376,7 +376,7 @@ Ks 0.376471 0.376471 0.376471
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFfern.jpg
+map_Kd Resources/models/Maps/FFfern.jpg
 
 newmtl Leaves_Fern_(3)
 Ns 0.700000
@@ -386,7 +386,7 @@ Ks 0.376471 0.376471 0.376471
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFfern.jpg
+map_Kd Resources/models/Maps/FFfern.jpg
 
 newmtl Leaves_Fern_(4)
 Ns 0.700000
@@ -396,7 +396,7 @@ Ks 0.376471 0.376471 0.376471
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFfern.jpg
+map_Kd Resources/models/Maps/FFfern.jpg
 
 newmtl Leaves_Fern_(5)
 Ns 0.700000
@@ -406,7 +406,7 @@ Ks 0.376471 0.376471 0.376471
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFfern.jpg
+map_Kd Resources/models/Maps/FFfern.jpg
 
 newmtl Leaves_Fern_(6)
 Ns 0.700000
@@ -416,7 +416,7 @@ Ks 0.376471 0.376471 0.376471
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFfern.jpg
+map_Kd Resources/models/Maps/FFfern.jpg
 
 newmtl Leaves_Fern_(7)
 Ns 0.700000
@@ -426,7 +426,7 @@ Ks 0.376471 0.376471 0.376471
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFfern.jpg
+map_Kd Resources/models/Maps/FFfern.jpg
 
 newmtl Light
 Ns 92.156863
@@ -445,7 +445,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_HeadM.jpg
+map_Kd Resources/models/Maps/V3Lo_HeadM.jpg
 
 newmtl NeckMess
 Ns 0.000000
@@ -455,7 +455,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/UpDoMBr.jpg
+map_Kd Resources/models/Maps/UpDoMBr.jpg
 
 newmtl Nipples
 Ns 0.000000
@@ -465,7 +465,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_BodyM(NG).jpg
+map_Kd Resources/models/Maps/V3Lo_BodyM(NG).jpg
 
 newmtl Nostrils
 Ns 0.000000
@@ -475,7 +475,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_HeadM.jpg
+map_Kd Resources/models/Maps/V3Lo_HeadM.jpg
 
 newmtl OverSkirt
 Ns 0.000000
@@ -485,7 +485,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FaerieDressM.jpg
+map_Kd Resources/models/Maps/FaerieDressM.jpg
 
 newmtl Panties
 Ns 0.000000
@@ -495,7 +495,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FaerieDressM.jpg
+map_Kd Resources/models/Maps/FaerieDressM.jpg
 
 newmtl RCornea
 Ns 0.000000
@@ -505,7 +505,7 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 0.000000
 illum 2
-map_Kd Maps/V3Lo_EyeBlueM.jpg
+map_Kd Resources/models/Maps/V3Lo_EyeBlueM.jpg
 
 newmtl REyewhite
 Ns 0.000000
@@ -515,7 +515,7 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_EyeBlueM.jpg
+map_Kd Resources/models/Maps/V3Lo_EyeBlueM.jpg
 
 newmtl RIris
 Ns 0.000000
@@ -525,7 +525,7 @@ Ks 0.213726 0.213726 0.213726
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_EyeBlueM.jpg
+map_Kd Resources/models/Maps/V3Lo_EyeBlueM.jpg
 
 newmtl RPupil
 Ns 0.000000
@@ -535,7 +535,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_EyeBlueM.jpg
+map_Kd Resources/models/Maps/V3Lo_EyeBlueM.jpg
 
 newmtl Scenery_Centre
 Ns 0.000000
@@ -545,7 +545,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFSummerwood_C.jpg
+map_Kd Resources/models/Maps/FFSummerwood_C.jpg
 
 newmtl Scenery_Centre_Wallsback
 Ns 0.000000
@@ -555,7 +555,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFSummerwood_C2.jpg
+map_Kd Resources/models/Maps/FFSummerwood_C2.jpg
 
 newmtl Scenery_Left
 Ns 0.000000
@@ -565,7 +565,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFSummerwood_L.jpg
+map_Kd Resources/models/Maps/FFSummerwood_L.jpg
 
 newmtl Scenery_Left_Wallsback
 Ns 0.000000
@@ -575,7 +575,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFSummerwood_L2.jpg
+map_Kd Resources/models/Maps/FFSummerwood_L2.jpg
 
 newmtl Scenery_Right
 Ns 0.000000
@@ -585,7 +585,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFSummerwood_R.jpg
+map_Kd Resources/models/Maps/FFSummerwood_R.jpg
 
 newmtl Scenery_Right_Wallsback
 Ns 0.000000
@@ -595,7 +595,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFSummerwood_R2.jpg
+map_Kd Resources/models/Maps/FFSummerwood_R2.jpg
 
 newmtl SkinArm
 Ns 0.000000
@@ -605,7 +605,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_BodyM(NG).jpg
+map_Kd Resources/models/Maps/V3Lo_BodyM(NG).jpg
 
 newmtl SkinFeet
 Ns 0.000000
@@ -615,7 +615,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_BodyM(NG).jpg
+map_Kd Resources/models/Maps/V3Lo_BodyM(NG).jpg
 
 newmtl SkinForearm
 Ns 0.000000
@@ -625,7 +625,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_BodyM(NG).jpg
+map_Kd Resources/models/Maps/V3Lo_BodyM(NG).jpg
 
 newmtl SkinHand
 Ns 0.000000
@@ -635,7 +635,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_BodyM(NG).jpg
+map_Kd Resources/models/Maps/V3Lo_BodyM(NG).jpg
 
 newmtl SkinHead
 Ns 0.000000
@@ -645,7 +645,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_HeadM.jpg
+map_Kd Resources/models/Maps/V3Lo_HeadM.jpg
 
 newmtl SkinHip
 Ns 0.000000
@@ -655,7 +655,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_BodyM(NG).jpg
+map_Kd Resources/models/Maps/V3Lo_BodyM(NG).jpg
 
 newmtl SkinLeg
 Ns 0.000000
@@ -665,7 +665,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_BodyM(NG).jpg
+map_Kd Resources/models/Maps/V3Lo_BodyM(NG).jpg
 
 newmtl SkinNeck
 Ns 0.000000
@@ -675,7 +675,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_BodyM(NG).jpg
+map_Kd Resources/models/Maps/V3Lo_BodyM(NG).jpg
 
 newmtl SkinScalp
 Ns 0.000000
@@ -685,7 +685,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_HeadM.jpg
+map_Kd Resources/models/Maps/V3Lo_HeadM.jpg
 
 newmtl SkinTorso
 Ns 0.000000
@@ -695,7 +695,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_BodyM(NG).jpg
+map_Kd Resources/models/Maps/V3Lo_BodyM(NG).jpg
 
 newmtl Skirt
 Ns 0.000000
@@ -705,7 +705,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FaerieDressM.jpg
+map_Kd Resources/models/Maps/FaerieDressM.jpg
 
 newmtl SkyCentre
 Ns 0.000000
@@ -778,7 +778,7 @@ Ks 0.376471 0.376471 0.376471
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFMushroom1.jpg
+map_Kd Resources/models/Maps/FFMushroom1.jpg
 
 newmtl Stem_Fern
 Ns 0.700000
@@ -788,7 +788,7 @@ Ks 0.376471 0.376471 0.376471
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFPlant_Stem.jpg
+map_Kd Resources/models/Maps/FFPlant_Stem.jpg
 
 newmtl Stem_Fern_(2)
 Ns 0.700000
@@ -798,7 +798,7 @@ Ks 0.376471 0.376471 0.376471
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFPlant_Stem.jpg
+map_Kd Resources/models/Maps/FFPlant_Stem.jpg
 
 newmtl Stem_Fern_(3)
 Ns 0.700000
@@ -808,7 +808,7 @@ Ks 0.376471 0.376471 0.376471
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFPlant_Stem.jpg
+map_Kd Resources/models/Maps/FFPlant_Stem.jpg
 
 newmtl Stem_Fern_(4)
 Ns 0.700000
@@ -818,7 +818,7 @@ Ks 0.376471 0.376471 0.376471
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFPlant_Stem.jpg
+map_Kd Resources/models/Maps/FFPlant_Stem.jpg
 
 newmtl Stem_Fern_(5)
 Ns 0.700000
@@ -828,7 +828,7 @@ Ks 0.376471 0.376471 0.376471
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFPlant_Stem.jpg
+map_Kd Resources/models/Maps/FFPlant_Stem.jpg
 
 newmtl Stem_Fern_(6)
 Ns 0.700000
@@ -838,7 +838,7 @@ Ks 0.376471 0.376471 0.376471
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFPlant_Stem.jpg
+map_Kd Resources/models/Maps/FFPlant_Stem.jpg
 
 newmtl Stem_Fern_(7)
 Ns 0.700000
@@ -848,7 +848,7 @@ Ks 0.376471 0.376471 0.376471
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFPlant_Stem.jpg
+map_Kd Resources/models/Maps/FFPlant_Stem.jpg
 
 newmtl Stem_Mushroom2
 Ns 0.700000
@@ -858,7 +858,7 @@ Ks 0.405883 0.407843 0.360785
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFMushroom2.jpg
+map_Kd Resources/models/Maps/FFMushroom2.jpg
 
 newmtl Stem_Mushroom2_(2)
 Ns 0.700000
@@ -868,7 +868,7 @@ Ks 0.405883 0.407843 0.360785
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFMushroom2.jpg
+map_Kd Resources/models/Maps/FFMushroom2.jpg
 
 newmtl Straps
 Ns 0.000000
@@ -878,7 +878,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 0.000000
 illum 2
-map_Kd Maps/FaerieDressM.jpg
+map_Kd Resources/models/Maps/FaerieDressM.jpg
 
 newmtl Surface
 Ns 0.000000
@@ -888,7 +888,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFMottleStone.jpg
+map_Kd Resources/models/Maps/FFMottleStone.jpg
 
 newmtl Surface_Rock_(2)
 Ns 0.700000
@@ -898,7 +898,7 @@ Ks 0.025490 0.052941 0.011765
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFMottleStone.jpg
+map_Kd Resources/models/Maps/FFMottleStone.jpg
 
 newmtl Teeth
 Ns 0.700000
@@ -908,7 +908,7 @@ Ks 0.323530 0.323530 0.323530
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_TeethGumsM.jpg
+map_Kd Resources/models/Maps/V3Lo_TeethGumsM.jpg
 
 newmtl TilingTerrain
 Ns 0.000000
@@ -918,7 +918,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFSummerwood_Flr.jpg
+map_Kd Resources/models/Maps/FFSummerwood_Flr.jpg
 
 newmtl Toenails
 Ns 0.700000
@@ -928,7 +928,7 @@ Ks 0.335294 0.335294 0.335294
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_BodyM(NG).jpg
+map_Kd Resources/models/Maps/V3Lo_BodyM(NG).jpg
 
 newmtl Tongue
 Ns 0.000000
@@ -938,7 +938,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/V3Lo_HeadM.jpg
+map_Kd Resources/models/Maps/V3Lo_HeadM.jpg
 
 newmtl Tori
 Ns 0.000000
@@ -957,7 +957,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FFTree_OldPine.jpg
+map_Kd Resources/models/Maps/FFTree_OldPine.jpg
 
 newmtl Trunk
 Ns 0.000000
@@ -967,7 +967,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/UltimateTreeMed.jpg
+map_Kd Resources/models/Maps/UltimateTreeMed.jpg
 
 newmtl Wand
 Ns 0.700000
@@ -1004,7 +1004,7 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FWWings03.jpg
+map_Kd Resources/models/Maps/FWWings03.jpg
 
 newmtl Wing3out
 Ns 0.700000
@@ -1014,7 +1014,7 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/FWWings03.jpg
+map_Kd Resources/models/Maps/FWWings03.jpg
 
 newmtl antennae
 Ns 0.100000
@@ -1033,7 +1033,7 @@ Ks 0.374510 0.374510 0.374510
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/DDko.jpg
+map_Kd Resources/models/Maps/DDko.jpg
 
 newmtl eyes
 Ns 0.000000
@@ -1043,7 +1043,7 @@ Ks 0.401961 0.458824 0.450981
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/DDko.jpg
+map_Kd Resources/models/Maps/DDko.jpg
 
 newmtl wings
 Ns 0.400000
@@ -1053,4 +1053,4 @@ Ks 0.401961 0.423530 0.500000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Maps/DDko.jpg
+map_Kd Resources/models/Maps/DDko.jpg

@@ -23,7 +23,6 @@ namespace config
 
 #define HEATRAY_CONFIG_VARIABLES \
     X(Mesh, ModelPath, kString, "Resources/models/chess.obj")   \
-    X(Mesh, Scale,     kFloat,  1.0f)                           \
     \
     X(Camera, PositionX,        kFloat, 0.0f)   \
     X(Camera, PositionY,        kFloat, 0.0f)   \

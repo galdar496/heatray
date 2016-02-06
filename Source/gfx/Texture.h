@@ -146,6 +146,11 @@ class Texture
         /// Determine if the underlying texture object is valid (created) or not.
         ///
         bool IsValid() const;
+
+        ///
+        /// Check to see if the texture has valid data waiting to be downloaded to OpenRL.
+        ///
+        bool HasData() const;
     
         /// Contains parameters for texture operation.
         /// Pass this into SetParams().

@@ -105,5 +105,10 @@ void Buffer::UnmapBuffer() const
 {
    rlUnmapBuffer(m_target);
 }
+
+bool Buffer::IsValid() const
+{
+    return (m_buffer != RL_NULL_BUFFER);
+}
     
 } // namespace gfx

@@ -38,12 +38,10 @@ class Mesh
         ///
         /// @param filename Path to the mesh obj file to load.
         /// @param createRenderData If true, render data for each mesh piece is automatically created.
-        /// @param scale Scaling to apply to the mesh.
-        /// @param clearData If true, delete any loaded data after uploading it to a VBO.
         ///
         /// @return If true, the mesh was successfully loaded.
         ///
-        bool Load(const std::string &filename, const bool create_render_data = true, const float scale = 1.0f, const bool clear_data = true);
+        bool Load(const std::string &filename, bool createRenderData);
     
         ///
         /// Destroy this mesh. All mesh pieces will be deallocated as well as any materials
@@ -72,7 +70,8 @@ class Mesh
             	positionAttribute(-1),
             	normalAttribute(-1),
             	texCoordAttribute(-1),
-                tangentAttribute(-1)
+                tangentAttribute(-1),
+                bitangentAttribute(-1)
             {
             }
             
@@ -80,6 +79,7 @@ class Mesh
             RLint normalAttribute;	    ///< The location of the normal attribute in a vertex program.
             RLint texCoordAttribute;    ///< The location of the tex coord attribute in a vertex program.
             RLint tangentAttribute;     ///< The location of the tangent attribute in a vertex program.
+            RLint bitangentAttribute;   ///< The location of the bitangent attribute in a vertex program.
         };                       
     
         // A separate VBO is created for each type of data, defined by this enum.
@@ -89,6 +89,8 @@ class Mesh
             kNormals,
             kTexCoords,
             kTangents,
+            kBitangents,
+            kIndices,
             
             kNumVBOTypes // This should always be last.
         };
@@ -99,7 +101,8 @@ class Mesh
         ///
         struct MeshPiece
         {
-            MeshPiece() : primitive(RL_NULL_PRIMITIVE), numElements(0) {}
+            MeshPiece() : primitive(RL_NULL_PRIMITIVE), numIndices(0) {}
+            MeshPiece(const MeshPiece &other) {} // No copies are allowed.
             
             gfx::Material              material;      ///< Material associated with this piece.
             gfx::Program               program;       ///< Material program bound to this primitive.
@@ -107,13 +110,15 @@ class Mesh
             std::vector<math::Vec3f>   vertices;      ///< Vertices of this mesh.
             std::vector<math::Vec3f>   normals;       ///< Normals of this mesh.
             std::vector<math::Vec3f>   tangents;      ///< Calculated tangents of this mesh.
+            std::vector<math::Vec3f>   bitangents;    ///< Calculated bitangents of this mesh.
+            std::vector<int>           indices;       ///< Index buffers for this mesh.
             std::vector<math::Vec2f>   texCoords;     ///< Texture coordinates for this mesh.
-            size_t                     numElements;   ///< Number of elements (vertices) to render.
+            size_t                     numIndices;    ///< Number of indices to render.
             
             gfx::Buffer buffers[kNumVBOTypes]; ///< VBOs which makeup the mesh data for this piece.
         };
     
-        typedef std::unordered_map<std::string, MeshPiece>	MeshList;
+        typedef std::vector<MeshPiece> MeshList;
     
         ///
     	/// Get a reference to the internal mesh list.
@@ -125,28 +130,11 @@ class Mesh
         ///
     	std::string GetName() const;
     
-        ///
-    	/// Get the scaling value applied to the mesh.
-        ///
-    	float GetScale() const;
-    
     private:
     
     	// This class is not copyable.
     	Mesh(const Mesh &other) = delete;
     	Mesh & operator=(const Mesh &other) = delete;
-    
-        ///
-        /// Load all materials from the mesh.
-        ///
-        /// @param filename Relative path to the mesh file to parse.
-        /// @param basePath Base path shared by the obj mesh file and the material file.
-        /// @param clearData If true, clear any loaded data once it's inside of OpenRL.
-        /// @param materials All materials popluated after reading the file (OUT).
-        ///
-        /// If true, the materials were successfully loaded.
-        ///
-        bool LoadMaterials(const std::string &filename, const std::string &base_path, const bool clear_data, MeshList &materials);
         
         // Member variables.
         MeshList    m_meshes;	   ///< Map of pieces of this mesh.

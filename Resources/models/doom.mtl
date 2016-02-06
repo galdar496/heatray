@@ -18,7 +18,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.570000
 d 1.000000
 illum 2
-map_Bump normalmap.png
+map_Kn Resources/models/normalmap.png
 
 newmtl Ceiling
 Ns 0.000000
@@ -37,7 +37,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Bump normalmap.png
+map_Kn Resources/models/normalmap.png
 
 newmtl HellKnight
 Ns 92.156863
@@ -47,8 +47,8 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd hellknight.tga
-map_Bump hellknight_local.tga
+map_Kd Resources/models/hellknight.tga
+map_Kn Resources/models/hellknight_local.tga
 
 newmtl LeftWall
 Ns 0.000000
@@ -58,7 +58,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Bump normalmap.png
+map_Kn Resources/models/normalmap.png
 
 newmtl Light
 Ns 0.000000
@@ -77,7 +77,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd gob2_s.tga
+map_Kd Resources/models/gob2_s.tga
 
 newmtl RightWall
 Ns 0.000000
@@ -87,7 +87,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Bump normalmap.png
+map_Kn Resources/models/normalmap.png
 
 newmtl Trite.001_trite.tga_trite.tga
 Ns 86.274510
@@ -97,6 +97,6 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd trite.tga
-map_Bump trite_local.tga
+map_Kd Resources/models/trite.tga
+map_Kn Resources/models/trite_local.tga
 

@@ -106,7 +106,12 @@ class Buffer
         ///
         void UnmapBuffer() const;
 
-        private:
+        ///
+        /// If true, this buffer is valid and ready for use.
+        ///
+        bool IsValid() const;
+
+    private:
 
         Buffer & operator=(const Buffer &other) = delete;
 

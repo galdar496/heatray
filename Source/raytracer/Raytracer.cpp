@@ -517,12 +517,10 @@ void Raytracer::ResetRenderingState()
 void Raytracer::LoadModel(const config::ConfigVariables &configVariables)
 {
     std::string modelPath;
-    float scaling = 1.0f;
     
     configVariables.GetVariableValue(config::ConfigVariables::kModelPath, modelPath);
-    configVariables.GetVariableValue(config::ConfigVariables::kScale, scaling);
     
-    if (!m_mesh.Load(modelPath, false, scaling, false))
+    if (!m_mesh.Load(modelPath, false))
     {
         exit(0);
     }
@@ -631,10 +629,9 @@ void Raytracer::GetLighting(gfx::Mesh &mesh)
     // Go over each mesh piece and look for anything that is a light. For all lights that are found, populate a
     // 'Light' struct with information about that light to use for later rendering.
     gfx::Mesh::MeshList &meshes = mesh.GetMeshList();
-    for (gfx::Mesh::MeshList::const_iterator iter = meshes.begin(); iter != meshes.end(); ++iter)
+    for (gfx::Mesh::MeshList::const_iterator piece = meshes.begin(); piece != meshes.end(); ++piece)
     {
-        const gfx::Mesh::MeshPiece *piece = &(iter->second);
-        if (piece->material.name.find("Light") != std::string::npos)
+        if (piece->material.componentFlags.test(gfx::Material::LIGHT))
         {
             if (m_lights.size() >= g_MaxNumLights)
             {
@@ -645,7 +642,7 @@ void Raytracer::GetLighting(gfx::Mesh &mesh)
             m_lights.push_back(Light());
             Light *light = &m_lights[m_lights.size() - 1];
 
-            int num_lightTriangles = static_cast<int>(piece->vertices.size()) / 3;
+            int numLightTriangles = static_cast<int>(piece->indices.size()) / 3;
 
             // Generate the randomized light positions to sample for each pass. Every pass of the render will use one of these generated
             // light positions.
@@ -658,7 +655,7 @@ void Raytracer::GetLighting(gfx::Mesh &mesh)
             for (int ii = 0; ii < m_totalPassCount; ++ii)
             {
                 // Find a random triangle to use for this sample.
-                int triangleIndex = util::Random(0, num_lightTriangles - 1);
+                int triangleIndex = util::Random(0, numLightTriangles - 1);
 
                 // Generate 3 random barycentric coordinates.
                 float gamma = randomBarycentrics[barycentricIndex++];
@@ -674,14 +671,17 @@ void Raytracer::GetLighting(gfx::Mesh &mesh)
 
                 // Use the barycentrics to generate a random position within the triangle.
                 int vertexIndex = triangleIndex * 3;
-                math::Vec3f samplePoint = (piece->vertices[vertexIndex + 0] * gamma) +
-                                          (piece->vertices[vertexIndex + 1] * beta) +
-                                          (piece->vertices[vertexIndex + 2] * alpha);
+                int index1 = piece->indices[vertexIndex + 0];
+                int index2 = piece->indices[vertexIndex + 1];
+                int index3 = piece->indices[vertexIndex + 2];
+                math::Vec3f samplePoint = (piece->vertices[index1] * gamma) +
+                                          (piece->vertices[index2] * beta) +
+                                          (piece->vertices[index3] * alpha);
 
                 // Similarly set the normal for this sample point.
-                math::Vec3f sampleNormal = (piece->normals[vertexIndex + 0] * gamma) +
-                                           (piece->normals[vertexIndex + 1] * beta) +
-                                           (piece->normals[vertexIndex + 2] * alpha);
+                math::Vec3f sampleNormal = (piece->normals[index1] * gamma) +
+                                           (piece->normals[index2] * beta) +
+                                           (piece->normals[index3] * alpha);
                 sampleNormal.Normalize();
 
                 light->samplePositions[ii] = samplePoint;
@@ -706,7 +706,6 @@ void Raytracer::WriteConfigFile() const
     // Mesh
     {
         configVars.SetVariableValue(config::ConfigVariables::kModelPath, m_mesh.GetName());
-        configVars.SetVariableValue(config::ConfigVariables::kScale, m_mesh.GetScale());
     }
     
     // Camera settings

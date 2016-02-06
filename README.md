@@ -3,9 +3,9 @@
 
 ## Overview
 
-Heat Ray 3.0 is a raytracer/path tracer written in C++ and makes use of OpenRL (of which I was a developer) for all raytracing. It uses a progressive rendering algorithm that works in passes (with 1024 passes as the default).
+Heat Ray 3 is a raytracer/path tracer written in C++ and makes use of OpenRL (of which I was a developer) for all raytracing. It uses a progressive rendering algorithm that works in passes (with 1024 passes as the default).
 
-Heat Ray 2.0 is a ray tracer/photon mapper written entirely in C++ with an OpenGL viewer. This version is still available under the original [google code repository page](https://code.google.com/p/heatray/downloads/list).
+Heat Ray 2 is a ray tracer/photon mapper written entirely in C++ with an OpenGL viewer. This version is still available under the original [google code repository page](https://code.google.com/p/heatray/downloads/list).
 
 ## Developers
 
@@ -25,7 +25,7 @@ Heat Ray 2.0 is a ray tracer/photon mapper written entirely in C++ with an OpenG
 * Multi-core/Multi-CPU support
 * Anti-aliasing
 * Written in C++ and RLSL
-* Reads OBJ files
+* Reads many model formats via [Assimp](http://www.assimp.org/)
 * Automatic shader generation based on the OBJ material file
 * Full global illumination through path tracing
 * Simple material modeling via RLSL shaders
@@ -35,7 +35,7 @@ Heat Ray 2.0 is a ray tracer/photon mapper written entirely in C++ with an OpenG
 
 ## Notes
 
-Heat Ray 3.0 was written and developed under Mac OSX 10.9 and XCode 5 as well as Microsoft Windows 10 and VS2015. All libraries required to run the code are included in the repository.
+Heat Ray 3 was written and developed under Mac OSX 10.9 and XCode 5 as well as Microsoft Windows 10 and VS2015. All libraries required to run the code are included in the repository.
 
 Head over to the [Wiki page](https://github.com/galdar496/heatray/wiki/Home) for more information!
 

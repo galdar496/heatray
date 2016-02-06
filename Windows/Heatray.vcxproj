@@ -112,7 +112,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>freeglut.lib;FreeImage.lib;OpenRL.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freeglut.lib;FreeImage.lib;OpenRL.lib;glew32.lib;assimp-vc130-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)..\3rdParty\Libs\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -158,7 +158,7 @@ xcopy /Y /D /S /I "$(ProjectDir)..\Resources\*" "$(OutDir)Resources"
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>freeglut.lib;FreeImage.lib;OpenRL.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freeglut.lib;FreeImage.lib;OpenRL.lib;glew32.lib;assimp-vc130-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)..\3rdParty\Libs\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>

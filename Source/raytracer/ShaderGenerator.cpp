@@ -48,9 +48,8 @@ bool ShaderGenerator::GenerateShaders(const GenerationInfo &info)
     // Iterate over each mesh piece and create a shader for it. Afterwards bind the VBOs to the proper
     // locations in the newly compiled programs.
     gfx::Mesh::MeshList &meshes = info.mesh->GetMeshList();
-    for (gfx::Mesh::MeshList::iterator iter = meshes.begin(); iter != meshes.end(); ++iter)
+    for (gfx::Mesh::MeshList::iterator piece = meshes.begin(); piece != meshes.end(); ++piece)
     {
-        gfx::Mesh::MeshPiece *piece = &(iter->second);
         rlBindPrimitive(RL_PRIMITIVE, piece->primitive);
         
         if (piece->material.name.find("Light") == std::string::npos)
@@ -149,8 +148,9 @@ bool ShaderGenerator::GenerateShaders(const GenerationInfo &info)
         gfx::Mesh::RenderData renderData;
         renderData.positionAttribute  = rlGetAttribLocation(piece->program.GetProgram(), "positionAttribute");
         renderData.normalAttribute    = rlGetAttribLocation(piece->program.GetProgram(), "normalAttribute");
-        renderData.texCoordAttribute = rlGetAttribLocation(piece->program.GetProgram(), "texCoordAttribute");
+        renderData.texCoordAttribute  = rlGetAttribLocation(piece->program.GetProgram(), "texCoordAttribute");
         renderData.tangentAttribute   = rlGetAttribLocation(piece->program.GetProgram(), "tangentAttribute");
+        renderData.bitangentAttribute = rlGetAttribLocation(piece->program.GetProgram(), "bitangentAttribute");
         
         piece->buffers[gfx::Mesh::kVertices].Bind();
         rlVertexAttribBuffer(renderData.positionAttribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
@@ -160,16 +160,30 @@ bool ShaderGenerator::GenerateShaders(const GenerationInfo &info)
         rlVertexAttribBuffer(renderData.normalAttribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
         piece->buffers[gfx::Mesh::kNormals].Unbind();
         
-        piece->buffers[gfx::Mesh::kTexCoords].Bind();
-        rlVertexAttribBuffer(renderData.texCoordAttribute, 2, RL_FLOAT, RL_FALSE, sizeof(math::Vec2f), 0);
-        piece->buffers[gfx::Mesh::kTexCoords].Unbind();
-        
-        piece->buffers[gfx::Mesh::kTangents].Bind();
-        rlVertexAttribBuffer(renderData.tangentAttribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
-        piece->buffers[gfx::Mesh::kTangents].Unbind();
+        if (piece->buffers[gfx::Mesh::kTexCoords].IsValid())
+        {
+            // If tex coords are present then so will tangents and bitangents.
+
+            piece->buffers[gfx::Mesh::kTexCoords].Bind();
+            rlVertexAttribBuffer(renderData.texCoordAttribute, 2, RL_FLOAT, RL_FALSE, sizeof(math::Vec2f), 0);
+            piece->buffers[gfx::Mesh::kTexCoords].Unbind();
+
+            piece->buffers[gfx::Mesh::kTangents].Bind();
+            rlVertexAttribBuffer(renderData.tangentAttribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
+            piece->buffers[gfx::Mesh::kTangents].Unbind();
+
+            piece->buffers[gfx::Mesh::kBitangents].Bind();
+            rlVertexAttribBuffer(renderData.bitangentAttribute, 3, RL_FLOAT, RL_FALSE, sizeof(math::Vec3f), 0);
+            piece->buffers[gfx::Mesh::kBitangents].Unbind();
+        }
+
+        piece->buffers[gfx::Mesh::kIndices].SetTarget(RL_ELEMENT_ARRAY_BUFFER);
+        piece->buffers[gfx::Mesh::kIndices].Bind();
         
         // Submit this mesh to OpenRL for heirarchy building and later on rendering.
-        rlDrawArrays(RL_TRIANGLES, 0, piece->numElements);
+        rlDrawElements(RL_TRIANGLES, piece->numIndices, RL_UNSIGNED_INT, 0);
+
+        piece->buffers[gfx::Mesh::kIndices].Unbind();
         
         rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE);
         
