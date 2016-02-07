@@ -316,7 +316,7 @@ void Raytracer::Resize(RLint width, RLint height)
         // Generate a random texture to use for pixel offsets while rendering. This texture has components which are uniformly
         // distrubuted over a circle. This allows for a radial filter during anti-aliasing.
         m_jitterTexture.RandomizeRadial(m_fboTexture.Width(), m_fboTexture.Height(), RL_FLOAT, 1.2f, "random");
-        ResetRenderingState();
+        ResetRenderingState(false); // resizing the fbo texture already clears it.
     }
 }
 
@@ -504,9 +504,9 @@ void Raytracer::CheckKeys(const float dt)
     }
 }
 
-void Raytracer::ResetRenderingState()
+void Raytracer::ResetRenderingState(bool clear)
 {
-    if (m_fbo != RL_NULL_FRAMEBUFFER)
+    if (clear && (m_fbo != RL_NULL_FRAMEBUFFER))
     {
         rlClear(RL_COLOR_BUFFER_BIT);
     }

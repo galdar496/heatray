@@ -118,7 +118,9 @@ class Raytracer
     	/// Reset the rendering state. This is done if the camera moved or the window got resized
     	/// and rendering needs to start over from the beginning.
         ///
-    	void ResetRenderingState();
+        /// @param clear If true, the framebuffer is cleared as part of the reset.
+        ///
+    	void ResetRenderingState(bool clear = true);
     
         ///
     	/// Load the model specified in the config file and all materials associated with it. After this is finished,
