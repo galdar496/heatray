@@ -37,7 +37,6 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Resources/models/checker.jpg
 
 newmtl LeftWall
 Ns 54.901961
