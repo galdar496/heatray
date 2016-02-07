@@ -33,6 +33,10 @@ Heat Ray 2 is a ray tracer/photon mapper written entirely in C++ with an OpenGL 
 * Exposure compensation
 * Gamma correction
 
+## Releases
+
+Head over to the [Releases](https://github.com/galdar496/heatray/wiki/Releases) page to download the latest release of Heatray.
+
 ## Notes
 
 Heat Ray 3 was written and developed under Mac OSX 10.9 and XCode 5 as well as Microsoft Windows 10 and VS2015. All libraries required to run the code are included in the repository.
