@@ -108,7 +108,8 @@ bool ShaderGenerator::GenerateShaders(const GenerationInfo &info)
                 location = piece->program.GetUniformLocation("diffuseTexture");
                 piece->program.SetTexture(location, piece->material.diffuseTexture.GetTexture());
             }
-            if (piece->material.componentFlags.test(gfx::Material::NORMALMAP))
+            if (piece->material.componentFlags.test(gfx::Material::NORMALMAP) &&
+                !piece->material.componentFlags.test(gfx::Material::LIGHT)) // Lights do not yet support normal maps.
             {
                 location = piece->program.GetUniformLocation("normalmap");
             	piece->program.SetTexture(location, piece->material.normalTexture.GetTexture());
