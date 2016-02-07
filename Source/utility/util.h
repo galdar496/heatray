@@ -78,6 +78,11 @@ inline void WriteImage(const std::string &filename, int width, int height, int c
             float red   = pixels[index + 0] * divisor;
             float green = pixels[index + 1] * divisor;
             float blue  = pixels[index + 2] * divisor;
+
+            // Gamma-correct this pixel.
+            red     = powf(red,   1.0f / math::GAMMA);
+            green   = powf(green, 1.0f / math::GAMMA);
+            blue    = powf(blue,  1.0f / math::GAMMA);
             
             // Make sure values are clamped within the 0-255 range.
             color.rgbRed   = static_cast<BYTE>(std::max(std::min(red   * 255.0f, 255.0f), 0.0f));
@@ -90,7 +95,7 @@ inline void WriteImage(const std::string &filename, int width, int height, int c
     }
 
     // Apply gamma correction to the output image.
-    FreeImage_AdjustGamma(bitmap, math::GAMMA);
+    //FreeImage_AdjustGamma(bitmap, math::GAMMA);
     
     FreeImage_Save(FreeImage_GetFIFFromFilename(filename.c_str()), bitmap, filename.c_str(), 0);
     
