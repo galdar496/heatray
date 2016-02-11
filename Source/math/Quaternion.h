@@ -263,7 +263,7 @@ class Quaternion
 		///
         /// Get the axis of rotation.
         ///
-		inline const QVec & GetAxis() const
+		inline const QVec GetAxis() const
 		{
 			return m_axis;
 		}

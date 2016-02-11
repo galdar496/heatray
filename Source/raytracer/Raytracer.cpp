@@ -268,7 +268,7 @@ void Raytracer::Render(Pixels &outputPixels)
         m_raytracingFrameProgram.Set3fv(m_frameUniforms.up, m_camera.GetUpVector().v);
         m_raytracingFrameProgram.Set3fv(m_frameUniforms.right, m_camera.GetRightVector().v);
         m_raytracingFrameProgram.Set1f(m_frameUniforms.fovTan, tanf((math::DEGREE_TO_RADIAN * m_camera.GetFOV()) * 0.5f));
-        m_raytracingFrameProgram.Set1f(m_frameUniforms.focalLength, m_camera.GetFocalLength());
+        m_raytracingFrameProgram.Set1f(m_frameUniforms.focalLength, m_camera.GetFocalDistance());
         m_raytracingFrameProgram.Set1f(m_frameUniforms.aspectRatio, m_camera.GetAspectRatio());
         m_raytracingFrameProgram.SetTexture(m_frameUniforms.jitterTexture, m_jitterTexture.GetTexture());
         m_raytracingFrameProgram.SetTexture(m_frameUniforms.apertureSampleTexture, m_apertureSampleTexture.GetTexture());
@@ -465,12 +465,12 @@ void Raytracer::CheckKeys(const float dt)
     
     if (m_keyboard.test(Keys::kIncreaseFocalLength))
     {
-        m_camera.SetFocalLength(m_camera.GetFocalLength() + focalLengthIncrement);
+        m_camera.SetFocalDistance(m_camera.GetFocalDistance() + focalLengthIncrement);
         resetRenderer = true;
     }
 	else if (m_keyboard.test(Keys::kDecreaseFocalLength))
     {
-        m_camera.SetFocalLength(std::max(0.0f, m_camera.GetFocalLength() - focalLengthIncrement));
+        m_camera.SetFocalDistance(std::max(0.0f, m_camera.GetFocalDistance() - focalLengthIncrement));
         resetRenderer = true;
     }
     
@@ -533,17 +533,14 @@ void Raytracer::SetupCamera(const config::ConfigVariables &configVariables)
     
     // Setup the camera's position.
     {
-        configVariables.GetVariableValue(config::ConfigVariables::kPositionX, tmpVector[0]);
-        configVariables.GetVariableValue(config::ConfigVariables::kPositionY, tmpVector[1]);
-        configVariables.GetVariableValue(config::ConfigVariables::kPositionZ, tmpVector[2]);
-
+        configVariables.GetVariableValue(config::ConfigVariables::kPosition, tmpVector);
         m_camera.SetPosition(tmpVector);
     }
     
     // Setup the camera's lens attributes.
     {
-        configVariables.GetVariableValue(config::ConfigVariables::kLensFocalLength, tmpValue);
-        m_camera.SetFocalLength(tmpValue);
+        configVariables.GetVariableValue(config::ConfigVariables::kFocalDistance, tmpValue);
+        m_camera.SetFocalDistance(tmpValue);
         
         configVariables.GetVariableValue(config::ConfigVariables::kApertureRadius, tmpValue);
         m_camera.SetApertureRadius(tmpValue);
@@ -554,9 +551,7 @@ void Raytracer::SetupCamera(const config::ConfigVariables &configVariables)
     
     // Setup the camera's orientation.
     {
-        configVariables.GetVariableValue(config::ConfigVariables::kOrientationX, tmpVector[0]);
-        configVariables.GetVariableValue(config::ConfigVariables::kOrientationY, tmpVector[1]);
-        configVariables.GetVariableValue(config::ConfigVariables::kOrientationZ, tmpVector[2]);
+        configVariables.GetVariableValue(config::ConfigVariables::kOrientation, tmpVector);
         configVariables.GetVariableValue(config::ConfigVariables::kOrientationAngle, tmpValue);
         
         math::Quatf orientation(tmpValue, tmpVector);
@@ -713,16 +708,12 @@ void Raytracer::WriteConfigFile() const
         math::Vec3f cameraPosition    = m_camera.GetPosition();
         math::Quatf cameraOrientation = m_camera.GetOrientation();
         
-        configVars.SetVariableValue(config::ConfigVariables::kPositionX, cameraPosition[0]);
-        configVars.SetVariableValue(config::ConfigVariables::kPositionY, cameraPosition[1]);
-        configVars.SetVariableValue(config::ConfigVariables::kPositionZ, cameraPosition[2]);
+        configVars.SetVariableValue(config::ConfigVariables::kPosition, cameraPosition);
         
-        configVars.SetVariableValue(config::ConfigVariables::kOrientationX, cameraOrientation.GetAxis()[0]);
-        configVars.SetVariableValue(config::ConfigVariables::kOrientationY, cameraOrientation.GetAxis()[1]);
-        configVars.SetVariableValue(config::ConfigVariables::kOrientationZ, cameraOrientation.GetAxis()[2]);
+        configVars.SetVariableValue(config::ConfigVariables::kOrientation, cameraOrientation.GetAxis());
         configVars.SetVariableValue(config::ConfigVariables::kOrientationAngle, cameraOrientation.GetAngle());
         
-        configVars.SetVariableValue(config::ConfigVariables::kLensFocalLength, m_camera.GetFocalLength());
+        configVars.SetVariableValue(config::ConfigVariables::kFocalDistance, m_camera.GetFocalDistance());
         configVars.SetVariableValue(config::ConfigVariables::kApertureRadius,  m_camera.GetApertureRadius());
         
         configVars.SetVariableValue(config::ConfigVariables::kMovementSpeed, m_cameraMovementSpeed);

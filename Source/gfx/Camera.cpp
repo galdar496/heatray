@@ -14,7 +14,7 @@ namespace gfx
 Camera::Camera() :
     m_fieldOfView(45.0f),
     m_aspectRatio(1.0f),
-    m_focalLength(50.0f),
+    m_focalDistance(50.0f),
     m_apertureRadius(0.0f)
 {
     m_orientation.Identity();
@@ -123,9 +123,9 @@ void Camera::SetAspectRatio(const float ratio)
 	m_aspectRatio = ratio;
 }
     
-void Camera::SetFocalLength(const float length)
+void Camera::SetFocalDistance(const float distance)
 {
-	m_focalLength = length;
+	m_focalDistance = distance;
 }
     
 void Camera::SetApertureRadius(const float radius)
@@ -143,9 +143,9 @@ float Camera::GetAspectRatio() const
 	return m_aspectRatio;
 }
     
-float Camera::GetFocalLength() const
+float Camera::GetFocalDistance() const
 {
-	return m_focalLength;
+	return m_focalDistance;
 }
 
 float Camera::GetApertureRadius() const

@@ -24,7 +24,8 @@ enum class VariableType
     kInt,
     kFloat,
     kBool,
-    kString
+    kString,
+    kVec3
 };
 
 struct Variable
@@ -33,15 +34,17 @@ struct Variable
     union Value
     {
         Value() {}
-        Value(int integer)          { i = integer; }
-        Value(bool boolean)         { b = boolean; }
-        Value(float decimal)        { f = decimal; }
-        Value(const char *string)   { strcpy(c, string); }
+        Value(int integer)            { i = integer; }
+        Value(bool boolean)           { b = boolean; }
+        Value(float decimal)          { f = decimal; }
+        Value(const char *string)     { strcpy(c, string); }
+        Value(const math::Vec3f &vec) { v = vec; }
 
         int    i;
         bool   b;
         float  f;
         char   c[256];
+        math::Vec3f v;
     };
 
     explicit Variable(const std::string varName, VariableType varType, Value varDefaultValue) :
@@ -134,29 +137,42 @@ bool ConfigVariables::ParseConfigFile(const std::string &filename)
 
                     Variable *variable = iter->second[ii];
                     const tinyxml2::XMLElement *element = groupNode->FirstChildElement(variable->name.c_str());
-
-                    switch (variable->type)
+                    if (element)
                     {
-                        case VariableType::kInt:
+                        switch (variable->type)
                         {
-                            element->QueryAttribute(s_attributeName, &variable->value.i);
-                            break;
-                        }
-                        case VariableType::kBool:
-                        {
-                            element->QueryAttribute(s_attributeName, &variable->value.b);
-                            break;
-                        }
-                        case VariableType::kFloat:
-                        {
-                            element->QueryAttribute(s_attributeName, &variable->value.f);
-                            break;
-                        }
-                        case VariableType::kString:
-                        {
-                            std::string value = element->Attribute(s_attributeName);
-                            strcpy(variable->value.c, value.c_str());
-                            break;
+                            case VariableType::kInt:
+                            {
+                                element->QueryAttribute(s_attributeName, &variable->value.i);
+                                break;
+                            }
+                            case VariableType::kBool:
+                            {
+                                element->QueryAttribute(s_attributeName, &variable->value.b);
+                                break;
+                            }
+                            case VariableType::kFloat:
+                            {
+                                element->QueryAttribute(s_attributeName, &variable->value.f);
+                                break;
+                            }
+                            case VariableType::kString:
+                            {
+                                std::string value = element->Attribute(s_attributeName);
+                                strcpy(variable->value.c, value.c_str());
+                                break;
+                            }
+                            case VariableType::kVec3:
+                            {
+                                element->QueryAttribute(s_attributeNameX, &variable->value.v[0]);
+                                element->QueryAttribute(s_attributeNameY, &variable->value.v[1]);
+                                element->QueryAttribute(s_attributeNameZ, &variable->value.v[2]);
+                                break;
+                            }
+                            default:
+                            {
+                                assert(0 && "Unsupported variable type");
+                            }
                         }
                     }
                 }
@@ -209,6 +225,13 @@ bool ConfigVariables::WriteConfigFile(const std::string &filename) const
                     newVariable->SetAttribute(s_attributeName, variable->value.c);
                     break;
                 }
+                case VariableType::kVec3:
+                {
+                    newVariable->SetAttribute(s_attributeNameX, variable->value.v[0]);
+                    newVariable->SetAttribute(s_attributeNameY, variable->value.v[1]);
+                    newVariable->SetAttribute(s_attributeNameZ, variable->value.v[2]);
+                    break;
+                }
                 default:
                 {
                     assert(0 && "Unimplemented config variable type");
@@ -245,6 +268,11 @@ void ConfigVariables::GetVariableValue(const ConfigVariable &variable, std::stri
     value = std::string(g_configVariables[variable].value.c);
 }
 
+void ConfigVariables::GetVariableValue(const ConfigVariable &variable, math::Vec3f &value) const
+{
+    value = g_configVariables[variable].value.v;
+}
+
 void ConfigVariables::SetVariableValue(const ConfigVariable &variable, int value) const
 {
     g_configVariables[variable].value.i = value;
@@ -263,6 +291,11 @@ void ConfigVariables::SetVariableValue(const ConfigVariable &variable, float val
 void ConfigVariables::SetVariableValue(const ConfigVariable &variable, const std::string &value) const
 {
     strcpy(g_configVariables[variable].value.c, value.c_str());
+}
+
+void ConfigVariables::SetVariableValue(const ConfigVariable &variable, const math::Vec3f &value) const
+{
+    g_configVariables[variable].value.v = value;
 }
 
 } // namespace config

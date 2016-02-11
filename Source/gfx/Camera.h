@@ -133,9 +133,9 @@ class Camera
     	void SetAspectRatio(const float ratio);
     
         ///
-        /// Set the focal length of the camera.
+        /// Set the focal distance of the camera.
         ///
-        void SetFocalLength(const float length);
+        void SetFocalDistance(const float distance);
     
         ///
         /// Set the radius of the aperture of the camera.
@@ -153,9 +153,9 @@ class Camera
     	float GetAspectRatio() const;
     
         ///
-    	/// Get the focal length of the camera.
+    	/// Get the focal distance of the camera.
         ///
-    	float GetFocalLength() const;
+    	float GetFocalDistance() const;
     
         ///
     	/// Get the radius of the aperture of the camera.
@@ -181,7 +181,7 @@ class Camera
         
         float m_fieldOfView;    ///< Field of view of the camera (degrees).
     	float m_aspectRatio;    ///< Aspect ratio of the camera.
-    	float m_focalLength;    ///< Focal length of the camera lense.
+    	float m_focalDistance;  ///< Focal distance of the camera (the plane that is in focus given a shallow depth of field).
     	float m_apertureRadius; ///< Radius of the aperture.
 };
     

@@ -3,17 +3,13 @@
         <ModelPath value="Resources/models/chess.obj" />
     </Mesh>
     <Camera>
-        <PositionX value="0.0" />
-        <PositionY value="0.0" />
-        <PositionZ value="50.0" />
+        <Position valueX="0.0" valueY="0.0" valueZ="50.0"/>
         <!-- Orientation is a quaternion -->
-        <OrientationX value="0.0" />
-        <OrientationY value="0.0" />
-        <OrientationZ value="0.0" />
+        <Orientation valueX="0.0" valueY="0.0" valueZ="0.0" />
         <OrientationAngle value="1.0" />
         <MovementSpeed value="5.5" />
         <RotationSpeed value="0.2" />
-        <LensFocalLength value="25.0" />
+        <FocalDistance value="25.0" />
         <ApertureRadius value="0.0" />
     </Camera>
     <Render>

@@ -12,6 +12,7 @@
 /// Define a configuration variables to read from an XML config file for each system.
 ///
 
+#include "../../math/Vector.h"
 #include <string>
 #include <assert.h>
 
@@ -24,16 +25,12 @@ namespace config
 #define HEATRAY_CONFIG_VARIABLES \
     X(Mesh, ModelPath, kString, "Resources/models/chess.obj")   \
     \
-    X(Camera, PositionX,        kFloat, 0.0f)   \
-    X(Camera, PositionY,        kFloat, 0.0f)   \
-    X(Camera, PositionZ,        kFloat, 50.0f)  \
-    X(Camera, OrientationX,     kFloat, 0.0f)   \
-    X(Camera, OrientationY,     kFloat, 0.0f)   \
-    X(Camera, OrientationZ,     kFloat, 0.0f)   \
+    X(Camera, Position,         kVec3, math::Vec3f(0.0f, 0.0f, 50.0f))   \
+    X(Camera, Orientation,      kVec3, math::Vec3f(0.0f, 0.0f, 0.0f))    \
     X(Camera, OrientationAngle, kFloat, 1.0f)   \
     X(Camera, MovementSpeed,    kFloat, 5.5f)   \
     X(Camera, RotationSpeed,    kFloat, 0.2f)   \
-    X(Camera, LensFocalLength,  kFloat, 25.0f)  \
+    X(Camera, FocalDistance,    kFloat, 25.0f)  \
     X(Camera, ApertureRadius,   kFloat, 0.0f)   \
     \
     X(Render, FramebufferWidth,     kInt, 512)      \
@@ -96,6 +93,7 @@ class ConfigVariables
         void GetVariableValue(const ConfigVariable &variable, bool &value) const;
         void GetVariableValue(const ConfigVariable &variable, float &value) const;
         void GetVariableValue(const ConfigVariable &variable, std::string &value) const;
+        void GetVariableValue(const ConfigVariable &variable, math::Vec3f &value) const;
     
         ///
         /// Set the value of a specific config variable. This can be used to manually override
@@ -108,11 +106,15 @@ class ConfigVariables
         void SetVariableValue(const ConfigVariable &variable, bool value) const;
         void SetVariableValue(const ConfigVariable &variable, float value) const;
         void SetVariableValue(const ConfigVariable &variable, const std::string &value) const;
+        void SetVariableValue(const ConfigVariable &variable, const math::Vec3f &value) const;
     
     private:
     
         constexpr static const char * const s_rootConfigNodeName = "HeatRayConfig";
         constexpr static const char * const s_attributeName      = "value";
+        constexpr static const char * const s_attributeNameX     = "valueX";
+        constexpr static const char * const s_attributeNameY     = "valueY";
+        constexpr static const char * const s_attributeNameZ     = "valueZ";
 };
 
 } // namespace config
