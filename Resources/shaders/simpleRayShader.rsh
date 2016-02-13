@@ -107,12 +107,15 @@ vec3 GetNormal()
 	#endif
 }
 
+float twoPI = 2.0 * 3.14159;
+
 // Generate a random sample in the hemisphere using cosine-weighted sampling. This random
 // sample is represented in tangent space.
 vec3 CosineSampleHemisphere(vec3 rand)
 {
+    // Generate a random point on a disk and and project them up into the hemisphere.
     float r = sqrt(rand.x);
-    float theta = 2.0 * 3.14159 * rand.y;
+    float theta = twoPI * rand.y;
     float x = r * cos(theta);
     float y = r * sin(theta);
     return vec3(x, y, sqrt(max(0.0, 1.0 - rand.x)));
@@ -131,6 +134,22 @@ void DiffuseBounce(vec3 baseColor, vec3 surfaceNormal)
         mat3 basis = mat3(normalize(tangent), normalize(bitangent), surfaceNormal);
         
         vec3 samplePoint = CosineSampleHemisphere(rand);
+        
+        // Note that the PDF for cosine-weighted sampling is cos(theta) / pi. This means that
+        // the monte-carlo estimator for diffuse bouncing of one ray is:
+        //          c * Li
+        // where:
+        //  c : the diffuse color of the surface material at this point (current ray energy).
+        //  Li: the incoming radiance at this point (result of the diffuse bounce).
+        //
+        // To accurately sample the entire hemisphere, multiple rays must be summed and averaged
+        // over the entire surface. Heatray accomplishes this iteratively, meaning that each pass
+        // represents a single ray in the hemisphere. All passes are averaged which results in the
+        // actual monte-carlo estimator being:
+        //          (c / N) * SUM(Li | from 1 to N)
+        // where:
+        //  N: the number of samples in the hemisphere (render passes).
+        //  c and Li are the same as above.
         
         createRay();
         rl_OutRay.direction         = basis * samplePoint;
