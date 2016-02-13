@@ -169,6 +169,16 @@ void Diffuse()
 		vec3 texColor = texture2D(diffuseTexture, texCoords).zyx;
         baseColor *= texColor;
 	#endif
+    
+    // Perform a diffuse bounce.
+    if (GI.enabled != 0)
+    {
+        // Determine a weight for the base color. A ray will be bounced AND ALSO fired for each light source.
+        // In order to perserve the amount of light in the scene, the color needs to be properly weighted
+        // by the number of samples for this light.
+        baseColor /= float((Light.count + 1));
+        DiffuseBounce(baseColor, surfaceNormal);
+    }
 
     for (int ii = 0; ii < Light.count; ++ii)
     {
@@ -203,11 +213,6 @@ void Diffuse()
 //            rl_OutRay.prefixPrimitive = subsurfacePrimitive;
 //            emitRay();
 //        }
-    }
-    
-    if (GI.enabled != 0)
-    {
-        DiffuseBounce(baseColor, surfaceNormal);
     }
 }
 #endif
