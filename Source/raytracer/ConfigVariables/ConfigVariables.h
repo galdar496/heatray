@@ -13,8 +13,11 @@
 ///
 
 #include "../../math/Vector.h"
+#include "../../utility/tinyxml2.h"
 #include <string>
 #include <assert.h>
+#include <unordered_map>
+#include <vector>
 
 namespace config
 {
@@ -23,27 +26,29 @@ namespace config
 // "Variable Group", "Variable Name" (as it is present in the config file) "VariableType", and "Variable Default Value".
 
 #define HEATRAY_CONFIG_VARIABLES \
-    X(Mesh, ModelPath, kString, "Resources/models/chess.obj")   \
+    X(Mesh, ModelPath, StringVariable, "Resources/models/chess.obj")   \
     \
-    X(Camera, Position,         kVec3, math::Vec3f(0.0f, 0.0f, 50.0f))   \
-    X(Camera, Orientation,      kVec3, math::Vec3f(0.0f, 0.0f, 0.0f))    \
-    X(Camera, OrientationAngle, kFloat, 1.0f)   \
-    X(Camera, MovementSpeed,    kFloat, 5.5f)   \
-    X(Camera, RotationSpeed,    kFloat, 0.2f)   \
-    X(Camera, FocalDistance,    kFloat, 25.0f)  \
-    X(Camera, ApertureRadius,   kFloat, 0.0f)   \
+    X(Camera, Position,         Vec3Variable,  math::Vec3f(0.0f, 0.0f, 50.0f))   \
+    X(Camera, Orientation,      Vec3Variable,  math::Vec3f(0.0f, 0.0f, 0.0f))    \
+    X(Camera, OrientationAngle, FloatVariable, 1.0f)   \
+    X(Camera, MovementSpeed,    FloatVariable, 5.5f)   \
+    X(Camera, RotationSpeed,    FloatVariable, 0.2f)   \
+    X(Camera, FocalDistance,    FloatVariable, 25.0f)  \
+    X(Camera, ApertureRadius,   FloatVariable, 0.0f)   \
     \
-    X(Render, FramebufferWidth,     kInt, 512)      \
-    X(Render, FramebufferHeight,    kInt, 512)      \
-    X(Render, RaysPerPixel,         kInt, 1024)     \
-    X(Render, GIOn,                 kInt, 0)        \
-    X(Render, MaxRayDepth,          kInt, 5)        \
-    X(Render, ExposureCompensation, kFloat, 0.0f)   \
+    X(Render, FramebufferWidth,     IntVariable,   512)      \
+    X(Render, FramebufferHeight,    IntVariable,   512)      \
+    X(Render, RaysPerPixel,         IntVariable,   1024)     \
+    X(Render, GIOn,                 IntVariable,   0)        \
+    X(Render, MaxRayDepth,          IntVariable,   5)        \
+    X(Render, ExposureCompensation, FloatVariable, 0.0f)     \
     \
-    X(Shader, RayShaderPath,    kString, "Resources/shaders/simpleRayShader.rsh") \
-    X(Shader, LightShaderPath,  kString, "Resources/shaders/simpleLight.rsh")
+    X(Shader, RayShaderPath,    StringVariable, "Resources/shaders/simpleRayShader.rsh") \
+    X(Shader, LightShaderPath,  StringVariable, "Resources/shaders/simpleLight.rsh")
 
 ////////////////////////////////////////////////////////////////////////////////
+
+class Variable;
 
 class ConfigVariables
 {
@@ -87,34 +92,151 @@ class ConfigVariables
         /// default values will be returned.
         ///
         /// @param variable The specific variable that is being requested.
-        /// @param value The value of the variable to be passed back to the calling function (OUT).
         ///
-        void GetVariableValue(const ConfigVariable &variable, int &value) const;
-        void GetVariableValue(const ConfigVariable &variable, bool &value) const;
-        void GetVariableValue(const ConfigVariable &variable, float &value) const;
-        void GetVariableValue(const ConfigVariable &variable, std::string &value) const;
-        void GetVariableValue(const ConfigVariable &variable, math::Vec3f &value) const;
-    
+        /// @return Requested variable.
         ///
-        /// Set the value of a specific config variable. This can be used to manually override
-        /// config variable values (usually in the case of writing the config file to disk).
-        ///
-        /// @param variable The specific variable that is begin set.
-        /// @param value The value of the variable to override with.
-        ///
-        void SetVariableValue(const ConfigVariable &variable, int value) const;
-        void SetVariableValue(const ConfigVariable &variable, bool value) const;
-        void SetVariableValue(const ConfigVariable &variable, float value) const;
-        void SetVariableValue(const ConfigVariable &variable, const std::string &value) const;
-        void SetVariableValue(const ConfigVariable &variable, const math::Vec3f &value) const;
+        const Variable *GetVariable(const ConfigVariable &variable) const;
+        Variable *GetVariable(const ConfigVariable &variable);
     
     private:
     
-        constexpr static const char * const s_rootConfigNodeName = "HeatRayConfig";
-        constexpr static const char * const s_attributeName      = "value";
-        constexpr static const char * const s_attributeNameX     = "valueX";
-        constexpr static const char * const s_attributeNameY     = "valueY";
-        constexpr static const char * const s_attributeNameZ     = "valueZ";
+        // Table of all config variables in the system along with their default values.
+        static Variable *m_configVariables[ConfigVariables::kNumConfigVariables];
+        
+        // Group the config variables based on their specified "VariableGroup" defined in HEATRAY_CONFIG_VARIABLES.
+        typedef std::unordered_map<std::string, std::vector<Variable *> > VariableMap;
+        static VariableMap m_configVariableMap;
+};
+
+// Define each variable type here. Any custom variable types need to inherit from Variable and override the
+// Read and Write functions.
+
+class Variable
+{
+    public:
+        
+        explicit Variable(const char *varName) :
+        name(varName)
+        {
+        }
+        
+        virtual ~Variable() {}
+        
+        virtual void Read(const tinyxml2::XMLElement *element) = 0;
+        virtual void Write(tinyxml2::XMLElement *element) const = 0;
+        
+        std::string name;
+    
+    protected:
+    
+        constexpr static const char* const s_attributeName   = "value";
+        constexpr static const char* const s_attributeNameX  = "valueX";
+        constexpr static const char* const s_attributeNameY  = "valueY";
+        constexpr static const char* const s_attributeNameZ  = "valueZ";
+};
+    
+class FloatVariable : public Variable
+{
+    public:
+        
+        explicit FloatVariable(const char *varName, float defaultVal) :
+        Variable(varName),
+        f(defaultVal)
+        {
+        }
+        
+        virtual ~FloatVariable() {}
+        
+        virtual void Read(const tinyxml2::XMLElement *element) override
+        {
+            element->QueryFloatAttribute(s_attributeName, &f);
+        }
+        
+        virtual void Write(tinyxml2::XMLElement *element) const override
+        {
+            element->SetAttribute(s_attributeName, f);
+        }
+        
+        float f;
+};
+    
+class IntVariable : public Variable
+{
+public:
+        
+        explicit IntVariable(const char *varName, int defaultVal) :
+        Variable(varName),
+        i(defaultVal)
+        {
+        }
+        
+        virtual ~IntVariable() {}
+        
+        virtual void Read(const tinyxml2::XMLElement *element) override
+        {
+            element->QueryIntAttribute(s_attributeName, &i);
+        }
+        
+        virtual void Write(tinyxml2::XMLElement *element) const override
+        {
+            element->SetAttribute(s_attributeName, i);
+        }
+        
+        int i;
+};
+    
+class StringVariable : public Variable
+{
+public:
+        
+        explicit StringVariable(const char *varName, const char *defaultVal) :
+        Variable(varName),
+        s(defaultVal)
+        {
+        }
+        
+        virtual ~StringVariable() {}
+        
+        virtual void Read(const tinyxml2::XMLElement *element) override
+        {
+            s = element->Attribute(s_attributeName);
+        }
+        
+        virtual void Write(tinyxml2::XMLElement *element) const override
+        {
+            element->SetAttribute(s_attributeName, s.c_str());
+        }
+        
+        std::string s;
+};
+    
+class Vec3Variable : public Variable
+{
+    public:
+        
+        explicit Vec3Variable(const char *varName, const math::Vec3f &defaultVal) :
+        Variable(varName),
+        v(defaultVal)
+        {
+        }
+        
+        virtual ~Vec3Variable() {}
+        
+        virtual void Read(const tinyxml2::XMLElement *element) override
+        {
+            element->QueryFloatAttribute(s_attributeNameX, &v[0]);
+            element->QueryFloatAttribute(s_attributeNameY, &v[1]);
+            element->QueryFloatAttribute(s_attributeNameZ, &v[2]);
+        }
+        
+        virtual void Write(tinyxml2::XMLElement *element) const override
+        {
+            element->SetAttribute(s_attributeNameX, v[0]);
+            element->SetAttribute(s_attributeNameY, v[1]);
+            element->SetAttribute(s_attributeNameZ, v[2]);
+        }
+        
+        math::Vec3f v;
 };
 
 } // namespace config

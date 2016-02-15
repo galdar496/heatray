@@ -137,10 +137,9 @@ bool Raytracer::Initialize(const std::string &configFilePath)
         m_lightBuffer.Load(&dummyBlock, sizeof(LightUniformBuffer), "Light buffer");
         
         // Read the paths to the shader files from the config file.
-        std::string rayShaderPath;
-        std::string lightShaderPath;
-        configVariables.GetVariableValue(config::ConfigVariables::kRayShaderPath, rayShaderPath);
-        configVariables.GetVariableValue(config::ConfigVariables::kLightShaderPath, lightShaderPath);
+        std::string rayShaderPath   = static_cast<const config::StringVariable *>(configVariables.GetVariable(config::ConfigVariables::kRayShaderPath))->s;
+        std::string lightShaderPath = static_cast<const config::StringVariable *>(configVariables.GetVariable(config::ConfigVariables::kLightShaderPath))->s;
+        
         
         // Wait for the mesh to finish loading before we continue.
         meshThread.join();
@@ -518,7 +517,7 @@ void Raytracer::LoadModel(const config::ConfigVariables &configVariables)
 {
     std::string modelPath;
     
-    configVariables.GetVariableValue(config::ConfigVariables::kModelPath, modelPath);
+    modelPath = static_cast<const config::StringVariable *>(configVariables.GetVariable(config::ConfigVariables::kModelPath))->s;
     
     if (!m_mesh.Load(modelPath, false))
     {
@@ -533,16 +532,16 @@ void Raytracer::SetupCamera(const config::ConfigVariables &configVariables)
     
     // Setup the camera's position.
     {
-        configVariables.GetVariableValue(config::ConfigVariables::kPosition, tmpVector);
+        tmpVector = static_cast<const config::Vec3Variable *>(configVariables.GetVariable(config::ConfigVariables::kPosition))->v;
         m_camera.SetPosition(tmpVector);
     }
     
     // Setup the camera's lens attributes.
     {
-        configVariables.GetVariableValue(config::ConfigVariables::kFocalDistance, tmpValue);
+        tmpValue = static_cast<const config::FloatVariable *>(configVariables.GetVariable(config::ConfigVariables::kFocalDistance))->f;
         m_camera.SetFocalDistance(tmpValue);
         
-        configVariables.GetVariableValue(config::ConfigVariables::kApertureRadius, tmpValue);
+        tmpValue = static_cast<const config::FloatVariable *>(configVariables.GetVariable(config::ConfigVariables::kApertureRadius))->f;
         m_camera.SetApertureRadius(tmpValue);
         
         // Generate the aperture sampling texture to reflect the aperture radius.
@@ -551,8 +550,8 @@ void Raytracer::SetupCamera(const config::ConfigVariables &configVariables)
     
     // Setup the camera's orientation.
     {
-        configVariables.GetVariableValue(config::ConfigVariables::kOrientation, tmpVector);
-        configVariables.GetVariableValue(config::ConfigVariables::kOrientationAngle, tmpValue);
+        tmpVector = static_cast<const config::Vec3Variable *>(configVariables.GetVariable(config::ConfigVariables::kOrientation))->v;
+        tmpValue  = static_cast<const config::FloatVariable *>(configVariables.GetVariable(config::ConfigVariables::kOrientationAngle))->f;
         
         math::Quatf orientation(tmpValue, tmpVector);
         m_camera.SetOrientation(orientation);
@@ -560,8 +559,8 @@ void Raytracer::SetupCamera(const config::ConfigVariables &configVariables)
     
     // Setup the camera's movement speed parameters.
     {
-        configVariables.GetVariableValue(config::ConfigVariables::kMovementSpeed, m_cameraMovementSpeed);
-        configVariables.GetVariableValue(config::ConfigVariables::kRotationSpeed, m_cameraRotationSpeed);
+        m_cameraMovementSpeed = static_cast<const config::FloatVariable *>(configVariables.GetVariable(config::ConfigVariables::kMovementSpeed))->f;
+        m_cameraRotationSpeed = static_cast<const config::FloatVariable *>(configVariables.GetVariable(config::ConfigVariables::kRotationSpeed))->f;
     }
 }
 
@@ -574,8 +573,8 @@ void Raytracer::SetupFramebuffer(const config::ConfigVariables &configVariables)
     // Read the width and height from the config file.
     RLint framebufferWidth  = 0;
     RLint framebufferHeight = 0;
-    configVariables.GetVariableValue(config::ConfigVariables::kFramebufferWidth, framebufferWidth);
-    configVariables.GetVariableValue(config::ConfigVariables::kFramebufferHeight, framebufferHeight);
+    framebufferWidth  = static_cast<const config::IntVariable *>(configVariables.GetVariable(config::ConfigVariables::kFramebufferWidth))->i;
+    framebufferHeight = static_cast<const config::IntVariable *>(configVariables.GetVariable(config::ConfigVariables::kFramebufferHeight))->i;
     
     gfx::Texture::Params textureParams;
     textureParams.minFilter      = RL_LINEAR;
@@ -603,18 +602,18 @@ void Raytracer::SetupRenderSettings(const config::ConfigVariables &configVariabl
     
     GIUniformBuffer giUniformBuffer;
     giUniformBuffer.texture = m_randomValuesTexture.GetTexture();
-    configVariables.GetVariableValue(config::ConfigVariables::kGIOn, giUniformBuffer.enabled);
+    giUniformBuffer.enabled = static_cast<const config::IntVariable *>(configVariables.GetVariable(config::ConfigVariables::kGIOn))->i;
     m_giBuffer.SetTarget(RL_UNIFORM_BLOCK_BUFFER);
     m_giBuffer.Load(&giUniformBuffer, sizeof(GIUniformBuffer), "Random buffer");
     
     // Setup the number of passes to perform per the config file.
-    configVariables.GetVariableValue(config::ConfigVariables::kRaysPerPixel, m_totalPassCount);
+    m_totalPassCount = static_cast<const config::IntVariable *>(configVariables.GetVariable(config::ConfigVariables::kRaysPerPixel))->i;
     
     // Set the maximum number of bounces any ray in the system can have before being terminated.
-    configVariables.GetVariableValue(config::ConfigVariables::kMaxRayDepth, m_maxRayDepth);
+    m_maxRayDepth = static_cast<const config::IntVariable *>(configVariables.GetVariable(config::ConfigVariables::kMaxRayDepth))->i;
     rlFrameParameter1i(RL_FRAME_RAY_DEPTH_LIMIT, m_maxRayDepth);
     
-    configVariables.GetVariableValue(config::ConfigVariables::kExposureCompensation, m_exposureCompensation);
+    m_exposureCompensation = static_cast<const config::FloatVariable *>(configVariables.GetVariable(config::ConfigVariables::kExposureCompensation))->f;
     
     CheckRLErrors();
 }
@@ -700,7 +699,7 @@ void Raytracer::WriteConfigFile() const
     
     // Mesh
     {
-        configVars.SetVariableValue(config::ConfigVariables::kModelPath, m_mesh.GetName());
+        static_cast<config::StringVariable *>(configVars.GetVariable(config::ConfigVariables::kModelPath))->s = m_mesh.GetName();
     }
     
     // Camera settings
@@ -708,25 +707,26 @@ void Raytracer::WriteConfigFile() const
         math::Vec3f cameraPosition    = m_camera.GetPosition();
         math::Quatf cameraOrientation = m_camera.GetOrientation();
         
-        configVars.SetVariableValue(config::ConfigVariables::kPosition, cameraPosition);
+        static_cast<config::Vec3Variable *>(configVars.GetVariable(config::ConfigVariables::kPosition))->v = cameraPosition;
         
-        configVars.SetVariableValue(config::ConfigVariables::kOrientation, cameraOrientation.GetAxis());
-        configVars.SetVariableValue(config::ConfigVariables::kOrientationAngle, cameraOrientation.GetAngle());
+        static_cast<config::Vec3Variable *>(configVars.GetVariable(config::ConfigVariables::kOrientation))->v = cameraOrientation.GetAxis();
+        static_cast<config::FloatVariable *>(configVars.GetVariable(config::ConfigVariables::kOrientationAngle))->f = cameraOrientation.GetAngle();
         
-        configVars.SetVariableValue(config::ConfigVariables::kFocalDistance, m_camera.GetFocalDistance());
-        configVars.SetVariableValue(config::ConfigVariables::kApertureRadius,  m_camera.GetApertureRadius());
+        static_cast<config::FloatVariable *>(configVars.GetVariable(config::ConfigVariables::kFocalDistance))->f  = m_camera.GetFocalDistance();
+        static_cast<config::FloatVariable *>(configVars.GetVariable(config::ConfigVariables::kApertureRadius))->f = m_camera.GetApertureRadius();
         
-        configVars.SetVariableValue(config::ConfigVariables::kMovementSpeed, m_cameraMovementSpeed);
-        configVars.SetVariableValue(config::ConfigVariables::kRotationSpeed, m_cameraRotationSpeed);
+        static_cast<config::FloatVariable *>(configVars.GetVariable(config::ConfigVariables::kMovementSpeed))->f = m_cameraMovementSpeed;
+        static_cast<config::FloatVariable *>(configVars.GetVariable(config::ConfigVariables::kRotationSpeed))->f = m_cameraRotationSpeed;
     }
     
     // Render settings
     {
-        configVars.SetVariableValue(config::ConfigVariables::kFramebufferWidth, m_fboTexture.Width());
-        configVars.SetVariableValue(config::ConfigVariables::kFramebufferHeight, m_fboTexture.Height());
-        configVars.SetVariableValue(config::ConfigVariables::kRaysPerPixel, m_totalPassCount);
-        configVars.SetVariableValue(config::ConfigVariables::kMaxRayDepth, m_maxRayDepth);
-        configVars.SetVariableValue(config::ConfigVariables::kExposureCompensation, m_exposureCompensation);
+        static_cast<config::IntVariable *>(configVars.GetVariable(config::ConfigVariables::kFramebufferWidth))->i       = m_fboTexture.Width();
+        static_cast<config::IntVariable *>(configVars.GetVariable(config::ConfigVariables::kFramebufferHeight))->i      = m_fboTexture.Height();
+        static_cast<config::IntVariable *>(configVars.GetVariable(config::ConfigVariables::kRaysPerPixel))->i           = m_totalPassCount;
+        static_cast<config::IntVariable *>(configVars.GetVariable(config::ConfigVariables::kMaxRayDepth))->i            = m_maxRayDepth;
+        static_cast<config::FloatVariable *>(configVars.GetVariable(config::ConfigVariables::kExposureCompensation))->f = m_exposureCompensation;
+        
         
         // Read the current status of the GI from the uniform block data.
         int giOn = 0;
@@ -736,7 +736,7 @@ void Raytracer::WriteConfigFile() const
         m_giBuffer.UnmapBuffer();
         m_giBuffer.Unbind();
         
-        configVars.SetVariableValue(config::ConfigVariables::kGIOn, giOn);
+        static_cast<config::IntVariable *>(configVars.GetVariable(config::ConfigVariables::kGIOn))->i = giOn;
     }
     
     // Write the config variables to a file.

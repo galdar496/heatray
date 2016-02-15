@@ -7,10 +7,7 @@
 //
 
 #include "ConfigVariables.h"
-#include "../../utility/tinyxml2.h"
 #include <iostream>
-#include <unordered_map>
-#include <vector>
 
 #if defined(_WIN32) || defined(_WIN64)
     #define strcpy strcpy_s
@@ -19,69 +16,26 @@
 namespace config
 {
 
-enum class VariableType
-{
-    kInt,
-    kFloat,
-    kBool,
-    kString,
-    kVec3
-};
+static const char* const s_rootConfigNodeName = "HeatRayConfig";
 
-struct Variable
-{
-    // Supported config variables are stored within the following union.
-    union Value
-    {
-        Value() {}
-        Value(int integer)            { i = integer; }
-        Value(bool boolean)           { b = boolean; }
-        Value(float decimal)          { f = decimal; }
-        Value(const char *string)     { strcpy(c, string); }
-        Value(const math::Vec3f &vec) { v = vec; }
-
-        int    i;
-        bool   b;
-        float  f;
-        char   c[256];
-        math::Vec3f v;
-    };
-
-    explicit Variable(const std::string varName, VariableType varType, Value varDefaultValue) :
-        name(varName),
-        type(varType),
-        value(varDefaultValue)
-    {
-    }
-
-    VariableType type;
-    const std::string name;
-    Value value;
-};
-
-#define X(variableGroup, variableName, type, defaultValue) Variable(#variableName, VariableType::type, (Variable::Value)defaultValue),
-
-    // Table of all config variables in the system along with their default values.
-    static Variable g_configVariables[] =
-    {
-        HEATRAY_CONFIG_VARIABLES
-        Variable("INVALID_VALUE", VariableType::kBool, (Variable::Value)10)
-    };
-
-#undef X
-
-// Group the config variables based on their specified "VariableGroup" defined in HEATRAY_CONFIG_VARIABLES.
-typedef std::unordered_map<std::string, std::vector<Variable *> > VariableMap;
-static VariableMap g_configVariableMap;
+Variable *ConfigVariables::m_configVariables[ConfigVariables::kNumConfigVariables];
+ConfigVariables::VariableMap ConfigVariables::m_configVariableMap;
 
 ConfigVariables::ConfigVariables()
 {
-    if (g_configVariableMap.empty())
+    if (m_configVariableMap.empty())
     {
-        // Read the config variables from the X macro.
+        // Create the config variables from the X macro.
+        
+        #define X(variableGroup, variableName, type, defaultValue)    \
+            m_configVariables[k##variableName] = new type(#variableName, defaultValue);
+        
+            HEATRAY_CONFIG_VARIABLES
+        
+        #undef X
         
         #define X(variableGroup, variableName, type, defaultValue) \
-            g_configVariableMap[#variableGroup].push_back(&(g_configVariables[k##variableName]));
+            m_configVariableMap[#variableGroup].push_back(m_configVariables[k##variableName]);
         
             HEATRAY_CONFIG_VARIABLES
         
@@ -118,8 +72,8 @@ bool ConfigVariables::ParseConfigFile(const std::string &filename)
         }
         else
         {
-            VariableMap::iterator iter = g_configVariableMap.begin();
-            for (; iter != g_configVariableMap.end(); ++iter)
+            VariableMap::iterator iter = m_configVariableMap.begin();
+            for (; iter != m_configVariableMap.end(); ++iter)
             {
                 // Read the specific node for this config group.
                 std::string groupName = iter->first;
@@ -139,41 +93,7 @@ bool ConfigVariables::ParseConfigFile(const std::string &filename)
                     const tinyxml2::XMLElement *element = groupNode->FirstChildElement(variable->name.c_str());
                     if (element)
                     {
-                        switch (variable->type)
-                        {
-                            case VariableType::kInt:
-                            {
-                                element->QueryAttribute(s_attributeName, &variable->value.i);
-                                break;
-                            }
-                            case VariableType::kBool:
-                            {
-                                element->QueryAttribute(s_attributeName, &variable->value.b);
-                                break;
-                            }
-                            case VariableType::kFloat:
-                            {
-                                element->QueryAttribute(s_attributeName, &variable->value.f);
-                                break;
-                            }
-                            case VariableType::kString:
-                            {
-                                std::string value = element->Attribute(s_attributeName);
-                                strcpy(variable->value.c, value.c_str());
-                                break;
-                            }
-                            case VariableType::kVec3:
-                            {
-                                element->QueryAttribute(s_attributeNameX, &variable->value.v[0]);
-                                element->QueryAttribute(s_attributeNameY, &variable->value.v[1]);
-                                element->QueryAttribute(s_attributeNameZ, &variable->value.v[2]);
-                                break;
-                            }
-                            default:
-                            {
-                                assert(0 && "Unsupported variable type");
-                            }
-                        }
+                        variable->Read(element);
                     }
                 }
             }
@@ -190,8 +110,8 @@ bool ConfigVariables::WriteConfigFile(const std::string &filename) const
     file.InsertFirstChild(rootElement);
     
     // Create an XML element for each config group with a sub element for each variable.
-    VariableMap::iterator iter = g_configVariableMap.begin();
-    for (; iter != g_configVariableMap.end(); ++iter)
+    VariableMap::iterator iter = m_configVariableMap.begin();
+    for (; iter != m_configVariableMap.end(); ++iter)
     {
         std::string groupName = iter->first;
         tinyxml2::XMLElement *groupNode = file.NewElement(groupName.c_str());
@@ -202,43 +122,7 @@ bool ConfigVariables::WriteConfigFile(const std::string &filename) const
             const Variable *variable = iter->second[ii];
             
             tinyxml2::XMLElement *newVariable = file.NewElement(variable->name.c_str());
-            
-            switch (variable->type)
-            {
-                case VariableType::kInt:
-                {
-                    newVariable->SetAttribute(s_attributeName, variable->value.i);
-                    break;
-                }
-                case VariableType::kFloat:
-                {
-                    newVariable->SetAttribute(s_attributeName, variable->value.f);
-                    break;
-                }
-                case VariableType::kBool:
-                {
-                    newVariable->SetAttribute(s_attributeName, variable->value.b);
-                    break;
-                }
-                case VariableType::kString:
-                {
-                    newVariable->SetAttribute(s_attributeName, variable->value.c);
-                    break;
-                }
-                case VariableType::kVec3:
-                {
-                    newVariable->SetAttribute(s_attributeNameX, variable->value.v[0]);
-                    newVariable->SetAttribute(s_attributeNameY, variable->value.v[1]);
-                    newVariable->SetAttribute(s_attributeNameZ, variable->value.v[2]);
-                    break;
-                }
-                default:
-                {
-                    assert(0 && "Unimplemented config variable type");
-                    break;
-                }
-            }
-            
+            variable->Write(newVariable);
             groupNode->InsertEndChild(newVariable);
         }
         
@@ -248,54 +132,16 @@ bool ConfigVariables::WriteConfigFile(const std::string &filename) const
     return (file.SaveFile(filename.c_str()) == tinyxml2::XML_NO_ERROR);
 }
 
-void ConfigVariables::GetVariableValue(const ConfigVariable &variable, int &value) const
+const Variable *ConfigVariables::GetVariable(const ConfigVariable &variable) const
 {
-    value = g_configVariables[variable].value.i;
+    assert(variable < kNumConfigVariables);
+    return m_configVariables[variable];
 }
 
-void ConfigVariables::GetVariableValue(const ConfigVariable &variable, bool &value) const
+Variable *ConfigVariables::GetVariable(const ConfigVariable &variable)
 {
-    value = g_configVariables[variable].value.b;
-}
-
-void ConfigVariables::GetVariableValue(const ConfigVariable &variable, float &value) const
-{
-    value = g_configVariables[variable].value.f;
-}
-
-void ConfigVariables::GetVariableValue(const ConfigVariable &variable, std::string &value) const
-{
-    value = std::string(g_configVariables[variable].value.c);
-}
-
-void ConfigVariables::GetVariableValue(const ConfigVariable &variable, math::Vec3f &value) const
-{
-    value = g_configVariables[variable].value.v;
-}
-
-void ConfigVariables::SetVariableValue(const ConfigVariable &variable, int value) const
-{
-    g_configVariables[variable].value.i = value;
-}
-
-void ConfigVariables::SetVariableValue(const ConfigVariable &variable, bool value) const
-{
-    g_configVariables[variable].value.b = value;
-}
-
-void ConfigVariables::SetVariableValue(const ConfigVariable &variable, float value) const
-{
-    g_configVariables[variable].value.f = value;
-}
-
-void ConfigVariables::SetVariableValue(const ConfigVariable &variable, const std::string &value) const
-{
-    strcpy(g_configVariables[variable].value.c, value.c_str());
-}
-
-void ConfigVariables::SetVariableValue(const ConfigVariable &variable, const math::Vec3f &value) const
-{
-    g_configVariables[variable].value.v = value;
+    assert(variable < kNumConfigVariables);
+    return m_configVariables[variable];
 }
 
 } // namespace config
