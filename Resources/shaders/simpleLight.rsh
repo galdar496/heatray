@@ -18,12 +18,20 @@ uniform vec3 kd; // Color of this light.
 
 void main()
 {
-	vec3 color = rl_InRay.color * kd;
+	if (rl_InRay.isDiffuseBounce == false)
+	{
+		vec3 color = rl_InRay.color * kd;
 	
-	#ifdef MATERIAL_DIFFUSE_TEXTURE
-        // Texture coordinates are revered because the texture is read backwards from FreeImage.
-		color *= texture2D(diffuseTexture, texCoords).zyx;
-	#endif
+		#ifdef MATERIAL_DIFFUSE_TEXTURE
+			// Texture coordinates are revered because the texture is read backwards from FreeImage.
+			color *= texture2D(diffuseTexture, texCoords).zyx;
+		#endif
 	
-	accumulate(color);
+		// Apply inv-square falloff for non-primary rays.
+		if (rl_InRay.depth > 1)
+		{
+			color *= (1.0 / (rl_IntersectionT * rl_IntersectionT));
+		}
+		accumulate(color);
+	}
 }

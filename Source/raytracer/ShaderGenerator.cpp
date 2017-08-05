@@ -132,6 +132,7 @@ bool ShaderGenerator::GenerateShaders(const GenerationInfo &info)
                 piece->program.Set1f(location, bounce_probablility);
             }
         }
+        /*
         if (piece->material.componentFlags.test(gfx::Material::SPECULAR))
         {
             math::Vec4f uniform(piece->material.specular);
@@ -143,7 +144,7 @@ bool ShaderGenerator::GenerateShaders(const GenerationInfo &info)
             math::Vec4f uniform(piece->material.transmissive);
             uniform[3] = piece->material.indexOfRefraction;
             piece->program.Set4fv(piece->program.GetUniformLocation("kt"), uniform.v);
-        }
+        }*/
         
         // Attach the proper vbos to the attributes for this shader.
         gfx::Mesh::RenderData renderData;

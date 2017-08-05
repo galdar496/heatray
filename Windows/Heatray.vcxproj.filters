@@ -154,6 +154,9 @@
     <None Include="..\Resources\shaders\displayGL.frag">
       <Filter>Resources\shaders</Filter>
     </None>
+    <None Include="..\Resources\shaders\correctRayShader.rsh">
+      <Filter>Resources\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Resources\logo.ico" />

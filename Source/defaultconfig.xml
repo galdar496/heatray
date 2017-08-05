@@ -1,6 +1,6 @@
 <HeatRayConfig>
     <Mesh>
-        <ModelPath value="Resources/models/chess.obj" />
+        <ModelPath value="Resources/models/dragon.obj" />
     </Mesh>
     <Camera>
         <Position valueX="0.0" valueY="0.0" valueZ="50.0"/>
@@ -21,7 +21,7 @@
         <ExposureCompensation value="0.0" />
     </Render>
     <Shader>
-        <RayShaderPath value="Resources/shaders/simpleRayShader.rsh" />
+        <RayShaderPath value="Resources/shaders/correctRayShader.rsh" />
         <LightShaderPath value="Resources/shaders/simpleLight.rsh" />
     </Shader>
 </HeatRayConfig>

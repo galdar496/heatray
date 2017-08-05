@@ -192,7 +192,7 @@ bool Texture::Randomize(const RLint width, const RLint height, const int compone
    
 bool Texture::RandomizeRadial(const RLint width, const RLint height, const RLenum dataType, const float radius, const std::string &name)
 {
-    m_params.minFilter = RL_LINEAR;
+    m_params.minFilter = RL_NEAREST;
     
     // Set the format for a RL_RGB image.
     m_params.format = RL_RGB;
@@ -246,7 +246,7 @@ bool Texture::RandomizeRadial(const RLint width, const RLint height, const RLenu
     m_name = name;
     m_dataType = dataType;
     
-    CheckRLErrors();
+    //CheckRLErrors();
     return true;
 }
     
