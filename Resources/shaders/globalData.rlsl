@@ -1,0 +1,13 @@
+//
+//  globalData.rlsl
+//  Heatray
+//
+//  Global data that all shaders should have access to.
+//
+//
+
+uniformblock Globals
+{
+	int sampleIndex; // Ranges from 0 - max pass count.
+	primitive environmentLight;
+};

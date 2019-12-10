@@ -1,0 +1,104 @@
+//
+//  brdfs.rlsl
+//  Heatray
+//
+//  Various BRDFs implemented in Heatray.
+//
+//
+
+#include "utility.rlsl"
+
+vec3 hammonDiffuse(float LdotV, float NdotH, float NdotV, float NdotL, vec3 Cdiff, vec3 Cspec, float roughnessAlpha)
+{
+	// https://twvideo01.ubm-us.net/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf
+	float facing = 0.5 + (0.5 * LdotV);
+	float rough = facing * (0.9 - 0.4 * facing) * ((0.5 + NdotH) / greaterThanZero(NdotH));
+	float smooth = 1.05 * (1.0 - pow5(1.0 - NdotL)) * (1.0 - pow5(1.0 - NdotV));
+	float single = kOneOverPI * mix(smooth, rough, roughnessAlpha);
+	float multi = 0.1159 * roughnessAlpha; // This is Hammon's approximation for diffuse multiscattering.
+
+	// Note that the (1-Cspec) does not show up in Hammon's slides. This is because the math presented there has a minor
+	// error which results in missing this term. Without this, the BRDF is not properly energy conserving.
+	vec3 diffuse = Cdiff * (vec3(single) * (vec3(1.0) - Cspec) + Cdiff * vec3(multi));
+	return diffuse;
+}
+
+vec3 lambertian(vec3 Cdiff)
+{
+	return Cdiff * kOneOverPI;
+}
+
+vec3 orenNayarDiffuse(vec3 Cdiff, float roughnessSquared, vec3 N, vec3 V, vec3 L)
+{
+	float NdotV = saturate(dot(N, V));
+	float NdotL = saturate(dot(N, L));
+	float A = 1.0 - 0.5 * (roughnessSquared / (roughnessSquared + 0.33));
+	float B = (0.45 * roughnessSquared) / (roughnessSquared + 0.09);
+	float cosPhi = dot(normalize(V - (NdotV * N)), normalize(L - (NdotL * N))); // cosine of phi_o and phi_i.
+	float sinNV = sqrt(1.0 - square(NdotV));
+	float sinNL = sqrt(1.0 - square(NdotL));
+	float s = (NdotV < NdotL) ? sinNV : sinNL; // sin(alpha).
+	float t = (NdotV > NdotL) ? sinNV / NdotV : sinNL / NdotL; // tan(beta).
+
+	return Cdiff * (A + B * cosPhi * s * t); // note that there is no 1/pi here as we want it cancelled out (for PDF reasons).
+}
+
+vec3 F_Schlick(vec3 Cspec, float HdotV)
+{
+	return mix(Cspec, vec3(1.0), pow5(1.0 - HdotV));
+}
+
+float F_Schlick(float specularF0, float HdotV)
+{
+	return mix(specularF0, 1.0, pow5(1.0 - HdotV));
+}
+
+float F_Fresnel(float eta, float cosThetaI)
+{
+	float sinThetaT2 = square(eta) * (1.0 - square(cosThetaI));
+	if (sinThetaT2 < 1.0)
+	{
+		float cosThetaT = sqrt(1.0 - sinThetaT2);
+		float perpendicular = square((eta * cosThetaI - cosThetaT) / (eta * cosThetaI + cosThetaT));
+		float parallel = square((cosThetaI - eta * cosThetaT) / (cosThetaI + eta * cosThetaT));
+
+		return 0.5 * (perpendicular + parallel);
+	}
+
+	return 1.0;
+}
+
+float D_GGX(float NdotH, float roughnessAlpha)
+{
+	float alpha2 = square(roughnessAlpha);
+	float denominator = square(square(NdotH) * (alpha2 - 1.0) + 1.0);
+	return kOneOverPI * (alpha2 / greaterThanZero(denominator));
+}
+
+float G_Schlick(float NdotO, float NdotI, float roughnessAlpha)
+{
+	float k = square(roughnessAlpha) * 0.5;
+	float gI = NdotI / (NdotI * (1.0 - k) + k);
+	float gO = NdotO / (NdotO * (1.0 - k) + k);
+	return gI * gO;
+}
+
+float G1_Smith_GGX(float NdotV, float roughnessAlpha)
+{
+	float alpha2 = square(roughnessAlpha);
+	float denom = sqrt(alpha2 + (1.0 - alpha2) * square(NdotV)) + NdotV;
+	return (2.0 * NdotV) / greaterThanZero(denom);
+}
+
+float G2_Smith_GGX(float NdotO, float NdotI, float roughnessAlpha)
+{
+	return G1_Smith_GGX(NdotO, roughnessAlpha) * G1_Smith_GGX(NdotI, roughnessAlpha);
+}
+
+// Version of Smith GGX G term that supports the entire sphere for sampling.
+float G2_Smith_GGX(float NdotO, float HdotO, float NdotI, float HdotI, float roughnessAlpha)
+{
+	float G1L = positiveCharacteristic(HdotO / NdotO) * G1_Smith_GGX(abs(NdotO), roughnessAlpha);
+	float G1V = positiveCharacteristic(HdotI / NdotI) * G1_Smith_GGX(abs(NdotI), roughnessAlpha);
+	return G1L * G1V;
+}

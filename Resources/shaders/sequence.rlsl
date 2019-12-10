@@ -1,0 +1,24 @@
+//
+//  sequence.rlsl
+//  Heatray
+//
+//  Handle the random sequence data with associated lookup functions.
+//
+//
+
+// NOTE: this must stay in sync with the C code for Heatray.
+float kNumRandomSequences = 16.0;
+uniformblock RandomSequences
+{
+	sampler2D randomNumbers;
+	float uvStep;
+	float uvSequenceStep;
+};
+
+vec2 getSequenceValue(int sequenceIndex, int sampleIndex)
+{
+	int index = sequenceIndex % int(kNumRandomSequences); 
+	vec2 uv = vec2(float(sampleIndex) * RandomSequences.uvStep, float(index) * RandomSequences.uvSequenceStep);
+	vec2 value = texture2D(RandomSequences.randomNumbers, uv).xy;
+	return value;
+}

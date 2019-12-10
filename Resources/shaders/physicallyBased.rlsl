@@ -1,0 +1,97 @@
+//
+//  physicallyBased.rlsl
+//  Heatray
+//
+//  Implement a physically-based material for hard-surfaces.
+//
+//
+
+#include "globalData.rlsl"
+#include "microfacet.rlsl"
+#include "sequence.rlsl"
+
+varying vec3 normal;
+
+#if defined(HAVE_BASE_COLOR_TEXTURE)
+varying vec2 texCoord;
+#endif
+
+uniformblock Material
+{
+	sampler2D baseColorTexture;
+	vec3 baseColor;
+	float metallic;
+	float roughness;
+	float specularF0;
+	float roughnessAlpha;
+};
+
+void setup()
+{
+    rl_OutputRayCount[0] = 2; // One for direct lighting, one for indirect lighting.
+}
+
+void main()
+{
+	if (rl_FrontFacing == false) return;
+
+	vec3 N = normalize(normal);
+	mat3 frame = orthonormalFrame(N);
+	vec3 V = -rl_InRay.direction;
+	float NdotV = saturate(dot(N, V));
+
+	#if defined(HAVE_BASE_COLOR_TEXTURE)
+		vec3 baseColor = Material.baseColor * texture2D(Material.baseColorTexture, texCoord).rgb; // TODO: convert this to a linear color.
+	#else
+		vec3 baseColor = Material.baseColor;
+	#endif
+
+    float kMinRoughness       = 0.01; // Too low of a roughness will force a dirac delta response which will cause math errors in the shader code.
+    float kMaxDialectricF0    = 0.08; // Corresponds with an IOR of 1.8.
+
+    vec3 Cdiff = baseColor * vec3(1. - Material.metallic);
+    vec3 Cspec = mix(vec3(Material.specularF0 * kMaxDialectricF0), baseColor, Material.metallic);
+
+	// The probability that we select the diffuse BRDF to sample while rendering.
+	float diffuseLuminance  = luminosity(Cdiff);
+    float specularLuminance = luminosity(Cspec);
+    float diffuseProbability = diffuseLuminance / (diffuseLuminance + specularLuminance);
+
+	// First sample the environment light.
+	{
+		// For direct lighting, we always use the next sequence for random numbers.
+		vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex);
+
+		// Determine if we sample diffuse or specular.
+		vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth, Globals.sampleIndex);
+		if (probability.x < diffuseProbability)
+		{
+			sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, Material.roughnessAlpha,
+						  diffuseProbability, true, Globals.environmentLight);
+		}
+		else
+		{
+			sampleSpecular(N, V, NdotV, frame, rand, Cspec, Material.roughnessAlpha,
+						   1.0 - diffuseProbability, true, Globals.environmentLight);
+		}
+	}
+
+	// Now sample the indirect lighting.
+	{
+		// For indirect lighting, we always use 3 sequences away for random numbers.
+		vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex);
+
+		// Determine if we sample diffuse or specular. We use 2 sequences away to determine this probability.
+		vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex);
+		if (probability.x < diffuseProbability)
+		{
+			sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, Material.roughnessAlpha,
+						  diffuseProbability, false, rl_NullPrimitive);
+		}
+		else
+		{
+			sampleSpecular(N, V, NdotV, frame, rand, Cspec, Material.roughnessAlpha,
+						   1.0 - diffuseProbability, false, rl_NullPrimitive);
+		}
+	}
+}

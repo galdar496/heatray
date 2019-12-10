@@ -1,0 +1,30 @@
+//
+//  environmentLight.rlsl
+//  Heatray
+//
+//  Sample a spherical environment map. Typically used as a default primitive when the ray doesn't intersect actual geometry.
+//
+//
+
+#include "rayAttributes.rlsl"
+#include "utility.rlsl"
+
+uniform sampler2D environmentTexture; // 2D lat/long map defining environment colors.
+
+void setup()
+{
+	rl_OutputRayCount[0] = 0; // No rays are fired from this shader.
+}
+
+void main()
+{
+	vec3 dir = rl_InRay.direction;
+	float theta = atan(dir.x, -dir.z);
+	float phi   = atan(dir.y, sqrt(dir.x * dir.x + dir.z * dir.z));
+	float u     = (theta / kTwoPI) + 0.5;
+	float v     = (-phi * kOneOverPI) + 0.5;
+
+	vec3 sample = texture2D(environmentTexture, vec2(u, 1.0 - v)).rgb;
+	vec3 result = rl_InRay.weight * sample;
+	accumulate(result); 
+}

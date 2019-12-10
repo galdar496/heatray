@@ -1,0 +1,135 @@
+//
+//  glass.rlsl
+//  Heatray
+//
+//  Implement a physically-based glass material for refractive surfaces.
+//
+//
+
+#include "globalData.rlsl"
+#include "microfacet.rlsl"
+#include "sequence.rlsl"
+
+varying vec3 normal;
+
+uniformblock Material
+{
+	vec3 baseColor;
+	float roughness;
+	float roughnessAlpha;
+	float ior;
+	float density;
+	float specularF0;
+};
+
+void setup()
+{
+    rl_OutputRayCount[0] = 2; // One for direct lighting, one for indirect lighting.
+}
+
+void specularSample(vec3 N, vec3 H, vec3 I, vec3 O, vec3 weight, bool isDirectLightSample, primitive rayMissPrimitive)
+{
+	float NdotO = saturate(dot(N, O));
+
+	if (NdotO > 0.0)
+	{
+		float NdotI = saturate(dot(N, I));
+		float HdotI = saturate(dot(H, I));
+
+		float G2 = G2_Smith_GGX(NdotO, NdotI, Material.roughnessAlpha);
+		float G1 = G1_Smith_GGX(NdotI, Material.roughnessAlpha);
+		vec3 reflectance = vec3(G2) / greaterThanZero(G1);
+		reflectance *= weight;
+		if (dot(reflectance, reflectance) > 1e-5)
+		{
+			createRay();
+				rl_OutRay.direction = O;
+				rl_OutRay.weight = reflectance; 
+				rl_OutRay.occlusionTest = isDirectLightSample;
+				rl_OutRay.defaultPrimitive = rayMissPrimitive;
+			emitRay();
+		}
+	}
+}
+
+vec3 beersLaw()
+{
+	vec3 absorption = vec3(1.0) - Material.baseColor;
+	float rayLength = length(rl_IntersectionPoint - rl_InRay.origin);
+	return rl_InRay.weight * exp(absorption * Material.density * -rayLength);
+}
+
+void main()
+{
+	vec3 N = normalize(normal);
+	float nIn = 1.0; // air.
+	float nOut = Material.ior;
+	vec3 weight = rl_InRay.weight;
+	if (rl_FrontFacing == false)
+	{
+		// We're inside of the shape.
+		N = -N;
+		nIn = Material.ior;
+		nOut = 1.0;
+		weight = beersLaw(); // Account for absorption.
+	}
+
+	mat3 frame = orthonormalFrame(N);
+	vec3 I = -rl_InRay.direction;
+	float eta = nIn / nOut;
+
+	vec3 localSpaceI = transpose(frame) * I;
+	vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth, Globals.sampleIndex);
+	vec3 H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, Material.roughnessAlpha);
+	float HdotI = saturate(dot(H, I));
+
+	vec2 refractProbability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex);
+	float F = F_Fresnel(eta, HdotI);
+
+	// Note that since the Fresnel term is used to determine how to sample it ends up getting cancelled out of the following math.
+	// Typically it would show up in the microfacet BRDF but in monte carlo we also divide by the probability of selecting a particular choice,
+	// Since that choice is based on Fresnel is cancels out.
+	if (refractProbability.x < (1.0 - F))
+	{
+		vec3 O = normalize(refract(-I, H, eta));
+
+		float NdotI = saturate(dot(N, I));
+		// Note that these are purposely not clamped as the BSDF considers the entire sphere as opposed to a hemisphere.
+		float NdotH = abs(dot(H, N));
+		float NdotO = abs(dot(N, O));
+
+		float G2 = G2_Smith_GGX(NdotI, NdotO, Material.roughnessAlpha);
+		float G1 = G1_Smith_GGX(NdotI, Material.roughnessAlpha);
+
+		// https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf
+		// And for the PDF: https://hal.inria.fr/hal-00996995v1/document
+		vec3 transmission = Material.baseColor * G2 / greaterThanZero(G1);
+
+		transmission *= weight;
+		if (dot(transmission, transmission) > 1e-5)
+		{
+			createRay();
+				rl_OutRay.direction = O;
+				rl_OutRay.weight = transmission;
+				rl_OutRay.occlusionTest = false;
+				rl_OutRay.defaultPrimitive = Globals.environmentLight;
+			emitRay();
+		}
+	}
+	else
+	{
+		// Do reflection. Use the same microfacet to do direct lighting and a different one for indirect.
+		{
+			vec3 O = normalize(2.0 * HdotI * H - I);
+			specularSample(N, H, I, O, weight, true, Globals.environmentLight);
+		}
+		{
+			rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex);
+			H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, Material.roughnessAlpha);
+
+			HdotI = dot(H, I);
+			vec3 O = normalize(2.0 * HdotI * H - I);
+			specularSample(N, H, I, O, weight, false, rl_NullPrimitive);
+		}
+	}
+}

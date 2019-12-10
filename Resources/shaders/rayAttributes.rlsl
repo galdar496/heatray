@@ -1,0 +1,9 @@
+//
+//  rayAttributes.rlsl
+//  Heatray
+//
+//  Shared ray attributes for all materials.
+//
+
+rayattribute vec3 weight;
+rayattribute int sequenceID;

@@ -1,0 +1,86 @@
+//
+//  microfacet.rlsl
+//  Heatray
+//
+//  Perform sampling of various components following microfacet theory BSDFs (diffuse, specular, transmissive).
+//
+//
+
+#include "brdfs.rlsl"
+#include "globalData.rlsl"
+#include "sequence.rlsl"
+#include "rayAttributes.rlsl"
+#include "utility.rlsl"
+
+void sampleDiffuse(vec3 N, vec3 V, float NdotV, mat3 frame, vec2 rand, 
+				   vec3 Cdiff, vec3 Cspec, float roughnessAlpha,
+				   float sampleProbability, bool isDirectLightingSample, primitive rayMissPrimitive)
+{
+	// Get a random direction on the cosine lobe.
+	vec3 dir = cosineWeightedSample(rand.x, rand.y);
+	vec3 L = frame * dir;
+	
+	float NdotL = saturate(dot(N, L));
+	if (NdotL > 0.0)
+	{
+		// Note that the PDF of cosine-weighted sampling is cos(theta)/pi but cancels out.
+		vec3 diffuse = Cdiff;
+	
+		vec3 reflectance = diffuse;
+		reflectance /= sampleProbability;
+
+		reflectance *= rl_InRay.weight;
+		if (dot(reflectance, reflectance) > 1e-5)
+		{
+			createRay();
+				rl_OutRay.direction = L;
+				rl_OutRay.weight = reflectance * rl_InRay.weight;
+				rl_OutRay.occlusionTest = isDirectLightingSample;
+				rl_OutRay.defaultPrimitive = rayMissPrimitive;
+			emitRay();
+		}
+	}
+}
+
+void sampleSpecular(vec3 N, vec3 V, float NdotV, mat3 frame, vec2 rand, 
+				    vec3 Cspec, float roughnessAlpha,
+				    float sampleProbability, bool isDirectLightingSample, primitive rayMissPrimitive)
+{
+	// Note that sampleVisibleGGX() is returning a microfacet normal. 
+	// We still need to reflect about that normal to get our final sample direction.
+	vec3 localSpaceV = transpose(frame) * V;
+	vec3 H = frame * sampleVisibleGGX(localSpaceV, rand.x, rand.y, roughnessAlpha);
+	float VdotH = saturate(dot(V, H));
+	vec3 L = normalize(2.0 * VdotH * H - V);
+
+	float NdotL = saturate(dot(N, L));
+	if (NdotL > 0.0)
+	{
+		// PDF is actually (G1 * D * NdotV) / NdotH. However we're optimizing out most of the terms here from the 
+		// standard microfacet BRDF to arrivate at:
+		//	(F * G2) / G1
+		// See http://jcgt.org/published/0007/04/01/paper.pdf for more information.
+		float NdotH = saturate(dot(N, H));
+
+		vec3 F = F_Schlick(Cspec, VdotH);
+		float G2 = G2_Smith_GGX(NdotL, NdotV, roughnessAlpha);
+		float G1 = G1_Smith_GGX(NdotV, roughnessAlpha);
+
+		// Microfacet BRDF.
+		vec3 specular = (F * G2) / greaterThanZero(G1);
+		vec3 reflectance = specular;
+		// Note that the PDF has already cancelled out.
+		reflectance /= sampleProbability;
+
+		reflectance *= rl_InRay.weight;
+		if (dot(reflectance, reflectance) > 1e-5)
+		{
+			createRay();
+				rl_OutRay.direction = L;
+				rl_OutRay.weight = reflectance;
+				rl_OutRay.occlusionTest = isDirectLightingSample;
+				rl_OutRay.defaultPrimitive = rayMissPrimitive;
+			emitRay();
+		}
+	}
+}

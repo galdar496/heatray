@@ -1,0 +1,14 @@
+//
+//  passthrough.vert
+//  Heatray
+//
+//  Simply pass along vertex attribute data. No transforms are applied to the vertex data.
+//
+//
+
+attribute vec3 positionAttribute;
+
+void main()
+{
+	rl_Position = vec4(positionAttribute, 1.0);
+}
