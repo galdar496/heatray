@@ -474,6 +474,10 @@ bool HeatrayRenderer::renderUI()
                 }
                 ImGui::EndCombo();
             }
+            if (ImGui::SliderInt("Max ray depth", &m_renderOptions.maxRayDepth, 1, 15))
+            {
+                shouldResetRenderer = true;
+            }
             if (ImGui::Checkbox("Enable interactive mode", &m_renderOptions.enableInteractiveMode))
             {
                 shouldResetRenderer = true;

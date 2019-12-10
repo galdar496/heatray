@@ -77,6 +77,7 @@ void main()
 	}
 
 	// Now sample the indirect lighting.
+	if (rl_InRay.depth < Globals.maxRayDepth)
 	{
 		// For indirect lighting, we always use 3 sequences away for random numbers.
 		vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex);

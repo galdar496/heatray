@@ -306,6 +306,15 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
         generateRandomSequences(newOptions.maxRenderPasses, newOptions.sampleMode);
     }
 
+    if (m_renderOptions.maxRayDepth != newOptions.maxRayDepth)
+    {
+        m_globalData.bind();
+        GlobalData* globalData = m_globalData.mapBuffer<GlobalData>();
+        globalData->maxRayDepth = newOptions.maxRayDepth;
+        m_globalData.unmapBuffer();
+        m_globalData.unbind();
+    }
+
     // Finally get all of the new render options.
     memcpy(&m_renderOptions, &newOptions, sizeof(RenderOptions));
     m_renderOptions.resetInternalState = false;

@@ -79,6 +79,8 @@ public:
         };
 
         SampleMode sampleMode = SampleMode::kHalton;
+
+        int maxRayDepth = 5;
     };
     
     ///
@@ -176,6 +178,7 @@ private:
 
     struct GlobalData
     {
+        int maxRayDepth = 5;
         int sampleIndex = 0;
         RLprimitive environmentLight = RL_NULL_PRIMITIVE;
     };

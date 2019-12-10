@@ -8,6 +8,7 @@
 
 uniformblock Globals
 {
+	int maxRayDepth;
 	int sampleIndex; // Ranges from 0 - max pass count.
 	primitive environmentLight;
 };

@@ -106,7 +106,7 @@ void main()
 		vec3 transmission = Material.baseColor * G2 / greaterThanZero(G1);
 
 		transmission *= weight;
-		if (dot(transmission, transmission) > 1e-5)
+		if (dot(transmission, transmission) > 1e-5 && rl_InRay.depth < Globals.maxRayDepth)
 		{
 			createRay();
 				rl_OutRay.direction = O;
@@ -123,6 +123,7 @@ void main()
 			vec3 O = normalize(2.0 * HdotI * H - I);
 			specularSample(N, H, I, O, weight, true, Globals.environmentLight);
 		}
+		if (rl_InRay.depth < Globals.maxRayDepth)
 		{
 			rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex);
 			H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, Material.roughnessAlpha);
