@@ -581,6 +581,39 @@ bool HeatrayRenderer::renderUI()
             m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
             shouldResetRenderer = true;
         }
+
+        ImGui::Text("Lens Properties");
+        if (ImGui::SliderFloat("Focus distance(m)", &m_renderOptions.camera.focusDistance, 0.0f, 10.0f))
+        {
+            shouldResetRenderer = true;
+        }
+        if (ImGui::SliderFloat("Focal length(mm)", &m_renderOptions.camera.focalLength, 15.0f, 200.0f))
+        {
+            shouldResetRenderer = true;
+        }
+        {
+            static const char* options[] = { "1.0", "1.4", "2.0", "2.8", "4.0", "5.6", "8.0", "11.0", "16.0", "22.0" };
+            constexpr float realOptions[] = { 1.0f, 1.4f, 2.0f, 2.8f, 4.0f, 5.6f, 8.0f, 11.0f, 16.0f, 22.0f };
+            static unsigned int currentSelection = 7;
+            if (ImGui::BeginCombo("f-stop", options[currentSelection]))
+            {
+                for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption)
+                {
+                    bool isSelected = currentSelection == iOption;
+                    if (ImGui::Selectable(options[iOption], false))
+                    {
+                        currentSelection = iOption;
+                        m_renderOptions.camera.fstop = realOptions[iOption];
+                        shouldResetRenderer = true;
+                    }
+                    if (isSelected)
+                    {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+        }
     }
     ImGui::End();
 

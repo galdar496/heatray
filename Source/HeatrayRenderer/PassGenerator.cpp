@@ -217,10 +217,15 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
         m_globalData.unbind(); 
     }
 
+    // Equation is f-stop = (focalLength / apertureDiameter).
+    float apertureRadius = 0.5f * (m_renderOptions.camera.focalLength / m_renderOptions.camera.fstop);  
+
     m_frameProgram.bind();
     float fovTan = std::tanf(glm::radians(m_renderOptions.camera.fovY * 0.5f));
     m_frameProgram.set1f(m_frameProgram.getUniformLocation("fovTan"), fovTan);
     m_frameProgram.set1f(m_frameProgram.getUniformLocation("aspectRatio"), m_renderOptions.camera.aspectRatio);
+    m_frameProgram.set1f(m_frameProgram.getUniformLocation("focusDistance"), m_renderOptions.camera.focusDistance); 
+    m_frameProgram.set1f(m_frameProgram.getUniformLocation("apertureRadius"), apertureRadius * 0.001f); // Shader works in meters.
     m_frameProgram.setMatrix4fv(m_frameProgram.getUniformLocation("viewMatrix"), &(m_renderOptions.camera.viewMatrix[0][0]));
     m_frameProgram.set2iv(m_frameProgram.getUniformLocation("blockSize"), &m_renderOptions.kInteractiveBlockSize.x);
     m_frameProgram.set2iv(m_frameProgram.getUniformLocation("currentBlockPixel"), &m_currentBlockPixel.x);

@@ -14,6 +14,8 @@
 
 uniform float fovTan; // tan(fov / 2) -- fov should be in radians.
 uniform float aspectRatio;
+uniform float focusDistance;
+uniform float apertureRadius;
 uniform mat4 viewMatrix;
 uniform ivec2 blockSize;
 uniform ivec2 currentBlockPixel;
@@ -54,9 +56,16 @@ void main()
 
 	vec3 dirWorldSpace = (viewMatrix * vec4(dirCameraSpace, 0.0)).xyz;
 
+	// Compute the origin and direction based on the focal length and aperture of the camera (dof).
+	vec3 cameraPosition = (viewMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+	vec3 focalPoint = cameraPosition + (focusDistance * dirWorldSpace); // Intersection point to focus the ray through.
+	vec2 apertureSample = getSequenceValue(sequenceID + 1, Globals.sampleIndex) * apertureRadius;
+	vec3 origin = cameraPosition + vec3(apertureSample, 0.0); // Randomize the ray origin to be somewhere within the aperture.
+	vec3 dir = focalPoint - origin;
+
     createRay();
-		rl_OutRay.origin		   = (viewMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
-		rl_OutRay.direction		   = dirWorldSpace; // OpenRL auto-normalizes the direction for emitted rays.
+		rl_OutRay.origin		   = origin;
+		rl_OutRay.direction		   = dir; // OpenRL auto-normalizes the direction for emitted rays.
 		rl_OutRay.defaultPrimitive = Globals.environmentLight;
 		rl_OutRay.weight           = vec3(1.0);
 		rl_OutRay.sequenceID       = sequenceID;

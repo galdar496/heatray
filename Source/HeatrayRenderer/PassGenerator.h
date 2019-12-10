@@ -64,6 +64,9 @@ public:
 
             float fovY = kDefaultFov;   ///< Vertical field of view of the camera (degrees).
             float aspectRatio = -1.0f;  ///< Width / height.
+            float focusDistance = 1.0f; ///< In meters.
+            float focalLength = 50.0f;  ///< in millimeters.
+            float fstop = 11.0f;        ///< f-stop of the camera.
             glm::mat4 viewMatrix = glm::mat4(1.0f);
         } camera;
 
