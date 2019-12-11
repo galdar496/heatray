@@ -54,7 +54,7 @@ public:
 
         bool resetInternalState = true; 
         unsigned int maxRenderPasses = 32; 
-        std::string environmentMap = "glacier.exr";
+        std::string environmentMap = "arches.hdr";
 
         std::string scene = "Sphere Array";
 

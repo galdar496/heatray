@@ -132,7 +132,7 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
 
         m_environmentLightPrimitive.create();
         m_environmentLightPrimitive.attachProgram(m_environmentLightProgram);
-        changeEnvironment(std::string("glacier.exr")); // Load the glacier by default. 
+        changeEnvironment(m_renderOptions.environmentMap);
     }
 
     {
@@ -346,7 +346,7 @@ void PassGenerator::changeEnvironment(std::string const & newEnvMap)
         sampler.wrapS     = RL_CLAMP_TO_EDGE;
         sampler.wrapT     = RL_CLAMP_TO_EDGE;
         
-        glm::vec3 data = glm::vec3(0.8);
+        glm::vec3 data = glm::vec3(0.8f);
         m_environmentTexture.create(&data.x, desc, sampler, false);
     }
 

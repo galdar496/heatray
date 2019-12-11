@@ -111,7 +111,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             m_sceneData.push_back(RLMesh(&whiteFurnaceSphereMeshProvider, { material }, systemSetupCallback, glm::mat4(1.0f)));
         });
     }
-    else if (sceneName == "Cornell Box")
+    else if (sceneName == "Multi-Material")
     {
         m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback)
             {
@@ -121,7 +121,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                 }
                 m_sceneData.clear();
             
-                PlaneMeshProvider planeMeshProvider(5, 5);
+                PlaneMeshProvider planeMeshProvider(15, 15);
                 glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);
                 glm::vec3 yAxis = glm::vec3(0.0f, 1.0f, 0.0f);
                 glm::vec3 zAxis = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -132,13 +132,13 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                     PhysicallyBasedMaterial::Parameters params;
                     params.metallic = 0.0f;
                     params.roughness = 0.8f;
-                    params.baseColor = glm::vec3(0.8f);
+                    params.baseColor = glm::vec3(0.9f);
                     params.specularF0 = 0.5f;
                     material->build(params);
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.5f, 0.0f));
                     m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation));
                 }
-
+#if 0
                 // Right plane.
                 {
                     PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
@@ -164,7 +164,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                     material->build(params);
                     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), xAxis);
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, -2.5f));
-                    //m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation * rotation));
+                    m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation * rotation));
                 }
 
                 // Left plane.
@@ -180,6 +180,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-2.5f, 1.0f, 0.0f));
                     m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation * rotation));
                 }
+#endif
 
                 float radius = 1.0f;
                 SphereMeshProvider sphereMeshProvider(50, 50, radius);
@@ -521,9 +522,9 @@ bool HeatrayRenderer::renderUI()
     }
     if (ImGui::CollapsingHeader("Environment options"))
     {
-        static const char* options[] = { "glacier.exr", "uffizi.exr", "white furnace test" };
+        static const char* options[] = { "glacier.exr", "uffizi.exr", "bridge.hdr", "arches.hdr", "white furnace test" };
 
-        static unsigned int currentSelection = 0;
+        static unsigned int currentSelection = 3;
         if (ImGui::BeginCombo("Environment map", options[currentSelection]))
         {
             for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption)
@@ -551,7 +552,7 @@ bool HeatrayRenderer::renderUI()
         }
         ImGui::Checkbox("Swap Y & Z on load", &m_swapYZ);
 
-        static const char* options[] = { "Sphere Array", "White Sphere", "Cornell Box" };
+        static const char* options[] = { "Sphere Array", "White Sphere", "Multi-Material" };
 
         static unsigned int currentSelection = 0;
         if (ImGui::BeginCombo("Built-In Scenes", options[currentSelection]))
