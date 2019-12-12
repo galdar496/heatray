@@ -74,7 +74,7 @@ inline void blueNoise(glm::vec3* results, const unsigned int count, int sequence
 {
     LowDiscrepancyBlueNoiseGenerator generator(sequenceIndex);
     generator.GeneratePoints(count);
-    for (int i = 0; i < count; ++i)
+    for (unsigned int i = 0; i < count; ++i)
     {
         results[i] = glm::vec3(generator.GetPoints()[i], 0);
     }
@@ -82,6 +82,7 @@ inline void blueNoise(glm::vec3* results, const unsigned int count, int sequence
 
 inline void halton(glm::vec3* results, const unsigned int count, int sequenceIndex)
 {
+    assert(results);
     glm::ivec2 coprimes[] = {
         glm::ivec2(2, 3),
         glm::ivec2(2, 5),
@@ -112,17 +113,42 @@ inline void halton(glm::vec3* results, const unsigned int count, int sequenceInd
         {
             f = f / denom;
             result += f * (n % base);
-            n = n / float(base);
+            n = n / base;
         }
         return result;
     };
 
     glm::ivec2 base = coprimes[sequenceIndex];
 
-    for (int iIndex = 0; iIndex < count; ++iIndex)
+    for (unsigned int iIndex = 0; iIndex < count; ++iIndex)
     {
         results[iIndex][0] = generateValue(iIndex, base.x);
         results[iIndex][1] = generateValue(iIndex, base.y);
+    }
+}
+
+inline void radialPseudoRandom(glm::vec3* results, const unsigned int count, const unsigned int seed)
+{
+    assert(results);
+
+    // We assume a radius of 1 and that the calling function will scale the values appropriately.
+    std::random_device randomDevice;
+    std::mt19937 generator(randomDevice());
+    generator.seed(seed);
+
+    std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+
+    for (unsigned int iIndex = 0; iIndex < count; ++iIndex)
+    {
+        // Use rejection sampling.
+        float x, y;
+        do
+        {
+            x = distribution(generator);
+            y = distribution(generator);
+        } while ((x * x + y * y) > 1.0f);
+
+        results[iIndex] = glm::vec3(x, y, 0.0f);
     }
 }
 

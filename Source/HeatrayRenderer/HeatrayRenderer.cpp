@@ -208,7 +208,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                     params.density = 0.5f;
                     material->build(params);
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(1.2f, -0.5f, 0.8f));
-                    m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
+                    //m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
                 }
             });
     }

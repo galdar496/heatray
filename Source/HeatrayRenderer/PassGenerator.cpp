@@ -218,10 +218,14 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
     }
 
     // Equation is f-stop = (focalLength / apertureDiameter).
-    float apertureRadius = 0.5f * (m_renderOptions.camera.focalLength / m_renderOptions.camera.fstop);  
+    float apertureRadius = 0.5f * (m_renderOptions.camera.focalLength / m_renderOptions.camera.fstop);
+    
+    glm::vec2 sensorDimensions(36.0f, 24.0f); // Dimensions of 35mm film.
+    // https://en.wikipedia.org/wiki/Angle_of_view#Calculating_a_camera's_angle_of_view
+    float fovY = 2.0f * std::atan2(sensorDimensions.y, 2.0f * m_renderOptions.camera.focalLength);
 
     m_frameProgram.bind();
-    float fovTan = std::tanf(glm::radians(m_renderOptions.camera.fovY * 0.5f));
+    float fovTan = std::tanf(fovY * 0.5f);
     m_frameProgram.set1f(m_frameProgram.getUniformLocation("fovTan"), fovTan);
     m_frameProgram.set1f(m_frameProgram.getUniformLocation("aspectRatio"), m_renderOptions.camera.aspectRatio);
     m_frameProgram.set1f(m_frameProgram.getUniformLocation("focusDistance"), m_renderOptions.camera.focusDistance); 
@@ -230,6 +234,7 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
     m_frameProgram.set2iv(m_frameProgram.getUniformLocation("blockSize"), &m_renderOptions.kInteractiveBlockSize.x);
     m_frameProgram.set2iv(m_frameProgram.getUniformLocation("currentBlockPixel"), &m_currentBlockPixel.x);
     m_frameProgram.set1i(m_frameProgram.getUniformLocation("interactiveMode"), m_renderOptions.enableInteractiveMode ? 1 : 0);
+    m_frameProgram.setTexture(m_frameProgram.getUniformLocation("apertureSamplesTexture"), m_apertureSamplesTexture);
 
     if (m_renderOptions.enableInteractiveMode)
     {
@@ -428,6 +433,22 @@ void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptio
     sequences->uvSequenceStep = 1.0f / static_cast<RLfloat>(kNumRandomSequences);
     m_randomSequences.unmapBuffer();
     m_randomSequences.unbind();
+
+    // Now generate the data random sequence data for aperture sampling for depth of field.
+    {
+        std::vector<glm::vec3> values(kNumRandomSequences* sampleCount);
+        for (unsigned int iSequence = 0; iSequence < kNumRandomSequences; ++iSequence)
+        {
+            util::radialPseudoRandom(&values[iSequence * sampleCount], sampleCount, iSequence);
+        }
+
+        if (m_apertureSamplesTexture.valid())
+        {
+            m_apertureSamplesTexture.destroy();
+        }
+
+        m_apertureSamplesTexture.create(&values[0], desc, sampler, false);
+    }
  }
 
 void PassGenerator::threadFunc()

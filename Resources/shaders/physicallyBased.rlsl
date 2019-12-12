@@ -49,7 +49,7 @@ void main()
     float kMinRoughness       = 0.01; // Too low of a roughness will force a dirac delta response which will cause math errors in the shader code.
     float kMaxDialectricF0    = 0.08; // Corresponds with an IOR of 1.8.
 
-    vec3 Cdiff = baseColor * vec3(1. - Material.metallic);
+    vec3 Cdiff = baseColor * vec3(1.0 - Material.metallic);
     vec3 Cspec = mix(vec3(Material.specularF0 * kMaxDialectricF0), baseColor, Material.metallic);
 
 	// The probability that we select the diffuse BRDF to sample while rendering.
@@ -59,11 +59,11 @@ void main()
 
 	// First sample the environment light.
 	{
-		// For direct lighting, we always use the next sequence for random numbers.
-		vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex);
+		vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth, Globals.sampleIndex);
 
 		// Determine if we sample diffuse or specular.
-		vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth, Globals.sampleIndex);
+		// For direct lighting, we always use the next sequence for this probability.
+		vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex);
 		if (probability.x < diffuseProbability)
 		{
 			sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, Material.roughnessAlpha,
@@ -79,11 +79,11 @@ void main()
 	// Now sample the indirect lighting.
 	if (rl_InRay.depth < Globals.maxRayDepth)
 	{
-		// For indirect lighting, we always use 3 sequences away for random numbers.
-		vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex);
+		// For indirect lighting, we always use 2 sequences away for random numbers.
+		vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex);
 
-		// Determine if we sample diffuse or specular. We use 2 sequences away to determine this probability.
-		vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex);
+		// Determine if we sample diffuse or specular. We use 3 sequences away to determine this probability.
+		vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex);
 		if (probability.x < diffuseProbability)
 		{
 			sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, Material.roughnessAlpha,

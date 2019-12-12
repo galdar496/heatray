@@ -15,10 +15,16 @@ uniformblock RandomSequences
 	float uvSequenceStep;
 };
 
+vec2 getSequenceUV(int sequenceIndex, int sampleIndex)
+{
+	vec2 uv = vec2(float(sampleIndex) * RandomSequences.uvStep, float(sequenceIndex) * RandomSequences.uvSequenceStep);
+	return uv;
+}
+
 vec2 getSequenceValue(int sequenceIndex, int sampleIndex)
 {
 	int index = sequenceIndex % int(kNumRandomSequences); 
-	vec2 uv = vec2(float(sampleIndex) * RandomSequences.uvStep, float(index) * RandomSequences.uvSequenceStep);
+	vec2 uv = getSequenceUV(index, sampleIndex);
 	vec2 value = texture2D(RandomSequences.randomNumbers, uv).xy;
 	return value;
 }

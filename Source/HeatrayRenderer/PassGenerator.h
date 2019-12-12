@@ -60,9 +60,6 @@ public:
 
         struct Camera
         {
-            static constexpr float kDefaultFov = 90.0f;
-
-            float fovY = kDefaultFov;   ///< Vertical field of view of the camera (degrees).
             float aspectRatio = -1.0f;  ///< Width / height.
             float focusDistance = 1.0f; ///< In meters.
             float focalLength = 50.0f;  ///< in millimeters.
@@ -174,7 +171,8 @@ private:
     glm::ivec2 m_currentBlockPixel = glm::ivec2(0, 0);
 
     openrl::Buffer m_randomSequences;
-    openrl::Texture m_randomSequenceTexture; //< Series of random sequences stored in a 2D texture. Each row of the texture is a different sequence.
+    openrl::Texture m_randomSequenceTexture; ///< Series of random sequences stored in a 2D texture. Each row of the texture is a different sequence.
+    openrl::Texture m_apertureSamplesTexture; ///< Randomly generated values to use while sampling the aperture for depth of field.
 
     struct GlobalData
     {
