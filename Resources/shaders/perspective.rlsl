@@ -60,7 +60,9 @@ void main()
 	// Compute the origin and direction based on the focal length and aperture of the camera (dof).
 	vec3 cameraPosition = (viewMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
 	vec3 focalPoint = cameraPosition + (focusDistance * dirWorldSpace); // Intersection point to focus the ray through.
-	vec2 apertureSample = texture2D(apertureSamplesTexture, getSequenceUV(sequenceID, Globals.sampleIndex)).xy * apertureRadius;
+	vec2 apertureSample = texture2D(apertureSamplesTexture, getSequenceUV(sequenceID, Globals.sampleIndex)).xy;
+	// Sample is compressed to be between 0-1.
+	apertureSample = (apertureSample + 1.0) * 0.5 * apertureRadius;
 	vec3 origin = cameraPosition + vec3(apertureSample, 0.0); // Randomize the ray origin to be somewhere within the aperture.
 	vec3 dir = focalPoint - origin;
 

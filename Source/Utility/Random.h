@@ -127,6 +127,7 @@ inline void halton(glm::vec3* results, const unsigned int count, int sequenceInd
     }
 }
 
+// Generates random values on a disk such that the center is (0,0).
 inline void radialPseudoRandom(glm::vec3* results, const unsigned int count, const unsigned int seed)
 {
     assert(results);
@@ -136,7 +137,7 @@ inline void radialPseudoRandom(glm::vec3* results, const unsigned int count, con
     std::mt19937 generator(randomDevice());
     generator.seed(seed);
 
-    std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+    std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
 
     for (unsigned int iIndex = 0; iIndex < count; ++iIndex)
     {
@@ -147,6 +148,10 @@ inline void radialPseudoRandom(glm::vec3* results, const unsigned int count, con
             x = distribution(generator);
             y = distribution(generator);
         } while ((x * x + y * y) > 1.0f);
+
+        // Get the values to be in the 0-1 range for storage in a texture.
+        x = 2.0f * x - 1.0f;
+        y = 2.0f * y - 1.0f;
 
         results[iIndex] = glm::vec3(x, y, 0.0f);
     }
