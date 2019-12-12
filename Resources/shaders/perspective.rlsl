@@ -55,20 +55,17 @@ void main()
 	float y = (1.0 - 2.0 * pixelNDC.y) * fovTan * -1.0; // * -1 because this Y vector is upside down (OpenRL 0,0 is bottom left corner).
 	vec3 dirCameraSpace = vec3(x, y, -1);
 
-	vec3 dirWorldSpace = (viewMatrix * vec4(dirCameraSpace, 0.0)).xyz;
-
 	// Compute the origin and direction based on the focal length and aperture of the camera (dof).
-	vec3 cameraPosition = (viewMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
-	vec3 focalPoint = cameraPosition + (focusDistance * dirWorldSpace); // Intersection point to focus the ray through.
+	vec3 focalPoint = focusDistance * dirCameraSpace;
 	vec2 apertureSample = texture2D(apertureSamplesTexture, getSequenceUV(sequenceID, Globals.sampleIndex)).xy;
 	// Sample is compressed to be between 0-1.
-	apertureSample = (apertureSample + 1.0) * 0.5 * apertureRadius;
-	vec3 origin = cameraPosition + vec3(apertureSample, 0.0); // Randomize the ray origin to be somewhere within the aperture.
+	apertureSample = ((apertureSample * 2.0) - 1.0) * apertureRadius;
+	vec3 origin = vec3(apertureSample, 0.0);
 	vec3 dir = focalPoint - origin;
 
     createRay();
-		rl_OutRay.origin		   = origin;
-		rl_OutRay.direction		   = dir; // OpenRL auto-normalizes the direction for emitted rays.
+		rl_OutRay.origin		   = (viewMatrix * vec4(origin, 1.0)).xyz;
+		rl_OutRay.direction		   = (viewMatrix * vec4(dir, 0.0)).xyz; // OpenRL auto-normalizes the direction for emitted rays.
 		rl_OutRay.defaultPrimitive = Globals.environmentLight;
 		rl_OutRay.weight           = vec3(1.0);
 		rl_OutRay.sequenceID       = sequenceID;

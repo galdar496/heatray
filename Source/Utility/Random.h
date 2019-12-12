@@ -150,8 +150,8 @@ inline void radialPseudoRandom(glm::vec3* results, const unsigned int count, con
         } while ((x * x + y * y) > 1.0f);
 
         // Get the values to be in the 0-1 range for storage in a texture.
-        x = 2.0f * x - 1.0f;
-        y = 2.0f * y - 1.0f;
+        x = (x + 1.0f) * 0.5f;
+        y = (y + 1.0f) * 0.5f;
 
         results[iIndex] = glm::vec3(x, y, 0.0f);
     }

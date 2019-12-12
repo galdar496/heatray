@@ -200,15 +200,22 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
 
                 // Sphere 2.
                 {
-                    GlassMaterial* material = new GlassMaterial();
+                    /*GlassMaterial* material = new GlassMaterial();
                     GlassMaterial::Parameters params;
-                    params.roughness = 0.3f;
+                    params.roughness = 0.1f;
                     params.baseColor = glm::vec3(1.0f);
                     params.ior = 1.57f;
-                    params.density = 0.5f;
+                    params.density = 0.5f;*/
+
+                    PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
+                    PhysicallyBasedMaterial::Parameters params;
+                    params.metallic = 0.0f;
+                    params.roughness = 1.0f;
+                    params.baseColor = glm::vec3(0.8f);
+                    params.specularF0 = 0.0f;
                     material->build(params);
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(1.2f, -0.5f, 0.8f));
-                    //m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
+                    m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
                 }
             });
     }
@@ -436,6 +443,11 @@ void HeatrayRenderer::generateSequenceVisualizationData(int sequenceIndex, int r
         default:
             assert(0);
     }
+
+// Enable this to see the samples for the aperture visualized.
+#if 0
+    util::radialPseudoRandom(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
+#endif
 }
 
 bool HeatrayRenderer::renderUI()
@@ -599,7 +611,7 @@ bool HeatrayRenderer::renderUI()
         {
             static const char* options[] = { "1.0", "1.4", "2.0", "2.8", "4.0", "5.6", "8.0", "11.0", "16.0", "22.0" };
             constexpr float realOptions[] = { 1.0f, 1.4f, 2.0f, 2.8f, 4.0f, 5.6f, 8.0f, 11.0f, 16.0f, 22.0f };
-            static unsigned int currentSelection = 7;
+            static unsigned int currentSelection = 9;
             if (ImGui::BeginCombo("f-stop", options[currentSelection]))
             {
                 for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption)
