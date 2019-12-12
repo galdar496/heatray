@@ -53,7 +53,7 @@ void main()
 	// The following math assumes that the image plane is 1 unit away from the camera origin.
 	float x = (2.0 * pixelNDC.x - 1.0) * aspectRatio * fovTan;
 	float y = (1.0 - 2.0 * pixelNDC.y) * fovTan * -1.0; // * -1 because this Y vector is upside down (OpenRL 0,0 is bottom left corner).
-	vec3 dirCameraSpace = vec3(x, y, -1);
+	vec3 dirCameraSpace = normalize(vec3(x, y, -1));
 
 	// Compute the origin and direction based on the focal length and aperture of the camera (dof).
 	vec3 focalPoint = focusDistance * dirCameraSpace;
