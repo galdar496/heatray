@@ -6,7 +6,7 @@
 ## Overview
 Heatray is a C++ path tracer utilizing [OpenRL](https://en.wikipedia.org/wiki/OpenRL) to perform raytracing. An OpenGL viewer is used to visualize the passes as they are performed in realtime.
 ## Latest Image
-![]("https://github.com/galdar496/heatray/blob/master/ExampleImages/latest.png)
+![](https://github.com/galdar496/heatray/blob/master/ExampleImages/latest.png)
 ## Features
 * Progressive rendering for quick visualization
 * Quasi-Monte Carlo via various low-discrepancy sequences
@@ -18,6 +18,7 @@ Heatray is a C++ path tracer utilizing [OpenRL](https://en.wikipedia.org/wiki/Op
 ** Glass
 ## Meet the Developers
 [Cody White](https://www.linkedin.com/in/cody-white-78476019/)
+
 [Aaron Dwyer](https://www.linkedin.com/in/aadwyer/)
 ## Notes
 Heatray was written and developed for macOS Catalina and Windows 10. All libraries required to run the code are included in the repository.
