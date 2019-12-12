@@ -14,8 +14,8 @@ Heatray is a C++ path tracer utilizing [OpenRL](https://en.wikipedia.org/wiki/Op
 * Environment lighting
 * Depth of field
 * Materials:
-- Physically-based
-- Glass
+    * Physically-based
+    * Glass
 ## Meet the Developers
 [Cody White](https://www.linkedin.com/in/cody-white-78476019/)
 
