@@ -46,15 +46,13 @@ void main()
 		vec3 baseColor = Material.baseColor;
 	#endif
 
-    float kMinRoughness       = 0.01; // Too low of a roughness will force a dirac delta response which will cause math errors in the shader code.
-    float kMaxDialectricF0    = 0.08; // Corresponds with an IOR of 1.8.
-
-    vec3 Cdiff = baseColor * vec3(1.0 - Material.metallic);
-    vec3 Cspec = mix(vec3(Material.specularF0 * kMaxDialectricF0), baseColor, Material.metallic);
+    vec3 Cdiff = baseColor * (1.0 - Material.metallic);
+    // This approximation comes from https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
+	vec3 Cspec = 0.16 * square(Material.specularF0) * (1.0 - Material.metallic) + baseColor * Material.metallic;
 
 	// The probability that we select the diffuse BRDF to sample while rendering.
-	float diffuseLuminance  = luminosity(Cdiff);
-    float specularLuminance = luminosity(Cspec);
+	float diffuseLuminance  = max(0.01, luminosity(Cdiff));
+    float specularLuminance = max(0.01, luminosity(Cspec));
     float diffuseProbability = diffuseLuminance / (diffuseLuminance + specularLuminance);
 
 	// First sample the environment light.

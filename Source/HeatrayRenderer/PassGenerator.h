@@ -56,7 +56,7 @@ public:
         unsigned int maxRenderPasses = 32; 
         std::string environmentMap = "arches.hdr";
 
-        std::string scene = "Sphere Array";
+        std::string scene = "Multi-Material";
 
         struct Camera
         {

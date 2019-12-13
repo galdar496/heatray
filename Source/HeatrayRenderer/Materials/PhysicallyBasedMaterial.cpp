@@ -26,7 +26,6 @@ void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& p
     } shaderParams;
 
     constexpr float kMinRoughness       = 0.01f; // Too low of a roughness will force a dirac delta response which will cause math errors in the shader code.
-    constexpr float kMaxDialectricF0    = 0.08f; // Corresponds with an IOR of 1.8.
 
     shaderParams.baseColor          = glm::saturate(params.baseColor);
     shaderParams.metallic           = glm::saturate<float, glm::defaultp>(params.metallic);

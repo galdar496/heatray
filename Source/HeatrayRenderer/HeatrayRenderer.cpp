@@ -60,7 +60,7 @@ bool HeatrayRenderer::init(const GLint renderWidth, const GLint renderHeight)
     m_windowParams.height = renderHeight;
 
     // Load the default scene.
-    changeScene("Sphere Array");
+    changeScene(m_renderOptions.scene);
 
     return true;
 }
@@ -106,7 +106,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             params.metallic = 0.0f;
             params.roughness = 0.0f;
             params.baseColor = glm::vec3(1.0f);
-            params.specularF0 = 1.0f;    
+            params.specularF0 = 0.5f;    
             material->build(params);     
             m_sceneData.push_back(RLMesh(&whiteFurnaceSphereMeshProvider, { material }, systemSetupCallback, glm::mat4(1.0f)));
         });
@@ -131,9 +131,9 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                     PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
                     PhysicallyBasedMaterial::Parameters params;
                     params.metallic = 0.0f;
-                    params.roughness = 0.8f;
+                    params.roughness = 1.0f;
                     params.baseColor = glm::vec3(0.9f);
-                    params.specularF0 = 0.5f;
+                    params.specularF0 = 0.0f;
                     material->build(params);
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.5f, 0.0f));
                     m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation));
@@ -195,7 +195,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                     params.specularF0 = 1.0f;
                     material->build(params);
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-0.9f, -0.5f, -0.8f));
-                    m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
+                    //m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
                 }
 
                 // Sphere 2.
@@ -210,9 +210,9 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                     PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
                     PhysicallyBasedMaterial::Parameters params;
                     params.metallic = 0.0f;
-                    params.roughness = 1.0f;
+                    params.roughness = 0.0f;
                     params.baseColor = glm::vec3(0.8f);
-                    params.specularF0 = 0.0f;
+                    params.specularF0 = 1.0f;
                     material->build(params);
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(1.2f, -0.5f, 0.8f));
                     m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));

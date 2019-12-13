@@ -43,14 +43,17 @@ vec3 orenNayarDiffuse(vec3 Cdiff, float roughnessSquared, vec3 N, vec3 V, vec3 L
 	return Cdiff * (A + B * cosPhi * s * t); // note that there is no 1/pi here as we want it cancelled out (for PDF reasons).
 }
 
-vec3 F_Schlick(vec3 Cspec, float HdotV)
+vec3 F_Schlick(vec3 Cspec, float cosTheta)
 {
-	return mix(Cspec, vec3(1.0), pow5(1.0 - HdotV));
+	// Note that this assumes an F90 of 1.0.
+	return Cspec + (1.0 - Cspec) * pow5(1.0 - cosTheta);
 }
 
-float F_Schlick(float specularF0, float HdotV)
+
+float F_Schlick(float specularF0, float cosTheta)
 {
-	return mix(specularF0, 1.0, pow5(1.0 - HdotV));
+	// Note that this assumes an F90 of 1.0.
+	return specularF0 + (1.0 - specularF0) * pow5(1.0 - cosTheta);
 }
 
 float F_Fresnel(float eta, float cosThetaI)
@@ -83,11 +86,11 @@ float G_Schlick(float NdotO, float NdotI, float roughnessAlpha)
 	return gI * gO;
 }
 
-float G1_Smith_GGX(float NdotV, float roughnessAlpha)
+float G1_Smith_GGX(float NdotI, float roughnessAlpha)
 {
 	float alpha2 = square(roughnessAlpha);
-	float denom = sqrt(alpha2 + (1.0 - alpha2) * square(NdotV)) + NdotV;
-	return (2.0 * NdotV) / greaterThanZero(denom);
+	float denom = sqrt(alpha2 + (1.0 - alpha2) * square(NdotI)) + NdotI;
+	return (2.0 * NdotI) / greaterThanZero(denom);
 }
 
 float G2_Smith_GGX(float NdotO, float NdotI, float roughnessAlpha)
