@@ -28,17 +28,17 @@ vec3 lambertian(vec3 Cdiff)
 	return Cdiff * kOneOverPI;
 }
 
-vec3 orenNayarDiffuse(vec3 Cdiff, float roughnessSquared, vec3 N, vec3 V, vec3 L)
+vec3 orenNayarDiffuse(vec3 Cdiff, float roughnessSquared, vec3 N, vec3 I, vec3 O)
 {
-	float NdotV = saturate(dot(N, V));
-	float NdotL = saturate(dot(N, L));
+	float NdotI = saturate(dot(N, I));
+	float NdotO = saturate(dot(N, O));
 	float A = 1.0 - 0.5 * (roughnessSquared / (roughnessSquared + 0.33));
 	float B = (0.45 * roughnessSquared) / (roughnessSquared + 0.09);
-	float cosPhi = dot(normalize(V - (NdotV * N)), normalize(L - (NdotL * N))); // cosine of phi_o and phi_i.
-	float sinNV = sqrt(1.0 - square(NdotV));
-	float sinNL = sqrt(1.0 - square(NdotL));
-	float s = (NdotV < NdotL) ? sinNV : sinNL; // sin(alpha).
-	float t = (NdotV > NdotL) ? sinNV / NdotV : sinNL / NdotL; // tan(beta).
+	float cosPhi = dot(normalize(I - (NdotI * N)), normalize(O - (NdotO * N))); // cosine of phi_o and phi_i.
+	float sinNI = sqrt(1.0 - square(NdotI));
+	float sinNO = sqrt(1.0 - square(NdotO));
+	float s = (NdotI < NdotO) ? sinNI : sinNO; // sin(alpha).
+	float t = (NdotI > NdotO) ? sinNI / NdotI : sinNO / NdotO; // tan(beta).
 
 	return Cdiff * (A + B * cosPhi * s * t); // note that there is no 1/pi here as we want it cancelled out (for PDF reasons).
 }

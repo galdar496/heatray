@@ -189,30 +189,23 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                 {
                     PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
                     PhysicallyBasedMaterial::Parameters params;
-                    params.metallic = 1.0f;
-                    params.roughness = 0.1f;
-                    params.baseColor = glm::vec3(0.8f);
-                    params.specularF0 = 1.0f;
-                    material->build(params);
-                    glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-0.9f, -0.5f, -0.8f));
-                    //m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
-                }
-
-                // Sphere 2.
-                {
-                    /*GlassMaterial* material = new GlassMaterial();
-                    GlassMaterial::Parameters params;
-                    params.roughness = 0.1f;
-                    params.baseColor = glm::vec3(1.0f);
-                    params.ior = 1.57f;
-                    params.density = 0.5f;*/
-
-                    PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
-                    PhysicallyBasedMaterial::Parameters params;
                     params.metallic = 0.0f;
                     params.roughness = 0.0f;
                     params.baseColor = glm::vec3(0.8f);
                     params.specularF0 = 1.0f;
+                    material->build(params);
+                    glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-0.9f, -0.5f, -0.8f));
+                    m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
+                }
+
+                // Sphere 2.
+                {
+                    GlassMaterial* material = new GlassMaterial();
+                    GlassMaterial::Parameters params;
+                    params.roughness = 0.1f;
+                    params.baseColor = glm::vec3(1.0f);
+                    params.ior = 1.57f;
+                    params.density = 0.5f;
                     material->build(params);
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(1.2f, -0.5f, 0.8f));
                     m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));

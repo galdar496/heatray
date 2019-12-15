@@ -25,7 +25,7 @@ void sampleDiffuse(vec3 N, vec3 I, float NdotI, mat3 frame, vec2 rand,
 	{
 		// Note that the PDF of cosine-weighted sampling is cos(theta)/pi but cancels out.
 		vec3 diffuse = Cdiff;
-	
+
 		vec3 reflectance = diffuse;
 		reflectance /= sampleProbability;
 
@@ -34,7 +34,7 @@ void sampleDiffuse(vec3 N, vec3 I, float NdotI, mat3 frame, vec2 rand,
 		{
 			createRay();
 				rl_OutRay.direction = O;
-				rl_OutRay.weight = reflectance * rl_InRay.weight;
+				rl_OutRay.weight = reflectance;
 				rl_OutRay.occlusionTest = isDirectLightingSample;
 				rl_OutRay.defaultPrimitive = rayMissPrimitive;
 			emitRay();
