@@ -338,7 +338,7 @@ void HeatrayRenderer::render()
 
     // Display the current raytraced result.
     {
-        m_displayProgram.bind(0); 
+        m_displayProgram.bind(0, m_cameraExposure); 
         glBindTexture(GL_TEXTURE_2D, m_displayTexture);
         glBegin(GL_QUADS);
 			glTexCoord2d(0.0, 0.0); glVertex2f(-1.0f, -1.0f);
@@ -559,7 +559,7 @@ bool HeatrayRenderer::renderUI()
 
         static const char* options[] = { "Sphere Array", "White Sphere", "Multi-Material" };
 
-        static unsigned int currentSelection = 0;
+        static unsigned int currentSelection = 2;
         if (ImGui::BeginCombo("Built-In Scenes", options[currentSelection]))
         {
             for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption)
@@ -624,6 +624,10 @@ bool HeatrayRenderer::renderUI()
                 ImGui::EndCombo();
             }
         }
+    }
+    if (ImGui::CollapsingHeader("Post processing"))
+    {
+        ImGui::SliderFloat("Exposure compensation", &m_cameraExposure, -10.0f, 10.0f);
     }
     ImGui::End();
 

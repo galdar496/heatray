@@ -64,6 +64,7 @@ private:
         GLuint shader = 0;
 
         GLint displayTextureLocation = -1;
+        GLint cameraExposureLocation = -1;
 
         void init()
         {
@@ -86,13 +87,15 @@ private:
 
             // Read the necessary uniform locations.
             displayTextureLocation = glGetUniformLocation(program, "raytracedTexture");
+            cameraExposureLocation = glGetUniformLocation(program, "cameraExposure");
         }
 
         /// @param texture Location of the texture to use for the shader.
-        void bind(GLint texture) const
+        void bind(GLint texture, float cameraExposure) const
         {
             glUseProgram(program);
             glUniform1i(displayTextureLocation, texture);
+            glUniform1f(cameraExposureLocation, std::powf(2.0, cameraExposure));
         }
 
         void unbind() const
@@ -131,6 +134,8 @@ private:
     Camera m_camera;
     bool m_visualizeSequenceData = false;
     std::vector<glm::vec3> m_sequenceVisualizationData;
+
+    float m_cameraExposure = 0.0f;
 
     std::vector<RLMesh> m_sceneData;
 
