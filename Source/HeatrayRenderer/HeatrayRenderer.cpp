@@ -338,7 +338,7 @@ void HeatrayRenderer::render()
 
     // Display the current raytraced result.
     {
-        m_displayProgram.bind(0, m_cameraExposure); 
+        m_displayProgram.bind(0, m_tonemappingEnabled, m_cameraExposure); 
         glBindTexture(GL_TEXTURE_2D, m_displayTexture);
         glBegin(GL_QUADS);
 			glTexCoord2d(0.0, 0.0); glVertex2f(-1.0f, -1.0f);
@@ -627,6 +627,7 @@ bool HeatrayRenderer::renderUI()
     }
     if (ImGui::CollapsingHeader("Post processing"))
     {
+        ImGui::Checkbox("ACES tonemapping enabled", &m_tonemappingEnabled);
         ImGui::SliderFloat("Exposure compensation", &m_cameraExposure, -10.0f, 10.0f);
     }
     ImGui::End();

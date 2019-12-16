@@ -5,6 +5,7 @@
 #extension GL_EXT_gpu_shader4 : require
 
 uniform sampler2D raytracedTexture;
+uniform int tonemappingEnabled;
 uniform float cameraExposure;
 
 // ACES tonemapping adapted from: https://github.com/TheRealMJP/BakingLab/blob/master/BakingLab/ACES.hlsl
@@ -33,11 +34,14 @@ void main()
 	vec4 result = texture2D(raytracedTexture, gl_TexCoord[0].st);
 	vec3 finalColor = result.xyz / result.w;
 
-	// Perform ACES tonemapping.
-	finalColor = ACESInputMat * finalColor;
-	finalColor = RRTAndODTFit(finalColor);
-	finalColor = ACESOutputMat * finalColor;
-	finalColor *= cameraExposure;
+	if (tonemappingEnabled == 1)
+	{
+		// Perform ACES tonemapping.
+		finalColor = ACESInputMat * finalColor;
+		finalColor = RRTAndODTFit(finalColor);
+		finalColor = ACESOutputMat * finalColor;
+	}
 
+	finalColor *= cameraExposure;
 	gl_FragColor = vec4(finalColor, 1.0);
 }
