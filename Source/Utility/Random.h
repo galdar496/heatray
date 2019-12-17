@@ -11,11 +11,13 @@
 #include <Utility/BlueNoise.h>
 
 #include <glm/glm/glm.hpp>
+#include <glm/glm/gtc/constants.hpp>
 
 #include <algorithm>
 #include <assert.h>
 #include <functional>
 #include <random>
+#include <vector>
 
 namespace util
 {
@@ -152,6 +154,74 @@ inline void radialPseudoRandom(glm::vec3* results, const unsigned int count, con
         // Get the values to be in the 0-1 range for storage in a texture.
         x = (x + 1.0f) * 0.5f;
         y = (y + 1.0f) * 0.5f;
+
+        results[iIndex] = glm::vec3(x, y, 0.0f);
+    }
+}
+
+inline void randomPolygonal(glm::vec3* results, const unsigned int numEdges, const unsigned int count, const unsigned int seed)
+{
+    std::vector<glm::vec2> vertices;
+    vertices.resize(numEdges + 1); // Include the center.
+
+    // Generate the vertices that make up this polygon.
+    float stepSize = glm::two_pi<float>() / numEdges;
+    for (unsigned int iIndex = 0; iIndex < numEdges; ++iIndex)
+    {
+        float theta = stepSize * float(iIndex);
+        glm::vec2 vertex(std::cosf(theta), std::sinf(theta));
+        vertices[iIndex] = vertex;
+    }
+    vertices[numEdges] = glm::vec2(0.0f);
+
+    // Generate the triangles that make up this polygon by aggregating the above vertices.
+    struct Triangle
+    {
+        glm::vec2 vertices[3];
+    };
+
+    std::vector<Triangle> triangles;
+    triangles.resize(numEdges);
+
+    for (unsigned int iIndex = 0; iIndex < numEdges; ++iIndex)
+    {
+        Triangle tri;
+        tri.vertices[0] = vertices[numEdges]; // Center.
+        tri.vertices[1] = vertices[iIndex];
+        tri.vertices[2] = vertices[(iIndex + 1) % numEdges];
+        triangles[iIndex] = tri;
+    }
+
+    // Randomly select a triangle and a point within that triangle N times.
+    std::random_device randomDevice;
+    std::mt19937 generator(randomDevice());
+    generator.seed(seed);
+
+    std::uniform_real_distribution<float> floatDistribution(0.0f, 1.0f); // For selecting the point within a triangle.
+    std::uniform_int_distribution<int> intDistribution(0, numEdges - 1); // For selecting between the triangles.
+
+    for (unsigned int iIndex = 0; iIndex < count; ++iIndex)
+    {
+        // First choose the triangle.
+        int triangleIndex = intDistribution(generator);
+
+        // Generate a random baycentric coordinate within the triangle using rejection sampling.
+        float alpha, beta;
+        do
+        {
+            alpha = floatDistribution(generator);
+            beta = floatDistribution(generator);
+        } while (alpha + beta > 1.0f);
+
+        float gamma = 1.0f - (alpha + beta);
+        Triangle tri = triangles[triangleIndex];
+        glm::vec2 vertex = tri.vertices[0] * alpha +
+                           tri.vertices[1] * beta  + 
+                           tri.vertices[2] * gamma;
+
+        // Get the values to be in the 0-1 range for storage in a texture.
+        float x = (vertex.x + 1.0f) * 0.5f;
+        float y = (vertex.y + 1.0f) * 0.5f;
 
         results[iIndex] = glm::vec3(x, y, 0.0f);
     }

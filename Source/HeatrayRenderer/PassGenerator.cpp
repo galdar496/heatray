@@ -74,7 +74,7 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
 
     // Generate the lists of random sequences used for pathtracing.
     {
-        generateRandomSequences(m_renderOptions.maxRenderPasses, m_renderOptions.sampleMode);
+        generateRandomSequences(m_renderOptions.maxRenderPasses, m_renderOptions.sampleMode, m_renderOptions.bokehShape);
     }
 
     // Setup the buffers to render into.
@@ -303,9 +303,10 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
     }
 
     if (m_renderOptions.sampleMode != newOptions.sampleMode ||
-        m_renderOptions.maxRenderPasses != newOptions.maxRenderPasses)
+        m_renderOptions.maxRenderPasses != newOptions.maxRenderPasses ||
+        m_renderOptions.bokehShape != newOptions.bokehShape)
     {
-        generateRandomSequences(newOptions.maxRenderPasses, newOptions.sampleMode);
+        generateRandomSequences(newOptions.maxRenderPasses, newOptions.sampleMode, newOptions.bokehShape);
     }
 
     if (m_renderOptions.maxRayDepth != newOptions.maxRayDepth)
@@ -358,7 +359,7 @@ void PassGenerator::changeEnvironment(std::string const & newEnvMap)
     m_environmentLightPrimitive.unbind();
 }
 
-void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptions::SampleMode sampleMode)
+void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptions::SampleMode sampleMode, RenderOptions::BokehShape bokehShape)
 {
     struct SequenceBlockData
     {
@@ -433,10 +434,29 @@ void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptio
 
     // Now generate the data random sequence data for aperture sampling for depth of field.
     {
-        std::vector<glm::vec3> values(kNumRandomSequences* sampleCount);
+        std::vector<glm::vec3> values(kNumRandomSequences * sampleCount);
         for (unsigned int iSequence = 0; iSequence < kNumRandomSequences; ++iSequence)
         {
-            util::radialPseudoRandom(&values[iSequence * sampleCount], sampleCount, iSequence);
+            //util::radialPseudoRandom(&values[iSequence * sampleCount], sampleCount, iSequence);
+            util::randomPolygonal(&values[iSequence * sampleCount], 5, sampleCount, iSequence);
+
+            switch (bokehShape)
+            {
+                case PassGenerator::RenderOptions::BokehShape::kSpherical:
+                    util::radialPseudoRandom(&values[iSequence * sampleCount], sampleCount, iSequence);
+                    break;
+                case PassGenerator::RenderOptions::BokehShape::kPentagon:
+                    util::randomPolygonal(&values[iSequence * sampleCount], 5, sampleCount, iSequence);
+                    break;
+                case PassGenerator::RenderOptions::BokehShape::kHexagon:
+                    util::randomPolygonal(&values[iSequence * sampleCount], 6, sampleCount, iSequence);
+                    break;
+                case PassGenerator::RenderOptions::BokehShape::kOctagon:
+                    util::randomPolygonal(&values[iSequence * sampleCount], 8, sampleCount, iSequence);
+                    break;
+                default:
+                    assert(0);
+            }
         }
 
         if (m_apertureSamplesTexture.valid())

@@ -439,7 +439,23 @@ void HeatrayRenderer::generateSequenceVisualizationData(int sequenceIndex, int r
 
 // Enable this to see the samples for the aperture visualized.
 #if 0
-    util::radialPseudoRandom(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
+    switch (m_renderOptions.bokehShape)
+    {
+        case PassGenerator::RenderOptions::BokehShape::kSpherical:
+            util::radialPseudoRandom(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
+            break;
+        case PassGenerator::RenderOptions::BokehShape::kPentagon:
+            util::randomPolygonal(&m_sequenceVisualizationData[0], 5, renderPasses, sequenceIndex);
+            break;
+        case PassGenerator::RenderOptions::BokehShape::kHexagon:
+            util::randomPolygonal(&m_sequenceVisualizationData[0], 6, renderPasses, sequenceIndex);
+            break;
+        case PassGenerator::RenderOptions::BokehShape::kOctagon:
+            util::randomPolygonal(&m_sequenceVisualizationData[0], 8, renderPasses, sequenceIndex);
+            break;
+        default:
+            assert(0);
+    }
 #endif
 }
 
@@ -604,6 +620,35 @@ bool HeatrayRenderer::renderUI()
         if (ImGui::SliderFloat("Aperture radius(mm)", &m_renderOptions.camera.apertureRadius, 0.0f, 1.0f))
         {
             shouldResetRenderer = true;
+        }
+        {
+            static const char* options[] = { "Spherical", "Pentagon", "Hexagon", "Octagon" };
+            constexpr PassGenerator::RenderOptions::BokehShape realOptions[] = {
+                PassGenerator::RenderOptions::BokehShape::kSpherical,
+                PassGenerator::RenderOptions::BokehShape::kPentagon,
+                PassGenerator::RenderOptions::BokehShape::kHexagon,
+                PassGenerator::RenderOptions::BokehShape::kOctagon
+            };
+
+            static unsigned int currentSelection = 1;
+            if (ImGui::BeginCombo("Bokeh shape", options[currentSelection]))
+            {
+                for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption)
+                {
+                    bool isSelected = currentSelection == iOption;
+                    if (ImGui::Selectable(options[iOption], false))
+                    {
+                        currentSelection = iOption;
+                        m_renderOptions.bokehShape = realOptions[iOption];
+                        shouldResetRenderer = true;
+                    }
+                    if (isSelected)
+                    {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
         }
     }
     if (ImGui::CollapsingHeader("Post processing"))

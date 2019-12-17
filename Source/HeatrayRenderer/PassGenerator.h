@@ -77,6 +77,16 @@ public:
 
         SampleMode sampleMode = SampleMode::kHalton;
 
+        enum class BokehShape
+        {
+            kSpherical,
+            kPentagon,
+            kHexagon,
+            kOctagon
+        };
+
+        BokehShape bokehShape = BokehShape::kPentagon;
+
         int maxRayDepth = 5;
     };
     
@@ -111,7 +121,7 @@ private:
     PassGenerator& operator=(const PassGenerator&& other) = delete;
 
     void changeEnvironment(std::string const & newEnvMap);
-    void generateRandomSequences(const RLint sampleCount, RenderOptions::SampleMode sampleMode);
+    void generateRandomSequences(const RLint sampleCount, RenderOptions::SampleMode sampleMode, RenderOptions::BokehShape bokehShape);
     void resetRenderingState(const RenderOptions& newOptions);
 
     bool runInitJob(const RLint renderWidth, const RLint renderHeight);
