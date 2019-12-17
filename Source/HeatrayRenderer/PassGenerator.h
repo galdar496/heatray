@@ -62,8 +62,8 @@ public:
         {
             float aspectRatio = -1.0f;  ///< Width / height.
             float focusDistance = 1.0f; ///< In meters.
-            float focalLength = 50.0f;  ///< in millimeters.
-            float fstop = 22.0f;        ///< f-stop of the camera.
+            float focalLength = 50.0f;  ///< In millimeters.
+            float apertureRadius = 0.0f; ///< In millimeters.
             glm::mat4 viewMatrix = glm::mat4(1.0f);
         } camera;
 

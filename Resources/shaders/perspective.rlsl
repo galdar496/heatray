@@ -48,12 +48,12 @@ void main()
 	
 	vec2 sampleOffset = getSequenceValue(sequenceID, Globals.sampleIndex);
 	vec2 samplePoint = (rl_FrameCoord.xy - vec2(0.5)) + sampleOffset; // -0.5 to get the lower-left corner of the pixel.
-	vec2 pixelNDC = samplePoint / rl_FrameSize.xy;
+	vec2 pixelUV = samplePoint / rl_FrameSize.xy;
 
 	// The following math assumes that the image plane is 1 unit away from the camera origin.
-	float x = (2.0 * pixelNDC.x - 1.0) * aspectRatio * fovTan;
-	float y = (1.0 - 2.0 * pixelNDC.y) * fovTan * -1.0; // * -1 because this Y vector is upside down (OpenRL 0,0 is bottom left corner).
-	vec3 dirCameraSpace = normalize(vec3(x, y, -1));
+	float x = (2.0 * pixelUV.x - 1.0) * aspectRatio * fovTan;
+	float y = (1.0 - 2.0 * pixelUV.y) * fovTan * -1.0; // * -1 because this Y vector is upside down (OpenRL 0,0 is bottom left corner).
+	vec3 dirCameraSpace = normalize(vec3(x, y, -1.0));
 
 	// Compute the origin and direction based on the focal length and aperture of the camera (dof).
 	vec3 focalPoint = focusDistance * dirCameraSpace;
@@ -61,7 +61,7 @@ void main()
 	// Sample is compressed to be between 0-1.
 	apertureSample = ((apertureSample * 2.0) - 1.0) * apertureRadius;
 	vec3 origin = vec3(apertureSample, 0.0);
-	vec3 dir = focalPoint - origin;
+    vec3 dir = focalPoint - origin;
 
     createRay();
 		rl_OutRay.origin		   = (viewMatrix * vec4(origin, 1.0)).xyz;
