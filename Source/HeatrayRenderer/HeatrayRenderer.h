@@ -56,6 +56,7 @@ private:
     void generateSequenceVisualizationData(int sequenceIndex, int renderPasses);
     bool renderUI();
     void resetRenderer();
+    void saveScreenshot();
 
     /// Object which handles final display of the raytraced pixels via a custom fragment shader.
     struct DisplayProgram
@@ -148,4 +149,10 @@ private:
 
     float m_currentPassTime = 0.0f;
     float m_totalRenderTime = 0.0f;
+
+    static const size_t m_screenshotPathLength = 512;
+    char m_screenshotPath[m_screenshotPathLength] = { 0 };
+    bool m_hdrScreenshot = false;
+    bool m_shouldSaveScreenshot = false;
+
 };

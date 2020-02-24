@@ -12,6 +12,7 @@
 
 #include <glm/glm/gtc/matrix_transform.hpp>
 #include "imgui/imgui.h"
+#include <FreeImage/FreeImage.h>
 
 #include <assert.h>
 #include <iostream>
@@ -350,6 +351,12 @@ void HeatrayRenderer::render()
         m_displayProgram.unbind();
     }
 
+    // If requested to do a screenshot, perform it now.
+    if (m_shouldSaveScreenshot)
+    {
+        saveScreenshot();
+    }
+
     m_resetRequested |= renderUI();
 
     // Kick the raytracer if necessary.
@@ -601,7 +608,7 @@ bool HeatrayRenderer::renderUI()
         ImGui::Text("Orbital Camera");
         bool changed = ImGui::SliderAngle("Phi", &(m_camera.orbitCamera.phi), 0.0f, 360.0f);
         changed |= ImGui::SliderAngle("Theta", &(m_camera.orbitCamera.theta), -90.0f, 90.0f);
-        changed |= ImGui::SliderFloat("Distance", &(m_camera.orbitCamera.distance), 0.0f, 100.0f);
+        changed |= ImGui::SliderFloat("Distance", &(m_camera.orbitCamera.distance), 0.0f, 1000.0f);
         if (changed)
         {
             m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
@@ -656,6 +663,15 @@ bool HeatrayRenderer::renderUI()
         ImGui::Checkbox("ACES tonemapping enabled", &m_tonemappingEnabled);
         ImGui::SliderFloat("Exposure compensation", &m_cameraExposure, -10.0f, 10.0f);
     }
+    if (ImGui::CollapsingHeader("Screenshot"))
+    {
+        ImGui::InputText("Output path", m_screenshotPath, m_screenshotPathLength);
+        ImGui::Checkbox("HDR", &m_hdrScreenshot);
+        if (ImGui::Button("Save"))
+        {
+            m_shouldSaveScreenshot = true; // Do this on the next frame before drawing UI.
+        }
+    }
     ImGui::End();
 
     if (m_visualizeSequenceData)
@@ -697,4 +713,58 @@ void HeatrayRenderer::resetRenderer()
     m_currentPass = 0;
     m_totalPasses = m_renderOptions.maxRenderPasses * (m_renderOptions.enableInteractiveMode ? m_renderOptions.kInteractiveBlockSize.x * m_renderOptions.kInteractiveBlockSize.y : 1);
     m_totalRenderTime = 0.0f;
+}
+
+void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char* message) {
+    printf("\n*** ");
+    if (fif != FIF_UNKNOWN) {
+        printf("%s Format\n", FreeImage_GetFormatFromFIF(fif));
+    }
+    printf(message);
+    printf(" ***\n");
+}
+
+void HeatrayRenderer::saveScreenshot()
+{
+    FreeImage_Initialise();
+    FreeImage_SetOutputMessage(FreeImageErrorHandler);
+    FIBITMAP* bitmap = nullptr;
+    if (m_hdrScreenshot)
+    {
+        FIBITMAP* hdrBitmap = FreeImage_AllocateT(FIT_RGBAF, m_pixelDimensions.x, m_pixelDimensions.y, 32 * openrl::PixelPackBuffer::kNumChannels); // 32 bits per pixel (RGBA).
+        
+        // We have to get the pixels from the display texture directly and get them into the proper format.
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_displayPixelBuffer);
+        size_t dataSize = m_pixelDimensions.x * m_pixelDimensions.y * sizeof(float) * openrl::PixelPackBuffer::kNumChannels;
+        void* pixels = FreeImage_GetBits(hdrBitmap);
+        glGetBufferSubData(GL_PIXEL_UNPACK_BUFFER, 0, dataSize, pixels);
+
+        // Convert each pixel to the proper RGB value (A stores the number of passes performed).
+        for (int y = 0; y < FreeImage_GetHeight(hdrBitmap); ++y)
+        {
+            float* bits = (float *)FreeImage_GetScanLine(hdrBitmap, y);
+            for (int x = 0; x < FreeImage_GetWidth(hdrBitmap); ++x)
+            {
+                float divisor = 1.0f / bits[FI_RGBA_ALPHA];
+
+                bits[FI_RGBA_RED]   *= divisor;
+                bits[FI_RGBA_GREEN] *= divisor;
+                bits[FI_RGBA_BLUE]  *= divisor;
+ 
+                bits += openrl::PixelPackBuffer::kNumChannels;
+            }
+        }
+
+        bitmap = FreeImage_ConvertToRGBF(hdrBitmap);
+    }
+    else
+    {     
+        bitmap = FreeImage_AllocateT(FIT_BITMAP, m_pixelDimensions.x, m_pixelDimensions.y, 24); // 8 bits per channel.
+        void* pixelData = FreeImage_GetBits(bitmap);
+        glReadPixels(0, 0, m_pixelDimensions.x, m_pixelDimensions.y, GL_BGR, GL_UNSIGNED_BYTE, pixelData);
+    }
+
+    FreeImage_Save(FreeImage_GetFIFFromFilename(m_screenshotPath), bitmap, m_screenshotPath, 0);
+    FreeImage_DeInitialise();
+    m_shouldSaveScreenshot = false;
 }
