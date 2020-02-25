@@ -18,6 +18,7 @@ void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& p
     {
         // RLtextures need to come first, since they require 8 byte alignment.
         RLtexture baseColorTexture;
+        RLtexture metallicRoughnessTexture; // R: metallic, G: roughness
         glm::vec3 baseColor;
         float metallic;  
         float roughness;
@@ -41,11 +42,21 @@ void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& p
     {
         hasTextures = true;
         shaderParams.baseColorTexture = params.baseColorTexture->texture();
-        shaderPrefix << "#define HAVE_BASE_COLOR_TEXTURE\n";
+        shaderPrefix << "#define HAS_BASE_COLOR_TEXTURE\n";
     }
     else
     {
         shaderParams.baseColorTexture = openrl::getDummyTexture().texture();
+    }
+    if (params.metallicRoughnessTexture)
+    {
+        hasTextures = true;
+        shaderParams.metallicRoughnessTexture = params.metallicRoughnessTexture->texture();
+        shaderPrefix << "#define HAS_METALLIC_ROUGHNESS_TEXTURE\n";
+    }
+    else
+    {
+        shaderParams.metallicRoughnessTexture = openrl::getDummyTexture().texture();
     }
     
     // Load the parameters into the uniform block buffer.
@@ -65,6 +76,8 @@ void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& p
     {
         vertexShader = "positionNormal.vert.rlsl";
     }
+
+    std::cout << "Building shader: " << m_shader << " with flags: " << shaderPrefix.str() << std::endl;
     m_program = util::buildShader(vertexShader, m_shader, "PhysicallyBased", shaderPrefix.str());
 
     // NOTE: the association of the program and the uniform block needs to happen in the calling code.

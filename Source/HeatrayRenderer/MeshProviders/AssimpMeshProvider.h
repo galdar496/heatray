@@ -68,6 +68,7 @@ public:
 private:
     void LoadModel(std::string const & filename);
     void ProcessMesh(aiMesh const * mesh);
+    void ProcessGlassMaterial(aiMaterial const* material);
     void ProcessMaterial(aiMaterial const * material);
     void ProcessNode(aiScene const * scene, const aiNode * node, const aiMatrix4x4 & parentTransform, int level);
 

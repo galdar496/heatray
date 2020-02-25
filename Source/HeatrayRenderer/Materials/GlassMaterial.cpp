@@ -8,6 +8,7 @@
 #include <glm/glm/gtx/compatibility.hpp>
 
 #include <assert.h>
+#include <iostream>
 
 void GlassMaterial::build(const GlassMaterial::Parameters& params)
 {
@@ -25,7 +26,7 @@ void GlassMaterial::build(const GlassMaterial::Parameters& params)
 
     constexpr float kMinRoughness = 0.01f; // Too low of a roughness will force a dirac delta response which will cause math errors in the shader code.
 
-    shaderParams.baseColor      = glm::convertSRGBToLinear(glm::saturate(params.baseColor));
+    shaderParams.baseColor      = glm::saturate(params.baseColor);
     shaderParams.roughness      = glm::max(glm::saturate<float, glm::defaultp>(params.roughness), kMinRoughness);
     shaderParams.roughnessAlpha = shaderParams.roughness * shaderParams.roughness;
     shaderParams.density        = glm::saturate<float, glm::defaultp>(params.density);
@@ -43,6 +44,7 @@ void GlassMaterial::build(const GlassMaterial::Parameters& params)
 
     // Loadup the shader code.
     // TODO: this should use some kind of shader cache.
+    std::cout << "Building shader: " << m_shader << std::endl;
     m_program = util::buildShader(m_vertexShader, m_shader, "Glass");
 
     // NOTE: the association of the program and the uniform block needs to happen in the calling code.

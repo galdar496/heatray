@@ -1,3 +1,4 @@
+#include "HeatrayRenderer/Materials/GlassMaterial.h"
 #include "HeatrayRenderer/Materials/PhysicallyBasedMaterial.h"
 #include "HeatrayRenderer/MeshProviders/AssimpMeshProvider.h"
 #include "Utility/TextureLoader.h"
@@ -157,8 +158,38 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh)
     m_submeshes.push_back(submesh);
 }
 
+void AssimpMeshProvider::ProcessGlassMaterial(aiMaterial const* material)
+{
+    GlassMaterial::Parameters params;
+    params.baseColor = { 1.0f, 1.0f, 1.0f };
+    params.density = 0.05f;
+    params.ior = 1.33f;
+    params.roughness = 0.0f;
+
+    material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR, params.roughness);
+
+    aiColor3D color;
+    if (material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR, color) == aiReturn_SUCCESS)
+    {
+        //params.baseColor = glm::vec3(color.r, color.g, color.b);
+    }
+
+    GlassMaterial* glassMaterial = new GlassMaterial();
+    glassMaterial->build(params);
+    m_materials.push_back(glassMaterial);
+}
+
 void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
 {
+    aiString mode;
+    material->Get(AI_MATKEY_GLTF_ALPHAMODE, mode);
+    if (strcmp(mode.C_Str(), "BLEND") == 0)
+    {
+        // This is a transparent material.
+        ProcessGlassMaterial(material);
+        return;
+    }
+
     PhysicallyBasedMaterial::Parameters params;
 
     params.metallic = 0.0f;
@@ -193,6 +224,12 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
         material->GetTexture(aiTextureType_DIFFUSE, 0, &fileBaseColor);
         auto texturePath = (fileParent / fileBaseColor.C_Str()).string();
         params.baseColorTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true));
+    }
+    aiString fileRoughnessMetallicTexture;
+    if (material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &fileRoughnessMetallicTexture) == aiReturn_SUCCESS)
+    {
+        auto texturePath = (fileParent / fileRoughnessMetallicTexture.C_Str()).string();
+        params.metallicRoughnessTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true));
     }
 
     PhysicallyBasedMaterial * pbrMaterial = new PhysicallyBasedMaterial();

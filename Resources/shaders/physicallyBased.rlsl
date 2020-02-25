@@ -12,13 +12,14 @@
 
 varying vec3 normal;
 
-#if defined(HAVE_BASE_COLOR_TEXTURE)
+#if defined(HAS_BASE_COLOR_TEXTURE) || defined(HAS_METALLIC_ROUGHNESS_TEXTURE)
 varying vec2 texCoord;
 #endif
 
 uniformblock Material
 {
 	sampler2D baseColorTexture;
+	sampler2D metallicRoughnessTexture;
 	vec3 baseColor;
 	float metallic;
 	float roughness;
@@ -40,15 +41,24 @@ void main()
 	vec3 V = -rl_InRay.direction;
 	float NdotV = saturate(dot(N, V));
 
-	#if defined(HAVE_BASE_COLOR_TEXTURE)
+	#if defined(HAS_BASE_COLOR_TEXTURE)
 		vec3 baseColor = Material.baseColor * texture2D(Material.baseColorTexture, texCoord).rgb; // TODO: convert this to a linear color.
 	#else
 		vec3 baseColor = Material.baseColor;
 	#endif
 
-    vec3 Cdiff = baseColor * (1.0 - Material.metallic);
+	float metallic = Material.metallic;
+	float roughness = Material.roughness;
+	#if defined(HAS_METALLIC_ROUGHNESS_TEXTURE)
+		vec2 metallicRoughness = texture2D(Material.metallicRoughnessTexture, texCoord).rg;
+		metallic *= metallicRoughness.r;
+		roughness *= metallicRoughness.g;
+	#endif
+	float roughnessAlpha = roughness * roughness;
+
+    vec3 Cdiff = baseColor * (1.0 - metallic);
     // This approximation comes from https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
-	vec3 Cspec = 0.16 * square(Material.specularF0) * (1.0 - Material.metallic) + baseColor * Material.metallic;
+	vec3 Cspec = 0.16 * square(Material.specularF0) * (1.0 - metallic) + baseColor * metallic;
 
 	// The probability that we select the diffuse BRDF to sample while rendering.
 	float diffuseLuminance  = max(0.01, luminosity(Cdiff));
@@ -64,12 +74,12 @@ void main()
 		vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex);
 		if (probability.x < diffuseProbability)
 		{
-			sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, Material.roughnessAlpha,
+			sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, roughnessAlpha,
 						  diffuseProbability, true, Globals.environmentLight);
 		}
 		else
 		{
-			sampleSpecular(N, V, NdotV, frame, rand, Cspec, Material.roughnessAlpha,
+			sampleSpecular(N, V, NdotV, frame, rand, Cspec, roughnessAlpha,
 						   1.0 - diffuseProbability, true, Globals.environmentLight);
 		}
 	}
@@ -84,12 +94,12 @@ void main()
 		vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex);
 		if (probability.x < diffuseProbability)
 		{
-			sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, Material.roughnessAlpha,
+			sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, roughnessAlpha,
 						  diffuseProbability, false, rl_NullPrimitive);
 		}
 		else
 		{
-			sampleSpecular(N, V, NdotV, frame, rand, Cspec, Material.roughnessAlpha,
+			sampleSpecular(N, V, NdotV, frame, rand, Cspec, roughnessAlpha,
 						   1.0 - diffuseProbability, false, rl_NullPrimitive);
 		}
 	}

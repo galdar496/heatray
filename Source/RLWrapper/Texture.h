@@ -254,7 +254,7 @@ inline Texture getDummyTexture()
     {
         Texture::Descriptor desc;
         desc.width = desc.height = 1;
-        float purplePixel[4] = {1.f, 0.f, 1.f, 1.f};
+        float purplePixel[4] = {1.f, 1.f, 1.f, 1.f};
         dummyTexture.create(purplePixel, desc, Texture::Sampler(), false);
     }
 
