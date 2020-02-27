@@ -69,8 +69,7 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<Material*> materials, Set
 
         int worldFromEntityLocation = material->program().getUniformLocation("worldFromEntity");
 
-        glm::mat4 translation = glm::translate(glm::mat4(1), glm::vec3(0, 0, 0));
-        glm::mat4 finalTransform = translation * transform;
+        glm::mat4 finalTransform = submesh.localTransform * transform;
         material->program().setMatrix4fv(worldFromEntityLocation, &(finalTransform[0][0]));
 
         for (int jj = 0; jj < submesh.vertexAttributeCount; ++jj)

@@ -133,6 +133,7 @@ public:
         submesh.elementCount = 4;
 
         submesh.drawMode = DrawMode::TriangleStrip;
+        submesh.localTransform = glm::mat4(1.0f); // identity.
 
         return submesh;
     }

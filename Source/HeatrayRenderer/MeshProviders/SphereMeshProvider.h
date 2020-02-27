@@ -176,6 +176,7 @@ public:
         submesh.elementCount = 3 * triangleCount;
 
         submesh.drawMode = DrawMode::Triangles;
+        submesh.localTransform = glm::mat4(1.0f); // identity.
 
         return submesh;
     }

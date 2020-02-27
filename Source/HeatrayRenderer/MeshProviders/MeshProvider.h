@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <glm/glm/mat4x4.hpp>
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -57,6 +59,7 @@ public:
         size_t elementCount;
         DrawMode drawMode;
         int materialIndex = -1;
+        glm::mat4 localTransform;
     };
 
     virtual ~MeshProvider() {}

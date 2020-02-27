@@ -29,6 +29,17 @@ AssimpMeshProvider::AssimpMeshProvider(std::string filename, bool swapYZ)
 void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node, const aiMatrix4x4 & parentTransform, int level)
 {
     aiMatrix4x4 transform = parentTransform * node->mTransformation;
+
+    // Set the mesh transforms for this node.
+    for (unsigned int ii = 0; ii < node->mNumMeshes; ++ii)
+    {
+        // glm is column major, assimp is row major;
+        glm::mat4x4 *submeshTransform = &m_submeshes[node->mMeshes[ii]].localTransform;
+        *submeshTransform = glm::mat4x4(transform.a1, transform.b1, transform.c1, transform.d1,
+                                        transform.a2, transform.b2, transform.c2, transform.d2,
+                                        transform.a3, transform.b3, transform.c3, transform.d3,
+                                        transform.a4, transform.b4, transform.c4, transform.d4);
+    }
     
     for (unsigned int ii = 0; ii < node->mNumChildren; ++ii)
     {
