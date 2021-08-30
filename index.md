@@ -1,37 +1,158 @@
-## Welcome to GitHub Pages test2
+{{TOC}}
 
-You can use the [editor on GitHub](https://github.com/galdar496/heatray/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+# Overview
+This doc gives an overview of the materials available in Heatray along with some of the math and theory behind them.
+## Notation
+The following notation is used throughout this document:
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+|Symbol |Meaning |
+|:---: |:---- |
+|$\mathbf{n}$| Normal vector on the surface |
+|$\mathbf{i}$| Incident ray direction |
+|$\mathbf{o}$| Outgoing ray direction |
+|$\mathbf{h}$| Half vector between $\mathbf{n}$ and $\mathbf{i}$ (normalized) |
+|$\rho_{d}$| Diffuse reflectance (albedo)|
+|$\rho_{s}$| Specular reflectance|
+|$f$| BSDF
+|$f_d$| Diffuse component of a BSDF|
+|$f_r$| Specular component of a BSDF|
+|$\alpha$| GGX roughness (typically input roughness^2)|
+|$F_0$| Reflection coefficient for light incident to $\mathbf{n}$|
+|$\omega_i$| Incident direction|
+|$\omega_o$| Outgoing direction|
+|$\langle\omega_1,\omega_2\rangle$| Clamped dot product - $[0-1]$|
+|$\xi$| Uniformly-distributed random number between $[0-1]$|
+# Heatray Materials
+All *Heatray* materials follow the physical properties of light, specified by the rendering equation:
+$$\begin{aligned}L_o=L_e+\int_\Omega L_i \cdot f(\omega_i, \omega_o) \cdot cos\theta d\Omega\end{aligned}$$
+Where $L_o$ is the amount of light reflected off the surface, $L_e$ is the amount of light emitted by the surface, and $L_i$ is the light incoming to the surface for some given direction.
+## Physically Based
+The *Physically Based* material is designed to model hard-surfaces that do not transmit light but can instead absorb or scatter it. For example: hard plastics, ceramics, or metals. In more scientific terms - dialectics and conductors.
 
-### Markdown
+The BRDF used has several inputs that can be customized for the desired appearance:
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+|Input |Description |
+|:---: |:---- |
+|baseColor| For dialectics, this represents the albedo color of the surface. For conductors, this represents the specular reflection color. Specified in **sRGB** space. |
+|metallic| If set to 1.0, this material is fully metallic (conductor). If set to 0.0, this material is not-metallic (dielectric). **Range**: [0.0-1.0] |
+|roughness| If set to 1.0, this material is fully rough. If set to 0, this surface is perfectly smooth. **Range**: [0.0-1.0] |
+|specularF0| $F_0$ - in other words the value of the *Fresnel* term when $\theta=0$|
+### BRDF
+**Note**: The following sections define $\rho_{d}$ and $\rho_{s}$ as:
 
-```markdown
-Syntax highlighted code block
+$$\begin{aligned}\rho_d=(base color) \cdot (1-metallic)\end{aligned}$$
+$$\begin{aligned}\rho_s=mix(0.08*F_0, baseColor, metallic)\end{aligned}$$
 
-# Header 1
-## Header 2
-### Header 3
+respectively. We define $0.08$ as the maximum $F_0$ value for a dielectric.
 
-- Bulleted
-- List
+For a physically-based surface shader, Heatray uses the [Cook-Torrance](http://inst.cs.berkeley.edu/~cs294-13/fa09/lectures/cookpaper.pdf) microfacet model. For reference:
 
-1. Numbered
-2. List
 
-**Bold** and _Italic_ and `Code` text
+$$\begin{aligned}f(\omega_i,\omega_o)=f_d(\omega_i,\omega_o) + f_s(\omega_i,\omega_o)\end{aligned}$$
+$$\begin{aligned}f(\omega_i,\omega_o)=(1-F)(\frac{\rho_d}{\pi})+\frac{D \cdot F \cdot G}{4 \cdot cos\omega_icos\omega_o}\end{aligned}$$
 
-[Link](url) and ![Image](src)
-```
+Where $F$ is the *Fresnel* factor, $D$ is the *normal distribution function* (NDF) and $G$ is the *masking-shadowing* term.
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+#### Specular
+##### NDF Term (D)
+We use the GGX NDF, defined as:
 
-### Jekyll Themes
+$$\begin{aligned}D(\theta)=\frac{1}{\pi} \cdot \frac{\alpha^2}{(\cos^2\theta \cdot (\alpha^2 - 1) + 1)^2}\end{aligned}$$
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/galdar496/heatray/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+where $\theta$ is typically $\langle\mathbf{n},\mathbf{h}\rangle$.
 
-### Support or Contact
+##### Fresnel Term (F)
+We use the [Schlick](https://en.wikipedia.org/wiki/Schlick%27s_approximation) to determine the *Fresnel* term, defined as:
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+$$\begin{aligned}F(\theta)=F_0+(1-F_0)(1-cos\theta)^5\end{aligned}$$
+
+where $\theta$ is typically $\langle\mathbf{i},\mathbf{h}\rangle$.
+
+##### Masking-Shadowing Term (G)
+We use the Smith GGX uncorrelated masking-shadow term, defined as:
+$$\begin{aligned}\theta_o=&{}\langle\mathbf{n},\mathbf{o}\rangle \\ \theta_i=&{}\langle\mathbf{n},\mathbf{i}\rangle\end{aligned}$$
+$$\begin{aligned}G(\theta_o,\theta_i)=G2(\theta_o,\theta_i)=G1(\theta_o)G1(\theta_i)\end{aligned}$$
+
+where
+
+$$\begin{aligned}G1(\theta)=\frac{2 cos\theta}{cos\theta+\sqrt{\alpha^2+(1-\alpha^2)\cdot cos^2\theta}}\end{aligned}$$
+**Note**: This form of the equation is modified by multiplying the original equation by $$\frac{cos\theta}{cos\theta}$$ to avoid a costly divide.
+See [here](http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html) for more info.
+##### Sampling
+
+#### Diffuse
+Heatray uses a slightly different form for the diffuse component  from the base Cook-Torrance model (Lambertian) as noted by [Hammon](https://twvideo01.ubm-us.net/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf) to preserve reciprocity:
+
+$$\begin{aligned}f_d(\omega_i,\omega_o)=(1-F)\frac{1.05}{\pi}(1-(1-cos\omega_o)^5)\end{aligned}$$
+
+##### Sampling
+We importance sample the diffuse BRDF using *cosine-weighted* sampling with a PDF of:
+$$\begin{aligned}pdf=\frac{cos\theta}{\pi}\end{aligned}$$
+
+where $cos\theta$ is the falloff factor in the rendering equation accounting for the amount of energy reaching the surface per-unit area and $\pi$ is the normalization factor. This PDF results in the following sampling function:
+$$\begin{aligned}\theta={}&sin^{-1}\sqrt{\xi_0} \\ \phi={}&2\pi \cdot \xi_1\end{aligned}$$
+
+See [the appendix](#Derivation-of-the-sampling-function-for-cosine-weighted-sampling) to see how this function was obtained.
+
+# Appendix
+## Derivation of the sampling function for cosine-weighted sampling
+Cosine-weighted sampling uses a PDF defined as:
+$$\begin{aligned}pdf=\frac{cos\theta}{\pi}\end{aligned}$$
+
+To find a sampling function, we use [Inverse Transform Sampling](https://en.wikipedia.org/wiki/Inverse_transform_sampling) which first finds the CDF by integrating the PDF over the hemisphere and then inverts the function to get the final result.
+
+First, let’s re-write the PDF to be in terms of $t$ so that we can integrate it over the usual spherical domain $\theta,\phi$:
+$$\begin{aligned}\int_ \Omega \frac{cos(t)}{\pi}d\Omega \Rightarrow\int_{0}^{2\pi}\int_{0}^{\theta}\frac{cos(t)sin(t)}{\pi}dtd\phi\end{aligned}$$
+Then we integrate the PDF to obtain the CDF:
+$$\begin{aligned}\frac{2\pi}{\pi}\int_{0}^{\theta}\frac{sin(2t)}{2}dt \Rightarrow \int_{0}^{\theta}sin(2t)dt\end{aligned}$$
+$$\begin{aligned}Let\space u={}&2t \\ \frac{du}{dt}={}&2 \\ dt={}&\frac{du}{2}\end{aligned}$$
+$$\begin{aligned}\int_{0}^{2\theta}sin(u)\frac{du}{2} \Rightarrow \frac{1}{2}\Bigr\rvert_{0}^{2\theta}-cos(u) \Rightarrow 
+\frac{1}{2}\lbrack1 - cos(2\theta)\rbrack\end{aligned}$$
+$$\begin{aligned}cdf=sin^2\theta\end{aligned}$$
+Finally, we invert the CDF by solving for $\theta$ to arrive at the final solution:
+$$\begin{aligned}u={}&sin^2\theta \\ \sqrt{u}={}&sin\theta \\ \theta={}&sin^{-1}\sqrt{u}\end{aligned}$$
+Since the PDF does not include $\phi$, we just pick a random angle using a different random value for the other spherical coordinate:
+$$\begin{aligned}\phi=2\pi \cdot \xi\end{aligned}$$
+## Derivation of the sampling function for GGX sampling
+Technically we should sample exactly the specular microfacet BRDF to get the most accurate importance sampling for GGX. However, we can greatly simplify the sampling equation by instead looking at the main terms of the BRDF and choosing the ones that have the most impact on the overall shape of the function. In the case of a microfacet BRDF, that would be how the normal distribution (the $D$ term) is specified. Therefore, we’ll choose a pdf of $D(\theta)$ and integrate that to determine the cdf and finally the importance sampling function to use, e.g.
+$$\begin{aligned}cdf=\int_\Omega D(cos\theta)d\Omega\end{aligned}$$
+
+As specified above, Heatray uses the GGX normal-distribution function, defined as:
+$$\begin{aligned}D(\theta)=\frac{1}{\pi} \cdot \frac{\alpha^2}{(\cos^2\theta \cdot (\alpha^2 - 1) + 1)^2}\end{aligned}$$
+Since we’ll be integrating this over the hemisphere, we need to account for the solid-angle represented by $cos\theta$, resulting in a final integral of:
+$$\begin{aligned}cdf=\int_\Omega\frac{1}{\pi} \cdot \frac{\alpha^2}{(\cos^2\theta \cdot (\alpha^2 - 1) + 1)^2} \cdot cos\theta d\Omega\end{aligned}$$
+Let’s rewrite this in terms of $t$ and start integrating it over the hemisphere. Note that $D$ only depends on $\theta$, therefore the $\phi$ part of the integration domain includes the whole hemisphere $(0-2\pi)$:
+$$\begin{aligned}\int_0^{2\pi}\int_0^\theta\frac{\alpha^2cos(t)sin(t)}{\pi(\cos^2(t) \cdot (\alpha^2 - 1) + 1)^2}dtd\phi\end{aligned}$$
+$$\begin{aligned}\frac{\alpha^2 \cdot 2\pi}{\pi}\int_0^\theta\frac{\frac{sin(2t)}{2}}{(\frac{1+cos(2t)}{2} \cdot (\alpha^2 - 1) + 1)^2}dt \Rightarrow \alpha^2\int_0^\theta\frac{sin(2t)}{(\frac{1+cos(2t)}{2} \cdot (\alpha^2 - 1) + 1)^2}dt\end{aligned}$$
+$$\begin{aligned}Let\space u={}&2t \\ \frac{du}{dt}={}&2 \\ dt={}&\frac{du}{2}\end{aligned}$$
+$$\begin{aligned}\frac{\alpha^2}{2}\int_0^{2\theta}\frac{sin(u)}{(\frac{1+cos(u)}{2} \cdot (\alpha^2 - 1) + 1)^2}du\end{aligned}$$
+Since $-sin(u)=dcos(u)$, we can rewrite the integral as:
+$$\begin{aligned}\frac{\alpha^2}{2}\int_{2\theta}^0\frac{1}{(\frac{1+cos(u)}{2} \cdot (\alpha^2 - 1) + 1)^2}dcos(u)\end{aligned}$$
+We can then refactor the bottom part of the integral to arrive at:
+$$\begin{aligned}\frac{\alpha^2}{2}\int_{2\theta}^0\frac{1}{(\frac{\alpha^2-1}{2}cos(u)+\frac{\alpha^2+1}{2})^2}dcos(u)\end{aligned}$$
+At this point, we can think of the denominator of the integral in the form of $ax+b$ where:
+$$\begin{aligned}a={}&\frac{\alpha^2-1}{2} \\
+x={}&cos(u) \\
+b={}&\frac{\alpha^2+1}{2}\end{aligned}$$
+Given that 
+$$\begin{aligned}\frac{d(ax+b)}{dx}=a\end{aligned}$$
+we can re-write the integral to be:
+$$\begin{aligned}\frac{\alpha^2}{2}\int_{2\theta}^0\frac{1}{(\frac{\alpha^2-1}{2}cos(u)+\frac{\alpha^2+1}{2})^2}d(\frac{\frac{\alpha^2-1}{2}cos(u)+\frac{\alpha^2+1}{2}}{\frac{\alpha^2-1}{2}})\end{aligned}$$
+We’ve now arrived at an equivalent of 
+$$\begin{aligned}\int\frac{1}{x^2}dx \Rightarrow -\frac{1}{x}\end{aligned}$$
+Therefore,
+$$\begin{aligned}(\frac{\alpha^2}{2}\cdot\frac{1}{\frac{\alpha^2-1}{2}})\Bigr\rvert_{0}^{2\theta}\frac{1}{\frac{\alpha^2-1}{2}cos(u)+\frac{\alpha^2+1}{2}} \\ \frac{\alpha^2}{\alpha^2-1}\Bigr\lbrack \frac{1}{\frac{\alpha^2-1}{2}(2cos^2\theta-1)+\frac{\alpha^2+1}{2}}-\frac{1}{\alpha^2}\Bigr\rbrack\end{aligned}$$
+Which finally simplifies to:
+$$\begin{aligned}\frac{\alpha^2}{(\alpha^2-1)^2cos^2\theta+\alpha^2-1}-\frac{1}{\alpha^2-1}\end{aligned}$$
+# References
+[1] http://inst.cs.berkeley.edu/~cs294-13/fa09/lectures/cookpaper.pdf
+
+[2] https://en.wikipedia.org/wiki/Schlick%27s_approximation
+
+[3] http://jcgt.org/published/0003/02/03/paper.pdf
+
+[4] https://twvideo01.ubm-us.net/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf
+
+[5] http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html
+
+[6] https://en.wikipedia.org/wiki/Inverse_transform_sampling
