@@ -1,12 +1,12 @@
 <meta charset="utf-8" emacsmode="-*- markdown -*-"><link rel="stylesheet" href="https://casual-effects.com/markdeep/latest/slate.css?">
 
 **Heatray - An OpenRL-Based Realtime Pathtracer**
+**Theory and Mathematics Overview**
 
 [GitHub project source](https://github.com/galdar496/heatray)
 
-# Overview
 This doc gives an overview of the materials available in Heatray along with some of the math and theory behind them.
-## Notation
+# Notation
 The following notation is used throughout this document:
 
 |Symbol |Meaning |
@@ -26,10 +26,12 @@ The following notation is used throughout this document:
 |$\omega_o$| Outgoing direction|
 |$\langle\omega_1,\omega_2\rangle$| Clamped dot product - $[0-1]$|
 |$\xi$| Uniformly-distributed random number between $[0-1]$|
+
 # Heatray Materials
 All *Heatray* materials follow the physical properties of light, specified by the rendering equation:
 $$\begin{aligned}L_o=L_e+\int_\Omega L_i \cdot f(\omega_i, \omega_o) \cdot cos\theta d\Omega\end{aligned}$$
 Where $L_o$ is the amount of light reflected off the surface, $L_e$ is the amount of light emitted by the surface, and $L_i$ is the light incoming to the surface for some given direction.
+
 ## Physically Based
 The *Physically Based* material is designed to model hard-surfaces that do not transmit light but can instead absorb or scatter it. For example: hard plastics, ceramics, or metals. In more scientific terms - dialectics and conductors.
 
@@ -41,6 +43,7 @@ The BRDF used has several inputs that can be customized for the desired appearan
 |metallic| If set to 1.0, this material is fully metallic (conductor). If set to 0.0, this material is not-metallic (dielectric). **Range**: [0.0-1.0] |
 |roughness| If set to 1.0, this material is fully rough. If set to 0, this surface is perfectly smooth. **Range**: [0.0-1.0] |
 |specularF0| $F_0$ - in other words the value of the *Fresnel* term when $\theta=0$|
+
 ### BRDF
 **Note**: The following sections define $\rho_{d}$ and $\rho_{s}$ as:
 
@@ -82,14 +85,13 @@ where
 $$\begin{aligned}G1(\theta)=\frac{2 cos\theta}{cos\theta+\sqrt{\alpha^2+(1-\alpha^2)\cdot cos^2\theta}}\end{aligned}$$
 **Note**: This form of the equation is modified by multiplying the original equation by $$\frac{cos\theta}{cos\theta}$$ to avoid a costly divide.
 See [here](http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html) for more info.
-##### Sampling
 
 #### Diffuse
 Heatray uses a slightly different form for the diffuse component  from the base Cook-Torrance model (Lambertian) as noted by [Hammon](https://twvideo01.ubm-us.net/o1/vault/gdc2017/Presentations/Hammon_Earl_PBR_Diffuse_Lighting.pdf) to preserve reciprocity:
 
 $$\begin{aligned}f_d(\omega_i,\omega_o)=(1-F)\frac{1.05}{\pi}(1-(1-cos\omega_o)^5)\end{aligned}$$
 
-##### Sampling
+#### Sampling
 We importance sample the diffuse BRDF using *cosine-weighted* sampling with a PDF of:
 $$\begin{aligned}pdf=\frac{cos\theta}{\pi}\end{aligned}$$
 
@@ -114,9 +116,10 @@ $$\begin{aligned}\int_{0}^{2\theta}sin(u)\frac{du}{2} \Rightarrow \frac{1}{2}\Bi
 \frac{1}{2}\lbrack1 - cos(2\theta)\rbrack\end{aligned}$$
 $$\begin{aligned}cdf=sin^2\theta\end{aligned}$$
 Finally, we invert the CDF by solving for $\theta$ to arrive at the final solution:
-$$\begin{aligned}u={}&sin^2\theta \\ \sqrt{u}={}&sin\theta \\ \theta={}&sin^{-1}\sqrt{u}\end{aligned}$$
+$$\begin{aligned}\xi={}&sin^2\theta \\ \sqrt{\xi}={}&sin\theta \\ \theta={}&sin^{-1}\sqrt{\xi}\end{aligned}$$
 Since the PDF does not include $\phi$, we just pick a random angle using a different random value for the other spherical coordinate:
-$$\begin{aligned}\phi=2\pi \cdot \xi\end{aligned}$$
+$$\begin{aligned}\phi=2\pi \cdot \xi_1\end{aligned}$$
+
 ## Derivation of the sampling function for GGX sampling
 Technically we should sample exactly the specular microfacet BRDF to get the most accurate importance sampling for GGX. However, we can greatly simplify the sampling equation by instead looking at the main terms of the BRDF and choosing the ones that have the most impact on the overall shape of the function. In the case of a microfacet BRDF, that would be how the normal distribution (the $D$ term) is specified. Therefore, we’ll choose a pdf of $D(\theta)$ and integrate that to determine the cdf and finally the importance sampling function to use, e.g.
 $$\begin{aligned}cdf=\int_\Omega D(cos\theta)d\Omega\end{aligned}$$
@@ -147,7 +150,24 @@ $$\begin{aligned}\int\frac{1}{x^2}dx \Rightarrow -\frac{1}{x}\end{aligned}$$
 Therefore,
 $$\begin{aligned}(\frac{\alpha^2}{2}\cdot\frac{1}{\frac{\alpha^2-1}{2}})\Bigr\rvert_{0}^{2\theta}\frac{1}{\frac{\alpha^2-1}{2}cos(u)+\frac{\alpha^2+1}{2}} \\ \frac{\alpha^2}{\alpha^2-1}\Bigr\lbrack \frac{1}{\frac{\alpha^2-1}{2}(2cos^2\theta-1)+\frac{\alpha^2+1}{2}}-\frac{1}{\alpha^2}\Bigr\rbrack\end{aligned}$$
 Which finally simplifies to:
-$$\begin{aligned}\frac{\alpha^2}{(\alpha^2-1)^2cos^2\theta+\alpha^2-1}-\frac{1}{\alpha^2-1}\end{aligned}$$
+$$\begin{aligned}cdf=\frac{\alpha^2}{(\alpha^2-1)^2cos^2\theta+\alpha^2-1}-\frac{1}{\alpha^2-1}\end{aligned}$$
+Next, we invert the CDF by solving for $\theta$ to arrive at the final sampling function:
+$$\begin{aligned}\xi=\frac{\alpha^2}{(\alpha^2-1)^2cos^2\theta+\alpha^2-1}-\frac{1}{\alpha^2-1} \\
+\xi=\frac{\alpha^2}{(\alpha^2-1)((\alpha^2-1)cos^2\theta+1)}-\frac{1}{\alpha^2-1}\\
+\xi+\frac{1}{\alpha^2-1}=\frac{\alpha^2}{(\alpha^2-1)((\alpha^2-1)cos^2\theta+1)}\\
+\xi(\alpha^2-1)+1=\frac{\alpha^2}{(\alpha^2-1)cos^2\theta+1}\\
+(\alpha^2-1)cos^2\theta+1=\frac{\alpha^2}{\xi(\alpha^2-1)+1}\\
+cos^2\theta=\frac{\alpha^2}{(\xi(\alpha^2-1)+1)(\alpha^2-1)}-\frac{1}{\alpha^2-1}\\
+cos^2\theta=\frac{\alpha^2}{(\xi(\alpha^2-1)+1)(\alpha^2-1)}-\frac{\xi(\alpha^2-1)+1}{(\xi(\alpha^2-1)+1)(\alpha^2-1)}\\
+cos^2\theta=\frac{(\alpha^2-1)-\xi(\alpha^2-1)}{(\xi(\alpha^2-1)+1)(\alpha^2-1)}\\
+cos^2\theta=\frac{(\alpha^2-1)(1-\xi)}{(\xi(\alpha^2-1)+1)(\alpha^2-1)}\\
+cos^2\theta=\frac{1-\xi}{\xi(\alpha^2-1)+1}\\
+\theta=cos^{-1}\sqrt{\frac{1-\xi}{\xi(\alpha^2-1)+1}}
+\end{aligned}$$
+Since the PDF does not include $\phi$, we just pick a random angle using a different random value for the other spherical coordinate:
+$$\begin{aligned}\phi=2\pi \cdot \xi_1\end{aligned}$$
+
+
 # References
 [1] http://inst.cs.berkeley.edu/~cs294-13/fa09/lectures/cookpaper.pdf
 
