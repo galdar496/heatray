@@ -118,6 +118,9 @@ void main()
 	}
 	else
 	{
+		// Make sure that the base color properly affects the reflected value.
+		weight *= Material.baseColor;
+
 		// Do reflection. Use the same microfacet to do direct lighting and a different one for indirect.
 		{
 			vec3 O = normalize(2.0 * HdotI * H - I);
