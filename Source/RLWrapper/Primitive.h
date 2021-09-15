@@ -13,8 +13,7 @@
 
 #include <OpenRL/OpenRL.h>
 
-namespace openrl
-{
+namespace openrl {
 
 class Primitive
 {
@@ -26,16 +25,14 @@ public:
 
     inline void create() 
     {
-        if (m_primitive == RL_NULL_PRIMITIVE)
-        {
+        if (m_primitive == RL_NULL_PRIMITIVE) {
             RLFunc(rlGenPrimitives(1, &m_primitive));
         }
     }
 
     inline void destroy()
     {
-        if (m_primitive != RL_NULL_PRIMITIVE)
-        {
+        if (m_primitive != RL_NULL_PRIMITIVE) {
             RLFunc(rlDeletePrimitives(1, &m_primitive));
         }
     }

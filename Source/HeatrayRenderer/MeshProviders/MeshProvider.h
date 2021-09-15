@@ -21,14 +21,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
-enum class DrawMode
-{
+enum class DrawMode {
     Triangles,
     TriangleStrip,
 };
 
-enum VertexAttributeUsage
-{
+enum VertexAttributeUsage {
     VertexAttributeUsage_Position,
     VertexAttributeUsage_Normal,
     VertexAttributeUsage_TexCoord,
@@ -37,27 +35,25 @@ enum VertexAttributeUsage
     VertexAttributeUsageCount,
 };
 
-struct VertexAttribute
-{
+struct VertexAttribute {
     VertexAttributeUsage usage;
-    int buffer;
-    int componentCount;
-    int size;
-    size_t offset;
-    int stride;
+	int buffer = -1;
+	int componentCount = 0;
+	int size = 0;
+	size_t offset = 0;
+	int stride = 0;
 };
 
 class MeshProvider
 {
 public:
-    struct Submesh
-    {
+    struct Submesh {
         int vertexAttributeCount = 0;
         VertexAttribute vertexAttributes[4];
-        size_t indexBuffer;
-        size_t indexOffset;
-        size_t elementCount;
-        DrawMode drawMode;
+		size_t indexBuffer = 0;
+		size_t indexOffset = 0;
+		size_t elementCount = 0;
+		DrawMode drawMode = DrawMode::Triangles;
         int materialIndex = -1;
         glm::mat4 localTransform;
     };

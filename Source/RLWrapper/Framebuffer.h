@@ -15,8 +15,7 @@
 #include <assert.h>
 #include <string>
 
-namespace openrl
-{
+namespace openrl {
 
 class Framebuffer
 {
@@ -29,16 +28,14 @@ public:
 
     inline void create()
     {
-        if (m_fbo == RL_NULL_FRAMEBUFFER)
-        {
+        if (m_fbo == RL_NULL_FRAMEBUFFER) {
             RLFunc(rlGenFramebuffers(1, &m_fbo));
         }
     }
 
     inline void destroy()
     {
-        if (m_fbo != RL_NULL_FRAMEBUFFER)
-        {
+        if (m_fbo != RL_NULL_FRAMEBUFFER) {
             RLFunc(rlDeleteFramebuffers(1, &m_fbo));
             m_fbo = RL_NULL_FRAMEBUFFER;
         }

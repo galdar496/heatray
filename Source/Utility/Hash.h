@@ -3,8 +3,7 @@
 #include <cstring>   // for size_t
 #include <stdint.h>  // for uint64_t
 
-namespace util
-{
+namespace util {
 
 constexpr inline uint64_t FNV1a(char const * bytes, size_t size)
 {
@@ -13,8 +12,7 @@ constexpr inline uint64_t FNV1a(char const * bytes, size_t size)
 
     uint64_t hash = kFNVOffsetBasis;
 
-    for (size_t i = 0; i < size; ++i)
-    {
+    for (size_t i = 0; i < size; ++i) {
         hash ^= bytes[i];
         hash *= kFNVPrime;
     }

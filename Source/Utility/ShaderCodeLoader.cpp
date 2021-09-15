@@ -7,8 +7,7 @@
 #include <assert.h>
 #include <set>
 
-namespace util
-{
+namespace util {
 
 using HashTable = std::set<std::string>; // key = shader name.
 constexpr char const * kShaderDir = "Resources/shaders/";
@@ -19,12 +18,10 @@ constexpr char const * kShaderDir = "Resources/shaders/";
 bool loadShaderSourceFileRecursive(const std::string &filename, std::vector<std::string>& finalSourceCode, HashTable &filesRead)
 {
     std::string sourceCode;
-    if (readTextFile(filename.c_str(), sourceCode))
-    {
+    if (readTextFile(filename.c_str(), sourceCode)) {
         // Check the source code for any "#include" files.
         size_t offset = 0;
-        while ((offset = sourceCode.find("#include", 0)) != std::string::npos)
-        {
+        while ((offset = sourceCode.find("#include", 0)) != std::string::npos) {
             // Should be formatted something like: #include "shader.rlsl"
             size_t nameStartOffset = sourceCode.find("\"", offset);
             assert(nameStartOffset != std::string::npos);
@@ -35,15 +32,13 @@ bool loadShaderSourceFileRecursive(const std::string &filename, std::vector<std:
             // Get rid of the "#include "blah.rlsl" in the source code.
             sourceCode.erase(offset, nameEndOffset - offset + 1);
 
-            if (filesRead.find(shaderName) != filesRead.end())
-            {
+            if (filesRead.find(shaderName) != filesRead.end()) {
                 // We've already added this source file to the final shader code.
                 continue;
             }
             filesRead.insert(shaderName);
 
-            if (!loadShaderSourceFileRecursive((std::string(kShaderDir) + shaderName).c_str(), finalSourceCode, filesRead))
-            {
+            if (!loadShaderSourceFileRecursive((std::string(kShaderDir) + shaderName).c_str(), finalSourceCode, filesRead)) {
                 return false;
             }
         }
@@ -72,26 +67,22 @@ openrl::Program buildShader(const char* vertexShaderPath, const char* rayShaderP
     std::string programName(name);
 
     std::vector<std::string> vertexShaderSource;
-    if (shaderPrefix.size())
-    {
+    if (shaderPrefix.size()) {
         vertexShaderSource.push_back(shaderPrefix);
     }
     util::loadShaderSourceFile(vertexShaderPath, vertexShaderSource);
     openrl::Shader vertex;
-    if (!vertex.createFromMultipleStrings(vertexShaderSource, RL_VERTEX_SHADER, (programName + " vertex shader").c_str()))
-    {
+    if (!vertex.createFromMultipleStrings(vertexShaderSource, RL_VERTEX_SHADER, (programName + " vertex shader").c_str())) {
         assert(0 && "Unable to create vertex shader");
     }
 
     std::vector<std::string> rayShaderSource;
-    if (shaderPrefix.size())
-    {
+    if (shaderPrefix.size()) {
         rayShaderSource.push_back(shaderPrefix);
     }
     util::loadShaderSourceFile(rayShaderPath, rayShaderSource);
     openrl::Shader ray;
-    if (!ray.createFromMultipleStrings(rayShaderSource, RL_RAY_SHADER, (programName + " ray shader").c_str()))
-    {
+    if (!ray.createFromMultipleStrings(rayShaderSource, RL_RAY_SHADER, (programName + " ray shader").c_str())) {
         assert(0 && "Unable to create ray shader");
     }
 
@@ -99,8 +90,7 @@ openrl::Program buildShader(const char* vertexShaderPath, const char* rayShaderP
     program.create();
     program.attach(vertex);
     program.attach(ray);
-    if (!program.link((programName + " program").c_str()))
-    {
+    if (!program.link((programName + " program").c_str())) {
         assert(0 && "Unable to create program");
     }
 

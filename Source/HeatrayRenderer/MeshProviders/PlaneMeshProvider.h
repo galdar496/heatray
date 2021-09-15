@@ -16,8 +16,7 @@
 
 class PlaneMeshProvider : public MeshProvider
 {
-enum BufferTypes
-{
+enum BufferTypes {
     kPositions = 0,
     kNormals,
     kUVs
@@ -42,8 +41,7 @@ public:
     {
         assert(buffer);
         float* floatPtr = reinterpret_cast<float*>(buffer);
-        switch (bufferIndex)
-        {
+        switch (bufferIndex) {
 			case kPositions: // Positions.
             {
                 glm::vec3 scale(m_width * 0.5f, 0.0f, m_length * 0.5f);

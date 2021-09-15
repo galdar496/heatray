@@ -16,8 +16,7 @@
 #include <string>
 #include <vector>
 
-namespace openrl
-{
+namespace openrl {
 
 ///
 /// Class to contain an OpenRL shader. Handles shader loading and compilation.
@@ -53,19 +52,15 @@ public:
     ///
     inline bool createFromString(const std::string& shaderSource, const RLenum type, const char* name)
     {
-        if (shaderSource.length() && createShader(type))
-        {
+        if (shaderSource.length() && createShader(type)) {
             RLFunc(rlShaderString(m_shader, RL_SHADER_NAME, name));
 
             const char* s = shaderSource.c_str();
             RLFunc(rlShaderSource(m_shader, 1, &s, nullptr));
 
-            if (compile())
-            {
+            if (compile()) {
                 return true;
-            }
-            else
-            {
+            } else {
                 const char* log = nullptr;
                 RLFunc(rlGetShaderString(m_shader, RL_COMPILE_LOG, &log));
                 std::cout << "Shader::createFromString() -- Unable to compile shader " << name << "\n\t" << log << std::endl;
@@ -78,13 +73,11 @@ public:
 
     inline bool createFromMultipleStrings(const std::vector<std::string>& shaderSource, const RLenum type, const char* name)
     {
-        if (shaderSource.size() && createShader(type))
-        {
+        if (shaderSource.size() && createShader(type)) {
             RLFunc(rlShaderString(m_shader, RL_SHADER_NAME, name));
 
             char** strings = new char* [shaderSource.size()];
-            for (int iIndex = 0; iIndex < shaderSource.size(); ++iIndex)
-            {
+            for (int iIndex = 0; iIndex < shaderSource.size(); ++iIndex) {
                 assert(shaderSource[iIndex].length());
                 strings[iIndex] = new char[shaderSource[iIndex].length() + 1];
                 strcpy(strings[iIndex], shaderSource[iIndex].c_str());
@@ -92,18 +85,14 @@ public:
 
             RLFunc(rlShaderSource(m_shader, shaderSource.size(), strings, nullptr));
 
-            for (int iIndex = 0; iIndex < shaderSource.size(); ++iIndex)
-            {
+            for (int iIndex = 0; iIndex < shaderSource.size(); ++iIndex) {
                 delete[] strings[iIndex];
             }
             delete[] strings;
 
-            if (compile())
-            {
+            if (compile()) {
                 return true;
-            }
-            else
-            {
+            } else {
                 const char* log = nullptr;
                 RLFunc(rlGetShaderString(m_shader, RL_COMPILE_LOG, &log));
                 std::cout << "Shader::createFromString() -- Unable to compile shader " << name << "\n\t" << log << std::endl;
@@ -119,8 +108,7 @@ public:
     ///
     inline void destroy()
     {
-        if (m_shader != RL_NULL_SHADER)
-        {
+        if (m_shader != RL_NULL_SHADER) {
             RLFunc(rlDeleteShader(m_shader));
             m_shader = RL_NULL_SHADER;
         }

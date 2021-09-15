@@ -2,8 +2,7 @@
 
 #include <Windows.h>
 
-namespace util
-{
+namespace util {
 
 std::vector<std::string> OpenFileDialog()
 {
@@ -18,8 +17,7 @@ std::vector<std::string> OpenFileDialog()
     ofn.lpstrFilter = "*.*\0\0";
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
-    if (GetOpenFileNameA(&ofn))
-    {
+    if (GetOpenFileNameA(&ofn)) {
         std::vector<std::string> retVal;
         retVal.push_back(path);
         return retVal;

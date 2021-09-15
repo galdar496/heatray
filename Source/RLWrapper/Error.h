@@ -16,8 +16,7 @@
 // Error checking macro that does an error check immediately after the specified RL function.
 #define RLFunc(func) func; checkRLErrors()
 
-namespace openrl
-{
+namespace openrl {
 
 ///
 /// Check the current OpenRL state for errors.
@@ -32,8 +31,7 @@ inline void checkError(const char* filename, int lineNumber)
 {
     RLenum errorID = rlGetError();
 
-    if (errorID != RL_NO_ERROR)
-    {
+    if (errorID != RL_NO_ERROR) {
         // An OpenRL error has occured, report it to the user.
         std::stringstream stream;
         stream << filename << " (" << lineNumber << ") - An OpenRL error occured: 0x" << std::hex << errorID;

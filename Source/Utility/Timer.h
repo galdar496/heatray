@@ -10,8 +10,7 @@
 
 #include <chrono>
 
-namespace util
-{
+namespace util {
 
 class Timer
 {
@@ -23,8 +22,7 @@ public:
         m_dt(0.0f),
         m_stopped(true)
     {
-        if (startNow)
-        {
+        if (startNow) {
             start();
         }
     }
@@ -34,8 +32,7 @@ public:
     ///
     inline void start()
     {
-        if (m_stopped)
-        {
+        if (m_stopped) {
             m_startTime = Clock::now();
             m_stopped = false;
         }
@@ -83,8 +80,7 @@ public:
     ///
     inline float getElapsedTime() const
     {
-        if (!m_stopped)
-        {
+        if (!m_stopped) {
             std::chrono::duration<float> duration = Clock::now() - m_startTime;
             return duration.count();
         }
@@ -95,8 +91,8 @@ public:
 protected:
 
     Clock::time_point m_startTime;  ///< Time recorded with a call to start().
-    float m_dt;                     ///< Time between a call to start() and stop() in seconds.
-    bool  m_stopped;                ///< If true, the timer is currently stopped.
+    float m_dt = 0.0f;              ///< Time between a call to start() and stop() in seconds.
+    bool  m_stopped = true;         ///< If true, the timer is currently stopped.
 
     };
 

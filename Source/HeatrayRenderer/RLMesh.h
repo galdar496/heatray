@@ -39,8 +39,7 @@ private:
     std::vector<openrl::Buffer> m_vertexBuffers;
     std::vector<openrl::Buffer> m_indexBuffers;
 
-    struct Submesh
-    {
+    struct Submesh {
         openrl::Primitive primitive;
         size_t elementCount;
         size_t offset;

@@ -10,8 +10,7 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<Material*> materials, Set
     m_materials = std::move(materials);
 
     size_t vertexBufferCount = meshProvider->GetVertexBufferCount();
-    for (size_t ii = 0; ii < vertexBufferCount; ++ii)
-    {
+    for (size_t ii = 0; ii < vertexBufferCount; ++ii) {
         openrl::Buffer buffer;
         buffer.load(nullptr, meshProvider->GetVertexBufferSize(ii), "Vertex Buffer");
         buffer.bind();
@@ -22,8 +21,7 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<Material*> materials, Set
     }
 
     size_t indexBufferCount = meshProvider->GetIndexBufferCount();
-    for (size_t ii = 0; ii < indexBufferCount; ++ii)
-    {
+    for (size_t ii = 0; ii < indexBufferCount; ++ii) {
         openrl::Buffer buffer;
         buffer.setTarget(RL_ELEMENT_ARRAY_BUFFER);
         buffer.load(nullptr, meshProvider->GetIndexBufferSize(ii), "Index Buffer");
@@ -35,18 +33,14 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<Material*> materials, Set
     }
 
     m_submeshes.resize(meshProvider->GetSubmeshCount());
-    for (int ii = 0; ii < meshProvider->GetSubmeshCount(); ++ii)
-    {
+    for (int ii = 0; ii < meshProvider->GetSubmeshCount(); ++ii) {
         MeshProvider::Submesh submesh = meshProvider->GetSubmesh(ii);
         RLMesh::Submesh & rlSubmesh = m_submeshes[ii];
 
         // If submesh material index is set, use it to look up the material
-        if (submesh.materialIndex != -1)
-        {
+        if (submesh.materialIndex != -1) {
             rlSubmesh.material = m_materials[submesh.materialIndex];
-        }
-        else
-        {
+        } else {
             // Else use the index of the submesh itself, or material 0.
             rlSubmesh.material = m_materials.size() > 1 ? m_materials[ii] : m_materials[0];
         }
@@ -59,8 +53,7 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<Material*> materials, Set
 
         // If this material has a uniform block, bind it here.
         RLint uniformBlockIndex = material->program().getUniformBlockIndex("Material"); // Yeah - this is saying all shader's should use the name "Material" for their uniform blocks.
-        if (uniformBlockIndex != -1) 
-        {
+        if (uniformBlockIndex != -1)  {
             material->program().setUniformBlock(uniformBlockIndex, material->uniformBlock().buffer());
         }
 
@@ -72,12 +65,10 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<Material*> materials, Set
         glm::mat4 finalTransform = submesh.localTransform * transform;
         material->program().setMatrix4fv(worldFromEntityLocation, &(finalTransform[0][0]));
 
-        for (int jj = 0; jj < submesh.vertexAttributeCount; ++jj)
-        {
+        for (int jj = 0; jj < submesh.vertexAttributeCount; ++jj) {
             auto & attribute = submesh.vertexAttributes[jj];
             int attributeLocation;
-            switch (attribute.usage)
-            {
+            switch (attribute.usage) {
                 case VertexAttributeUsage_Position:
                     attributeLocation = material->program().getAttributeLocation("positionAttribute");
                     break;
@@ -93,14 +84,12 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<Material*> materials, Set
                 default:
                     printf("Unknown vertex attribute usage %d\n", attribute.usage);
             }
-            if (attributeLocation != -1)
-            {
+            if (attributeLocation != -1) {
                 m_vertexBuffers[attribute.buffer].setAsVertexAttribute(attributeLocation, attribute.componentCount, RL_FLOAT, attribute.stride, attribute.offset);
             }
         }
         
-        switch (submesh.drawMode)
-        {
+        switch (submesh.drawMode) {
             case DrawMode::Triangles:
                 rlSubmesh.mode = RL_TRIANGLES;
                 break;
@@ -123,20 +112,17 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<Material*> materials, Set
 
 void RLMesh::destroy()
 {
-    for (openrl::Buffer& b : m_vertexBuffers)
-    {
+    for (openrl::Buffer& b : m_vertexBuffers) {
         b.destroy();
     }
     m_vertexBuffers.clear();
 
-    for (openrl::Buffer& b : m_indexBuffers)
-    {
+    for (openrl::Buffer& b : m_indexBuffers) {
         b.destroy();
     }
     m_vertexBuffers.clear();
 
-    for (Submesh& s : m_submeshes)
-    {
+    for (Submesh& s : m_submeshes) {
         s.primitive.destroy();
         s.material->program().destroy();
         s.material->uniformBlock().destroy();
@@ -144,8 +130,7 @@ void RLMesh::destroy()
     }
     m_submeshes.clear();
 
-    for (Material* m : m_materials)
-    {
+    for (Material* m : m_materials) {
         delete m;
     }
 }

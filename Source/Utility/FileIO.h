@@ -10,8 +10,7 @@
 
 #include <string>
 
-namespace util
-{
+namespace util {
  
 ///
 /// Read a text file and return its contents in a string.

@@ -26,7 +26,7 @@
 
 struct CameraInfo
 {
-    float fov; // Vertical FOV (in radians).
+    float fov = 0.0f; // Vertical FOV (in radians).
 
     // In the future: aperature, focal distance, etc.
 };
@@ -44,8 +44,7 @@ public:
     /// @returns If true, the path tracer is ready for use.
     void init(const RLint renderWidth, const RLint renderHeight);
 
-    struct RenderOptions
-    {
+    struct RenderOptions {
         // If true, the renderer will only do one pixel within a given block each frame as opposed to all of the pixels.
         // This speeds up raytraced for a more interactive experience but is slower to generate final frames.
         // Defaulted on.
@@ -58,8 +57,7 @@ public:
 
         std::string scene = "Multi-Material";
 
-        struct Camera
-        {
+        struct Camera {
             float aspectRatio = -1.0f;  ///< Width / height.
             float focusDistance = 1.0f; ///< In meters.
             float focalLength = 50.0f;  ///< In millimeters.
@@ -67,8 +65,7 @@ public:
             glm::mat4 viewMatrix = glm::mat4(1.0f);
         } camera;
 
-        enum class SampleMode
-        {
+        enum class SampleMode {
             kRandom,     ///< Perform pseudo-random sampling using uniform distributions.
             kHalton,     ///< Perform sampling using a Halton sequence.
             kHammersley, ///< Perform sampling using a Hammersley sequence.
@@ -77,8 +74,7 @@ public:
 
         SampleMode sampleMode = SampleMode::kHalton;
 
-        enum class BokehShape
-        {
+        enum class BokehShape {
             kSpherical,
             kPentagon,
             kHexagon,
@@ -147,8 +143,7 @@ private:
     LoadSceneCallback m_loadSceneCallback;
     unsigned int m_currentSampleIndex = 0;
 
-    enum class JobType
-    {
+    enum class JobType {
         kInit,
         kResize,
         kRenderPass,
@@ -156,16 +151,14 @@ private:
         kDestroy
     };
 
-    struct Job
-    {
+    struct Job {
         Job(const JobType t, std::any p) : type(t), params(std::move(p)) {}
 
         JobType type;
         std::any params;
     };
 
-    struct WindowSize
-    {
+    struct WindowSize {
         WindowSize(RLint newWidth, RLint newHeight) : width(newWidth), height(newHeight) {}
         RLint width  = -1;
         RLint height = -1;
@@ -184,8 +177,7 @@ private:
     openrl::Texture m_randomSequenceTexture; ///< Series of random sequences stored in a 2D texture. Each row of the texture is a different sequence.
     openrl::Texture m_apertureSamplesTexture; ///< Randomly generated values to use while sampling the aperture for depth of field.
 
-    struct GlobalData
-    {
+    struct GlobalData {
         int maxRayDepth = 5;
         int sampleIndex = 0;
         RLprimitive environmentLight = RL_NULL_PRIMITIVE;

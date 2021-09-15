@@ -9,22 +9,19 @@
 #include <filesystem>
 #include <iostream>
 
-namespace util
-{
+namespace util {
 
 openrl::Texture loadTexture(const char* path, bool generateMips)
 {
     openrl::Texture::Sampler sampler;
-    if (!generateMips) // default sampler state is with mipmapping enabled.
-    {
+    if (!generateMips) { // default sampler state is with mipmapping enabled.
         sampler.magFilter = RL_NEAREST;
         sampler.minFilter = RL_NEAREST_MIPMAP_NEAREST;
     }
 
     openrl::Texture texture;
 
-    if (std::filesystem::path(path).extension() == ".exr")
-    {
+    if (std::filesystem::path(path).extension() == ".exr") {
         FREE_IMAGE_FORMAT format = FreeImage_GetFileType(path, 0);
         assert(FreeImage_FIFSupportsReading(format));
 
@@ -40,8 +37,7 @@ openrl::Texture loadTexture(const char* path, bool generateMips)
 
         RLenum textureDataType = -1;
         RLenum textureFormat = -1;
-        switch (type)
-        {
+        switch (type) {
             // Likely some more to do here for other image types.
             case FIT_RGBF:
                 textureDataType = RL_FLOAT;
@@ -68,28 +64,22 @@ openrl::Texture loadTexture(const char* path, bool generateMips)
 
         texture.create(FreeImage_GetBits(imageData), desc, sampler, generateMips);
         FreeImage_Unload(imageData);
-    }
-    else
-    {
+    } else {
         int width, height, channelCount;
         stbi_set_flip_vertically_on_load(true);
 
         unsigned char * pixels;
         bool isHDR = stbi_is_hdr(path);
-        if (isHDR)
-        {
+        if (isHDR) {
             pixels = (unsigned char *)stbi_loadf(path, &width, &height, &channelCount, 0);
-        }
-        else
-        {
+        } else {
             pixels = stbi_load(path, &width, &height, &channelCount, 0);
         }
 
         openrl::Texture::Descriptor desc;
         desc.width = width;
         desc.height = height;
-        switch (channelCount)
-        {
+        switch (channelCount) {
             case 1:
                 desc.format = RL_FLOAT; break;
             case 3:

@@ -7,8 +7,7 @@
 
 #include "Utility/Hash.h"
 
-namespace util
-{
+namespace util {
 
 // NearestPointFinder finds the nearest point to a query point.
 // Points are inserted into the finder to allow it to build an
@@ -34,10 +33,8 @@ public:
 
         int nearestIndex = -1;
 
-        for (int pointIndex : pointIndices)
-        {
-            if (float distance = glm::distance(point, pointContainer[pointIndex]); distance < nearestDistance)
-            {
+        for (int pointIndex : pointIndices) {
+            if (float distance = glm::distance(point, pointContainer[pointIndex]); distance < nearestDistance) {
                 nearestIndex = pointIndex;
                 nearestDistance = distance;
             }
@@ -68,18 +65,15 @@ public:
         points.emplace_back(glm::vec2{Random(seed++), Random(seed++)});
         nearestPointFinder.AddPoint(0);
 
-        for (int i = 0; i < count - 1; ++i)
-        {
+        for (int i = 0; i < count - 1; ++i) {
             float furthestDistance = 0;
             glm::vec2 furthestCandidate;
 
-            for (int candidateIndex = 0; candidateIndex < 30; ++candidateIndex)
-            {
+            for (int candidateIndex = 0; candidateIndex < 30; ++candidateIndex) {
                 glm::vec2 candidate = {Random(seed++), Random(seed++)};
 
                 auto [nearestCandidateIndex, distance] = nearestPointFinder.FindNearestPoint(candidate);
-                if (distance > furthestDistance)
-                {
+                if (distance > furthestDistance) {
                     furthestCandidate = candidate;
                     furthestDistance = distance;
                 }

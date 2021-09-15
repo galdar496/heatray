@@ -3,8 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace util
-{
+namespace util {
 
 std::vector<std::string> OpenFileDialog();
 

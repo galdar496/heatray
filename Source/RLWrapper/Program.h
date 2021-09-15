@@ -16,8 +16,7 @@
 #include <assert.h>
 #include <iostream>
 
-namespace openrl
-{
+namespace openrl {
 
 ///
 /// Encapsulates an RLSL program.
@@ -37,8 +36,7 @@ public:
     ///
     inline void create()
     {
-        if (m_program == RL_NULL_PROGRAM)
-        {
+        if (m_program == RL_NULL_PROGRAM) {
             m_program = RLFunc(rlCreateProgram());
         }
     }
@@ -65,8 +63,7 @@ public:
     {
         RLFunc(rlLinkProgram(m_program));
 
-        if (!valid())
-        {
+        if (!valid()) {
             const char* log = nullptr;
             RLFunc(rlGetProgramString(m_program, RL_LINK_LOG, &log));
             std::cout << "Linking for program " << name << " failed: \n\t" << log << std::endl;
@@ -81,8 +78,7 @@ public:
     ///
     inline void destroy()
     {
-        if (m_program != RL_NULL_PROGRAM)
-        {
+        if (m_program != RL_NULL_PROGRAM) {
             RLFunc(rlDeleteProgram(m_program));
             m_program = RL_NULL_PROGRAM;
         }

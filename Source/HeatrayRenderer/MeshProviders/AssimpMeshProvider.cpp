@@ -31,8 +31,7 @@ void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node,
     aiMatrix4x4 transform = parentTransform * node->mTransformation;
 
     // Set the mesh transforms for this node.
-    for (unsigned int ii = 0; ii < node->mNumMeshes; ++ii)
-    {
+    for (unsigned int ii = 0; ii < node->mNumMeshes; ++ii) {
         // glm is column major, assimp is row major;
         glm::mat4x4 *submeshTransform = &m_submeshes[node->mMeshes[ii]].localTransform;
         *submeshTransform = glm::mat4x4(transform.a1, transform.b1, transform.c1, transform.d1,
@@ -47,8 +46,7 @@ void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node,
 		}
     }
     
-    for (unsigned int ii = 0; ii < node->mNumChildren; ++ii)
-    {
+    for (unsigned int ii = 0; ii < node->mNumChildren; ++ii) {
         ProcessNode(scene, node->mChildren[ii], transform, level + 1, convert_to_meters);
     }
 }
@@ -57,8 +55,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
 {
     Submesh submesh;
 
-    if (mesh->HasPositions())
-    {
+    if (mesh->HasPositions()) {
         VertexAttribute & attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
         attribute.usage = VertexAttributeUsage_Position;
         attribute.buffer = m_vertexBuffers.size();
@@ -71,11 +68,9 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
         std::vector<float> & vertexBuffer = m_vertexBuffers.back();
         vertexBuffer.reserve(mesh->mNumVertices * 3);
 
-        for (uint32_t iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex)
-        {
+        for (uint32_t iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex) {
             glm::vec3 position(mesh->mVertices[iVertex].x, mesh->mVertices[iVertex].y, mesh->mVertices[iVertex].z);
-            if (m_swapYZ)
-            {
+            if (m_swapYZ) {
                 position = glm::vec3(position.x, position.z, -position.y);
             }
 			if (convert_to_meters) {
@@ -88,8 +83,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
 
         ++submesh.vertexAttributeCount;
     }
-    if (mesh->HasNormals())
-    {
+    if (mesh->HasNormals()) {
         VertexAttribute & attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
         attribute.usage = VertexAttributeUsage_Normal;
         attribute.buffer = m_vertexBuffers.size();
@@ -102,11 +96,9 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
         std::vector<float> & vertexBuffer = m_vertexBuffers.back();
         vertexBuffer.reserve(mesh->mNumVertices * 3);
 
-        for (uint32_t iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex)
-        {
+        for (uint32_t iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex) {
             glm::vec3 normal(mesh->mNormals[iVertex].x, mesh->mNormals[iVertex].y, mesh->mNormals[iVertex].z);
-            if (m_swapYZ)
-            {
+            if (m_swapYZ) {
                 normal = glm::vec3(normal.x, normal.z, -normal.y);
             }
             vertexBuffer.push_back(normal.x);
@@ -116,8 +108,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
 
         ++submesh.vertexAttributeCount;
     }
-    if (mesh->HasTextureCoords(0))
-    {
+    if (mesh->HasTextureCoords(0)) {
         size_t positionsByteCount = mesh->mNumVertices * mesh->mNumUVComponents[0] * sizeof(float);
 
         VertexAttribute & attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
@@ -132,15 +123,12 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
         std::vector<float> & vertexBuffer = m_vertexBuffers.back();
         vertexBuffer.reserve(mesh->mNumVertices * mesh->mNumUVComponents[0]);
 
-        for (uint32_t iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex)
-        {
+        for (uint32_t iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex) {
             glm::vec3 normal(mesh->mNormals[iVertex].x, mesh->mNormals[iVertex].y, mesh->mNormals[iVertex].z);
-            if (m_swapYZ)
-            {
+            if (m_swapYZ) {
                 normal = glm::vec3(normal.x, -normal.z, normal.y);
             }
-            for (uint32_t iComponent = 0; iComponent < mesh->mNumUVComponents[0]; ++iComponent)
-            {
+            for (uint32_t iComponent = 0; iComponent < mesh->mNumUVComponents[0]; ++iComponent) {
                 vertexBuffer.push_back(mesh->mTextureCoords[0][iVertex][iComponent]);
             }
         }
@@ -149,8 +137,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
     }
 
     size_t indexCount = 0;
-    for (unsigned int ff = 0; ff < mesh->mNumFaces; ++ff)
-    {
+    for (unsigned int ff = 0; ff < mesh->mNumFaces; ++ff) {
         indexCount += (mesh->mFaces[ff].mNumIndices - 2) * 3;
     }
 
@@ -158,12 +145,10 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
     std::vector<int> & indexBuffer = m_indexBuffers.back();
     indexBuffer.reserve(indexCount);
 
-    for (unsigned int iFace = 0; iFace < mesh->mNumFaces; ++iFace)
-    {
+    for (unsigned int iFace = 0; iFace < mesh->mNumFaces; ++iFace) {
         auto & face = mesh->mFaces[iFace];
 
-        for (unsigned int iSubFace = 2; iSubFace < face.mNumIndices; ++iSubFace)
-        {
+        for (unsigned int iSubFace = 2; iSubFace < face.mNumIndices; ++iSubFace) {
             indexBuffer.push_back(face.mIndices[0]);
             indexBuffer.push_back(face.mIndices[iSubFace-1]);
             indexBuffer.push_back(face.mIndices[iSubFace]);
@@ -189,8 +174,7 @@ void AssimpMeshProvider::ProcessGlassMaterial(aiMaterial const* material)
     material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR, params.roughness);
 
     aiColor3D color;
-    if (material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR, color) == aiReturn_SUCCESS)
-    {
+    if (material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR, color) == aiReturn_SUCCESS) {
         //params.baseColor = glm::vec3(color.r, color.g, color.b);
     }
 
@@ -203,8 +187,7 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
 {
     aiString mode;
     material->Get(AI_MATKEY_GLTF_ALPHAMODE, mode);
-    if (strcmp(mode.C_Str(), "BLEND") == 0)
-    {
+    if (strcmp(mode.C_Str(), "BLEND") == 0) {
         // This is a transparent material.
         ProcessGlassMaterial(material);
         return;
@@ -218,12 +201,9 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
     params.specularF0 = 0.5f;
 
     aiColor3D color;
-    if (material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR, color) == aiReturn_SUCCESS)
-    {
+    if (material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR, color) == aiReturn_SUCCESS) {
         params.baseColor = glm::vec3(color.r, color.g, color.b);
-    }
-    else if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == aiReturn_SUCCESS)
-    {
+    } else if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == aiReturn_SUCCESS) {
         params.baseColor = glm::vec3(color.r, color.g, color.b);
     }
 
@@ -234,20 +214,16 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
     auto fileParent = filePath.parent_path();
 
     aiString fileBaseColor;
-    if (material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_TEXTURE, &fileBaseColor) == aiReturn_SUCCESS)
-    {
+    if (material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_TEXTURE, &fileBaseColor) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileBaseColor.C_Str()).string();
         params.baseColorTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true));
-    }
-    else if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0)
-    {
+    } else if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
         material->GetTexture(aiTextureType_DIFFUSE, 0, &fileBaseColor);
         auto texturePath = (fileParent / fileBaseColor.C_Str()).string();
         params.baseColorTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true));
     }
     aiString fileRoughnessMetallicTexture;
-    if (material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &fileRoughnessMetallicTexture) == aiReturn_SUCCESS)
-    {
+    if (material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &fileRoughnessMetallicTexture) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileRoughnessMetallicTexture.C_Str()).string();
         params.metallicRoughnessTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true));
     }
@@ -261,8 +237,7 @@ void AssimpMeshProvider::LoadModel(std::string const & filename, bool convert_to
 {
     static bool assimpLoggerInitialized = false;
 
-    if (!assimpLoggerInitialized)
-    {
+    if (!assimpLoggerInitialized) {
         Assimp::DefaultLogger::create();
         assimpLoggerInitialized = true;
     }
@@ -280,25 +255,20 @@ void AssimpMeshProvider::LoadModel(std::string const & filename, bool convert_to
 
     const aiScene * scene = importer.ReadFile(filename.c_str(), postProcessFlags);
     
-    if (scene)
-    {
-        for (unsigned int ii = 0; ii < scene->mNumMeshes; ++ii)
-        {
+    if (scene) {
+        for (unsigned int ii = 0; ii < scene->mNumMeshes; ++ii) {
             aiMesh const * mesh = scene->mMeshes[ii];
             ProcessMesh(mesh, convert_to_meters);
         }
 
-        for (unsigned int ii = 0; ii < scene->mNumMaterials; ++ii)
-        {
+        for (unsigned int ii = 0; ii < scene->mNumMaterials; ++ii) {
             aiMaterial const * material = scene->mMaterials[ii];
             ProcessMaterial(material);
         }
 
         aiMatrix4x4 identity;
         ProcessNode(scene, scene->mRootNode, identity, 0, convert_to_meters);
-    }
-    else
-    {
+    } else {
         printf("Error:  No scene found in asset.\n");
     }
 }

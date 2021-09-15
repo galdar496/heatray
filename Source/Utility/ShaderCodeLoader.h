@@ -14,8 +14,7 @@
 #include <string>
 #include <vector>
 
-namespace util
-{
+namespace util {
 
 // Note that the result is a vector of strings to be sent to OpenRL for final compilation. All string concatenated
 // together make up the final shader.

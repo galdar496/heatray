@@ -20,8 +20,7 @@
 const std::string kVersion      = "4.0";
 const std::string kWindowTitle  = "Heatray " + kVersion;
 
-namespace
-{
+namespace {
     // The renderer exists as a global variable to be accessed by all
     // functions in the main file.
     HeatrayRenderer heatray;
@@ -123,8 +122,7 @@ int main(int argc, char **argv)
     heatray.init(kDefaultWindowWidth, kDefaultWindowHeight);
 
     // ImGui setup code.
-    if (true)
-    {
+    if (true) {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGui::StyleColorsDark();

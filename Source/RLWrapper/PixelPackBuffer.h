@@ -14,8 +14,7 @@
 
 #include <assert.h>
 
-namespace openrl
-{
+namespace openrl {
 
 class PixelPackBuffer
 {

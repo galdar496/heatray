@@ -12,8 +12,7 @@
 
 #include <OpenRL/rl.h>
 
-namespace openrl
-{
+namespace openrl {
 
 ///
 /// Abstracts OpenRL buffer objects.
@@ -38,8 +37,7 @@ public:
     inline void load(const void* data, const size_t size, const char* name = "<unnamed>")
     {
         // Generate the buffer if necessary.
-        if (m_buffer == RL_NULL_BUFFER)
-        {
+        if (m_buffer == RL_NULL_BUFFER) {
             RLFunc(rlGenBuffers(1, &m_buffer));
         }
 
@@ -57,8 +55,7 @@ public:
     ///
     inline void destroy()
     {
-        if (m_buffer != RL_NULL_BUFFER)
-        {
+        if (m_buffer != RL_NULL_BUFFER) {
             RLFunc(rlDeleteBuffers(1, &m_buffer));
             m_buffer = RL_NULL_BUFFER;
         }

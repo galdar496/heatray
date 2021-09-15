@@ -14,8 +14,7 @@ void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& p
 {
     // Convert the parameters into what the shader expects and compute some new values
     // based on the parameters.
-    struct ShaderParams 
-    {
+    struct ShaderParams  {
         // RLtextures need to come first, since they require 8 byte alignment.
         RLtexture baseColorTexture;
         RLtexture metallicRoughnessTexture; // R: metallic, G: roughness
@@ -38,24 +37,18 @@ void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& p
 
     bool hasTextures = false;
 
-    if (params.baseColorTexture)
-    {
+    if (params.baseColorTexture) {
         hasTextures = true;
         shaderParams.baseColorTexture = params.baseColorTexture->texture();
         shaderPrefix << "#define HAS_BASE_COLOR_TEXTURE\n";
-    }
-    else
-    {
+    } else {
         shaderParams.baseColorTexture = openrl::getDummyTexture().texture();
     }
-    if (params.metallicRoughnessTexture)
-    {
+    if (params.metallicRoughnessTexture) {
         hasTextures = true;
         shaderParams.metallicRoughnessTexture = params.metallicRoughnessTexture->texture();
         shaderPrefix << "#define HAS_METALLIC_ROUGHNESS_TEXTURE\n";
-    }
-    else
-    {
+    } else {
         shaderParams.metallicRoughnessTexture = openrl::getDummyTexture().texture();
     }
     
@@ -68,12 +61,9 @@ void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& p
     // Loadup the shader code.
     // TODO: this should use some kind of shader cache.
     char const * vertexShader;
-    if (hasTextures)
-    {
+    if (hasTextures) {
         vertexShader = "positionNormalTexCoord.vert.rlsl";
-    }
-    else
-    {
+    } else {
         vertexShader = "positionNormal.vert.rlsl";
     }
 

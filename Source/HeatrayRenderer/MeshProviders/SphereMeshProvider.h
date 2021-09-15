@@ -46,17 +46,14 @@ public:
     {
         float *floatPtr = (float *)buffer;
         int vSteps = vSlices + 2;
-        for (int ii = 0; ii < uSlices + 1; ++ii)
-        {
+        for (int ii = 0; ii < uSlices + 1; ++ii) {
             float u = (float)ii / (float)uSlices;
             // Add 2 to vSlices so we account for the poles
-            for (int jj = 0; jj < vSteps; ++jj)
-            {
+            for (int jj = 0; jj < vSteps; ++jj) {
                 // Add 1 to vSlices for our range for the poles
                 float v = (float)jj / (float)(vSlices + 1);
 
-                if (bufferIndex == 0 || bufferIndex == 1)
-                {
+                if (bufferIndex == 0 || bufferIndex == 1) {
                     const glm::vec3 spherical(radius, float(u * glm::two_pi<float>()), float(v * glm::pi<float>()));
                     glm::vec3 p = CartesianFromSpherical(spherical);
                     if (bufferIndex == 1)
@@ -65,9 +62,7 @@ public:
                     }
                     memcpy(floatPtr, &p.x, sizeof(glm::vec3));
                     floatPtr += 3;
-                }
-                else
-                {
+                } else {
                     *floatPtr = u;
                     ++floatPtr;
                     *floatPtr = 1.f - v;
@@ -93,13 +88,10 @@ public:
         int *indexPtr = (int *)buffer;
 
         int vSteps = vSlices + 2;
-        for (int ii = 0; ii < uSlices; ++ii)
-        {
-            for (int jj = 0; jj < vSteps - 1; ++jj)
-            {
+        for (int ii = 0; ii < uSlices; ++ii) {
+            for (int jj = 0; jj < vSteps - 1; ++jj) {
                 // If jj is adjacent to first pole, make a triangles
-                if (jj == 0)
-                {
+                if (jj == 0) {
                     // first pole, make a triangle
                     *indexPtr = (ii + 0) * vSteps;
                     ++indexPtr;
@@ -107,9 +99,7 @@ public:
                     ++indexPtr;
                     *indexPtr = (ii + 1) * vSteps + 1;
                     ++indexPtr;
-                }
-                else if (jj == vSteps - 2)
-                {
+                } else if (jj == vSteps - 2) {
                     // second pole, make a triangle
                     *indexPtr = (ii + 1) * vSteps + (jj + 0);
                     ++indexPtr;
@@ -117,9 +107,7 @@ public:
                     ++indexPtr;
                     *indexPtr = (ii + 0) * vSteps + (jj + 1);
                     ++indexPtr;
-                }
-                else
-                {
+                } else {
                     // Make two triangles for this quad of the v slice
                     *indexPtr = (ii + 0) * vSteps + (jj + 0);
                     ++indexPtr;
@@ -182,7 +170,8 @@ public:
     }
 
 private:
-    int uSlices, vSlices;
-    float radius;
-    size_t vertexCount;
+	int uSlices = 0;
+	int vSlices = 0;
+    float radius = 0.0f;
+	size_t vertexCount = 0;
 };

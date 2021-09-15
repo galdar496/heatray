@@ -19,8 +19,7 @@
 #include <random>
 #include <vector>
 
-namespace util
-{
+namespace util {
 
 template<class T>
 void uniformRandomFloats(T* results, const size_t count, unsigned int seed, float min, float max)
@@ -33,10 +32,8 @@ void uniformRandomFloats(T* results, const size_t count, unsigned int seed, floa
     std::uniform_real_distribution<float> distribution(min, max);
 
     int elementCount = sizeof(T) / sizeof(float); // Note that this assumes all random numbers are floats.
-    for (int iIndex = 0; iIndex < count; ++iIndex)
-    {
-        for (int iElement = 0; iElement < elementCount; ++iElement)
-        {
+    for (int iIndex = 0; iIndex < count; ++iIndex) {
+        for (int iElement = 0; iElement < elementCount; ++iElement) {
             // Note that T must have an operator[].
             results[iIndex][iElement] = distribution(generator);
         }
@@ -59,8 +56,7 @@ inline void hammersley(glm::vec3* results, const unsigned int count, int sequenc
     };
 
     float divisor = 1.0f / static_cast<float>(count);
-    for (unsigned int iIndex = 0; iIndex < count; ++iIndex)
-    {
+    for (unsigned int iIndex = 0; iIndex < count; ++iIndex) {
         // Hammersley is a 2D sequence.
         results[iIndex][0] = static_cast<float>(iIndex) * divisor;
         results[iIndex][1] = radicalInverse(iIndex); 
@@ -76,8 +72,7 @@ inline void blueNoise(glm::vec3* results, const unsigned int count, int sequence
 {
     LowDiscrepancyBlueNoiseGenerator generator(sequenceIndex);
     generator.GeneratePoints(count);
-    for (unsigned int i = 0; i < count; ++i)
-    {
+    for (unsigned int i = 0; i < count; ++i) {
         results[i] = glm::vec3(generator.GetPoints()[i], 0);
     }
 }
@@ -111,8 +106,7 @@ inline void halton(glm::vec3* results, const unsigned int count, int sequenceInd
         float f = 1.0f;
         float denom = float(base);
         unsigned int n = index;
-        while (n > 0)
-        {
+        while (n > 0) {
             f = f / denom;
             result += f * (n % base);
             n = n / base;
@@ -122,8 +116,7 @@ inline void halton(glm::vec3* results, const unsigned int count, int sequenceInd
 
     glm::ivec2 base = coprimes[sequenceIndex];
 
-    for (unsigned int iIndex = 0; iIndex < count; ++iIndex)
-    {
+    for (unsigned int iIndex = 0; iIndex < count; ++iIndex) {
         results[iIndex][0] = generateValue(iIndex, base.x);
         results[iIndex][1] = generateValue(iIndex, base.y);
     }
@@ -141,12 +134,10 @@ inline void radialPseudoRandom(glm::vec3* results, const unsigned int count, con
 
     std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
 
-    for (unsigned int iIndex = 0; iIndex < count; ++iIndex)
-    {
+    for (unsigned int iIndex = 0; iIndex < count; ++iIndex) {
         // Use rejection sampling.
         float x, y;
-        do
-        {
+        do {
             x = distribution(generator);
             y = distribution(generator);
         } while ((x * x + y * y) > 1.0f);
@@ -166,8 +157,7 @@ inline void randomPolygonal(glm::vec3* results, const unsigned int numEdges, con
 
     // Generate the vertices that make up this polygon.
     float stepSize = glm::two_pi<float>() / numEdges;
-    for (unsigned int iIndex = 0; iIndex < numEdges; ++iIndex)
-    {
+    for (unsigned int iIndex = 0; iIndex < numEdges; ++iIndex) {
         float theta = stepSize * float(iIndex);
         glm::vec2 vertex(std::cosf(theta), std::sinf(theta));
         vertices[iIndex] = vertex;
@@ -175,16 +165,14 @@ inline void randomPolygonal(glm::vec3* results, const unsigned int numEdges, con
     vertices[numEdges] = glm::vec2(0.0f);
 
     // Generate the triangles that make up this polygon by aggregating the above vertices.
-    struct Triangle
-    {
+    struct Triangle {
         glm::vec2 vertices[3];
     };
 
     std::vector<Triangle> triangles;
     triangles.resize(numEdges);
 
-    for (unsigned int iIndex = 0; iIndex < numEdges; ++iIndex)
-    {
+    for (unsigned int iIndex = 0; iIndex < numEdges; ++iIndex) {
         Triangle tri;
         tri.vertices[0] = vertices[numEdges]; // Center.
         tri.vertices[1] = vertices[iIndex];
@@ -200,15 +188,13 @@ inline void randomPolygonal(glm::vec3* results, const unsigned int numEdges, con
     std::uniform_real_distribution<float> floatDistribution(0.0f, 1.0f); // For selecting the point within a triangle.
     std::uniform_int_distribution<int> intDistribution(0, numEdges - 1); // For selecting between the triangles.
 
-    for (unsigned int iIndex = 0; iIndex < count; ++iIndex)
-    {
+    for (unsigned int iIndex = 0; iIndex < count; ++iIndex) {
         // First choose the triangle.
         int triangleIndex = intDistribution(generator);
 
         // Generate a random baycentric coordinate within the triangle using rejection sampling.
         float alpha, beta;
-        do
-        {
+        do {
             alpha = floatDistribution(generator);
             beta = floatDistribution(generator);
         } while (alpha + beta > 1.0f);

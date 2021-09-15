@@ -10,8 +10,7 @@
 
 #include <RLWrapper/Texture.h>
 
-namespace util
-{
+namespace util {
 
 /// Load a texture off disk.
 /// @param path Relative path or absolute path to the texture.

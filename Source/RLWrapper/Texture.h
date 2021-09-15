@@ -13,8 +13,7 @@
 #include <OpenRL/rl.h>
 #include <assert.h>
 
-namespace openrl
-{
+namespace openrl {
 
 ///
 /// Container for a single OpenRL texture object.
@@ -80,16 +79,15 @@ public:
         applySampler();
 
         RLFunc(rlTexImage2D(RL_TEXTURE_2D,
-            0,
-            m_desc.internalFormat,
-            m_desc.width,
-            m_desc.height,
-            0,
-            m_desc.format,
-            m_desc.dataType,
-            data));
-        if (generateMips)
-        {
+							0,
+							m_desc.internalFormat,
+							m_desc.width,
+							m_desc.height,
+							0,
+							m_desc.format,
+							m_desc.dataType,
+							data));
+        if (generateMips) {
             RLFunc(rlGenerateMipmap(RL_TEXTURE_2D));
         }
         RLFunc(rlBindTexture(RL_TEXTURE_2D, RL_NULL_TEXTURE));
@@ -118,17 +116,16 @@ public:
         applySampler(RL_TEXTURE_3D);
 
         RLFunc(rlTexImage3D(RL_TEXTURE_3D,
-            0,
-            m_desc.internalFormat,
-            m_desc.width,
-            m_desc.height,
-            m_desc.depth,
-            0,
-            m_desc.format,
-            m_desc.dataType,
-            data));
-        if (generateMips)
-        {
+							0,
+							m_desc.internalFormat,
+							m_desc.width,
+							m_desc.height,
+							m_desc.depth,
+							0,
+							m_desc.format,
+							m_desc.dataType,
+							data));
+        if (generateMips) {
             RLFunc(rlGenerateMipmap(RL_TEXTURE_3D));
         }
         RLFunc(rlBindTexture(RL_TEXTURE_3D, RL_NULL_TEXTURE));
@@ -141,8 +138,7 @@ public:
     ///
     inline void destroy()
     {
-        if (m_texture != RL_NULL_TEXTURE)
-        {
+        if (m_texture != RL_NULL_TEXTURE) {
             RLFunc(rlDeleteTextures(1, &m_texture));
             m_texture = RL_NULL_TEXTURE;
         }
@@ -160,14 +156,14 @@ public:
 
         RLFunc(rlBindTexture(RL_TEXTURE_2D, m_texture));
         RLFunc(rlTexImage2D(RL_TEXTURE_2D,
-            0,
-            m_desc.internalFormat,
-            newWidth,
-            newHeight,
-            0,
-            m_desc.format,
-            m_desc.dataType,
-            nullptr));
+							0,
+							m_desc.internalFormat,
+							newWidth,
+							newHeight,
+							0,
+							m_desc.format,
+							m_desc.dataType,
+							nullptr));
         RLFunc(rlBindTexture(RL_TEXTURE_2D, 0));
 
         m_desc.width = newWidth;
@@ -187,15 +183,15 @@ public:
 
         RLFunc(rlBindTexture(RL_TEXTURE_3D, m_texture));
         RLFunc(rlTexImage3D(RL_TEXTURE_3D,
-            0,
-            m_desc.internalFormat,
-            newWidth,
-            newHeight,
-            newDepth,
-            0,
-            m_desc.format,
-            m_desc.dataType,
-            nullptr));
+							0,
+							m_desc.internalFormat,
+							newWidth,
+							newHeight,
+							newDepth,
+							0,
+							m_desc.format,
+							m_desc.dataType,
+							nullptr));
         RLFunc(rlBindTexture(RL_TEXTURE_3D, 0));
 
         m_desc.width = newWidth;
@@ -234,8 +230,7 @@ private:
 
         RLFunc(rlTexParameteri(type, RL_TEXTURE_WRAP_S, m_sampler.wrapS));
         RLFunc(rlTexParameteri(type, RL_TEXTURE_WRAP_T, m_sampler.wrapT));
-        if (type == RL_TEXTURE_3D)
-        {
+        if (type == RL_TEXTURE_3D) {
             RLFunc(rlTexParameteri(type, RL_TEXTURE_WRAP_R, m_sampler.wrapR));
         }
     }
@@ -250,8 +245,7 @@ inline Texture getDummyTexture()
     static bool dummyIsInitialized = false;
     static Texture dummyTexture;
 
-    if (!dummyIsInitialized)
-    {
+    if (!dummyIsInitialized) {
         Texture::Descriptor desc;
         desc.width = desc.height = 1;
         float purplePixel[4] = {1.f, 1.f, 1.f, 1.f};

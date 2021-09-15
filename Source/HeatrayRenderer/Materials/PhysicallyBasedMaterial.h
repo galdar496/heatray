@@ -18,8 +18,7 @@ public:
     PhysicallyBasedMaterial() = default;
     virtual ~PhysicallyBasedMaterial() = default;
 
-    struct Parameters
-    {
+    struct Parameters {
         glm::vec3 baseColor = glm::vec3(1.0f);  ///< Color applied to object (linear). If the object is a dialectric, this color represents albedo, otherwise this is the specular reflection color.   
         std::shared_ptr<openrl::Texture> baseColorTexture;
         std::shared_ptr<openrl::Texture> metallicRoughnessTexture;
