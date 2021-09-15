@@ -139,15 +139,15 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.5f, 0.0f));
                     m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation));
                 }
-#if 0
+#if 1
                 // Right plane.
                 {
                     PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
                     PhysicallyBasedMaterial::Parameters params;
                     params.metallic = 0.0f;
-                    params.roughness = 0.8f;
-                    params.baseColor = glm::vec3(0.0f, 0.0f, 0.8f);
-                    params.specularF0 = 0.5f;
+					params.roughness = 1.0f;
+					params.baseColor = glm::vec3(0.9f);
+					params.specularF0 = 0.0f;
                     material->build(params);
                     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), zAxis);
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(2.5f, 1.0f, 0.0f));
@@ -158,10 +158,10 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                 {
                     PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
                     PhysicallyBasedMaterial::Parameters params;
-                    params.metallic = 0.0f;
-                    params.roughness = 0.8f;
-                    params.baseColor = glm::vec3(0.8f);
-                    params.specularF0 = 0.5f;
+					params.metallic = 0.0f;
+					params.roughness = 1.0f;
+					params.baseColor = glm::vec3(0.9f);
+					params.specularF0 = 0.0f;
                     material->build(params);
                     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), xAxis);
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, -2.5f));
@@ -169,7 +169,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                 }
 
                 // Left plane.
-                {
+                /*{
                     PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
                     PhysicallyBasedMaterial::Parameters params;
                     params.metallic = 0.0f;
@@ -180,7 +180,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::half_pi<float>() * 3.0f, zAxis);
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-2.5f, 1.0f, 0.0f));
                     m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation * rotation));
-                }
+                }*/
 #endif
 
                 float radius = 1.0f;
@@ -190,10 +190,10 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                 {
                     PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
                     PhysicallyBasedMaterial::Parameters params;
-                    params.metallic = 0.0f;
-                    params.roughness = 0.0f;
-                    params.baseColor = glm::vec3(0.8f);
-                    params.specularF0 = 1.0f;
+					params.metallic = 1.0f;
+					params.roughness = 0.1f;
+					params.baseColor = glm::vec3(0.4f);
+					params.specularF0 = 0.3f;
                     material->build(params);
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-0.9f, -0.5f, -0.8f));
                     m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
@@ -203,10 +203,10 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                 {
                     GlassMaterial* material = new GlassMaterial();
                     GlassMaterial::Parameters params;
-                    params.roughness = 0.1f;
-                    params.baseColor = glm::vec3(1.0f);
-                    params.ior = 1.57f;
-                    params.density = 0.5f;
+					params.roughness = 0.1f;
+					params.baseColor = glm::vec3(0.9f, 0.6f, 0.6f);
+					params.ior = 1.57f;
+					params.density = 0.5f;
                     material->build(params);
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(1.2f, -0.5f, 0.8f));
                     m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
@@ -481,10 +481,10 @@ bool HeatrayRenderer::renderUI()
     if (ImGui::CollapsingHeader("Render options"))
     {
         {
-            static const char* options[] = { "1", "32", "64", "128", "256", "512", "1024", "2048", "4096" };
-            constexpr unsigned int realOptions[] = { 1, 32, 64, 128, 256, 512, 1024, 2048, 4096 };
+            static const char* options[] = { "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024", "2048", "4096", "8192" };
+            constexpr unsigned int realOptions[] = { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192 };
 
-            static unsigned int currentSelection = 1;
+            static unsigned int currentSelection = 5;
             if (ImGui::BeginCombo("Max number of passes", options[currentSelection]))
             {
                 for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption)
