@@ -295,7 +295,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             }
             m_sceneData.clear();
 
-            AssimpMeshProvider assimpMeshProvider(sceneName, m_swapYZ);
+            AssimpMeshProvider assimpMeshProvider(sceneName, (m_scene_units == SceneUnits::kCentimeters), m_swapYZ);
 
             std::vector<Material *> materials = assimpMeshProvider.GetMaterials();
             
@@ -578,6 +578,13 @@ bool HeatrayRenderer::renderUI()
         {
             m_userRequestedFileLoad = true;
         }
+		ImGui::Text("Scene Units:");
+		if (ImGui::RadioButton("Meters", m_scene_units == SceneUnits::kMeters)) {
+			m_scene_units = SceneUnits::kMeters;
+		}
+		if (ImGui::RadioButton("Centimeters", m_scene_units == SceneUnits::kCentimeters)) {
+			m_scene_units = SceneUnits::kCentimeters;
+		}
         ImGui::Checkbox("Swap Y & Z on load", &m_swapYZ);
 
         static const char* options[] = { "Sphere Array", "White Sphere", "Multi-Material" };

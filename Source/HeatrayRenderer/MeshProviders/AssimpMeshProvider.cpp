@@ -20,13 +20,13 @@ public:
 	virtual void write(const char *message) { std::cout << "Assimp: " << message << std::endl; }
 };
 
-AssimpMeshProvider::AssimpMeshProvider(std::string filename, bool swapYZ)
+AssimpMeshProvider::AssimpMeshProvider(std::string filename, bool convert_to_meters, bool swapYZ)
 : m_filename(std::move(filename)), m_swapYZ(swapYZ)
 {
-    LoadModel(m_filename);
+    LoadModel(m_filename, convert_to_meters);
 }
 
-void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node, const aiMatrix4x4 & parentTransform, int level)
+void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node, const aiMatrix4x4 & parentTransform, int level, bool convert_to_meters)
 {
     aiMatrix4x4 transform = parentTransform * node->mTransformation;
 
@@ -39,15 +39,21 @@ void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node,
                                         transform.a2, transform.b2, transform.c2, transform.d2,
                                         transform.a3, transform.b3, transform.c3, transform.d3,
                                         transform.a4, transform.b4, transform.c4, transform.d4);
+		if (convert_to_meters) {
+			// Centimeters to meters.
+			(*submeshTransform)[3][0] *= 0.01f;
+			(*submeshTransform)[3][1] *= 0.01f;
+			(*submeshTransform)[3][2] *= 0.01f;
+		}
     }
     
     for (unsigned int ii = 0; ii < node->mNumChildren; ++ii)
     {
-        ProcessNode(scene, node->mChildren[ii], transform, level + 1);
+        ProcessNode(scene, node->mChildren[ii], transform, level + 1, convert_to_meters);
     }
 }
 
-void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh)
+void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters)
 {
     Submesh submesh;
 
@@ -72,6 +78,9 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh)
             {
                 position = glm::vec3(position.x, position.z, -position.y);
             }
+			if (convert_to_meters) {
+				position *= 0.01f; // Centimeters to meters.
+			}
             vertexBuffer.push_back(position.x);
             vertexBuffer.push_back(position.y);
             vertexBuffer.push_back(position.z);
@@ -248,7 +257,7 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
     m_materials.push_back(pbrMaterial);
 }
 
-void AssimpMeshProvider::LoadModel(std::string const & filename)
+void AssimpMeshProvider::LoadModel(std::string const & filename, bool convert_to_meters)
 {
     static bool assimpLoggerInitialized = false;
 
@@ -276,7 +285,7 @@ void AssimpMeshProvider::LoadModel(std::string const & filename)
         for (unsigned int ii = 0; ii < scene->mNumMeshes; ++ii)
         {
             aiMesh const * mesh = scene->mMeshes[ii];
-            ProcessMesh(mesh);
+            ProcessMesh(mesh, convert_to_meters);
         }
 
         for (unsigned int ii = 0; ii < scene->mNumMaterials; ++ii)
@@ -286,7 +295,7 @@ void AssimpMeshProvider::LoadModel(std::string const & filename)
         }
 
         aiMatrix4x4 identity;
-        ProcessNode(scene, scene->mRootNode, identity, 0);
+        ProcessNode(scene, scene->mRootNode, identity, 0, convert_to_meters);
     }
     else
     {

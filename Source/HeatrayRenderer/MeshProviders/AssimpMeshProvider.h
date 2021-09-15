@@ -17,7 +17,7 @@
 class AssimpMeshProvider : public MeshProvider
 {
 public:
-    explicit AssimpMeshProvider(std::string filename, bool swapYZ = false);
+    explicit AssimpMeshProvider(std::string filename, bool convert_to_meters, bool swapYZ = false);
     virtual ~AssimpMeshProvider() = default;
 
     size_t GetVertexBufferCount() override
@@ -66,11 +66,11 @@ public:
     }
 
 private:
-    void LoadModel(std::string const & filename);
-    void ProcessMesh(aiMesh const * mesh);
+    void LoadModel(std::string const & filename, bool convert_to_meters);
+    void ProcessMesh(aiMesh const * mesh, bool convert_to_meters);
     void ProcessGlassMaterial(aiMaterial const* material);
     void ProcessMaterial(aiMaterial const * material);
-    void ProcessNode(aiScene const * scene, const aiNode * node, const aiMatrix4x4 & parentTransform, int level);
+    void ProcessNode(aiScene const * scene, const aiNode * node, const aiMatrix4x4 & parentTransform, int level, bool convert_to_meters);
 
     std::string m_filename;
 

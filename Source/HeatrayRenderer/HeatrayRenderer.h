@@ -142,6 +142,12 @@ private:
     float m_cameraExposure = 0.0f;
     bool m_tonemappingEnabled = true;
 
+	enum class SceneUnits {
+		kMeters, // Heatray default.
+		kCentimeters
+	};
+	SceneUnits m_scene_units = SceneUnits::kMeters;
+
     std::vector<RLMesh> m_sceneData;
 
     bool m_userRequestedFileLoad = false;
