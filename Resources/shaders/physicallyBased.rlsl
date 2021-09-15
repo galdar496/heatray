@@ -52,7 +52,7 @@ void main()
 	vec2 metallicRoughness = texture2D(Material.metallicRoughnessTexture, texCoord).rg;
 	metallic *= metallicRoughness.r;
 	roughness *= metallicRoughness.g;
-#endif defined(HAS_METALLIC_ROUGHNESS_TEXTURE)
+#endif // defined(HAS_METALLIC_ROUGHNESS_TEXTURE)
 	float roughnessAlpha = roughness * roughness;
 
     vec3 Cdiff = baseColor * (1.0 - metallic);
