@@ -21,8 +21,7 @@ void sampleDiffuse(vec3 N, vec3 I, float NdotI, mat3 frame, vec2 rand,
 	vec3 O = frame * dir;
 	
 	float NdotO = saturate(dot(N, O));
-	if (NdotO > 0.0)
-	{
+	if (NdotO > 0.0) {
 		// Note that the PDF of cosine-weighted sampling is cos(theta)/pi but cancels out.
 		vec3 diffuse = Cdiff;
 
@@ -30,8 +29,7 @@ void sampleDiffuse(vec3 N, vec3 I, float NdotI, mat3 frame, vec2 rand,
 		reflectance /= sampleProbability;
 
 		reflectance *= rl_InRay.weight;
-		if (dot(reflectance, reflectance) > 1e-5)
-		{
+		if (dot(reflectance, reflectance) > 1e-5) {
 			createRay();
 				rl_OutRay.direction = O;
 				rl_OutRay.weight = reflectance;
@@ -54,8 +52,7 @@ void sampleSpecular(vec3 N, vec3 I, float NdotI, mat3 frame, vec2 rand,
 	vec3 O = normalize(2.0 * IdotH * H - I);
 
 	float NdotO = saturate(dot(N, O));
-	if (IdotH > 0.0)
-	{
+	if (IdotH > 0.0) {
 		// PDF is actually (G1 * D * NdotI) / NdotH. However we're optimizing out most of the terms here from the 
 		// standard microfacet BRDF to arrive at:
 		//	(F * G2) / G1
@@ -73,8 +70,7 @@ void sampleSpecular(vec3 N, vec3 I, float NdotI, mat3 frame, vec2 rand,
 		reflectance /= sampleProbability;
 		reflectance *= rl_InRay.weight;
 
-		if (dot(reflectance, reflectance) > 1e-5)
-		{
+		if (dot(reflectance, reflectance) > 1e-5) {
 			createRay();
 				rl_OutRay.direction = O;
 				rl_OutRay.weight = reflectance;

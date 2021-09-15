@@ -34,8 +34,7 @@ void main()
 	vec4 result = texture2D(raytracedTexture, gl_TexCoord[0].st);
 	vec3 finalColor = result.xyz / result.w;
 
-	if (tonemappingEnabled == 1)
-	{
+	if (tonemappingEnabled == 1) {
 		// Perform ACES tonemapping.
 		finalColor = ACESInputMat * finalColor;
 		finalColor = RRTAndODTFit(finalColor);

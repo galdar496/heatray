@@ -30,11 +30,9 @@ void setup()
 void main()
 {
 	// If we're in interactive mode then we'll only render a single pixel with a block of pixels.
-	if (interactiveMode != 0)
-	{
+	if (interactiveMode != 0) {
 		ivec2 pixelOffset = ivec2(rl_FrameCoord.xy - vec2(0.5)) % blockSize;
-		if (pixelOffset != currentBlockPixel)
-		{
+		if (pixelOffset != currentBlockPixel) {
 			return; 
 		}
 	}

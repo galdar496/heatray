@@ -59,8 +59,7 @@ float F_Schlick(float specularF0, float cosTheta)
 float F_Fresnel(float eta, float cosThetaI)
 {
 	float sinThetaT2 = square(eta) * (1.0 - square(cosThetaI));
-	if (sinThetaT2 < 1.0)
-	{
+	if (sinThetaT2 < 1.0) {
 		float cosThetaT = sqrt(1.0 - sinThetaT2);
 		float perpendicular = square((eta * cosThetaI - cosThetaT) / (eta * cosThetaI + cosThetaT));
 		float parallel = square((cosThetaI - eta * cosThetaT) / (cosThetaI + eta * cosThetaT));

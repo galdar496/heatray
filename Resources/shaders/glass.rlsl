@@ -12,8 +12,7 @@
 
 varying vec3 normal;
 
-uniformblock Material
-{
+uniformblock Material {
 	vec3 baseColor;
 	float roughness;
 	float roughnessAlpha;
@@ -31,8 +30,7 @@ void specularSample(vec3 N, vec3 H, vec3 I, vec3 O, vec3 weight, bool isDirectLi
 {
 	float NdotO = saturate(dot(N, O));
 
-	if (NdotO > 0.0)
-	{
+	if (NdotO > 0.0) {
 		float NdotI = saturate(dot(N, I));
 		float HdotI = saturate(dot(H, I));
 
@@ -40,8 +38,7 @@ void specularSample(vec3 N, vec3 H, vec3 I, vec3 O, vec3 weight, bool isDirectLi
 		float G1 = G1_Smith_GGX(NdotI, Material.roughnessAlpha);
 		vec3 reflectance = vec3(G2) / greaterThanZero(G1);
 		reflectance *= weight;
-		if (dot(reflectance, reflectance) > 1e-5)
-		{
+		if (dot(reflectance, reflectance) > 1e-5) {
 			createRay();
 				rl_OutRay.direction = O;
 				rl_OutRay.weight = reflectance; 
@@ -65,8 +62,7 @@ void main()
 	float nIn = 1.0; // air.
 	float nOut = Material.ior;
 	vec3 weight = rl_InRay.weight;
-	if (rl_FrontFacing == false)
-	{
+	if (rl_FrontFacing == false) {
 		// We're inside of the shape.
 		N = -N;
 		nIn = Material.ior;
@@ -89,8 +85,7 @@ void main()
 	// Note that since the Fresnel term is used to determine how to sample it ends up getting cancelled out of the following math.
 	// Typically it would show up in the microfacet BRDF but in monte carlo we also divide by the probability of selecting a particular choice,
 	// Since that choice is based on Fresnel is cancels out.
-	if (refractProbability.x < (1.0 - F))
-	{
+	if (refractProbability.x < (1.0 - F)) {
 		vec3 O = normalize(refract(-I, H, eta));
 
 		float NdotI = saturate(dot(N, I));
@@ -106,8 +101,7 @@ void main()
 		vec3 transmission = Material.baseColor * G2 / greaterThanZero(G1);
 
 		transmission *= weight;
-		if (dot(transmission, transmission) > 1e-5 && rl_InRay.depth < Globals.maxRayDepth)
-		{
+		if (dot(transmission, transmission) > 1e-5 && rl_InRay.depth < Globals.maxRayDepth) {
 			createRay();
 				rl_OutRay.direction = O;
 				rl_OutRay.weight = transmission;
@@ -115,9 +109,7 @@ void main()
 				rl_OutRay.defaultPrimitive = Globals.environmentLight;
 			emitRay();
 		}
-	}
-	else
-	{
+	} else {
 		// Make sure that the base color properly affects the reflected value.
 		weight *= Material.baseColor;
 
@@ -126,8 +118,7 @@ void main()
 			vec3 O = normalize(2.0 * HdotI * H - I);
 			specularSample(N, H, I, O, weight, true, Globals.environmentLight);
 		}
-		if (rl_InRay.depth < Globals.maxRayDepth)
-		{
+		if (rl_InRay.depth < Globals.maxRayDepth) {
 			rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex);
 			H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, Material.roughnessAlpha);
 

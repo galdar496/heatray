@@ -8,8 +8,7 @@
 
 // NOTE: this must stay in sync with the C code for Heatray.
 float kNumRandomSequences = 16.0;
-uniformblock RandomSequences
-{
+uniformblock RandomSequences {
 	sampler2D randomNumbers;
 	float uvStep;
 	float uvSequenceStep;
