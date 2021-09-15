@@ -8,6 +8,7 @@ Heatray is a C++ path tracer utilizing [OpenRL](https://en.wikipedia.org/wiki/Op
 ## Latest Images
 ![](https://github.com/galdar496/heatray/blob/master/ExampleImages/example1.PNG)
 ![](https://github.com/galdar496/heatray/blob/master/ExampleImages/example2.png)
+![](https://github.com/galdar496/heatray/blob/master/ExampleImages/example3.png)
 ## Features
 * Progressive rendering for quick visualization
 * Quasi-Monte Carlo via various low-discrepancy sequences

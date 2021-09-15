@@ -139,7 +139,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.5f, 0.0f));
                     m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation));
                 }
-#if 1
+#if 0
                 // Right plane.
                 {
                     PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
