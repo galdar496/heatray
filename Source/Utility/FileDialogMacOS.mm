@@ -1,4 +1,4 @@
-#include "Utility/OpenFileDialog.h"
+#include "Utility/FileDialog.h"
 
 #import <AppKit/AppKit.h>
 
@@ -26,6 +26,11 @@ std::vector<std::string> OpenFileDialog()
 	}
 
     return std::vector<std::string>();
+}
+
+std::vector<std::string> SaveFileDialog(const std::string &extension)
+{
+	return std::vector<std::string>();
 }
 
 } // namespace util

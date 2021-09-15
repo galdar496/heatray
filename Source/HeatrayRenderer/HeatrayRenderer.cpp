@@ -7,7 +7,7 @@
 #include "MeshProviders/SphereMeshProvider.h"
 #include "Materials/GlassMaterial.h"
 
-#include "Utility/OpenFileDialog.h"
+#include "Utility/FileDialog.h"
 #include <Utility/Random.h>
 
 #include <glm/glm/gtc/matrix_transform.hpp>
@@ -616,10 +616,13 @@ bool HeatrayRenderer::renderUI()
         ImGui::SliderFloat("Exposure compensation", &m_cameraExposure, -10.0f, 10.0f);
     }
     if (ImGui::CollapsingHeader("Screenshot")) {
-        ImGui::InputText("Output path", m_screenshotPath, m_screenshotPathLength);
         ImGui::Checkbox("HDR", &m_hdrScreenshot);
         if (ImGui::Button("Save")) {
-            m_shouldSaveScreenshot = true; // Do this on the next frame before drawing UI.
+			std::vector<std::string> names = util::SaveFileDialog(m_hdrScreenshot ? "tiff" : "png");
+			if (!names.empty()) {
+				m_screenshotPath = names[0];
+				m_shouldSaveScreenshot = true; // Do this on the next frame before drawing UI.
+			}
         }
     }
     ImGui::End();
@@ -706,7 +709,7 @@ void HeatrayRenderer::saveScreenshot()
         glReadPixels(0, 0, m_pixelDimensions.x, m_pixelDimensions.y, GL_BGR, GL_UNSIGNED_BYTE, pixelData);
     }
 
-    FreeImage_Save(FreeImage_GetFIFFromFilename(m_screenshotPath), bitmap, m_screenshotPath, 0);
+    FreeImage_Save(FreeImage_GetFIFFromFilename(m_screenshotPath.c_str()), bitmap, m_screenshotPath.c_str(), 0);
     FreeImage_DeInitialise();
     m_shouldSaveScreenshot = false;
 }

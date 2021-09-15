@@ -10,19 +10,19 @@ add_library(Utility STATIC
 )
 
 if (APPLE)
-	add_library(OpenFileDialog STATIC
-		OpenFileDialog.h
-		OpenFileDialogMacOS.mm
+	add_library(FileDialog STATIC
+		FileDialog.h
+		FileDialogMacOS.mm
 	)
-	target_link_libraries(OpenFileDialog
+	target_link_libraries(FileDialog
 		objc
 		"-framework AppKit"
 		)
 endif()
 
 if (WIN32)
-	add_library(OpenFileDialog STATIC
-		OpenFileDialog.h
-		OpenFileDialogWindows.cpp
+	add_library(FileDialog STATIC
+		FileDialog.h
+		FileDialogWindows.cpp
 	)
 endif()

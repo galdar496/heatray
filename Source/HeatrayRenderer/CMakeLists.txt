@@ -11,7 +11,7 @@ add_library(HeatrayRenderer STATIC
 
 target_link_libraries(HeatrayRenderer
 	MeshProviders
-	OpenFileDialog
+	FileDialog
 )
 
 add_subdirectory(Materials)
