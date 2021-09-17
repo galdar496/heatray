@@ -8,6 +8,8 @@ uniform sampler2D raytracedTexture;
 uniform int tonemappingEnabled;
 uniform float cameraExposure;
 
+const float SRGB_ALPHA = 0.055;
+
 // ACES tonemapping adapted from: https://github.com/TheRealMJP/BakingLab/blob/master/BakingLab/ACES.hlsl
 const mat3 ACESInputMat = mat3(
 	vec3(0.59719, 0.07600, 0.02840),
@@ -28,6 +30,32 @@ vec3 RRTAndODTFit(vec3 v)
     return a / b;
 }
 
+vec3 LinearToSRGB(vec3 linear) {
+    vec3 result;
+	for (int channel = 0; channel < 3; ++channel) {
+		if (linear[channel] <= 0.0031308) {
+			result[channel] = 12.92 * linear[channel];
+		} else {
+			result[channel] = 1.055 * pow(linear[channel], 1.0 / 2.4) - SRGB_ALPHA;
+		}
+	}
+
+	return result;
+}
+
+vec3 SRGBToLinear(vec3 srgb) {
+    vec3 result;
+	for (int channel = 0; channel < 3; ++channel) {
+		if (srgb[channel] <= 0.04045) {
+			result[channel] = srgb[channel] / 12.92;
+		} else {
+			result[channel] = pow((srgb[channel] + SRGB_ALPHA) / (1.0 + SRGB_ALPHA), 2.4);
+		}
+	}
+
+	return result;
+}
+
 void main()
 {
 	// raytraced texture is rgb of all accumulated passes and w = # of passes performed.
@@ -35,10 +63,12 @@ void main()
 	vec3 finalColor = result.xyz / result.w;
 
 	if (tonemappingEnabled == 1) {
-		// Perform ACES tonemapping.
+		// Perform ACES tonemapping. Incoming color is in linear space.
+		finalColor = LinearToSRGB(finalColor);
 		finalColor = ACESInputMat * finalColor;
 		finalColor = RRTAndODTFit(finalColor);
 		finalColor = ACESOutputMat * finalColor;
+		finalColor = SRGBToLinear(finalColor);
 	}
 
 	finalColor *= cameraExposure;

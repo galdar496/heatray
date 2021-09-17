@@ -143,7 +143,7 @@ private:
     std::vector<glm::vec3> m_sequenceVisualizationData;
 
     float m_cameraExposure = 0.0f;
-    bool m_tonemappingEnabled = true;
+    bool m_tonemappingEnabled = false;
 
 	enum class SceneUnits {
 		kMeters, // Heatray default.
