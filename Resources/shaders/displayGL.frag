@@ -7,6 +7,14 @@
 uniform sampler2D raytracedTexture;
 uniform int tonemappingEnabled;
 uniform float cameraExposure;
+uniform float brightness;
+uniform float contrast;
+uniform float hue;
+uniform float saturation;
+uniform float vibrance;
+uniform float red;
+uniform float green;
+uniform float blue;
 
 const float SRGB_ALPHA = 0.055;
 
@@ -62,15 +70,65 @@ void main()
 	vec4 result = texture2D(raytracedTexture, gl_TexCoord[0].st);
 	vec3 finalColor = result.xyz / result.w;
 
-	if (tonemappingEnabled == 1) {
-		// Perform ACES tonemapping. Incoming color is in linear space.
-		finalColor = LinearToSRGB(finalColor);
-		finalColor = ACESInputMat * finalColor;
-		finalColor = RRTAndODTFit(finalColor);
-		finalColor = ACESOutputMat * finalColor;
-		finalColor = SRGBToLinear(finalColor);
+	// Apply the color processing pipeline.
+	{
+		if (tonemappingEnabled == 1) {
+			// Perform ACES tonemapping. Incoming color is in linear space.
+			finalColor = LinearToSRGB(finalColor);
+			finalColor = ACESInputMat * finalColor;
+			finalColor = RRTAndODTFit(finalColor);
+			finalColor = ACESOutputMat * finalColor;
+			finalColor = SRGBToLinear(finalColor);
+		}
+
+		// Colors are expected to be linear.
+
+		// Brightness/contrast.
+		{
+			finalColor = (finalColor.rgb - 0.5) * contrast + 0.5 + brightness;
+		}
+
+		// Hue/Saturation/Vibrance.
+		{
+			// First, convert from RGB->HSV (hue/saturation/value).
+			vec3 hsv;
+			{
+				const vec4 k = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+				vec4 p = mix(vec4(finalColor.bg, k.wz), vec4(finalColor.gb, k.xy), step(finalColor.b, finalColor.g));
+				vec4 q = mix(vec4(p.xyw, finalColor.r), vec4(finalColor.r, p.yzx), step(p.x, finalColor.r));
+
+				float d = q.x - min(q.w, q.y);
+				const float e = 1.0e-10;
+				hsv = vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+			}
+
+			hsv.x *= hue;
+			hsv.y *= saturation;
+
+			{
+				// For vibrance, we use a sqrt curve so that we have the largest impact on less-saturated pixels.
+				float mapped_saturation = sqrt(hsv.y) * vibrance;
+				hsv.y *= 1.0 + mapped_saturation;
+			}
+
+			// HSV->RGB conversion.
+			{
+				const vec4 k = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+				vec3 p = abs(fract(hsv.xxx + k.xyz) * 6.0 - k.www);
+				finalColor.rgb = hsv.z * mix(k.xxx, clamp(p - k.xxx, 0.0, 1.0), hsv.y);
+			}
+		}
+
+		// Alter the RGB levels.
+		{
+			finalColor.r *= red;
+			finalColor.g *= green;
+			finalColor.b *= blue;
+		}
+
+		// Finally, apply exposure compensation.
+		finalColor *= cameraExposure;
 	}
 
-	finalColor *= cameraExposure;
 	gl_FragColor = vec4(finalColor, 1.0);
 }

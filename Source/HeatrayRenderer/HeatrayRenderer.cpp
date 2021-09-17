@@ -332,7 +332,7 @@ void HeatrayRenderer::render()
 		// Shift the quad to account for the UI.
 		float start = ((float(UI_WINDOW_WIDTH) / float(m_windowParams.width)) * 2.0f) - 1.0f;
 
-        m_displayProgram.bind(0, m_tonemappingEnabled, m_cameraExposure); 
+        m_displayProgram.bind(0, m_post_processing_params); 
         glBindTexture(GL_TEXTURE_2D, m_displayTexture);
         glBegin(GL_QUADS);
 			glTexCoord2d(0.0, 0.0); glVertex2f(start, -1.0f);
@@ -624,8 +624,18 @@ bool HeatrayRenderer::renderUI()
         }
     }
     if (ImGui::CollapsingHeader("Post processing")) {
-        ImGui::Checkbox("ACES tonemapping enabled", &m_tonemappingEnabled);
-        ImGui::SliderFloat("Exposure compensation", &m_cameraExposure, -10.0f, 10.0f);
+        ImGui::Checkbox("ACES tonemapping enabled", &m_post_processing_params.tonemapping_enabled);
+        ImGui::SliderFloat("Exposure compensation", &m_post_processing_params.exposure, -10.0f, 10.0f);
+		ImGui::SliderFloat("Brightness", &m_post_processing_params.brightness, -1.0f, 1.0f);
+		ImGui::SliderFloat("Contrast", &m_post_processing_params.contrast, -1.0f, 1.0f);
+		ImGui::SliderFloat("Saturation", &m_post_processing_params.saturation, 0.0f, 3.0f);
+		ImGui::SliderFloat("Vibrance", &m_post_processing_params.vibrance, 0.0f, 1.0f);
+		ImGui::SliderFloat("Red", &m_post_processing_params.red, 0.0f, 1.5f);
+		ImGui::SliderFloat("Green", &m_post_processing_params.green, 0.0f, 1.5f);
+		ImGui::SliderFloat("Blue", &m_post_processing_params.blue, 0.0f, 1.5f);
+		if (ImGui::Button("Reset parameters")) {
+			m_post_processing_params = PostProcessingParams();
+		}
     }
     if (ImGui::CollapsingHeader("Screenshot")) {
         ImGui::Checkbox("HDR", &m_hdrScreenshot);

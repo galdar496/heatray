@@ -60,6 +60,19 @@ private:
     void resetRenderer();
     void saveScreenshot();
 
+	struct PostProcessingParams {
+		bool tonemapping_enabled = false;
+		float exposure = 0.0f;
+		float brightness = 0.0f;
+		float contrast = 0.0f;
+		float hue = 1.0f;
+		float saturation = 1.0f;
+		float vibrance = 0.0f;
+		float red = 1.0f;
+		float green = 1.0f;
+		float blue = 1.0f;
+	} m_post_processing_params;
+
     /// Object which handles final display of the raytraced pixels via a custom fragment shader.
     struct DisplayProgram
     {
@@ -69,6 +82,14 @@ private:
         GLint displayTextureLocation = -1;
         GLint tonemappingEnabledLocation = -1;
         GLint cameraExposureLocation = -1;
+		GLint brightnessLocation = -1;
+		GLint contrastLocation = -1;
+		GLint hueLocation = -1;
+		GLint saturationLocation = -1;
+		GLint vibranceLocation = -1;
+		GLint redLocation = -1;
+		GLint greenLocation = -1;
+		GLint blueLocation = -1;
 
         void init()
         {
@@ -80,7 +101,13 @@ private:
             glCompileShader(shader);
             GLint success = 0;
             glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-            assert(success == GL_TRUE);
+			if (success != GL_TRUE) {
+				GLsizei log_length = 0;
+				GLchar  log[1024];
+				glGetShaderInfoLog(shader, sizeof(log), &log_length, log);
+				std::cout << "Unable to compile display shader: " << std::endl << log << std::endl;
+			}
+			assert(success == GL_TRUE);
 
             // Create the display program.
             program = glCreateProgram();
@@ -93,15 +120,37 @@ private:
             displayTextureLocation = glGetUniformLocation(program, "raytracedTexture");
             tonemappingEnabledLocation = glGetUniformLocation(program, "tonemappingEnabled");
             cameraExposureLocation = glGetUniformLocation(program, "cameraExposure");
+			brightnessLocation = glGetUniformLocation(program, "brightness");
+			contrastLocation = glGetUniformLocation(program, "contrast");
+			hueLocation = glGetUniformLocation(program, "hue");
+			saturationLocation = glGetUniformLocation(program, "saturation");
+			vibranceLocation = glGetUniformLocation(program, "vibrance");
+			redLocation = glGetUniformLocation(program, "red");
+			greenLocation = glGetUniformLocation(program, "green");
+			blueLocation = glGetUniformLocation(program, "blue");
         }
 
         /// @param texture Location of the texture to use for the shader.
-        void bind(GLint texture, bool tonemappingEnabled, float cameraExposure) const
+		void bind(GLint texture, const PostProcessingParams& post_params) const
         {
             glUseProgram(program);
             glUniform1i(displayTextureLocation, texture);
-            glUniform1i(tonemappingEnabledLocation, tonemappingEnabled ? 1 : 0);
-            glUniform1f(cameraExposureLocation, std::powf(2.0, cameraExposure));
+            glUniform1i(tonemappingEnabledLocation, post_params.tonemapping_enabled ? 1 : 0);
+            glUniform1f(cameraExposureLocation, std::powf(2.0, post_params.exposure));
+			glUniform1f(brightnessLocation, post_params.brightness);
+			glUniform1f(hueLocation, post_params.hue);
+			glUniform1f(saturationLocation, post_params.saturation);
+			glUniform1f(vibranceLocation, post_params.vibrance);
+			glUniform1f(redLocation, post_params.red);
+			glUniform1f(greenLocation, post_params.green);
+			glUniform1f(blueLocation, post_params.blue);
+
+			{
+				// Contrast needs to be properly remapped before being used by the shader.
+				float integer_contrast = post_params.contrast * 255.0f;
+				float contrast = (259.0f * (integer_contrast + 255.0f)) / (255.0f * (259.0f - integer_contrast));
+				glUniform1f(contrastLocation, contrast);
+			}
         }
 
         void unbind() const
