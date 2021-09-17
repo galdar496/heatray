@@ -47,6 +47,8 @@ public:
     void render();
     void handlePendingFileLoads();
 
+	static constexpr size_t UI_WINDOW_WIDTH = 500;
+
 private:
     // This class is NOT copyable (move is ok).
     HeatrayRenderer(const HeatrayRenderer& other) = delete;
@@ -116,6 +118,7 @@ private:
     DisplayProgram m_displayProgram; ///< Used to display the final pixels to the screen.
 
     WindowParams m_windowParams; ///< Current size of the display window.
+	WindowParams m_renderWindowParams; ///< Current size of the rendering window.
 
     std::atomic<bool> m_shouldCopyPixels = false;   ///< If true, a new frame is available from the FrameGenerator. 
     std::atomic<const float*> m_pathracedPixels = nullptr;  ///< Result of the pathtracer.

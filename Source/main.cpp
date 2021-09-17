@@ -25,7 +25,7 @@ namespace {
     // functions in the main file.
     HeatrayRenderer heatray;
 
-    constexpr GLint kDefaultWindowWidth  = 800;
+	constexpr GLint kDefaultWindowWidth = 800 + HeatrayRenderer::UI_WINDOW_WIDTH;
     constexpr GLint kDefaultWindowHeight = 800;
 } // namespace.
 

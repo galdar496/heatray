@@ -41,9 +41,9 @@ private:
 
     struct Submesh {
         openrl::Primitive primitive;
-        size_t elementCount;
-        size_t offset;
-        RLenum mode;
+		size_t elementCount = 0;
+		size_t offset = 0;
+		RLenum mode = 0;
         Material* material = nullptr;
     };
 

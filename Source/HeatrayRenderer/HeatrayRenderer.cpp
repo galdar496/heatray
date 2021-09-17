@@ -17,10 +17,15 @@
 #include <assert.h>
 #include <iostream>
 
-bool HeatrayRenderer::init(const GLint renderWidth, const GLint renderHeight)
+bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
 {
+	m_windowParams.width = windowWidth;
+	m_windowParams.height = windowHeight;
+
     // Setup OpenRL data first.
-    m_renderer.init(renderWidth, renderHeight);
+	m_renderWindowParams.width = windowWidth - UI_WINDOW_WIDTH;
+	m_renderWindowParams.height = windowHeight;
+    m_renderer.init(m_renderWindowParams.width, m_renderWindowParams.height);
 
 	// Next setup OpenGL display data.
     {
@@ -54,11 +59,8 @@ bool HeatrayRenderer::init(const GLint renderWidth, const GLint renderHeight)
         #endif
     }
 
-    m_renderOptions.camera.aspectRatio = static_cast<float>(renderWidth) / static_cast<float>(renderHeight);
+    m_renderOptions.camera.aspectRatio = static_cast<float>(m_renderWindowParams.width) / static_cast<float>(m_renderWindowParams.height);
     m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
-
-    m_windowParams.width  = renderWidth;
-    m_windowParams.height = renderHeight;
 
     // Load the default scene.
     changeScene(m_renderOptions.scene);
@@ -74,15 +76,19 @@ void HeatrayRenderer::destroy()
     glDeleteTextures(1, &m_displayTexture);
 }
 
-void HeatrayRenderer::resize(const GLint newWidth, const GLint newHeight)
+void HeatrayRenderer::resize(const GLint newWindowWidth, const GLint newWindowHeight)
 {
-    m_renderer.resize(newWidth, newHeight);
+	m_windowParams.width = newWindowWidth;
+	m_windowParams.height = newWindowHeight;
 
-    m_windowParams.width = newWidth;
-    m_windowParams.height = newHeight;
+	m_renderWindowParams.width = newWindowWidth - UI_WINDOW_WIDTH;
+	m_renderWindowParams.height = newWindowHeight;
+
+    m_renderer.resize(m_renderWindowParams.width, m_renderWindowParams.height);
+
     resizeGLData();
 
-    m_renderOptions.camera.aspectRatio = static_cast<float>(newWidth) / static_cast<float>(newHeight);
+    m_renderOptions.camera.aspectRatio = static_cast<float>(m_renderWindowParams.width) / static_cast<float>(m_renderWindowParams.height);
 
     m_pathracedPixels.store(nullptr);
     m_shouldCopyPixels.store(false);
@@ -299,7 +305,7 @@ void HeatrayRenderer::render()
         // Copy the data into a PBO and upload it to a texture for rendering. If the renderer is being reset then no reason to actually copy anything.
         if (copyPixels && !m_renderOptions.resetInternalState) {
             // These may not be the same if a resize just happened - in that case we don't want to copy old data.
-            if (m_windowParams.width == m_pixelDimensions.x && m_windowParams.height == m_pixelDimensions.y) {
+            if (m_renderWindowParams.width == m_pixelDimensions.x && m_renderWindowParams.height == m_pixelDimensions.y) {
                 const float* pixels = m_pathracedPixels.load();
                 m_shouldCopyPixels.store(false);
                 glBindTexture(GL_TEXTURE_2D, m_displayTexture);
@@ -323,13 +329,16 @@ void HeatrayRenderer::render()
 
     // Display the current raytraced result.
     {
+		// Shift the quad to account for the UI.
+		float start = ((float(UI_WINDOW_WIDTH) / float(m_windowParams.width)) * 2.0f) - 1.0f;
+
         m_displayProgram.bind(0, m_tonemappingEnabled, m_cameraExposure); 
         glBindTexture(GL_TEXTURE_2D, m_displayTexture);
         glBegin(GL_QUADS);
-			glTexCoord2d(0.0, 0.0); glVertex2f(-1.0f, -1.0f);
+			glTexCoord2d(0.0, 0.0); glVertex2f(start, -1.0f);
 			glTexCoord2d(1.0, 0.0); glVertex2f(1.0f, -1.0f);
 			glTexCoord2d(1.0, 1.0); glVertex2f(1.0f, 1.0f);
-			glTexCoord2d(0.0, 1.0); glVertex2f(-1.0f, 1.0f);
+			glTexCoord2d(0.0, 1.0); glVertex2f(start, 1.0f);
         glEnd();
         glBindTexture(GL_TEXTURE_2D, 0);
         m_displayProgram.unbind();
@@ -391,12 +400,12 @@ void HeatrayRenderer::handlePendingFileLoads()
 void HeatrayRenderer::resizeGLData()
 {
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_displayPixelBuffer);
-    GLsizei bufferSize = m_windowParams.width * m_windowParams.height * sizeof(float) * openrl::PixelPackBuffer::kNumChannels;
+    GLsizei bufferSize = m_renderWindowParams.width * m_renderWindowParams.height * sizeof(float) * openrl::PixelPackBuffer::kNumChannels;
     glBufferData(GL_PIXEL_UNPACK_BUFFER, bufferSize, nullptr, GL_STREAM_DRAW);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
     glBindTexture(GL_TEXTURE_2D, m_displayTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, m_windowParams.width, m_windowParams.height, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, m_renderWindowParams.width, m_renderWindowParams.height, 0, GL_RGBA, GL_FLOAT, nullptr);
     glBindTexture(GL_TEXTURE_2D, 0);
 
     glViewport(0, 0, m_windowParams.width, m_windowParams.height);
@@ -449,8 +458,11 @@ bool HeatrayRenderer::renderUI()
 {
     bool shouldResetRenderer = m_justResized;
 
-    ImGui::Begin("Main Menu");
-    //if (ImGui::CollapsingHeader("Render stats"))
+	bool should_close_window = false;
+	ImGui::SetNextWindowPos(ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImVec2(UI_WINDOW_WIDTH, m_windowParams.height));
+    ImGui::Begin("Main Menu", &should_close_window, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
+
     ImGui::Text("Render stats:");
     {
         ImGui::Text("Passes completed: %u\n", uint32_t(float(m_currentPass) / float(m_totalPasses) * float(m_renderOptions.maxRenderPasses)));
@@ -688,7 +700,7 @@ void HeatrayRenderer::saveScreenshot()
         void* pixels = FreeImage_GetBits(hdrBitmap);
         glGetBufferSubData(GL_PIXEL_UNPACK_BUFFER, 0, dataSize, pixels);
 
-        // Convert each pixel to the proper RGB value (A stores the number of passes performed).
+        // Convert each pixel to the proper RGB value (Alpha stores the number of passes performed).
         for (int y = 0; y < FreeImage_GetHeight(hdrBitmap); ++y) {
             float* bits = (float *)FreeImage_GetScanLine(hdrBitmap, y);
             for (int x = 0; x < FreeImage_GetWidth(hdrBitmap); ++x) {
@@ -706,7 +718,7 @@ void HeatrayRenderer::saveScreenshot()
     } else {     
         bitmap = FreeImage_AllocateT(FIT_BITMAP, m_pixelDimensions.x, m_pixelDimensions.y, 24); // 8 bits per channel.
         void* pixelData = FreeImage_GetBits(bitmap);
-        glReadPixels(0, 0, m_pixelDimensions.x, m_pixelDimensions.y, GL_BGR, GL_UNSIGNED_BYTE, pixelData);
+        glReadPixels(UI_WINDOW_WIDTH, 0, m_pixelDimensions.x, m_pixelDimensions.y, GL_BGR, GL_UNSIGNED_BYTE, pixelData);
     }
 
     FreeImage_Save(FreeImage_GetFIFFromFilename(m_screenshotPath.c_str()), bitmap, m_screenshotPath.c_str(), 0);
