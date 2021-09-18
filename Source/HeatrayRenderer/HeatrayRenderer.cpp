@@ -529,13 +529,13 @@ bool HeatrayRenderer::renderUI()
     if (ImGui::CollapsingHeader("Environment options")) {
         static const char* options[] = { "glacier.exr", "uffizi.exr", "bridge.hdr", "arches.hdr", "white furnace test" };
 
-        static unsigned int currentSelection = 3;
+        static unsigned int currentSelection = 0;
         if (ImGui::BeginCombo("Environment map", options[currentSelection])) {
             for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
                 bool isSelected = currentSelection == iOption;
                 if (ImGui::Selectable(options[iOption], false)) {
                     currentSelection = iOption;
-                    m_renderOptions.environmentMap = std::string(options[iOption]);
+                    m_renderOptions.environment.map = std::string(options[iOption]);
                     shouldResetRenderer = true;
                 }
                 if (isSelected) {
@@ -545,7 +545,7 @@ bool HeatrayRenderer::renderUI()
             ImGui::EndCombo();
         }
 
-		if (ImGui::SliderFloat("Environment Exposure", &m_renderOptions.environmentExposureCompensation, -10.0f, 10.0f)) {
+		if (ImGui::SliderFloat("Environment Exposure", &m_renderOptions.environment.exposureCompensation, -10.0f, 10.0f)) {
 			shouldResetRenderer = true;
 		}
     }

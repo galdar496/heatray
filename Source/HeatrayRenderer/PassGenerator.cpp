@@ -132,7 +132,7 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
 
 		m_environmentLight.primitive.create();
 		m_environmentLight.primitive.attachProgram(m_environmentLight.program);
-        changeEnvironment(m_renderOptions.environmentMap, m_renderOptions.environmentExposureCompensation);
+		changeEnvironment(m_renderOptions.environment);
     }
 
     {
@@ -297,10 +297,10 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
     rlClear(RL_COLOR_BUFFER_BIT);
 
     // Walk over the render options and switch things out iff something has changed.
-    if ((m_renderOptions.environmentMap != newOptions.environmentMap) ||
-		(m_renderOptions.environmentExposureCompensation != newOptions.environmentExposureCompensation)) {
+    if ((m_renderOptions.environment.map != newOptions.environment.map) ||
+		(m_renderOptions.environment.exposureCompensation != newOptions.environment.exposureCompensation)) {
 
-        changeEnvironment(newOptions.environmentMap, newOptions.environmentExposureCompensation);
+		changeEnvironment(newOptions.environment);
     }
 
     if (m_renderOptions.sampleMode != newOptions.sampleMode ||
@@ -323,14 +323,14 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
     m_renderOptions.resetInternalState = false;
 }
 
-void PassGenerator::changeEnvironment(std::string const & newEnvMap, float newEnvMapExposureCompensation)
+void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
 {
-	if (newEnvMap != m_environmentLight.map_path) {
-		m_environmentLight.map_path = newEnvMap;
+	if (newEnv.map != m_environmentLight.map_path) {
+		m_environmentLight.map_path = newEnv.map;
 		m_environmentLight.texture.destroy();
-		if (newEnvMap != "white furnace test") {
+		if (newEnv.map != "white furnace test") {
 			static const char* basePath = "Resources/Environments/";
-			std::string fullPath = std::string(basePath) + newEnvMap;
+			std::string fullPath = std::string(basePath) + newEnv.map;
 			m_environmentLight.texture = util::loadTexture(fullPath.c_str(), true);
 		} else {
 			// Load a white furnace texture. Set to 0.8 instead of full white so that it's obvious if there is more energy being emitted
@@ -353,7 +353,7 @@ void PassGenerator::changeEnvironment(std::string const & newEnvMap, float newEn
 		}
 	}
 
-	m_environmentLight.exposure_compensation = newEnvMapExposureCompensation;
+	m_environmentLight.exposure_compensation = newEnv.exposureCompensation;
 
 	m_environmentLight.primitive.bind();
 	m_environmentLight.program.bind();

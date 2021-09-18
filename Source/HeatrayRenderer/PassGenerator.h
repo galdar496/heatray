@@ -53,8 +53,11 @@ public:
 
         bool resetInternalState = true; 
         unsigned int maxRenderPasses = 32; 
-        std::string environmentMap = "arches.hdr";
-		float environmentExposureCompensation = 1.0f;
+
+		struct Environment {
+			std::string map = "glacier.exr";
+			float exposureCompensation = 0.0f;
+		} environment;
 
         std::string scene = "Multi-Material";
 
@@ -117,7 +120,7 @@ private:
     PassGenerator& operator=(const PassGenerator& other) = delete;
     PassGenerator& operator=(const PassGenerator&& other) = delete;
 
-    void changeEnvironment(std::string const & newEnvMap, float newEnvMapExposureCompensation);
+    void changeEnvironment(const RenderOptions::Environment& newEnv);
     void generateRandomSequences(const RLint sampleCount, RenderOptions::SampleMode sampleMode, RenderOptions::BokehShape bokehShape);
     void resetRenderingState(const RenderOptions& newOptions);
 
@@ -140,7 +143,7 @@ private:
 		openrl::Primitive primitive;
 		openrl::Program program;
 		openrl::Texture texture;
-		float exposure_compensation = 1.0f;
+		float exposure_compensation = 0.0f;
 		std::string map_path;
 	} m_environmentLight;
 
