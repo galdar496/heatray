@@ -460,7 +460,7 @@ bool HeatrayRenderer::renderUI()
 
 	bool should_close_window = false;
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
-	ImGui::SetNextWindowSize(ImVec2(UI_WINDOW_WIDTH, m_windowParams.height));
+	ImGui::SetNextWindowSize(ImVec2(UI_WINDOW_WIDTH, static_cast<float>(m_windowParams.height)));
     ImGui::Begin("Main Menu", &should_close_window, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
 
     ImGui::Text("Render stats:");
@@ -715,9 +715,9 @@ void HeatrayRenderer::saveScreenshot()
         glGetBufferSubData(GL_PIXEL_UNPACK_BUFFER, 0, dataSize, pixels);
 
         // Convert each pixel to the proper RGB value (Alpha stores the number of passes performed).
-        for (int y = 0; y < FreeImage_GetHeight(hdrBitmap); ++y) {
+        for (uint32_t y = 0; y < FreeImage_GetHeight(hdrBitmap); ++y) {
             float* bits = (float *)FreeImage_GetScanLine(hdrBitmap, y);
-            for (int x = 0; x < FreeImage_GetWidth(hdrBitmap); ++x) {
+            for (uint32_t x = 0; x < FreeImage_GetWidth(hdrBitmap); ++x) {
                 float divisor = 1.0f / bits[FI_RGBA_ALPHA];
 
                 bits[FI_RGBA_RED]   *= divisor;
