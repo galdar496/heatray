@@ -122,23 +122,23 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
             return false;
         }
 
-        m_environmentLightProgram.create();
-        m_environmentLightProgram.attach(environmentLightShader);
-        m_environmentLightProgram.attach(environmentLightVertexShader);
-        if (!m_environmentLightProgram.link("Environment Light Program"))
+        m_environmentLight.program.create();
+		m_environmentLight.program.attach(environmentLightShader);
+		m_environmentLight.program.attach(environmentLightVertexShader);
+        if (!m_environmentLight.program.link("Environment Light Program"))
         {
             return false;
         }
 
-        m_environmentLightPrimitive.create();
-        m_environmentLightPrimitive.attachProgram(m_environmentLightProgram);
-        changeEnvironment(m_renderOptions.environmentMap);
+		m_environmentLight.primitive.create();
+		m_environmentLight.primitive.attachProgram(m_environmentLight.program);
+        changeEnvironment(m_renderOptions.environmentMap, m_renderOptions.environmentExposureCompensation);
     }
 
     {
         // Setup global data buffer for all shaders.
         GlobalData data;
-        data.environmentLight = m_environmentLightPrimitive.primitive();
+        data.environmentLight = m_environmentLight.primitive.primitive();
         m_globalData.load(&data, sizeof(GlobalData), "Global data buffer");
     }
 
@@ -297,20 +297,20 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
     rlClear(RL_COLOR_BUFFER_BIT);
 
     // Walk over the render options and switch things out iff something has changed.
-    if (m_renderOptions.environmentMap != newOptions.environmentMap)
-    {
-        changeEnvironment(newOptions.environmentMap);
+    if ((m_renderOptions.environmentMap != newOptions.environmentMap) ||
+		(m_renderOptions.environmentExposureCompensation != newOptions.environmentExposureCompensation)) {
+
+        changeEnvironment(newOptions.environmentMap, newOptions.environmentExposureCompensation);
     }
 
     if (m_renderOptions.sampleMode != newOptions.sampleMode ||
         m_renderOptions.maxRenderPasses != newOptions.maxRenderPasses ||
-        m_renderOptions.bokehShape != newOptions.bokehShape)
-    {
+        m_renderOptions.bokehShape != newOptions.bokehShape) {
+
         generateRandomSequences(newOptions.maxRenderPasses, newOptions.sampleMode, newOptions.bokehShape);
     }
 
-    if (m_renderOptions.maxRayDepth != newOptions.maxRayDepth)
-    {
+    if (m_renderOptions.maxRayDepth != newOptions.maxRayDepth) {
         m_globalData.bind();
         GlobalData* globalData = m_globalData.mapBuffer<GlobalData>();
         globalData->maxRayDepth = newOptions.maxRayDepth;
@@ -323,40 +323,43 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
     m_renderOptions.resetInternalState = false;
 }
 
-void PassGenerator::changeEnvironment(std::string const & newEnvMap)
+void PassGenerator::changeEnvironment(std::string const & newEnvMap, float newEnvMapExposureCompensation)
 {
-    m_environmentTexture.destroy();
-    if (newEnvMap != "white furnace test")
-    {
-        static const char* basePath = "Resources/Environments/";
-        std::string fullPath = std::string(basePath) + newEnvMap;
-        m_environmentTexture = util::loadTexture(fullPath.c_str(), true);
-    }
-    else
-    {
-        // Load a white furnace texture. Set to 0.8 instead of full white so that it's obvious if there is more energy being emitted
-        // by the surface than should be.
-        openrl::Texture::Descriptor desc;
-        desc.dataType       = RL_FLOAT;
-        desc.format         = RL_RGB;
-        desc.internalFormat = RL_RGB;
-        desc.width          = 1;
-        desc.height         = 1;
+	if (newEnvMap != m_environmentLight.map_path) {
+		m_environmentLight.map_path = newEnvMap;
+		m_environmentLight.texture.destroy();
+		if (newEnvMap != "white furnace test") {
+			static const char* basePath = "Resources/Environments/";
+			std::string fullPath = std::string(basePath) + newEnvMap;
+			m_environmentLight.texture = util::loadTexture(fullPath.c_str(), true);
+		} else {
+			// Load a white furnace texture. Set to 0.8 instead of full white so that it's obvious if there is more energy being emitted
+			// by the surface than should be.
+			openrl::Texture::Descriptor desc;
+			desc.dataType = RL_FLOAT;
+			desc.format = RL_RGB;
+			desc.internalFormat = RL_RGB;
+			desc.width = 1;
+			desc.height = 1;
 
-        openrl::Texture::Sampler sampler;
-        sampler.magFilter = RL_LINEAR;
-        sampler.minFilter = RL_LINEAR;
-        sampler.wrapS     = RL_CLAMP_TO_EDGE;
-        sampler.wrapT     = RL_CLAMP_TO_EDGE;
-        
-        glm::vec3 data = glm::vec3(0.8f);
-        m_environmentTexture.create(&data.x, desc, sampler, false);
-    }
+			openrl::Texture::Sampler sampler;
+			sampler.magFilter = RL_LINEAR;
+			sampler.minFilter = RL_LINEAR;
+			sampler.wrapS = RL_CLAMP_TO_EDGE;
+			sampler.wrapT = RL_CLAMP_TO_EDGE;
 
-    m_environmentLightPrimitive.bind();
-    m_environmentLightProgram.bind();
-    m_environmentLightProgram.setTexture(m_environmentLightProgram.getUniformLocation("environmentTexture"), m_environmentTexture);
-    m_environmentLightPrimitive.unbind();
+			glm::vec3 data = glm::vec3(0.8f);
+			m_environmentLight.texture.create(&data.x, desc, sampler, false);
+		}
+	}
+
+	m_environmentLight.exposure_compensation = newEnvMapExposureCompensation;
+
+	m_environmentLight.primitive.bind();
+	m_environmentLight.program.bind();
+	m_environmentLight.program.setTexture(m_environmentLight.program.getUniformLocation("environmentTexture"), m_environmentLight.texture);
+	m_environmentLight.program.set1f(m_environmentLight.program.getUniformLocation("exposureCompensation"), std::powf(2.0f, m_environmentLight.exposure_compensation));
+	m_environmentLight.primitive.unbind();
 }
 
 void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptions::SampleMode sampleMode, RenderOptions::BokehShape bokehShape)

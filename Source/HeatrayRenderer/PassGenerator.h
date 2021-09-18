@@ -54,6 +54,7 @@ public:
         bool resetInternalState = true; 
         unsigned int maxRenderPasses = 32; 
         std::string environmentMap = "arches.hdr";
+		float environmentExposureCompensation = 1.0f;
 
         std::string scene = "Multi-Material";
 
@@ -116,7 +117,7 @@ private:
     PassGenerator& operator=(const PassGenerator& other) = delete;
     PassGenerator& operator=(const PassGenerator&& other) = delete;
 
-    void changeEnvironment(std::string const & newEnvMap);
+    void changeEnvironment(std::string const & newEnvMap, float newEnvMapExposureCompensation);
     void generateRandomSequences(const RLint sampleCount, RenderOptions::SampleMode sampleMode, RenderOptions::BokehShape bokehShape);
     void resetRenderingState(const RenderOptions& newOptions);
 
@@ -135,9 +136,13 @@ private:
 
     openrl::PixelPackBuffer m_resultPixels;
 
-    openrl::Primitive m_environmentLightPrimitive;
-    openrl::Program m_environmentLightProgram;
-    openrl::Texture m_environmentTexture;
+	struct EnvironmentLight {
+		openrl::Primitive primitive;
+		openrl::Program program;
+		openrl::Texture texture;
+		float exposure_compensation = 1.0f;
+		std::string map_path;
+	} m_environmentLight;
 
     PassCompleteCallback m_passCompleteCallback;
     LoadSceneCallback m_loadSceneCallback;

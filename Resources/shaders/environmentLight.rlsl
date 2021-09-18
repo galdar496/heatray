@@ -10,6 +10,7 @@
 #include "utility.rlsl"
 
 uniform sampler2D environmentTexture; // 2D lat/long map defining environment colors.
+uniform float exposureCompensation; // Exposure adjustment to the environment light.
 
 void setup()
 {
@@ -24,7 +25,7 @@ void main()
 	float u     = (theta / kTwoPI) + 0.5;
 	float v     = (-phi * kOneOverPI) + 0.5;
 
-	vec3 sample = texture2D(environmentTexture, vec2(u, 1.0 - v)).rgb;
+	vec3 sample = texture2D(environmentTexture, vec2(u, 1.0 - v)).rgb * exposureCompensation;
 	vec3 result = rl_InRay.weight * sample;
 	accumulate(result); 
 }

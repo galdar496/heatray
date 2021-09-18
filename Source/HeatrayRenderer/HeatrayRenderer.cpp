@@ -544,6 +544,10 @@ bool HeatrayRenderer::renderUI()
             }
             ImGui::EndCombo();
         }
+
+		if (ImGui::SliderFloat("Environment Exposure", &m_renderOptions.environmentExposureCompensation, -10.0f, 10.0f)) {
+			shouldResetRenderer = true;
+		}
     }
     if (ImGui::CollapsingHeader("Scene options")) {
         if (ImGui::Button("Load Scene...")) {
