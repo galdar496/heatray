@@ -78,9 +78,9 @@ public:
 private:
 
     Buffer m_buffer;
-    RLint m_size = -1;  ///< Size of the buffe (in bytes).
-    RLint m_width;      ///< Width of the buffer (in pixels).
-    RLint m_height;     ///< Height of the buffer (in pixels).
+    RLint m_size = -1;   ///< Size of the buffe (in bytes).
+    RLint m_width = -1;  ///< Width of the buffer (in pixels).
+    RLint m_height = -1; ///< Height of the buffer (in pixels).
     mutable bool m_isMapped = false;
 };
 

@@ -81,6 +81,13 @@ void mouseMove(int button, int state, int x, int y)
     ImGui_ImplGLUT_MouseFunc(button, state, x * kCheesyMultiplier, y * kCheesyMultiplier);
 }
 
+#ifdef __FREEGLUT_EXT_H__
+void mouseWheel(int button, int dir, int x, int y)
+{
+	ImGui_ImplGLUT_MouseWheelFunc(button, dir, x, y);
+}
+#endif // __FREEGLUT_EXT_H__
+
 void keyboardPressed(unsigned char c, int x, int y)
 {
     ImGui_ImplGLUT_KeyboardFunc(c, x * kCheesyMultiplier, y * kCheesyMultiplier);
@@ -114,6 +121,9 @@ int main(int argc, char **argv)
     glutIdleFunc(update);
     glutMotionFunc(motion);
     glutMouseFunc(mouseMove);
+#ifdef __FREEGLUT_EXT_H__
+	glutMouseWheelFunc(mouseWheel);
+#endif // __FREEGLUT_EXT_H__
     glutKeyboardFunc(keyboardPressed);
     glutKeyboardUpFunc(keyboardUp);
     glutSpecialFunc(specialPressed);
