@@ -87,7 +87,7 @@ public:
 
         BokehShape bokehShape = BokehShape::kPentagon;
 
-        int maxRayDepth = 5;
+        int maxRayDepth = 10;
     };
     
     ///
