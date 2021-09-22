@@ -97,16 +97,17 @@ void HeatrayRenderer::resize(const GLint newWindowWidth, const GLint newWindowHe
 
 void HeatrayRenderer::changeScene(std::string const& sceneName)
 {
+	m_groundPlane.reset();
+
     if (sceneName == "White Sphere") {
-        m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback)
-        {
+        m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
             for (auto mesh : m_sceneData) {
                 mesh.destroy();
             }
             m_sceneData.clear();
 
             SphereMeshProvider whiteFurnaceSphereMeshProvider(50, 50, 1.0f);
-            PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
+            std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
             PhysicallyBasedMaterial::Parameters params;
             params.metallic = 0.0f;
             params.roughness = 0.0f;
@@ -116,8 +117,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             m_sceneData.push_back(RLMesh(&whiteFurnaceSphereMeshProvider, { material }, systemSetupCallback, glm::mat4(1.0f)));
         });
     } else if (sceneName == "Multi-Material") {
-        m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback)
-        {
+        m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
             for (auto mesh : m_sceneData) {
                 mesh.destroy();
             }
@@ -130,7 +130,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
 
             // Bottom plane.
             {
-                PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
+				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
                 PhysicallyBasedMaterial::Parameters params;
                 params.metallic = 0.0f;
                 params.roughness = 1.0f;
@@ -143,7 +143,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
 #if 0
             // Right plane.
             {
-                PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
+				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
                 PhysicallyBasedMaterial::Parameters params;
                 params.metallic = 0.0f;
 				params.roughness = 1.0f;
@@ -157,7 +157,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
 
             // Back plane.
             {
-                PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
+				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
                 PhysicallyBasedMaterial::Parameters params;
 				params.metallic = 0.0f;
 				params.roughness = 1.0f;
@@ -171,7 +171,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
 
             // Left plane.
             /*{
-                PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
+                std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
                 PhysicallyBasedMaterial::Parameters params;
                 params.metallic = 0.0f;
                 params.roughness = 0.8f;
@@ -189,7 +189,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
 
             // Sphere 1.
             {
-                PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
+				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
                 PhysicallyBasedMaterial::Parameters params;
 				params.metallic = 1.0f;
 				params.roughness = 0.1f;
@@ -202,7 +202,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
 
             // Sphere 2.
             {
-                GlassMaterial* material = new GlassMaterial();
+				std::shared_ptr<GlassMaterial> material = std::make_shared<GlassMaterial>();
                 GlassMaterial::Parameters params;
 				params.roughness = 0.1f;
 				params.baseColor = glm::vec3(0.9f, 0.6f, 0.6f);
@@ -214,8 +214,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             }
         });
     } else if (sceneName == "Sphere Array") {
-        m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback)
-        {
+        m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
             for (auto mesh : m_sceneData) {
                 mesh.destroy();
             }
@@ -225,7 +224,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             {
                 PlaneMeshProvider planeMeshProvider(25, 25);
 
-                PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
+				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
                 PhysicallyBasedMaterial::Parameters params;
                 params.metallic = 0.0f;
                 params.roughness = 1.0f;
@@ -245,7 +244,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             // Non-metals.
             {
                 for (int iSphere = 0; iSphere < 10; ++iSphere) {
-                    PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
+					std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
                     PhysicallyBasedMaterial::Parameters params;
                     params.metallic = 0.0f;
                     params.roughness = roughness;
@@ -265,7 +264,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                 roughness = 0.0f;
                 startX = (-5.0f * (radius * 2.0f + padding)) + ((radius * 2.0f + padding) * 0.5f);
                 for (int iSphere = 0; iSphere < 10; ++iSphere) {
-                    PhysicallyBasedMaterial* material = new PhysicallyBasedMaterial();
+					std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
                     PhysicallyBasedMaterial::Parameters params;
                     params.metallic = 1.0f;
                     params.roughness = roughness;
@@ -281,8 +280,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             }
         });
     } else {
-        m_renderer.loadScene([this, sceneName](RLMesh::SetupSystemBindingsCallback systemSetupCallback)
-        {
+        m_renderer.loadScene([this, sceneName](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
             for (auto mesh : m_sceneData) {
                 mesh.destroy();
             }
@@ -290,12 +288,13 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
 
             AssimpMeshProvider assimpMeshProvider(sceneName, (m_scene_units == SceneUnits::kCentimeters), m_swapYZ);
 
-            std::vector<Material *> materials = assimpMeshProvider.GetMaterials();
+            const std::vector<std::shared_ptr<Material>> &materials = assimpMeshProvider.GetMaterials();
             
             m_sceneData.push_back(RLMesh(&assimpMeshProvider, materials, systemSetupCallback, glm::mat4(1.0f)));
-			m_camera.orbitCamera.target = assimpMeshProvider.sceneAABB().center();
-			m_camera.orbitCamera.distance = assimpMeshProvider.sceneAABB().radius() * 3.0f; // Add some extra scale.
-			m_camera.orbitCamera.max_distance = assimpMeshProvider.sceneAABB().radius() * 10.0f;
+			m_sceneAABB = assimpMeshProvider.sceneAABB();
+			m_camera.orbitCamera.target = m_sceneAABB.center();
+			m_camera.orbitCamera.distance = m_sceneAABB.radius() * 3.0f; // Add some extra scale.
+			m_camera.orbitCamera.max_distance = m_sceneAABB.radius() * 10.0f;
 			m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
 
 			resetRenderer();
@@ -586,6 +585,34 @@ bool HeatrayRenderer::renderUI()
             }
             ImGui::EndCombo();
         }
+
+		if (ImGui::Button("Add Ground Plane")) {
+			m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
+				if (m_groundPlane.mesh) {
+					m_sceneData.erase(m_sceneData.begin() + m_groundPlane.meshIndex);
+					m_groundPlane.reset();
+				}
+
+				size_t planeSize = m_sceneAABB.radius() * 5;
+				PlaneMeshProvider planeMeshProvider(planeSize, planeSize);
+
+				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
+				PhysicallyBasedMaterial::Parameters params;
+				params.metallic = 1.0f;
+				params.roughness = 0.3f;
+				params.baseColor = glm::vec3(0.7f);
+				params.specularF0 = 0.8f;
+				material->build(params);
+				glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_sceneAABB.min.y, 0.0f));
+				m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation));
+
+				m_groundPlane.material = material;
+				m_groundPlane.meshIndex = m_sceneData.size() - 1;
+				m_groundPlane.mesh = &(m_sceneData[m_groundPlane.meshIndex]);
+
+				resetRenderer();
+			});
+		}
     }
     if (ImGui::CollapsingHeader("Camera options")) {
         ImGui::Text("Orbital Camera");

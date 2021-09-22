@@ -19,6 +19,7 @@
 #include <glm/glm/mat4x4.hpp>
 
 #include <functional>
+#include <memory>
 #include <vector>
 
 class RLMesh
@@ -27,7 +28,7 @@ public:
     RLMesh() = default;
 
     using SetupSystemBindingsCallback = std::function<void(const openrl::Program&)>;
-    RLMesh(MeshProvider * meshProvider, std::vector<Material *> materials, SetupSystemBindingsCallback callback, glm::mat4 transform);
+    RLMesh(MeshProvider * meshProvider, std::vector<std::shared_ptr<Material>> materials, SetupSystemBindingsCallback callback, glm::mat4 transform);
     ~RLMesh() = default;
 
     // TODO:  Add accessors and stuff to mutate an RLMesh.  Right now it serves the
@@ -44,10 +45,10 @@ private:
 		size_t elementCount = 0;
 		size_t offset = 0;
 		RLenum mode = 0;
-        Material* material = nullptr;
+		std::shared_ptr<Material> material = nullptr;
     };
 
     std::vector<Submesh> m_submeshes;
 
-    std::vector<Material *> m_materials;
+    std::vector<std::shared_ptr<Material>> m_materials;
 };

@@ -5,7 +5,7 @@
 #include <glm/glm/glm.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp>
 
-RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<Material*> materials, SetupSystemBindingsCallback callback, glm::mat4 transform)
+RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>> materials, SetupSystemBindingsCallback callback, glm::mat4 transform)
 {
     m_materials = std::move(materials);
 
@@ -45,7 +45,7 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<Material*> materials, Set
             rlSubmesh.material = m_materials.size() > 1 ? m_materials[ii] : m_materials[0];
         }
 
-        Material * material = rlSubmesh.material;
+        std::shared_ptr<Material> material = rlSubmesh.material;
 
         rlSubmesh.primitive.create();
         rlSubmesh.primitive.attachProgram(material->program());
@@ -126,12 +126,8 @@ void RLMesh::destroy()
         s.primitive.destroy();
         s.material->program().destroy();
         s.material->uniformBlock().destroy();
-        s.material = nullptr;
     }
     m_submeshes.clear();
-
-    for (Material* m : m_materials) {
-        delete m;
-    }
+	m_materials.clear();
 }
 

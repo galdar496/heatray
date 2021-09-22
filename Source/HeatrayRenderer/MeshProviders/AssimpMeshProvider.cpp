@@ -197,7 +197,7 @@ void AssimpMeshProvider::ProcessGlassMaterial(aiMaterial const* material)
 	material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR, color);
     params.baseColor = glm::vec3(color.r, color.g, color.b);
 
-    GlassMaterial* glassMaterial = new GlassMaterial();
+	std::shared_ptr<GlassMaterial> glassMaterial = std::make_shared<GlassMaterial>();
     glassMaterial->build(params);
     m_materials.push_back(glassMaterial);
 }
@@ -247,7 +247,7 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
         params.metallicRoughnessTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true));
     }
 
-    PhysicallyBasedMaterial * pbrMaterial = new PhysicallyBasedMaterial();
+	std::shared_ptr<PhysicallyBasedMaterial> pbrMaterial = std::make_shared<PhysicallyBasedMaterial>();
     pbrMaterial->build(params);
     m_materials.push_back(pbrMaterial);
 }

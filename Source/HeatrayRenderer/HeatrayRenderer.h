@@ -20,10 +20,13 @@
 #include "OrbitCamera.h"
 #include "PassGenerator.h"
 #include "RLMesh.h"
+#include "Materials/Material.h"
 
 #include <Utility/FileIO.h>
+#include <Utility/AABB.h>
 
 #include <atomic>
+#include <memory>
 
 class HeatrayRenderer
 {
@@ -212,4 +215,19 @@ private:
     bool m_hdrScreenshot = false;
     bool m_shouldSaveScreenshot = false;
 
+	util::AABB m_sceneAABB;
+
+	struct GroundPlane {
+		void reset() {
+			if (mesh) {
+				material.reset();
+				mesh = nullptr;
+				meshIndex = ~0;
+			}
+		}
+
+		RLMesh* mesh = nullptr;
+		std::shared_ptr<Material> material = nullptr;
+		size_t meshIndex = ~0;
+	} m_groundPlane;
 };

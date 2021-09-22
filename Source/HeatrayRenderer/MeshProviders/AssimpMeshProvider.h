@@ -12,6 +12,7 @@
 
 #include "glm/glm/glm.hpp"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -61,7 +62,7 @@ public:
         return m_submeshes[submeshIndex];
     }
 
-    std::vector<Material *> const & GetMaterials()
+    std::vector<std::shared_ptr<Material>> const & GetMaterials()
     {
         return m_materials;
     }
@@ -83,7 +84,7 @@ private:
 
     std::vector<Submesh> m_submeshes;
 
-    std::vector<Material *> m_materials;
+    std::vector<std::shared_ptr<Material>> m_materials;
 
     bool m_swapYZ = false;
 
