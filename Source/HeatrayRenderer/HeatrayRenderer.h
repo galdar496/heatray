@@ -20,7 +20,7 @@
 #include "OrbitCamera.h"
 #include "PassGenerator.h"
 #include "RLMesh.h"
-#include "Materials/Material.h"
+#include "Materials/PhysicallyBasedMaterial.h"
 
 #include <Utility/FileIO.h>
 #include <Utility/AABB.h>
@@ -223,11 +223,13 @@ private:
 				material.reset();
 				mesh = nullptr;
 				meshIndex = ~0;
+				materialParams = PhysicallyBasedMaterial::Parameters();
 			}
 		}
 
 		RLMesh* mesh = nullptr;
-		std::shared_ptr<Material> material = nullptr;
+		std::shared_ptr<PhysicallyBasedMaterial> material = nullptr;
 		size_t meshIndex = ~0;
+		PhysicallyBasedMaterial::Parameters materialParams;
 	} m_groundPlane;
 };

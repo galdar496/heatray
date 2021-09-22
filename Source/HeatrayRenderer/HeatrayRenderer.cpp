@@ -1,11 +1,10 @@
 #include "HeatrayRenderer.h"
 
-#include "Materials/PhysicallyBasedMaterial.h"
+#include "Materials/GlassMaterial.h"
 #include "Materials/ShowNormalsMaterial.h"
 #include "MeshProviders/AssimpMeshProvider.h"
 #include "MeshProviders/PlaneMeshProvider.h"
 #include "MeshProviders/SphereMeshProvider.h"
-#include "Materials/GlassMaterial.h"
 
 #include "Utility/FileDialog.h"
 #include <Utility/Random.h>
@@ -586,32 +585,60 @@ bool HeatrayRenderer::renderUI()
             ImGui::EndCombo();
         }
 
-		if (ImGui::Button("Add Ground Plane")) {
-			m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
-				if (m_groundPlane.mesh) {
-					m_sceneData.erase(m_sceneData.begin() + m_groundPlane.meshIndex);
+		bool groundPlaneExists = (m_groundPlane.mesh != nullptr);
+
+		if (ImGui::Button(groundPlaneExists ? "Remove Ground Plane" : "Add Ground Plane")) {
+			m_renderer.loadScene([this, groundPlaneExists](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
+				if (groundPlaneExists) {
+					auto groundRLmesh = m_sceneData.begin() + m_groundPlane.meshIndex;
+					groundRLmesh->destroy();
+					m_sceneData.erase(groundRLmesh);
 					m_groundPlane.reset();
+				} else {
+					size_t planeSize = size_t(m_sceneAABB.radius()) * 5;
+					PlaneMeshProvider planeMeshProvider(planeSize, planeSize);
+
+					std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
+					m_groundPlane.materialParams.metallic = 0.0f;
+					m_groundPlane.materialParams.roughness = 0.9f;
+					m_groundPlane.materialParams.baseColor = glm::vec3(0.9f);
+					m_groundPlane.materialParams.specularF0 = 0.2f;
+					material->build(m_groundPlane.materialParams);
+					glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_sceneAABB.min.y, 0.0f));
+					m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation));
+
+					m_groundPlane.material = material;
+					m_groundPlane.meshIndex = m_sceneData.size() - 1;
+					m_groundPlane.mesh = &(m_sceneData[m_groundPlane.meshIndex]);
 				}
-
-				size_t planeSize = m_sceneAABB.radius() * 5;
-				PlaneMeshProvider planeMeshProvider(planeSize, planeSize);
-
-				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
-				PhysicallyBasedMaterial::Parameters params;
-				params.metallic = 1.0f;
-				params.roughness = 0.3f;
-				params.baseColor = glm::vec3(0.7f);
-				params.specularF0 = 0.8f;
-				material->build(params);
-				glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_sceneAABB.min.y, 0.0f));
-				m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation));
-
-				m_groundPlane.material = material;
-				m_groundPlane.meshIndex = m_sceneData.size() - 1;
-				m_groundPlane.mesh = &(m_sceneData[m_groundPlane.meshIndex]);
 
 				resetRenderer();
 			});
+		}
+
+		if (m_groundPlane.mesh) {
+			ImGui::Text("Ground Material");
+			bool materialChanged = false;
+
+			if (ImGui::SliderFloat3("BaseColor", m_groundPlane.materialParams.baseColor.data.data, 0.0f, 1.0f)) {
+				materialChanged = true;
+			}
+			if (ImGui::SliderFloat("Metallic", &m_groundPlane.materialParams.metallic, 0.0f, 1.0f)) {
+				materialChanged = true;
+			}
+			if (ImGui::SliderFloat("Roughness", &m_groundPlane.materialParams.roughness, 0.0f, 1.0f)) {
+				materialChanged = true;
+			}
+			if (ImGui::SliderFloat("SpecularF0", &m_groundPlane.materialParams.specularF0, 0.0f, 1.0f)) {
+				materialChanged = true;
+			}
+
+			if (materialChanged) {
+				m_renderer.runOpenRLTask([this]() {
+					m_groundPlane.material->modify(m_groundPlane.materialParams);
+					resetRenderer();
+				});
+			}
 		}
     }
     if (ImGui::CollapsingHeader("Camera options")) {

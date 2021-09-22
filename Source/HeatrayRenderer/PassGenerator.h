@@ -110,6 +110,13 @@ public:
     using LoadSceneCallback = std::function<void(RLMesh::SetupSystemBindingsCallback systemSetupCallback)>;
     void loadScene(LoadSceneCallback callback);
 
+	///
+	/// Run a general OpenRL task. This can be useful for things that need to happen on the OpenRL thread
+	/// but don't need a dedicated job.
+	///
+	using OpenRLTask = std::function<void()>;
+	void runOpenRLTask(OpenRLTask task);
+
     static constexpr RLint kNumRandomSequences = 16;
     
 private:
@@ -156,7 +163,8 @@ private:
         kResize,
         kRenderPass,
         kLoadScene,
-        kDestroy
+        kDestroy,
+		kGeneralTask
     };
 
     struct Job {

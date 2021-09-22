@@ -28,6 +28,7 @@ public:
     };
 
     void build(const Parameters& params);
+	void modify(const Parameters& params);
 
 private:
     static constexpr char const * m_shader = "physicallyBased.rlsl"; ///< Shader file with corresponding material code.

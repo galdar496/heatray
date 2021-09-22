@@ -66,6 +66,12 @@ void PassGenerator::loadScene(LoadSceneCallback callback)
     m_jobQueue.push(job);
 }
 
+void PassGenerator::runOpenRLTask(OpenRLTask task)
+{
+	Job job(JobType::kGeneralTask, std::make_any<OpenRLTask>(task));
+	m_jobQueue.push(job);
+}
+
 bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight)
 {
     // OpenRLContextAttribute attributes[] = {kOpenRL_EnableRayPrefixShaders, 1, NULL}; // For a future date.
@@ -516,6 +522,12 @@ void PassGenerator::threadFunc()
                     return; // End the thread.
                     break;
                 }
+				case JobType::kGeneralTask:
+				{
+					OpenRLTask task = std::any_cast<OpenRLTask>(job.params);
+					task();
+					break;
+				}
 
                 default:
                     assert(0 && "Invalid job type");
