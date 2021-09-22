@@ -304,7 +304,8 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
 
     // Walk over the render options and switch things out iff something has changed.
     if ((m_renderOptions.environment.map != newOptions.environment.map) ||
-		(m_renderOptions.environment.exposureCompensation != newOptions.environment.exposureCompensation)) {
+		(m_renderOptions.environment.exposureCompensation != newOptions.environment.exposureCompensation) ||
+		(m_renderOptions.environment.thetaRotation != newOptions.environment.thetaRotation)) {
 
 		changeEnvironment(newOptions.environment);
     }
@@ -360,11 +361,13 @@ void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
 	}
 
 	m_environmentLight.exposure_compensation = newEnv.exposureCompensation;
+	m_environmentLight.thetaRotation = newEnv.thetaRotation;
 
 	m_environmentLight.primitive.bind();
 	m_environmentLight.program.bind();
 	m_environmentLight.program.setTexture(m_environmentLight.program.getUniformLocation("environmentTexture"), m_environmentLight.texture);
 	m_environmentLight.program.set1f(m_environmentLight.program.getUniformLocation("exposureCompensation"), std::powf(2.0f, m_environmentLight.exposure_compensation));
+	m_environmentLight.program.set1f(m_environmentLight.program.getUniformLocation("thetaRotation"), m_environmentLight.thetaRotation);
 	m_environmentLight.primitive.unbind();
 }
 

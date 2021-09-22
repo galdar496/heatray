@@ -57,6 +57,7 @@ public:
 		struct Environment {
 			std::string map = "glacier.exr";
 			float exposureCompensation = 0.0f;
+			float thetaRotation = 0.0f; // Extra rotation to apply to the environment map.
 		} environment;
 
         std::string scene = "Multi-Material";
@@ -151,6 +152,7 @@ private:
 		openrl::Program program;
 		openrl::Texture texture;
 		float exposure_compensation = 0.0f;
+		float thetaRotation = 0.0f;
 		std::string map_path;
 	} m_environmentLight;
 

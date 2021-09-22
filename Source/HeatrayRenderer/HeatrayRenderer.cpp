@@ -549,6 +549,10 @@ bool HeatrayRenderer::renderUI()
             ImGui::EndCombo();
         }
 
+		if (ImGui::SliderAngle("Environment Rotation", &m_renderOptions.environment.thetaRotation, 0.0f, 360.0f)) {
+			shouldResetRenderer = true;
+		}
+
 		if (ImGui::SliderFloat("Environment Exposure", &m_renderOptions.environment.exposureCompensation, -10.0f, 10.0f)) {
 			shouldResetRenderer = true;
 		}
