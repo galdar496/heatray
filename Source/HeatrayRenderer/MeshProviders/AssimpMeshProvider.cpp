@@ -174,9 +174,8 @@ void AssimpMeshProvider::ProcessGlassMaterial(aiMaterial const* material)
     material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR, params.roughness);
 
     aiColor3D color;
-    if (material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR, color) == aiReturn_SUCCESS) {
-        //params.baseColor = glm::vec3(color.r, color.g, color.b);
-    }
+	material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR, color);
+    params.baseColor = glm::vec3(color.r, color.g, color.b);
 
     GlassMaterial* glassMaterial = new GlassMaterial();
     glassMaterial->build(params);
