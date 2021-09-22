@@ -8,6 +8,7 @@
 
 #include "HeatrayRenderer/Materials/Material.h"
 #include "HeatrayRenderer/MeshProviders/MeshProvider.h"
+#include "Utility/AABB.h"
 
 #include "glm/glm/glm.hpp"
 
@@ -65,6 +66,8 @@ public:
         return m_materials;
     }
 
+	const util::AABB& sceneAABB() const { return m_sceneAABB; }
+
 private:
     void LoadModel(std::string const & filename, bool convert_to_meters);
     void ProcessMesh(aiMesh const * mesh, bool convert_to_meters);
@@ -83,4 +86,6 @@ private:
     std::vector<Material *> m_materials;
 
     bool m_swapYZ = false;
+
+	util::AABB m_sceneAABB;
 };

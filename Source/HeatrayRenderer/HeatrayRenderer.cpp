@@ -293,6 +293,12 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             std::vector<Material *> materials = assimpMeshProvider.GetMaterials();
             
             m_sceneData.push_back(RLMesh(&assimpMeshProvider, materials, systemSetupCallback, glm::mat4(1.0f)));
+			m_camera.orbitCamera.target = assimpMeshProvider.sceneAABB().center();
+			m_camera.orbitCamera.distance = assimpMeshProvider.sceneAABB().radius() * 3.0f; // Add some extra scale.
+			m_camera.orbitCamera.max_distance = assimpMeshProvider.sceneAABB().radius() * 10.0f;
+			m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
+
+			resetRenderer();
         });
     }
 }
@@ -585,7 +591,7 @@ bool HeatrayRenderer::renderUI()
         ImGui::Text("Orbital Camera");
         bool changed = ImGui::SliderAngle("Phi", &(m_camera.orbitCamera.phi), 0.0f, 360.0f);
         changed |= ImGui::SliderAngle("Theta", &(m_camera.orbitCamera.theta), -90.0f, 90.0f);
-        changed |= ImGui::SliderFloat("Distance", &(m_camera.orbitCamera.distance), 0.0f, 1000.0f);
+        changed |= ImGui::SliderFloat("Distance", &(m_camera.orbitCamera.distance), 0.0f, m_camera.orbitCamera.max_distance);
         if (changed) {
             m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
             shouldResetRenderer = true;

@@ -1,12 +1,15 @@
 #include "HeatrayRenderer/Materials/GlassMaterial.h"
 #include "HeatrayRenderer/Materials/PhysicallyBasedMaterial.h"
 #include "HeatrayRenderer/MeshProviders/AssimpMeshProvider.h"
+#include "Utility/AABB.h"
 #include "Utility/TextureLoader.h"
 
 #include "assimp/pbrmaterial.h"
 #include "glm/glm/glm.hpp"
 #include "glm/glm/gtc/constants.hpp"
 #include "glm/glm/gtc/quaternion.hpp"
+#include "glm/glm/gtc/matrix_transform.hpp"
+#include "glm/glm/gtx/transform.hpp"
 
 #include <filesystem>
 #include <iostream>
@@ -43,6 +46,23 @@ void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node,
 			(*submeshTransform)[3][0] *= 0.01f;
 			(*submeshTransform)[3][1] *= 0.01f;
 			(*submeshTransform)[3][2] *= 0.01f;
+		}
+
+		// Determine the transformed AABB for this node in order to calculate the final scene AABB.
+		{
+			aiAABB node_aabb = scene->mMeshes[node->mMeshes[ii]]->mAABB;
+			glm::vec4 aabb_min = glm::vec4(node_aabb.mMin.x, node_aabb.mMin.y, node_aabb.mMin.z, 1.0f);
+			glm::vec4 aabb_max = glm::vec4(node_aabb.mMax.x, node_aabb.mMax.y, node_aabb.mMax.z, 1.0f);
+
+			// HACK! Sometimes there is a scale applied to the transform matrix. If we're doing a conversion to
+			// meters just ignore this for now.
+			glm::mat4x4 transform = *submeshTransform;
+			if (convert_to_meters) {
+				transform = glm::scale(glm::vec3(0.01f)) * transform;
+			}
+
+			m_sceneAABB.expand(transform * aabb_min);
+			m_sceneAABB.expand(transform * aabb_max);
 		}
     }
     
@@ -250,10 +270,11 @@ void AssimpMeshProvider::LoadModel(std::string const & filename, bool convert_to
     aiProcess_FixInfacingNormals    |
     aiProcess_GenUVCoords           |
     aiProcess_OptimizeMeshes        |
-    aiProcess_CalcTangentSpace;
+    aiProcess_CalcTangentSpace      |
+	aiProcess_GenBoundingBoxes;
 
     const aiScene * scene = importer.ReadFile(filename.c_str(), postProcessFlags);
-    
+
     if (scene) {
         for (unsigned int ii = 0; ii < scene->mNumMeshes; ++ii) {
             aiMesh const * mesh = scene->mMeshes[ii];

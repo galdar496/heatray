@@ -1,6 +1,9 @@
 add_library(Utility STATIC
+	AABB.h
+	BlueNoise.h
 	FileIO.h
 	FileIO.cpp
+	Hash.h
 	Random.h
 	ShaderCodeLoader.h
 	ShaderCodeLoader.cpp
