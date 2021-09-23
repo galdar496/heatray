@@ -191,10 +191,10 @@ void AssimpMeshProvider::ProcessGlassMaterial(aiMaterial const* material)
     params.ior = 1.33f;
     params.roughness = 0.0f;
 
-    material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR, params.roughness);
+    material->Get(AI_MATKEY_ROUGHNESS_FACTOR, params.roughness);
 
     aiColor3D color;
-	material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR, color);
+	material->Get(AI_MATKEY_BASE_COLOR, color);
     params.baseColor = glm::vec3(color.r, color.g, color.b);
 
 	std::shared_ptr<GlassMaterial> glassMaterial = std::make_shared<GlassMaterial>();
@@ -220,20 +220,18 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
     params.specularF0 = 0.5f;
 
     aiColor3D color;
-    if (material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR, color) == aiReturn_SUCCESS) {
-        params.baseColor = glm::vec3(color.r, color.g, color.b);
-    } else if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == aiReturn_SUCCESS) {
+    if (material->Get(AI_MATKEY_BASE_COLOR, color) == aiReturn_SUCCESS) {
         params.baseColor = glm::vec3(color.r, color.g, color.b);
     }
 
-    material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR, params.metallic);
-    material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR, params.roughness);
+    material->Get(AI_MATKEY_METALLIC_FACTOR, params.metallic);
+    material->Get(AI_MATKEY_ROUGHNESS_FACTOR, params.roughness);
 
     auto filePath = std::filesystem::path(m_filename);
     auto fileParent = filePath.parent_path();
 
     aiString fileBaseColor;
-    if (material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_TEXTURE, &fileBaseColor) == aiReturn_SUCCESS) {
+    if (material->GetTexture(AI_MATKEY_BASE_COLOR_TEXTURE, &fileBaseColor) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileBaseColor.C_Str()).string();
         params.baseColorTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true));
     } else if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
