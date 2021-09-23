@@ -16,7 +16,7 @@ void GlassMaterial::build(const GlassMaterial::Parameters& params)
     // based on the parameters.
     struct ShaderParams
     {
-        glm::vec3 baseColor; // Linear version of the public parameter.
+        glm::vec3 baseColor;
         float roughness;
         float roughnessAlpha; ///< GGX alpha value (roughness^2).
         float ior;

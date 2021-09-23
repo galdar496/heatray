@@ -41,7 +41,7 @@ void main()
 	float NdotV = saturate(dot(N, V));
 
 #if defined(HAS_BASE_COLOR_TEXTURE)
-	vec3 baseColor = Material.baseColor * texture2D(Material.baseColorTexture, texCoord).rgb; // TODO: convert this to a linear color.
+	vec3 baseColor = Material.baseColor * texture2D(Material.baseColorTexture, texCoord).rgb;
 #else
 	vec3 baseColor = Material.baseColor;
 #endif //  defined(HAS_BASE_COLOR_TEXTURE)

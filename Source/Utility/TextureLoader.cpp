@@ -74,6 +74,32 @@ openrl::Texture loadTexture(const char* path, bool generateMips)
             pixels = (unsigned char *)stbi_loadf(path, &width, &height, &channelCount, 0);
         } else {
             pixels = stbi_load(path, &width, &height, &channelCount, 0);
+
+			// Convert from sRGB to linear. Note: it's assumed that any non-HDR immage is sRGB encoded however
+			// we want linear colors for rendering.
+			constexpr static size_t ALPHA_CHANNEL = 3;
+			constexpr static float MAX_BYTE_VALUE = 255.0f;
+			constexpr static float SRGB_ALPHA = 0.055f;
+			for (size_t i = 0; i < width * height; ++i) {
+				// For each pixel, we alter the RGB components but leave any alpha channel alone.
+				for (size_t channel = 0; channel < channelCount; ++channel) {
+					if (channel != ALPHA_CHANNEL) {
+						size_t pixelIndex = (i * channelCount) + channel;
+						float channelData = float(pixels[pixelIndex]) / MAX_BYTE_VALUE;
+
+						// Actual sRGB->linear convertion.
+						if (channelData <= 0.04045f) {
+							channelData /= 12.92f;
+						}
+						else {
+							channelData = std::powf((channelData + SRGB_ALPHA) / (1.0f + SRGB_ALPHA), 2.4f);
+						}
+
+						// Conversion back to an 8bit byte.
+						pixels[pixelIndex] = uint8_t(channelData * MAX_BYTE_VALUE);
+					}
+				}
+			}
         }
 
         openrl::Texture::Descriptor desc;

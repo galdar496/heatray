@@ -1,4 +1,4 @@
-<meta charset="utf-8" emacsmode="-*- markdown -*-"><link rel="stylesheet" href="https://casual-effects.com/markdeep/latest/slate.css?">
+﻿<meta charset="utf-8" emacsmode="-*- markdown -*-"><link rel="stylesheet" href="https://casual-effects.com/markdeep/latest/slate.css?">
 
 **Heatray - An OpenRL-Based Realtime Pathtracer**
 **Theory and Mathematics Overview**
@@ -39,7 +39,7 @@ The BRDF used has several inputs that can be customized for the desired appearan
 
 |Input |Description |
 |:---: |:---- |
-|baseColor| For dialectics, this represents the albedo color of the surface. For conductors, this represents the specular reflection color. Specified in **sRGB** space. |
+|baseColor| For dialectics, this represents the albedo color of the surface. For conductors, this represents the specular reflection color. Specified in **linear** space. |
 |metallic| If set to 1.0, this material is fully metallic (conductor). If set to 0.0, this material is not-metallic (dielectric). **Range**: [0.0-1.0] |
 |roughness| If set to 1.0, this material is fully rough. If set to 0, this surface is perfectly smooth. **Range**: [0.0-1.0] |
 |specularF0| $F_0$ - in other words the value of the *Fresnel* term when $\theta=0$|
