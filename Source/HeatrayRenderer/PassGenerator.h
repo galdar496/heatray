@@ -55,7 +55,8 @@ public:
         unsigned int maxRenderPasses = 32; 
 
 		struct Environment {
-			std::string map = "glacier.exr";
+			std::string map = "studio.hdr";
+			bool builtInMap = true;
 			float exposureCompensation = 0.0f;
 			float thetaRotation = 0.0f; // Extra rotation to apply to the environment map.
 		} environment;

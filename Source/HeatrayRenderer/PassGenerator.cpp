@@ -336,8 +336,14 @@ void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
 		m_environmentLight.map_path = newEnv.map;
 		m_environmentLight.texture.destroy();
 		if (newEnv.map != "white furnace test") {
-			static const char* basePath = "Resources/Environments/";
-			std::string fullPath = std::string(basePath) + newEnv.map;
+			std::string fullPath;
+			if (newEnv.builtInMap) {
+				static const char* basePath = "Resources/Environments/";
+				fullPath = std::string(basePath) + newEnv.map;
+			}
+			else {
+				fullPath = newEnv.map;
+			}
 			m_environmentLight.texture = util::loadTexture(fullPath.c_str(), true);
 		} else {
 			// Load a white furnace texture. Set to 0.8 instead of full white so that it's obvious if there is more energy being emitted

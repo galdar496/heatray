@@ -531,15 +531,28 @@ bool HeatrayRenderer::renderUI()
         }
     }
     if (ImGui::CollapsingHeader("Environment options")) {
-        static const char* options[] = { "glacier.exr", "uffizi.exr", "bridge.hdr", "arches.hdr", "white furnace test" };
+        static const char* options[] = { "studio.hdr", "glacier.exr", "uffizi.exr", "bridge.hdr", "arches.hdr", "white furnace test", "custom..." };
+		static constexpr size_t NUM_OPTIONS = sizeof(options) / sizeof(options[0]);
+		static constexpr size_t CUSTOM_OPTION_INDEX = NUM_OPTIONS - 1;
 
-        static unsigned int currentSelection = 0;
+
+        static size_t currentSelection = 0;
         if (ImGui::BeginCombo("Environment map", options[currentSelection])) {
-            for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
-                bool isSelected = currentSelection == iOption;
+            for (size_t iOption = 0; iOption < NUM_OPTIONS; ++iOption) {
+                bool isSelected = (currentSelection == iOption);
                 if (ImGui::Selectable(options[iOption], false)) {
                     currentSelection = iOption;
-                    m_renderOptions.environment.map = std::string(options[iOption]);
+					if (currentSelection != CUSTOM_OPTION_INDEX) {
+						m_renderOptions.environment.map = std::string(options[iOption]);
+						m_renderOptions.environment.builtInMap = true;
+					} else {
+						std::vector<std::string> filenames = util::OpenFileDialog();
+
+						if (filenames.size() > 0) {
+							m_renderOptions.environment.map = filenames[0];
+							m_renderOptions.environment.builtInMap = false;
+						}
+					}
                     shouldResetRenderer = true;
                 }
                 if (isSelected) {
