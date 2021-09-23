@@ -14,6 +14,7 @@ struct ShaderParams {
 	// RLtextures need to come first, since they require 8 byte alignment.
 	RLtexture baseColorTexture;
 	RLtexture metallicRoughnessTexture; // R: metallic, G: roughness
+	RLtexture emissiveTexture;
 	glm::vec3 baseColor;
 	float metallic;
 	float roughness;
@@ -22,25 +23,31 @@ struct ShaderParams {
 };
 
 void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& params)
-{
-	std::stringstream shaderPrefix;
-
-    bool hasTextures = false;
-
-    if (params.baseColorTexture) {
-        hasTextures = true;
-        shaderPrefix << "#define HAS_BASE_COLOR_TEXTURE\n";
-    }
-    if (params.metallicRoughnessTexture) {
-        hasTextures = true;
-        shaderPrefix << "#define HAS_METALLIC_ROUGHNESS_TEXTURE\n";
-    }
-    
+{    
     // Load the parameters into the uniform block buffer.
 	assert(m_constants.valid() == false);
 	m_constants.setTarget(RL_UNIFORM_BLOCK_BUFFER);
 	modify(params);
     assert(m_constants.valid());
+
+	std::stringstream shaderPrefix;
+	bool hasTextures = false;
+
+	// Add shader defines based on detected features.
+	{
+		if (params.baseColorTexture) {
+			hasTextures = true;
+			shaderPrefix << "#define HAS_BASE_COLOR_TEXTURE\n";
+		}
+		if (params.metallicRoughnessTexture) {
+			hasTextures = true;
+			shaderPrefix << "#define HAS_METALLIC_ROUGHNESS_TEXTURE\n";
+		}
+		if (params.emissiveTexture) {
+			hasTextures = true;
+			shaderPrefix << "#define HAS_EMISSIVE_TEXTURE\n";
+		}
+	}
 
     // Loadup the shader code.
     // TODO: this should use some kind of shader cache.
@@ -83,6 +90,11 @@ void PhysicallyBasedMaterial::modify(const PhysicallyBasedMaterial::Parameters& 
 	}
 	else {
 		shaderParams.metallicRoughnessTexture = openrl::getDummyTexture().texture();
+	}
+	if (params.emissiveTexture) {
+		shaderParams.emissiveTexture = params.emissiveTexture->texture();
+	} else {
+		shaderParams.emissiveTexture = openrl::getDummyTexture().texture();
 	}
 
 	m_constants.load(&shaderParams, sizeof(ShaderParams), "PhysicallyBased uniform block");

@@ -192,6 +192,7 @@ void AssimpMeshProvider::ProcessGlassMaterial(aiMaterial const* material)
     params.roughness = 0.0f;
 
     material->Get(AI_MATKEY_ROUGHNESS_FACTOR, params.roughness);
+	material->Get(AI_MATKEY_REFRACTI, params.ior);
 
     aiColor3D color;
 	material->Get(AI_MATKEY_BASE_COLOR, color);
@@ -216,7 +217,7 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
 
     params.metallic = 0.0f;
     params.roughness = 1.0f;
-    params.baseColor = {1, 1, 1};
+    params.baseColor = { 1.0f, 1.0f, 1.0f };
     params.specularF0 = 0.5f;
 
     aiColor3D color;
@@ -226,6 +227,13 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
 
     material->Get(AI_MATKEY_METALLIC_FACTOR, params.metallic);
     material->Get(AI_MATKEY_ROUGHNESS_FACTOR, params.roughness);
+
+	{
+		float ior = 0.0f;
+		if (material->Get(AI_MATKEY_REFRACTI, ior) == aiReturn_SUCCESS) {
+			params.specularF0 = std::powf((1.0f - ior) / (1.0f + ior), 2.0f);
+		}
+	}
 
     auto filePath = std::filesystem::path(m_filename);
     auto fileParent = filePath.parent_path();
@@ -239,6 +247,12 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
         auto texturePath = (fileParent / fileBaseColor.C_Str()).string();
         params.baseColorTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true));
     }
+	if (material->GetTextureCount(aiTextureType_EMISSIVE) > 0) {
+		aiString emissiveTexturePath;
+		material->GetTexture(aiTextureType_EMISSIVE, 0, &emissiveTexturePath);
+		auto texturePath = (fileParent / emissiveTexturePath.C_Str()).string();
+		params.emissiveTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true));
+	}
     aiString fileRoughnessMetallicTexture;
     if (material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &fileRoughnessMetallicTexture) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileRoughnessMetallicTexture.C_Str()).string();
