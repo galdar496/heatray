@@ -8,7 +8,8 @@
 
 #pragma once
 
-#include <Utility/BlueNoise.h>
+#include "BlueNoise.h"
+#include "Hash.h"
 
 #include <glm/glm/glm.hpp>
 #include <glm/glm/gtc/constants.hpp>
@@ -16,13 +17,92 @@
 #include <algorithm>
 #include <assert.h>
 #include <functional>
+#include <limits>
 #include <random>
 #include <vector>
 
 namespace util {
 
+inline uint32_t toUint32(const float f)
+{
+	return f * std::numeric_limits<uint32_t>::max();
+}
+
+inline float toFloat(const uint32_t u)
+{
+	return float(u) * (1.0f / std::numeric_limits<uint32_t>::max());
+}
+
+inline uint32_t burleyHash(uint32_t x)
+{
+	// See http://www.jcgt.org/published/0009/04/01/paper.pdf
+	x ^= x >> 16;
+	x *= 0x85ebca6bu;
+	x ^= x >> 13;
+	x *= 0xc2b2ae35u;
+	x ^= x >> 16;
+	return x;
+}
+
+inline uint32_t laineKarrasPermutation(uint32_t x, uint32_t seed)
+{
+	x += seed;
+	x ^= x * 0x6c50b47cu;
+	x ^= x * 0xb82f1e52u;
+	x ^= x * 0xc7afe638u;
+	x ^= x * 0x8d22f6e6u;
+	return x;
+}
+
+inline uint32_t reverseBits(uint32_t bits)
+{
+	uint32_t b = (bits << 16u) | (bits >> 16u);
+	b = (b & 0x55555555u) << 1u | (b & 0xAAAAAAAAu) >> 1u;
+	b = (b & 0x33333333u) << 2u | (b & 0xCCCCCCCCu) >> 2u;
+	b = (b & 0x0F0F0F0Fu) << 4u | (b & 0xF0F0F0F0u) >> 4u;
+	b = (b & 0x00FF00FFu) << 8u | (b & 0xFF00FF00u) >> 8u;
+	return b;
+}
+
+inline uint32_t nestedUniformScramble(uint32_t x, uint32_t seed)
+{
+	x = reverseBits(x);
+	x = laineKarrasPermutation(x, seed);
+	x = reverseBits(x);
+	return x;
+}
+
+// sampleIndex = the index to use when generating the sample
+// arrayIndex = the array index where this sample will end up in our table.
+using SequenceGenerator = std::function<glm::vec2(uint32_t sampleIndex, uint32_t arrayIndex)>;
+
+// Adapted from http://www.jcgt.org/published/0009/04/01/paper.pdf
+inline void owenScrambleSequence(glm::vec3* results, uint32_t count, uint32_t sequenceIndex, SequenceGenerator generator)
+{
+	enum Dimension {
+		ZERO = 0,
+		ONE,
+
+		COUNT
+	};
+
+	uint32_t seed = burleyHash(0x552553bc ^ sequenceIndex);
+
+	for (uint32_t iIndex = 0; iIndex < count; ++iIndex) {
+		uint32_t index = nestedUniformScramble(iIndex, seed);
+
+		glm::vec2 sample = generator(index, iIndex);
+
+		sample.x = toFloat(nestedUniformScramble(toUint32(sample.x), util::hashCombine(seed, Dimension::ZERO)));
+		sample.y = toFloat(nestedUniformScramble(toUint32(sample.y), util::hashCombine(seed, Dimension::ONE)));
+
+		results[iIndex][0] = sample.x;
+		results[iIndex][1] = sample.y;
+	}
+}
+
 template<class T>
-void uniformRandomFloats(T* results, const size_t count, unsigned int seed, float min, float max)
+inline void uniformRandomFloats(T* results, const size_t count, unsigned int seed, float min, float max)
 {
     assert(results);
     std::random_device randomDevice;
@@ -40,32 +120,26 @@ void uniformRandomFloats(T* results, const size_t count, unsigned int seed, floa
     }
 }
 
-// This may or may not be valid....
 inline void hammersley(glm::vec3* results, const unsigned int count, int sequenceIndex)
 {
     assert(results);
-    auto radicalInverse = [](unsigned int bits) {
+    auto radicalInverse = [](uint32_t bits) {
         // Reverse the bits first.
-        unsigned int b = (bits << 16u) | (bits >> 16u);
-        b = (b & 0x55555555u) << 1u | (b & 0xAAAAAAAAu) >> 1u;
-        b = (b & 0x33333333u) << 2u | (b & 0xCCCCCCCCu) >> 2u;
-        b = (b & 0x0F0F0F0Fu) << 4u | (b & 0xF0F0F0F0u) >> 4u;
-        b = (b & 0x00FF00FFu) << 8u | (b & 0xFF00FF00u) >> 8u;
+		uint32_t b = reverseBits(bits);
 
         return float(b) * 2.3283064365386963e-10f;
     };
 
-    float divisor = 1.0f / static_cast<float>(count);
-    for (unsigned int iIndex = 0; iIndex < count; ++iIndex) {
-        // Hammersley is a 2D sequence.
-        results[iIndex][0] = static_cast<float>(iIndex) * divisor;
-        results[iIndex][1] = radicalInverse(iIndex); 
-    }
+	float divisor = 1.0f / static_cast<float>(count);
+	auto generator = [radicalInverse, divisor](uint32_t sampleIndex, uint32_t arrayIndex) {
+		glm::vec2 sample;
 
-    std::random_device randomDevice;
-    std::mt19937 generator(randomDevice());
-    generator.seed(sequenceIndex);
-    std::shuffle(results, results + count, generator);
+		sample.x = static_cast<float>(arrayIndex) * divisor;
+		sample.y = radicalInverse(sampleIndex);
+		return sample;
+	};
+
+	owenScrambleSequence(results, count, sequenceIndex, generator);
 }
 
 inline void blueNoise(glm::vec3* results, const unsigned int count, int sequenceIndex)
@@ -116,10 +190,15 @@ inline void halton(glm::vec3* results, const unsigned int count, int sequenceInd
 
     glm::ivec2 base = coprimes[sequenceIndex];
 
-    for (unsigned int iIndex = 0; iIndex < count; ++iIndex) {
-        results[iIndex][0] = generateValue(iIndex, base.x);
-        results[iIndex][1] = generateValue(iIndex, base.y);
-    }
+	auto generator = [base, generateValue](uint32_t sampleIndex, uint32_t arrayIndex) {
+		glm::vec2 sample;
+
+		sample.x = generateValue(sampleIndex, base.x);
+		sample.y = generateValue(sampleIndex, base.y);
+		return sample;
+	};
+
+	owenScrambleSequence(results, count, sequenceIndex, generator);
 }
 
 // Generates random values on a disk such that the center is (0,0).

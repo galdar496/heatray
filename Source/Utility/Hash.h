@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstring>   // for size_t
+#include <functional>
 #include <stdint.h>  // for uint64_t
 
 namespace util {
@@ -24,6 +25,14 @@ template <typename T>
 constexpr uint64_t FNV1a(T const & t)
 {
     return FNV1a((char const *)&t, sizeof(T));
+}
+
+template <class T>
+size_t hashCombine(size_t hash, const T& v)
+{
+	std::hash<T> hasher;
+	hash ^= hasher(v) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+	return hash;
 }
 
 } // namespace util.
