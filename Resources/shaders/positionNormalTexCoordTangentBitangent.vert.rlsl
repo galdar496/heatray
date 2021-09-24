@@ -1,0 +1,22 @@
+uniform mat4 worldFromEntity;
+
+attribute vec3 positionAttribute;
+attribute vec3 normalAttribute;
+attribute vec2 texCoordAttribute;
+attribute vec3 tangentAttribute;
+attribute vec3 bitangentAttribute;
+
+varying vec3 normal;
+varying vec2 texCoord;
+varying vec3 tangent;
+varying vec3 bitangent;
+
+void main()
+{
+	rl_Position = worldFromEntity * vec4(positionAttribute, 1);
+	mat3 normalMatrix = mat3(worldFromEntity);
+	normal = normalMatrix * normalAttribute;
+    texCoord = texCoordAttribute;
+	tangent = normalMatrix * tangentAttribute;
+	bitangent = normalMatrix * bitangentAttribute;
+}

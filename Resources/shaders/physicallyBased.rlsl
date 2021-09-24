@@ -12,14 +12,20 @@
 
 varying vec3 normal;
 
-#if defined(HAS_BASE_COLOR_TEXTURE) || defined(HAS_METALLIC_ROUGHNESS_TEXTURE) || defined(HAS_EMISSIVE_TEXTURE)
+#if defined(HAS_BASE_COLOR_TEXTURE) || defined(HAS_METALLIC_ROUGHNESS_TEXTURE) || defined(HAS_EMISSIVE_TEXTURE) || defined(HAS_NORMALMAP)
 varying vec2 texCoord;
-#endif // defined(HAS_BASE_COLOR_TEXTURE) || defined(HAS_METALLIC_ROUGHNESS_TEXTURE) || defined(HAS_EMISSIVE_TEXTURE)
+#endif // defined(HAS_BASE_COLOR_TEXTURE) || defined(HAS_METALLIC_ROUGHNESS_TEXTURE) || defined(HAS_EMISSIVE_TEXTURE) || defined(HAS_NORMALMAP)
+
+#if defined(HAS_NORMALMAP)
+varying vec3 tangent;
+varying vec3 bitangent;
+#endif // defined(HAS_NORMALMAP)
 
 uniformblock Material {
 	sampler2D baseColorTexture;
 	sampler2D metallicRoughnessTexture;
 	sampler2D emissiveTexture;
+	sampler2D normalmap;
 	vec3 baseColor;
 	float metallic;
 	float roughness;
@@ -37,6 +43,13 @@ void main()
 	if (rl_FrontFacing == false) return;
 
 	vec3 N = normalize(normal);
+
+#if defined(HAS_NORMALMAP)
+	mat3 normalTransform = mat3(normalize(tangent), normalize(bitangent), N);
+	vec3 normalTS = texture2D(Material.normalmap, texCoord).xyz * 2.0 - 1.0;
+	N = normalize(normalTransform * normalTS);
+#endif // defined(HAS_NORMALMAP)
+
 	mat3 frame = orthonormalFrame(N);
 	vec3 V = -rl_InRay.direction;
 	float NdotV = saturate(dot(N, V));

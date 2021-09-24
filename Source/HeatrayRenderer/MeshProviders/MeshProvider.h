@@ -30,7 +30,8 @@ enum VertexAttributeUsage {
     VertexAttributeUsage_Position,
     VertexAttributeUsage_Normal,
     VertexAttributeUsage_TexCoord,
-    VertexAttributeUsage_TangentSpace,
+    VertexAttributeUsage_Tangents,
+	VertexAttributeUsage_Bitangents,
 
     VertexAttributeUsageCount,
 };
@@ -49,7 +50,7 @@ class MeshProvider
 public:
     struct Submesh {
         int vertexAttributeCount = 0;
-        VertexAttribute vertexAttributes[4];
+        VertexAttribute vertexAttributes[VertexAttributeUsageCount];
 		size_t indexBuffer = 0;
 		size_t indexOffset = 0;
 		size_t elementCount = 0;

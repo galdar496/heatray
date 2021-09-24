@@ -56,8 +56,7 @@ public:
                 if (bufferIndex == 0 || bufferIndex == 1) {
                     const glm::vec3 spherical(radius, float(u * glm::two_pi<float>()), float(v * glm::pi<float>()));
                     glm::vec3 p = CartesianFromSpherical(spherical);
-                    if (bufferIndex == 1)
-                    {
+                    if (bufferIndex == 1) {
                         p = glm::normalize(p);
                     }
                     memcpy(floatPtr, &p.x, sizeof(glm::vec3));

@@ -78,9 +78,12 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>
                 case VertexAttributeUsage_TexCoord:
                     attributeLocation = material->program().getAttributeLocation("texCoordAttribute");
                     break;
-                case VertexAttributeUsage_TangentSpace:
-                    attributeLocation = material->program().getAttributeLocation("tangentSpaceAttribute");
+                case VertexAttributeUsage_Tangents:
+                    attributeLocation = material->program().getAttributeLocation("tangentAttribute");
                     break;
+				case VertexAttributeUsage_Bitangents:
+					attributeLocation = material->program().getAttributeLocation("bitangentAttribute");
+					break;
                 default:
                     printf("Unknown vertex attribute usage %d\n", attribute.usage);
             }

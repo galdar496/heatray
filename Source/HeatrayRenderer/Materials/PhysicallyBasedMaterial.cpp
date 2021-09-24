@@ -15,6 +15,7 @@ struct ShaderParams {
 	RLtexture baseColorTexture;
 	RLtexture metallicRoughnessTexture; // R: metallic, G: roughness
 	RLtexture emissiveTexture;
+	RLtexture normalmap;
 	glm::vec3 baseColor;
 	float metallic;
 	float roughness;
@@ -32,6 +33,7 @@ void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& p
 
 	std::stringstream shaderPrefix;
 	bool hasTextures = false;
+	bool hasNormalmap = false;
 
 	// Add shader defines based on detected features.
 	{
@@ -47,13 +49,22 @@ void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& p
 			hasTextures = true;
 			shaderPrefix << "#define HAS_EMISSIVE_TEXTURE\n";
 		}
+		if (params.normalmap) {
+			hasTextures = true;
+			hasNormalmap = true;
+			shaderPrefix << "#define HAS_NORMALMAP\n";
+		}
 	}
 
     // Loadup the shader code.
     // TODO: this should use some kind of shader cache.
     char const * vertexShader;
     if (hasTextures) {
-        vertexShader = "positionNormalTexCoord.vert.rlsl";
+		if (hasNormalmap) {
+			vertexShader = "positionNormalTexCoordTangentBitangent.vert.rlsl";
+		} else {
+			vertexShader = "positionNormalTexCoord.vert.rlsl";
+		}
     } else {
         vertexShader = "positionNormal.vert.rlsl";
     }
@@ -95,6 +106,11 @@ void PhysicallyBasedMaterial::modify(const PhysicallyBasedMaterial::Parameters& 
 		shaderParams.emissiveTexture = params.emissiveTexture->texture();
 	} else {
 		shaderParams.emissiveTexture = openrl::getDummyTexture().texture();
+	}
+	if (params.normalmap) {
+		shaderParams.normalmap = params.normalmap->texture();
+	} else {
+		shaderParams.normalmap = openrl::getDummyTexture().texture();
 	}
 
 	m_constants.load(&shaderParams, sizeof(ShaderParams), "PhysicallyBased uniform block");

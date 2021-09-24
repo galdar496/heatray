@@ -144,10 +144,6 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
         vertexBuffer.reserve(mesh->mNumVertices * mesh->mNumUVComponents[0]);
 
         for (uint32_t iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex) {
-            glm::vec3 normal(mesh->mNormals[iVertex].x, mesh->mNormals[iVertex].y, mesh->mNormals[iVertex].z);
-            if (m_swapYZ) {
-                normal = glm::vec3(normal.x, -normal.z, normal.y);
-            }
             for (uint32_t iComponent = 0; iComponent < mesh->mNumUVComponents[0]; ++iComponent) {
                 vertexBuffer.push_back(mesh->mTextureCoords[0][iVertex][iComponent]);
             }
@@ -155,6 +151,64 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
 
         ++submesh.vertexAttributeCount;
     }
+	if (mesh->HasTangentsAndBitangents()) {
+		// Tangents.
+		{
+			VertexAttribute& attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
+			attribute.usage = VertexAttributeUsage_Tangents;
+			attribute.buffer = m_vertexBuffers.size();
+			attribute.componentCount = 3;
+			attribute.size = sizeof(float);
+			attribute.offset = 0;
+			attribute.stride = 3 * sizeof(float);
+
+			m_vertexBuffers.push_back(std::vector<float>());
+			std::vector<float>& vertexBuffer = m_vertexBuffers.back();
+			vertexBuffer.reserve(mesh->mNumVertices * 3);
+
+			for (uint32_t iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex) {
+				glm::vec3 tangent(mesh->mTangents[iVertex].x, mesh->mTangents[iVertex].y, mesh->mTangents[iVertex].z);
+				if (m_swapYZ) {
+					tangent = glm::vec3(tangent.x, tangent.z, -tangent.y);
+				}
+				vertexBuffer.push_back(tangent.x);
+				vertexBuffer.push_back(tangent.y);
+				vertexBuffer.push_back(tangent.z);
+			}
+
+			++submesh.vertexAttributeCount;
+		}
+
+		// Bitangents.
+		{
+			VertexAttribute& attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
+			attribute.usage = VertexAttributeUsage_Bitangents;
+			attribute.buffer = m_vertexBuffers.size();
+			attribute.componentCount = 3;
+			attribute.size = sizeof(float);
+			attribute.offset = 0;
+			attribute.stride = 3 * sizeof(float);
+
+			m_vertexBuffers.push_back(std::vector<float>());
+			std::vector<float>& vertexBuffer = m_vertexBuffers.back();
+			vertexBuffer.reserve(mesh->mNumVertices * 3);
+
+			for (uint32_t iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex) {
+				// Assimp often gives garbage bitangents, so we calculate our own here.
+				glm::vec3 normal(mesh->mNormals[iVertex].x, mesh->mNormals[iVertex].y, mesh->mNormals[iVertex].z);
+				glm::vec3 tangent(mesh->mTangents[iVertex].x, mesh->mTangents[iVertex].y, mesh->mTangents[iVertex].z);
+				glm::vec3 bitangent = glm::cross(normal, tangent);
+				if (m_swapYZ) {
+					bitangent = glm::vec3(bitangent.x, bitangent.z, -bitangent.y);
+				}
+				vertexBuffer.push_back(bitangent.x);
+				vertexBuffer.push_back(bitangent.y);
+				vertexBuffer.push_back(bitangent.z);
+			}
+
+			++submesh.vertexAttributeCount;
+		}
+	}
 
     size_t indexCount = 0;
     for (unsigned int ff = 0; ff < mesh->mNumFaces; ++ff) {
@@ -241,23 +295,29 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
     aiString fileBaseColor;
     if (material->GetTexture(AI_MATKEY_BASE_COLOR_TEXTURE, &fileBaseColor) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileBaseColor.C_Str()).string();
-        params.baseColorTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true));
+        params.baseColorTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, true));
     } else if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
         material->GetTexture(aiTextureType_DIFFUSE, 0, &fileBaseColor);
         auto texturePath = (fileParent / fileBaseColor.C_Str()).string();
-        params.baseColorTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true));
+        params.baseColorTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, true));
     }
 	if (material->GetTextureCount(aiTextureType_EMISSIVE) > 0) {
 		aiString emissiveTexturePath;
 		material->GetTexture(aiTextureType_EMISSIVE, 0, &emissiveTexturePath);
 		auto texturePath = (fileParent / emissiveTexturePath.C_Str()).string();
-		params.emissiveTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true));
+		params.emissiveTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, true));
 	}
     aiString fileRoughnessMetallicTexture;
     if (material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &fileRoughnessMetallicTexture) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileRoughnessMetallicTexture.C_Str()).string();
-        params.metallicRoughnessTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true));
+        params.metallicRoughnessTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, false));
     }
+	if (material->GetTextureCount(aiTextureType_NORMALS) > 0) {
+		aiString normalTexturePath;
+		material->GetTexture(aiTextureType_NORMALS, 0, &normalTexturePath);
+		auto texturePath = (fileParent / normalTexturePath.C_Str()).string();
+		params.normalmap = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, false));
+	}
 
 	std::shared_ptr<PhysicallyBasedMaterial> pbrMaterial = std::make_shared<PhysicallyBasedMaterial>();
     pbrMaterial->build(params);
