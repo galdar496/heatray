@@ -68,7 +68,7 @@ void main()
 	float metallic = Material.metallic;
 	float roughness = Material.roughness;
 #if defined(HAS_METALLIC_ROUGHNESS_TEXTURE)
-	vec2 metallicRoughness = texture2D(Material.metallicRoughnessTexture, texCoord).rg;
+	vec2 metallicRoughness = texture2D(Material.metallicRoughnessTexture, texCoord).bg;
 	metallic *= metallicRoughness.r;
 	roughness *= metallicRoughness.g;
 #endif // defined(HAS_METALLIC_ROUGHNESS_TEXTURE)
