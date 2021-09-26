@@ -23,12 +23,12 @@
 
 namespace util {
 
-inline uint32_t toUint32(const float f)
+inline uint32_t toUint32(const float normalized_f)
 {
-	return f * std::numeric_limits<uint32_t>::max();
+	return normalized_f * std::numeric_limits<uint32_t>::max();
 }
 
-inline float toFloat(const uint32_t u)
+inline float toNormalizedFloat(const uint32_t u)
 {
 	return float(u) * (1.0f / std::numeric_limits<uint32_t>::max());
 }
@@ -42,6 +42,11 @@ inline uint32_t burleyHash(uint32_t x)
 	x *= 0xc2b2ae35u;
 	x ^= x >> 16;
 	return x;
+}
+
+inline uint32_t burleyHashCombine(uint32_t seed, uint32_t v)
+{
+	return seed ^ (v + (seed << 6) + (seed >> 2));
 }
 
 inline uint32_t laineKarrasPermutation(uint32_t x, uint32_t seed)
@@ -86,15 +91,16 @@ inline void owenScrambleSequence(glm::vec3* results, uint32_t count, uint32_t se
 		COUNT
 	};
 
-	uint32_t seed = burleyHash(0x552553bc ^ sequenceIndex);
+	// Randomize the seed (we use the sequenceIndex as the primary seed, +1 to avoid a 0 hash).
+	uint32_t seed = burleyHash(sequenceIndex + 1);
 
 	for (uint32_t iIndex = 0; iIndex < count; ++iIndex) {
 		uint32_t index = nestedUniformScramble(iIndex, seed);
 
 		glm::vec2 sample = generator(index, iIndex);
 
-		sample.x = toFloat(nestedUniformScramble(toUint32(sample.x), util::hashCombine(seed, Dimension::ZERO)));
-		sample.y = toFloat(nestedUniformScramble(toUint32(sample.y), util::hashCombine(seed, Dimension::ONE)));
+		sample.x = toNormalizedFloat(nestedUniformScramble(toUint32(sample.x), burleyHashCombine(seed, Dimension::ZERO)));
+		sample.y = toNormalizedFloat(nestedUniformScramble(toUint32(sample.y), burleyHashCombine(seed, Dimension::ONE)));
 
 		results[iIndex][0] = sample.x;
 		results[iIndex][1] = sample.y;
@@ -232,7 +238,7 @@ inline void sobol(glm::vec3* results, const unsigned int count, int sequenceInde
 			result ^= mask * directions[dimension][bit];
 		}
 
-		return toFloat(result);
+		return toNormalizedFloat(result);
 	};
 
 	auto generator = [sobolValue](uint32_t sampleIndex, uint32_t arrayIndex) {
