@@ -433,6 +433,9 @@ void HeatrayRenderer::generateSequenceVisualizationData(int sequenceIndex, int r
         case PassGenerator::RenderOptions::SampleMode::kBlueNoise:
             util::blueNoise(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
             break;
+		case PassGenerator::RenderOptions::SampleMode::kSobol:
+			util::sobol(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
+			break;
         default:
             assert(0);
     }
@@ -501,12 +504,13 @@ bool HeatrayRenderer::renderUI()
             }
         }
         {
-            static const char* options[] = { "Pseudo-random", "Halton", "Hammersley", "Blue Noise" };
+            static const char* options[] = { "Pseudo-random", "Halton", "Hammersley", "Blue Noise", "Sobol", };
             constexpr PassGenerator::RenderOptions::SampleMode realOptions[] = { 
                 PassGenerator::RenderOptions::SampleMode::kRandom,
                 PassGenerator::RenderOptions::SampleMode::kHalton,
                 PassGenerator::RenderOptions::SampleMode::kHammersley,
-                PassGenerator::RenderOptions::SampleMode::kBlueNoise 
+                PassGenerator::RenderOptions::SampleMode::kBlueNoise,
+				PassGenerator::RenderOptions::SampleMode::kSobol
             };
             static unsigned int currentSelection = static_cast<unsigned int>(m_renderOptions.sampleMode);
             if (ImGui::BeginCombo("Sampling technique", options[currentSelection])) {

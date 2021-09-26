@@ -427,11 +427,12 @@ void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptio
                 util::hammersley(&values[iSequence * sampleCount], sampleCount, iSequence);
                 break;
             case RenderOptions::SampleMode::kBlueNoise:
-            {
                 util::blueNoise(&values[iSequence * sampleCount], sampleCount, iSequence);
                 break;
-            }
-            default:
+			case RenderOptions::SampleMode::kSobol:
+				util::sobol(&values[iSequence * sampleCount], sampleCount, iSequence);
+				break;
+			default:
                 assert("Unknown sample mode specified");
         }
     }

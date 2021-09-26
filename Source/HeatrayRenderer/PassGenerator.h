@@ -76,9 +76,10 @@ public:
             kHalton,     ///< Perform sampling using a Halton sequence.
             kHammersley, ///< Perform sampling using a Hammersley sequence.
             kBlueNoise,
+			kSobol
         };
 
-        SampleMode sampleMode = SampleMode::kHalton;
+        SampleMode sampleMode = SampleMode::kSobol;
 
         enum class BokehShape {
             kSpherical,

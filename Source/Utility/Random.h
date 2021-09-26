@@ -201,6 +201,51 @@ inline void halton(glm::vec3* results, const unsigned int count, int sequenceInd
 	owenScrambleSequence(results, count, sequenceIndex, generator);
 }
 
+inline void sobol(glm::vec3* results, const unsigned int count, int sequenceIndex)
+{
+	assert(results);
+
+	auto sobolValue = [](uint32_t sampleIndex, uint32_t dimension) {
+		constexpr static uint32_t directions[2][32] = {
+			0x80000000, 0x40000000, 0x20000000, 0x10000000,
+			0x08000000, 0x04000000, 0x02000000, 0x01000000,
+			0x00800000, 0x00400000, 0x00200000, 0x00100000,
+			0x00080000, 0x00040000, 0x00020000, 0x00010000,
+			0x00008000, 0x00004000, 0x00002000, 0x00001000,
+			0x00000800, 0x00000400, 0x00000200, 0x00000100,
+			0x00000080, 0x00000040, 0x00000020, 0x00000010,
+			0x00000008, 0x00000004, 0x00000002, 0x00000001,
+
+			0x80000000, 0xc0000000, 0xa0000000, 0xf0000000,
+			0x88000000, 0xcc000000, 0xaa000000, 0xff000000,
+			0x80800000, 0xc0c00000, 0xa0a00000, 0xf0f00000,
+			0x88880000, 0xcccc0000, 0xaaaa0000, 0xffff0000,
+			0x80008000, 0xc000c000, 0xa000a000, 0xf000f000,
+			0x88008800, 0xcc00cc00, 0xaa00aa00, 0xff00ff00,
+			0x80808080, 0xc0c0c0c0, 0xa0a0a0a0, 0xf0f0f0f0,
+			0x88888888, 0xcccccccc, 0xaaaaaaaa, 0xffffffff
+		};
+
+		uint32_t result = 0;
+		for (uint32_t bit = 0; bit < 32; ++bit) {
+			uint32_t mask = (sampleIndex >> bit) & 1;
+			result ^= mask * directions[dimension][bit];
+		}
+
+		return toFloat(result);
+	};
+
+	auto generator = [sobolValue](uint32_t sampleIndex, uint32_t arrayIndex) {
+		glm::vec2 sample;
+
+		sample.x = sobolValue(sampleIndex, 0);
+		sample.y = sobolValue(sampleIndex, 1);
+		return sample;
+	};
+
+	owenScrambleSequence(results, count, sequenceIndex, generator);
+}
+
 // Generates random values on a disk such that the center is (0,0).
 inline void radialPseudoRandom(glm::vec3* results, const unsigned int count, const unsigned int seed)
 {
