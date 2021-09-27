@@ -14,6 +14,7 @@ namespace util {
 
 openrl::Texture loadTexture(const char* path, bool generateMips, bool convertToLinear)
 {
+	LOG_INFO("Loading texture %s", path);
     openrl::Texture::Sampler sampler;
     if (!generateMips) { // default sampler state is with mipmapping enabled.
         sampler.magFilter = RL_NEAREST;
@@ -77,6 +78,7 @@ openrl::Texture loadTexture(const char* path, bool generateMips, bool convertToL
             pixels = stbi_load(path, &width, &height, &channelCount, 0);
 
 			if (convertToLinear) {
+				LOG_INFO("Converting from sRGB to Linear");
 				// Convert from sRGB to linear. Note: it's assumed that any non-HDR immage is sRGB encoded however
 				// we want linear colors for rendering.
 				constexpr static size_t ALPHA_CHANNEL = 3;
@@ -102,6 +104,7 @@ openrl::Texture loadTexture(const char* path, bool generateMips, bool convertToL
 						}
 					}
 				}
+				LOG_INFO("\tDONE");
 			}
         }
 

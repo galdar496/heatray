@@ -223,6 +223,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
     std::vector<int> & indexBuffer = m_indexBuffers.back();
     indexBuffer.reserve(indexCount);
 
+	LOG_INFO("Building vertex indices...");
     for (unsigned int iFace = 0; iFace < mesh->mNumFaces; ++iFace) {
         auto & face = mesh->mFaces[iFace];
 
@@ -232,6 +233,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
             indexBuffer.push_back(face.mIndices[iSubFace]);
         }
     }
+	LOG_INFO("\tDONE");
 
     submesh.drawMode = DrawMode::Triangles;
     submesh.elementCount = indexCount;
@@ -350,6 +352,7 @@ void AssimpMeshProvider::LoadModel(std::string const & filename, bool convert_to
 	aiProcess_GenBoundingBoxes;
 
     const aiScene * scene = importer.ReadFile(filename.c_str(), postProcessFlags);
+	LOG_INFO("Scene imported by assimp!");
 
     if (scene) {
         for (unsigned int ii = 0; ii < scene->mNumMeshes; ++ii) {
@@ -367,7 +370,7 @@ void AssimpMeshProvider::LoadModel(std::string const & filename, bool convert_to
         aiMatrix4x4 identity;
 		LOG_INFO("Processing scene transforms...");
         ProcessNode(scene, scene->mRootNode, identity, 0, convert_to_meters);
-		LOG_INFO("DONE");
+		LOG_INFO("\tDONE");
     } else {
         printf("Error:  No scene found in asset.\n");
     }
