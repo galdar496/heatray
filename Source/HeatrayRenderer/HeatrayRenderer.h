@@ -49,6 +49,7 @@ public:
     void changeScene(std::string const & sceneName);
     void render();
     void handlePendingFileLoads();
+	void adjustCamera(const float phi_delta, const float theta_delta, const float distance_delta);
 
 	static constexpr size_t UI_WINDOW_WIDTH = 500;
 
@@ -232,4 +233,6 @@ private:
 		size_t meshIndex = ~0;
 		PhysicallyBasedMaterial::Parameters materialParams;
 	} m_groundPlane;
+
+	bool m_cameraUpdated = false;
 };

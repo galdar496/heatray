@@ -14,11 +14,16 @@
 #include "imgui/imgui_impl_glut.h"
 #include "imgui/imgui_impl_opengl2.h"
 
+#include "../3rdParty/glm/glm/glm.hpp"
+
 #include <assert.h>
 #include <iostream>
 
 const std::string kVersion      = "4.0";
 const std::string kWindowTitle  = "Heatray " + kVersion;
+
+bool mousePositionValid = false;
+glm::vec2 previousMousePosition;
 
 namespace {
     // The renderer exists as a global variable to be accessed by all
@@ -73,17 +78,35 @@ void shutdown()
 
 void motion(int x, int y)
 {
+	// If we're inside of the rendering window then let the renderer know that the user wants to move the camera.
+	if (x >= HeatrayRenderer::UI_WINDOW_WIDTH) {
+		if (!mousePositionValid) {
+			previousMousePosition = glm::vec2(x, y);
+			mousePositionValid = true;
+		} else {
+			glm::vec2 mouseDelta = glm::vec2(x, y) - previousMousePosition;
+			heatray.adjustCamera(mouseDelta.x, mouseDelta.y, 0.0f);
+			previousMousePosition = glm::vec2(x, y);
+		}
+	}
+
     ImGui_ImplGLUT_MotionFunc(x * kCheesyMultiplier, y * kCheesyMultiplier);
 }
 
 void mouseMove(int button, int state, int x, int y)
 {
+	if (button == GLUT_LEFT_BUTTON) {
+		mousePositionValid = false;
+	}
     ImGui_ImplGLUT_MouseFunc(button, state, x * kCheesyMultiplier, y * kCheesyMultiplier);
 }
 
 #ifdef __FREEGLUT_EXT_H__
 void mouseWheel(int button, int dir, int x, int y)
 {
+	if (x >= HeatrayRenderer::UI_WINDOW_WIDTH) {
+		heatray.adjustCamera(0.0f, 0.0f, static_cast<float>(-dir));
+	}
 	ImGui_ImplGLUT_MouseWheelFunc(button, dir, x, y);
 }
 #endif // __FREEGLUT_EXT_H__
