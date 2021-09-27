@@ -22,5 +22,5 @@ protected:
     static constexpr char const * m_vertexShader = "positionNormal.vert.rlsl";
 
     openrl::Buffer m_constants; ///< Constants used by this material. Will be uploaded as a uniform block to the corresponding shader.
-    openrl::Program m_program; ///< Shader representing this material.
+    openrl::Program m_program;  ///< Shader representing this material.
 };

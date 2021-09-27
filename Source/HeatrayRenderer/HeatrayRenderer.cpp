@@ -98,8 +98,9 @@ void HeatrayRenderer::resize(const GLint newWindowWidth, const GLint newWindowHe
 void HeatrayRenderer::changeScene(std::string const& sceneName)
 {
 	m_groundPlane.reset();
+	m_editableMaterialScene.active = false;
 
-    if (sceneName == "White Sphere") {
+    if (sceneName == "Editable Material") {
 		LOG_INFO("Loading scene: %s", sceneName.c_str());
         m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
             for (auto mesh : m_sceneData) {
@@ -107,7 +108,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             }
             m_sceneData.clear();
 
-            SphereMeshProvider whiteFurnaceSphereMeshProvider(50, 50, 1.0f);
+            SphereMeshProvider sphereMeshProvider(50, 50, 1.0f);
             std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
             PhysicallyBasedMaterial::Parameters params;
             params.metallic = 0.0f;
@@ -115,7 +116,11 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             params.baseColor = glm::vec3(1.0f);
             params.specularF0 = 0.5f;    
             material->build(params);     
-            m_sceneData.push_back(RLMesh(&whiteFurnaceSphereMeshProvider, { material }, systemSetupCallback, glm::mat4(1.0f)));
+            m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, glm::mat4(1.0f)));
+
+			m_editableMaterialScene.material = material;
+			m_editableMaterialScene.materialParams = params;
+			m_editableMaterialScene.active = true;
         });
     } else if (sceneName == "Multi-Material") {
 		LOG_INFO("Loading scene: %s", sceneName.c_str());
@@ -502,6 +507,31 @@ void HeatrayRenderer::generateSequenceVisualizationData(int sequenceIndex, int r
 #endif
 }
 
+void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<PhysicallyBasedMaterial> material, PhysicallyBasedMaterial::Parameters& parameters)
+{
+	bool materialChanged = false;
+
+	if (ImGui::SliderFloat3("BaseColor", parameters.baseColor.data.data, 0.0f, 1.0f)) {
+		materialChanged = true;
+	}
+	if (ImGui::SliderFloat("Metallic", &parameters.metallic, 0.0f, 1.0f)) {
+		materialChanged = true;
+	}
+	if (ImGui::SliderFloat("Roughness", &parameters.roughness, 0.0f, 1.0f)) {
+		materialChanged = true;
+	}
+	if (ImGui::SliderFloat("SpecularF0", &parameters.specularF0, 0.0f, 1.0f)) {
+		materialChanged = true;
+	}
+
+	if (materialChanged) {
+		m_renderer.runOpenRLTask([this, material, &parameters]() {
+			material->modify(parameters);
+			resetRenderer();
+		});
+	}
+}
+
 bool HeatrayRenderer::renderUI()
 {
     bool shouldResetRenderer = m_justResized;
@@ -628,9 +658,9 @@ bool HeatrayRenderer::renderUI()
 		}
         ImGui::Checkbox("Swap Y & Z on load", &m_swapYZ);
 
-        static const char* options[] = { "Sphere Array", "White Sphere", "Multi-Material" };
+        static const char* options[] = { "Sphere Array", "Multi-Material", "Editable Material" };
 
-        static unsigned int currentSelection = 2;
+        static unsigned int currentSelection = 1;
         if (ImGui::BeginCombo("Built-In Scenes", options[currentSelection])) {
             for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
                 bool isSelected = currentSelection == iOption;
@@ -680,27 +710,7 @@ bool HeatrayRenderer::renderUI()
 
 		if (m_groundPlane.mesh) {
 			ImGui::Text("Ground Material");
-			bool materialChanged = false;
-
-			if (ImGui::SliderFloat3("BaseColor", m_groundPlane.materialParams.baseColor.data.data, 0.0f, 1.0f)) {
-				materialChanged = true;
-			}
-			if (ImGui::SliderFloat("Metallic", &m_groundPlane.materialParams.metallic, 0.0f, 1.0f)) {
-				materialChanged = true;
-			}
-			if (ImGui::SliderFloat("Roughness", &m_groundPlane.materialParams.roughness, 0.0f, 1.0f)) {
-				materialChanged = true;
-			}
-			if (ImGui::SliderFloat("SpecularF0", &m_groundPlane.materialParams.specularF0, 0.0f, 1.0f)) {
-				materialChanged = true;
-			}
-
-			if (materialChanged) {
-				m_renderer.runOpenRLTask([this]() {
-					m_groundPlane.material->modify(m_groundPlane.materialParams);
-					resetRenderer();
-				});
-			}
+			renderMaterialEditor(m_groundPlane.material, m_groundPlane.materialParams);
 		}
     }
     if (ImGui::CollapsingHeader("Camera options")) {
@@ -828,6 +838,12 @@ bool HeatrayRenderer::renderUI()
         }
         ImGui::End();
     }
+
+	if (m_editableMaterialScene.active) {
+		ImGui::Begin("PBR Material");
+		renderMaterialEditor(m_editableMaterialScene.material, m_editableMaterialScene.materialParams);
+		ImGui::End();
+	}
 
     ImGui::Render();
 

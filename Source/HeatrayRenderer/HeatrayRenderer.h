@@ -64,6 +64,8 @@ private:
     void resetRenderer();
     void saveScreenshot();
 
+	void renderMaterialEditor(std::shared_ptr<PhysicallyBasedMaterial> material, PhysicallyBasedMaterial::Parameters& parameters);
+
 	struct PostProcessingParams {
 		bool tonemapping_enabled = false;
 		float exposure = 0.0f;
@@ -236,4 +238,10 @@ private:
 
 	bool m_cameraUpdated = false;
 	float m_distanceScale = 1.0f;
+
+	struct EditableMaterialScene {
+		std::shared_ptr<PhysicallyBasedMaterial> material = nullptr;
+		PhysicallyBasedMaterial::Parameters materialParams;
+		bool active = false;
+	} m_editableMaterialScene;
 };
