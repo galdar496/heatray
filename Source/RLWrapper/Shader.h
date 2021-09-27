@@ -74,22 +74,19 @@ public:
 
     inline bool createFromMultipleStrings(const std::vector<std::string>& shaderSource, const RLenum type, const char* name)
     {
+		constexpr static size_t MAX_NUM_SHADER_STRINGS = 10;
+		assert(shaderSource.size() < MAX_NUM_SHADER_STRINGS);
+
         if (shaderSource.size() && createShader(type)) {
             RLFunc(rlShaderString(m_shader, RL_SHADER_NAME, name));
 
-            char** strings = new char* [shaderSource.size()];
+			const char* strings[MAX_NUM_SHADER_STRINGS];
             for (int iIndex = 0; iIndex < shaderSource.size(); ++iIndex) {
                 assert(shaderSource[iIndex].length());
-                strings[iIndex] = new char[shaderSource[iIndex].length() + 1];
-                strcpy(strings[iIndex], shaderSource[iIndex].c_str());
+				strings[iIndex] = shaderSource[iIndex].c_str();
             }
 
-            RLFunc(rlShaderSource(m_shader, shaderSource.size(), strings, nullptr));
-
-            for (int iIndex = 0; iIndex < shaderSource.size(); ++iIndex) {
-                delete[] strings[iIndex];
-            }
-            delete[] strings;
+            RLFunc(rlShaderSource(m_shader, shaderSource.size(), &strings[0], nullptr));
 
             if (compile()) {
                 return true;
