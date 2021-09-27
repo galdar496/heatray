@@ -1,7 +1,8 @@
 #include "FileIO.h"
 
+#include "Log.h"
+
 #include <fstream>
-#include <iostream>
 
 namespace util {
 
@@ -10,7 +11,7 @@ bool readTextFile(const char* filename, std::string& content)
     std::ifstream fin;
     fin.open(filename);
     if (!fin) {
-        std::cout << "Unable to open file " << filename << std::endl;
+		LOG_INFO("Unable to open file %s", filename);
         return false;
     }
 

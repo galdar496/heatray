@@ -1,6 +1,7 @@
 #include "PhysicallyBasedMaterial.h"
 
 #include <RLWrapper/Shader.h>
+#include <Utility/Log.h>
 #include <Utility/ShaderCodeLoader.h>
 
 #include <glm/glm/gtc/color_space.hpp>
@@ -69,7 +70,7 @@ void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& p
         vertexShader = "positionNormal.vert.rlsl";
     }
 
-    std::cout << "Building shader: " << m_shader << " with flags: " << shaderPrefix.str() << std::endl;
+	LOG_INFO("Building shader: %s with flags: \n%s", m_shader, shaderPrefix.str().c_str());
     m_program = util::buildShader(vertexShader, m_shader, "PhysicallyBased", shaderPrefix.str());
 
     // NOTE: the association of the program and the uniform block needs to happen in the calling code.

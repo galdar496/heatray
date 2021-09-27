@@ -10,9 +10,10 @@
 
 #include "Error.h"
 
+#include "../Utility/Log.h"
+
 #include <OpenRL/rl.h>
 #include <assert.h>
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -63,7 +64,7 @@ public:
             } else {
                 const char* log = nullptr;
                 RLFunc(rlGetShaderString(m_shader, RL_COMPILE_LOG, &log));
-                std::cout << "Shader::createFromString() -- Unable to compile shader " << name << "\n\t" << log << std::endl;
+				LOG_INFO("Unable to compile shader %s \n\t%s", name, log);
                 return false;
             }
         }
@@ -95,7 +96,7 @@ public:
             } else {
                 const char* log = nullptr;
                 RLFunc(rlGetShaderString(m_shader, RL_COMPILE_LOG, &log));
-                std::cout << "Shader::createFromString() -- Unable to compile shader " << name << "\n\t" << log << std::endl;
+				LOG_INFO("Unable to compile shader %s \n\t%s", name, log);
                 return false;
             }
         }

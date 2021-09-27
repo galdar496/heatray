@@ -4,6 +4,9 @@ add_library(Utility STATIC
 	FileIO.h
 	FileIO.cpp
 	Hash.h
+	ImGuiLog.h
+	Log.cpp
+	Log.h
 	Random.h
 	ShaderCodeLoader.h
 	ShaderCodeLoader.cpp

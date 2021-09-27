@@ -1,5 +1,7 @@
 #include "TextureLoader.h"
 
+#include "Log.h"
+
 #include <FreeImage/FreeImage.h>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -7,7 +9,6 @@
 
 #include <assert.h>
 #include <filesystem>
-#include <iostream>
 
 namespace util {
 
@@ -29,7 +30,7 @@ openrl::Texture loadTexture(const char* path, bool generateMips, bool convertToL
         FIBITMAP* imageData = FreeImage_Load(format, path);
         if (!imageData)
         {
-            std::cout << "Unable to load image " << path << std::endl;
+			LOG_INFO("Unable to load image %s", path);
             return openrl::Texture();
         }
 

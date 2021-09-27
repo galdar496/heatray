@@ -12,9 +12,10 @@
 #include "Shader.h"
 #include "Texture.h"
 
+#include "../Utility/Log.h"
+
 #include <OpenRL/rl.h>
 #include <assert.h>
-#include <iostream>
 
 namespace openrl {
 
@@ -66,7 +67,7 @@ public:
         if (!valid()) {
             const char* log = nullptr;
             RLFunc(rlGetProgramString(m_program, RL_LINK_LOG, &log));
-            std::cout << "Linking for program " << name << " failed: \n\t" << log << std::endl;
+			LOG_INFO("Linking for program %s failed: \n\t%s", name, log);
             return false;
         }
 

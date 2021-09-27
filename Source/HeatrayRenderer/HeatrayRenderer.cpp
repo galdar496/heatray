@@ -7,6 +7,7 @@
 #include "MeshProviders/SphereMeshProvider.h"
 
 #include "Utility/FileDialog.h"
+#include "Utility/ImGuiLog.h"
 #include <Utility/Random.h>
 
 #include <glm/glm/gtc/matrix_transform.hpp>
@@ -15,7 +16,6 @@
 #include <FreeImage/FreeImage.h>
 
 #include <assert.h>
-#include <iostream>
 
 bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
 {
@@ -764,6 +764,23 @@ bool HeatrayRenderer::renderUI()
 			}
         }
     }
+
+	// Console log.
+	{
+		ImGui::Separator();
+		ImGui::Text("Output Console");
+		ImGui::SameLine();
+		if (ImGui::Button("Clear")) {
+			std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->clear();
+		}
+		ImGui::Separator();
+		ImGui::BeginChild("Console Log", ImVec2(0, 0), false, ImGuiWindowFlags_AlwaysHorizontalScrollbar);
+		ImGui::TextUnformatted(std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->textBuffer().begin());
+		ImGui::SetScrollHere(1.0f);
+		ImGui::EndChild();
+		ImGui::Separator();
+	}
+
     ImGui::End();
 
     if (m_visualizeSequenceData) {

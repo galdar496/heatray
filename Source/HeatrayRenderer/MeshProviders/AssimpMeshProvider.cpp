@@ -2,6 +2,7 @@
 #include "HeatrayRenderer/Materials/PhysicallyBasedMaterial.h"
 #include "HeatrayRenderer/MeshProviders/AssimpMeshProvider.h"
 #include "Utility/AABB.h"
+#include "Utility/Log.h"
 #include "Utility/TextureLoader.h"
 
 #include "assimp/pbrmaterial.h"
@@ -12,7 +13,6 @@
 #include "glm/glm/gtx/transform.hpp"
 
 #include <filesystem>
-#include <iostream>
 #include <memory>
 
 class AssimpLogToCoutStream : public Assimp::LogStream
@@ -20,7 +20,7 @@ class AssimpLogToCoutStream : public Assimp::LogStream
 public:
 	AssimpLogToCoutStream() {}
 	virtual ~AssimpLogToCoutStream() {}
-	virtual void write(const char *message) { std::cout << "Assimp: " << message << std::endl; }
+	virtual void write(const char* message) { LOG_INFO("Assimp: %s", message); }
 };
 
 AssimpMeshProvider::AssimpMeshProvider(std::string filename, bool convert_to_meters, bool swapYZ)

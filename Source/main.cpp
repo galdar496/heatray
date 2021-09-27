@@ -7,6 +7,7 @@
 //
 
 #include "HeatrayRenderer/HeatrayRenderer.h" // Must be included first for GL/glew reasons.
+#include "Utility/ImGuiLog.h"
 
 #include <GLUT/freeglut.h>
 
@@ -17,7 +18,6 @@
 #include "../3rdParty/glm/glm/glm.hpp"
 
 #include <assert.h>
-#include <iostream>
 
 const std::string kVersion      = "4.0";
 const std::string kWindowTitle  = "Heatray " + kVersion;
@@ -151,6 +151,8 @@ int main(int argc, char **argv)
     glutKeyboardUpFunc(keyboardUp);
     glutSpecialFunc(specialPressed);
     glutSpecialUpFunc(specialUp);
+
+	util::ImGuiLog::install();
 
     heatray.init(kDefaultWindowWidth, kDefaultWindowHeight);
 

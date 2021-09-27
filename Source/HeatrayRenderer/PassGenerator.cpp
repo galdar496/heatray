@@ -14,7 +14,6 @@
 #include <glm/glm/gtc/matrix_transform.hpp>
 
 #include <assert.h>
-#include <iostream>
 #include <string>
 
 PassGenerator::~PassGenerator()
