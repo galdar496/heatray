@@ -10,6 +10,7 @@ add_library(Utility STATIC
 	Random.h
 	ShaderCodeLoader.h
 	ShaderCodeLoader.cpp
+    StringUtils.h
 	TextureLoader.h
 	TextureLoader.cpp
 	Timer.h
