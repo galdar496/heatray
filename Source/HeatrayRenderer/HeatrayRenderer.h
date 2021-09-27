@@ -109,7 +109,7 @@ private:
 				GLsizei log_length = 0;
 				GLchar  log[1024];
 				glGetShaderInfoLog(shader, sizeof(log), &log_length, log);
-				LOG_INFO("Unable to compile display shader: \n\t%s", log);
+				LOG_ERROR("Unable to compile display shader: \n\t%s", log);
 			}
 			assert(success == GL_TRUE);
 

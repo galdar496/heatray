@@ -30,7 +30,7 @@ openrl::Texture loadTexture(const char* path, bool generateMips, bool convertToL
         FIBITMAP* imageData = FreeImage_Load(format, path);
         if (!imageData)
         {
-			LOG_INFO("Unable to load image %s", path);
+			LOG_ERROR("Unable to load image %s", path);
             return openrl::Texture();
         }
 

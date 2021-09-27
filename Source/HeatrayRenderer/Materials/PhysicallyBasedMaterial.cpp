@@ -70,7 +70,7 @@ void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& p
         vertexShader = "positionNormal.vert.rlsl";
     }
 
-	LOG_INFO("Building shader: %s with flags: \n%s", m_shader, shaderPrefix.str().c_str());
+	LOG_INFO("Building shader: %s with flags: %s", m_shader, shaderPrefix.str().c_str());
     m_program = util::buildShader(vertexShader, m_shader, "PhysicallyBased", shaderPrefix.str());
 
     // NOTE: the association of the program and the uniform block needs to happen in the calling code.

@@ -67,7 +67,7 @@ public:
         if (!valid()) {
             const char* log = nullptr;
             RLFunc(rlGetProgramString(m_program, RL_LINK_LOG, &log));
-			LOG_INFO("Linking for program %s failed: \n\t%s", name, log);
+			LOG_ERROR("Linking for program %s failed: \n\t%s", name, log);
             return false;
         }
 

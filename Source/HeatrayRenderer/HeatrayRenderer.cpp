@@ -774,8 +774,20 @@ bool HeatrayRenderer::renderUI()
 			std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->clear();
 		}
 		ImGui::Separator();
-		ImGui::BeginChild("Console Log", ImVec2(0, 0), false, ImGuiWindowFlags_AlwaysHorizontalScrollbar);
-		ImGui::TextUnformatted(std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->textBuffer().begin());
+		ImGui::BeginChild("Info Console Log", ImVec2(0.0f, -1.0f), false, ImGuiWindowFlags_AlwaysHorizontalScrollbar);
+		{
+			ImGui::Text("Info");
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+			ImGui::TextUnformatted(std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->textBuffer(util::Log::Type::kInfo).begin());
+			ImGui::PopStyleColor();
+			ImGui::Separator();
+		}
+		{
+			ImGui::Text("Errors");
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.5f, 0.5f, 1.0f));
+			ImGui::TextUnformatted(std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->textBuffer(util::Log::Type::kError).begin());
+			ImGui::PopStyleColor();
+		}
 		ImGui::SetScrollHere(1.0f);
 		ImGui::EndChild();
 		ImGui::Separator();

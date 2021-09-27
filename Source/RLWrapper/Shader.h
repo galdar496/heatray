@@ -64,7 +64,7 @@ public:
             } else {
                 const char* log = nullptr;
                 RLFunc(rlGetShaderString(m_shader, RL_COMPILE_LOG, &log));
-				LOG_INFO("Unable to compile shader %s \n\t%s", name, log);
+				LOG_ERROR("Unable to compile shader %s \n\t%s", name, log);
                 return false;
             }
         }
@@ -96,7 +96,7 @@ public:
             } else {
                 const char* log = nullptr;
                 RLFunc(rlGetShaderString(m_shader, RL_COMPILE_LOG, &log));
-				LOG_INFO("Unable to compile shader %s \n\t%s", name, log);
+				LOG_ERROR("Unable to compile shader %s \n\t%s", name, log);
                 return false;
             }
         }
