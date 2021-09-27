@@ -405,32 +405,35 @@ void HeatrayRenderer::handlePendingFileLoads()
 
 void HeatrayRenderer::adjustCamera(const float phi_delta, const float theta_delta, const float distance_delta)
 {
-	float SCALE = 0.5f;
+	if (m_renderOptions.enableInteractiveMode) {
+		float SCALE = 0.5f;
 
-	m_camera.orbitCamera.phi += glm::radians(phi_delta) * SCALE;
-	m_camera.orbitCamera.theta += glm::radians(theta_delta) * SCALE;
-	m_camera.orbitCamera.distance += distance_delta * SCALE;
+		m_camera.orbitCamera.phi += glm::radians(phi_delta) * SCALE;
+		m_camera.orbitCamera.theta += glm::radians(theta_delta) * SCALE;
+		m_camera.orbitCamera.distance += distance_delta * SCALE;
 
-	// Ensure that the camera parameters are valid.
-	{
-		if (m_camera.orbitCamera.phi < 0.0f) {
-			m_camera.orbitCamera.phi += glm::two_pi<float>();
-		} else if (m_camera.orbitCamera.phi > glm::two_pi<float>()) {
-			m_camera.orbitCamera.phi -= glm::two_pi<float>();
+		// Ensure that the camera parameters are valid.
+		{
+			if (m_camera.orbitCamera.phi < 0.0f) {
+				m_camera.orbitCamera.phi += glm::two_pi<float>();
+			}
+			else if (m_camera.orbitCamera.phi > glm::two_pi<float>()) {
+				m_camera.orbitCamera.phi -= glm::two_pi<float>();
+			}
+
+			if (m_camera.orbitCamera.theta < -glm::half_pi<float>()) {
+				m_camera.orbitCamera.theta += glm::pi<float>();
+			}
+			else if (m_camera.orbitCamera.theta > glm::half_pi<float>()) {
+				m_camera.orbitCamera.theta -= glm::pi<float>();
+			}
+
+			m_camera.orbitCamera.distance = glm::clamp(m_camera.orbitCamera.distance, 0.0f, m_camera.orbitCamera.max_distance);
 		}
 
-		if (m_camera.orbitCamera.theta < -glm::half_pi<float>()) {
-			m_camera.orbitCamera.theta += glm::pi<float>();
-		}
-		else if (m_camera.orbitCamera.theta > glm::half_pi<float>()) {
-			m_camera.orbitCamera.theta -= glm::pi<float>();
-		}
-
-		m_camera.orbitCamera.distance = glm::clamp(m_camera.orbitCamera.distance, 0.0f, m_camera.orbitCamera.max_distance);
+		m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
+		m_cameraUpdated = true;
 	}
-
-	m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
-	m_cameraUpdated = true;
 }
 
 void HeatrayRenderer::resizeGLData()
