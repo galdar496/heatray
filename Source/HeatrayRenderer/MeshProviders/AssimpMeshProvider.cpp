@@ -76,6 +76,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
     Submesh submesh;
 
     if (mesh->HasPositions()) {
+		LOG_INFO("Positions: %u", mesh->mNumVertices);
         VertexAttribute & attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
         attribute.usage = VertexAttributeUsage_Position;
         attribute.buffer = m_vertexBuffers.size();
@@ -104,6 +105,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
         ++submesh.vertexAttributeCount;
     }
     if (mesh->HasNormals()) {
+		LOG_INFO("Normals: %u", mesh->mNumVertices);
         VertexAttribute & attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
         attribute.usage = VertexAttributeUsage_Normal;
         attribute.buffer = m_vertexBuffers.size();
@@ -129,6 +131,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
         ++submesh.vertexAttributeCount;
     }
     if (mesh->HasTextureCoords(0)) {
+		LOG_INFO("UVs: %u", mesh->mNumVertices);
         size_t positionsByteCount = mesh->mNumVertices * mesh->mNumUVComponents[0] * sizeof(float);
 
         VertexAttribute & attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
@@ -152,6 +155,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
         ++submesh.vertexAttributeCount;
     }
 	if (mesh->HasTangentsAndBitangents()) {
+		LOG_INFO("Tangents/Bitangents: %u", mesh->mNumVertices);
 		// Tangents.
 		{
 			VertexAttribute& attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
@@ -350,16 +354,20 @@ void AssimpMeshProvider::LoadModel(std::string const & filename, bool convert_to
     if (scene) {
         for (unsigned int ii = 0; ii < scene->mNumMeshes; ++ii) {
             aiMesh const * mesh = scene->mMeshes[ii];
+			LOG_INFO("Processing mesh %s", mesh->mName.C_Str());
             ProcessMesh(mesh, convert_to_meters);
         }
 
         for (unsigned int ii = 0; ii < scene->mNumMaterials; ++ii) {
             aiMaterial const * material = scene->mMaterials[ii];
+			LOG_INFO("Processing material %s", material->GetName().C_Str());
             ProcessMaterial(material);
         }
 
         aiMatrix4x4 identity;
+		LOG_INFO("Processing scene transforms...");
         ProcessNode(scene, scene->mRootNode, identity, 0, convert_to_meters);
+		LOG_INFO("DONE");
     } else {
         printf("Error:  No scene found in asset.\n");
     }

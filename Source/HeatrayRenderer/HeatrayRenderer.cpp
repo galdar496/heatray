@@ -100,6 +100,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
 	m_groundPlane.reset();
 
     if (sceneName == "White Sphere") {
+		LOG_INFO("Loading scene: %s", sceneName.c_str());
         m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
             for (auto mesh : m_sceneData) {
                 mesh.destroy();
@@ -117,6 +118,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             m_sceneData.push_back(RLMesh(&whiteFurnaceSphereMeshProvider, { material }, systemSetupCallback, glm::mat4(1.0f)));
         });
     } else if (sceneName == "Multi-Material") {
+		LOG_INFO("Loading scene: %s", sceneName.c_str());
         m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
             for (auto mesh : m_sceneData) {
                 mesh.destroy();
@@ -214,6 +216,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             }
         });
     } else if (sceneName == "Sphere Array") {
+		LOG_INFO("Loading scene: %s", sceneName.c_str());
         m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
             for (auto mesh : m_sceneData) {
                 mesh.destroy();
@@ -286,6 +289,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             }
             m_sceneData.clear();
 
+			LOG_INFO("Loading scene: %s", sceneName.c_str());
             AssimpMeshProvider assimpMeshProvider(sceneName, (m_scene_units == SceneUnits::kCentimeters), m_swapYZ);
 
             const std::vector<std::shared_ptr<Material>> &materials = assimpMeshProvider.GetMaterials();
