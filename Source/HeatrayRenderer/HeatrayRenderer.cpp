@@ -301,6 +301,8 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
 			m_camera.orbitCamera.max_distance = m_sceneAABB.radius() * 10.0f;
 			m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
 
+			m_distanceScale = m_sceneAABB.radius();
+
 			resetRenderer();
         });
     }
@@ -414,7 +416,7 @@ void HeatrayRenderer::adjustCamera(const float phi_delta, const float theta_delt
 
 		m_camera.orbitCamera.phi += glm::radians(phi_delta) * SCALE;
 		m_camera.orbitCamera.theta += glm::radians(theta_delta) * SCALE;
-		m_camera.orbitCamera.distance += distance_delta * SCALE;
+		m_camera.orbitCamera.distance += distance_delta * SCALE * m_distanceScale;
 
 		// Ensure that the camera parameters are valid.
 		{

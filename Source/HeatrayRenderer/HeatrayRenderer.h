@@ -235,4 +235,5 @@ private:
 	} m_groundPlane;
 
 	bool m_cameraUpdated = false;
+	float m_distanceScale = 1.0f;
 };
