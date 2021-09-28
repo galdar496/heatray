@@ -1,5 +1,6 @@
 add_library(Utility STATIC
 	AABB.h
+	AsyncTaskQueue.h
 	BlueNoise.h
 	FileIO.h
 	FileIO.cpp

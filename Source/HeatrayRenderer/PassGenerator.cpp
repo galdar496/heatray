@@ -24,28 +24,73 @@ PassGenerator::~PassGenerator()
 void PassGenerator::init(const RLint renderWidth, const RLint renderHeight)
 {
     // Fire up the render thread and push an init job to it to get going.
-    m_jobThread = std::thread{ &PassGenerator::threadFunc, this };
+	auto runJob = [this](Job& job) {
+		switch (job.type) {
+			case JobType::kInit:
+			{
+				WindowSize size = std::any_cast<WindowSize>(job.params);
+				if (!runInitJob(size.width, size.height)) {
+					return true; // End the thread.
+				}
+				break;
+			}
+			case JobType::kResize:
+			{
+				WindowSize size = std::any_cast<WindowSize>(job.params);
+				runResizeJob(size.width, size.height);
+				break;
+			}
+			case JobType::kRenderPass:
+			{
+				RenderOptions options = std::any_cast<RenderOptions>(job.params);
+				runRenderFrameJob(options);
+				break;
+			}
+			case JobType::kLoadScene:
+			{
+				runLoadSceneJob();
+				break;
+			}
+			case JobType::kDestroy:
+			{
+				runDestroyJob();
+				return true; // End the thread.
+				break;
+			}
+			case JobType::kGeneralTask:
+			{
+				OpenRLTask task = std::any_cast<OpenRLTask>(job.params);
+				task();
+				break;
+			}
+
+			default:
+				assert(0 && "Invalid job type");
+				break;
+		}
+
+		return false;
+	};
+	m_jobProcessor.init(std::move(runJob));
 
     WindowSize size(renderWidth, renderHeight);
     Job job(JobType::kInit, std::make_any<WindowSize>(size));
-    m_jobQueue.push(job);
+	m_jobProcessor.addTask(std::move(job));
 }
 
 void PassGenerator::destroy()
 {
-    if (m_jobThread.joinable())
-    {
-        Job job(JobType::kDestroy, std::make_any<void*>(nullptr));
-        m_jobQueue.push(job);
-        m_jobThread.join();
-    }
+    Job job(JobType::kDestroy, std::make_any<void*>(nullptr));
+	m_jobProcessor.addTask(std::move(job));
+
+	m_jobProcessor.deinit();
 }
 
 void PassGenerator::resize(RLint newWidth, RLint newHeight)
 {
     WindowSize size(newWidth, newHeight);
     Job job(JobType::kResize, std::make_any<WindowSize>(size));
-    m_jobQueue.push(job);
+	m_jobProcessor.addTask(std::move(job));
 }
 
 void PassGenerator::renderPass(const RenderOptions& newOptions, PassCompleteCallback callback)
@@ -54,7 +99,7 @@ void PassGenerator::renderPass(const RenderOptions& newOptions, PassCompleteCall
 
     RenderOptions options = newOptions;
     Job job(JobType::kRenderPass, std::make_any<RenderOptions>(options));
-    m_jobQueue.push(job);
+	m_jobProcessor.addTask(std::move(job));
 }
 
 void PassGenerator::loadScene(LoadSceneCallback callback)
@@ -62,13 +107,13 @@ void PassGenerator::loadScene(LoadSceneCallback callback)
     m_loadSceneCallback = callback;
 
     Job job(JobType::kLoadScene, std::make_any<void *>(nullptr));
-    m_jobQueue.push(job);
+	m_jobProcessor.addTask(std::move(job));
 }
 
 void PassGenerator::runOpenRLTask(OpenRLTask task)
 {
 	Job job(JobType::kGeneralTask, std::make_any<OpenRLTask>(task));
-	m_jobQueue.push(job);
+	m_jobProcessor.addTask(std::move(job));
 }
 
 bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight)
@@ -486,65 +531,6 @@ void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptio
     }
  }
 
-void PassGenerator::threadFunc()
-{
-    // This is the core of the raytracing loop. Commands are processed here until a kDestroy command
-    // has been received, at which point this thread will exit.
-    while (true)
-    {
-        if (m_jobQueue.size())
-        {
-            Job job = m_jobQueue.front();
-            m_jobQueue.pop();
-
-            switch (job.type)
-            {
-                case JobType::kInit:
-                {
-                    WindowSize size = std::any_cast<WindowSize>(job.params);
-                    if (!runInitJob(size.width, size.height))
-                    {
-                        return; // End the thread.
-                    }
-                    break;
-                }
-                case JobType::kResize:
-                {
-                    WindowSize size = std::any_cast<WindowSize>(job.params);
-                    runResizeJob(size.width, size.height);
-                    break;
-                }
-                case JobType::kRenderPass:
-                {
-                    RenderOptions options = std::any_cast<RenderOptions>(job.params);
-                    runRenderFrameJob(options);
-                    break;
-                }
-                case JobType::kLoadScene:
-                {
-                    runLoadSceneJob();
-                    break;
-                }
-                case JobType::kDestroy:
-                {
-                    runDestroyJob();
-                    return; // End the thread.
-                    break;
-                }
-				case JobType::kGeneralTask:
-				{
-					OpenRLTask task = std::any_cast<OpenRLTask>(job.params);
-					task();
-					break;
-				}
-
-                default:
-                    assert(0 && "Invalid job type");
-                    break;
-            }
-        }
-    }
-}
 
 
 

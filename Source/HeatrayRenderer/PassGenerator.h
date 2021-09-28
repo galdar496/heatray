@@ -15,6 +15,7 @@
 #include <RLWrapper/Primitive.h>
 #include <RLWrapper/Program.h>
 #include <RLWrapper/Texture.h>
+#include <Utility/AsyncTaskQueue.h>
 
 #include <glm/glm/mat4x4.hpp>
 #include <OpenRL/OpenRL.h>
@@ -184,10 +185,7 @@ private:
         RLint height = -1;
     };
 
-    std::queue<Job> m_jobQueue; ///< List of jobs to process on the render thread.
-    std::thread m_jobThread;
-
-    void threadFunc();
+	util::AsyncTaskQueue<Job> m_jobProcessor; ///< Used to process all jobs on the render thread.
 
     RenderOptions m_renderOptions;
 
