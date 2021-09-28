@@ -74,8 +74,16 @@ openrl::Texture loadTexture(const char* path, bool generateMips, bool convertToL
         bool isHDR = stbi_is_hdr(path);
         if (isHDR) {
             pixels = (unsigned char *)stbi_loadf(path, &width, &height, &channelCount, 0);
+			if (!pixels) {
+				LOG_ERROR("Unable to load texture %s", path);
+				return texture;
+			}
         } else {
             pixels = stbi_load(path, &width, &height, &channelCount, 0);
+			if (!pixels) {
+				LOG_ERROR("Unable to load texture %s", path);
+				return texture;
+			}
 
 			if (convertToLinear) {
 				LOG_INFO("Converting from sRGB to Linear");

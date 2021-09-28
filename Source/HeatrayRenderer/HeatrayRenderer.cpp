@@ -114,7 +114,9 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             params.metallic = 0.0f;
             params.roughness = 0.0f;
             params.baseColor = glm::vec3(1.0f);
-            params.specularF0 = 0.5f;    
+            params.specularF0 = 0.5f;
+			params.clearCoat = 0.0f;
+			params.clearCoatRoughness = 0.0f;
             material->build(params);     
             m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, glm::mat4(1.0f)));
 
@@ -515,6 +517,12 @@ void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<PhysicallyBasedMateri
 		materialChanged = true;
 	}
 	if (ImGui::SliderFloat("SpecularF0", &parameters.specularF0, 0.0f, 1.0f)) {
+		materialChanged = true;
+	}
+	if (ImGui::SliderFloat("ClearCoat", &parameters.clearCoat, 0.0f, 1.0f)) {
+		materialChanged = true;
+	}
+	if (ImGui::SliderFloat("ClearCoat Roughness", &parameters.clearCoatRoughness, 0.0f, 1.0f)) {
 		materialChanged = true;
 	}
 

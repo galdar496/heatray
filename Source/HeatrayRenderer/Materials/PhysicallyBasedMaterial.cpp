@@ -17,11 +17,17 @@ struct ShaderParams {
 	RLtexture metallicRoughnessTexture; // R: metallic, G: roughness
 	RLtexture emissiveTexture;
 	RLtexture normalmap;
+	RLtexture clearCoatTexture;
+	RLtexture clearCoatRoughnessTexture;
+	RLtexture clearCoatNormalmap;
 	glm::vec3 baseColor;
 	float metallic;
 	float roughness;
 	float specularF0;
 	float roughnessAlpha; ///< GGX alpha value (roughness^2).
+	float clearCoat;
+	float clearCoatRoughness;
+	float clearCoatRoughnessAlpha; ///< GGX alpha value (roughness^2).
 };
 
 void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& params)
@@ -55,6 +61,19 @@ void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& p
 			hasNormalmap = true;
 			shaderPrefix << "#define HAS_NORMALMAP\n";
 		}
+		if (params.clearCoatTexture) {
+			hasTextures = true;
+			shaderPrefix << "#define HAS_CLEARCOAT_TEXTURE\n";
+		}
+		if (params.clearCoatRoughnessTexture) {
+			hasTextures = true;
+			shaderPrefix << "#define HAS_CLEARCOAT_ROUGHNESS_TEXTURE\n";
+		}
+		if (params.clearCoatNormalmap) {
+			hasTextures = true;
+			hasNormalmap = true;
+			shaderPrefix << "#define HAS_CLEARCOAT_NORMALMAP\n";
+		}
 	}
 
     // Loadup the shader code.
@@ -63,9 +82,11 @@ void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& p
     if (hasTextures) {
 		if (hasNormalmap) {
 			vertexShader = "positionNormalTexCoordTangentBitangent.vert.rlsl";
+			shaderPrefix << "#define USE_TANGENT_SPACE\n";
 		} else {
 			vertexShader = "positionNormalTexCoord.vert.rlsl";
 		}
+		shaderPrefix << "#define HAS_TEXTURES\n";
     } else {
         vertexShader = "positionNormal.vert.rlsl";
     }
@@ -90,6 +111,9 @@ void PhysicallyBasedMaterial::modify(const PhysicallyBasedMaterial::Parameters& 
 	shaderParams.roughness = glm::max(glm::saturate<float, glm::defaultp>(params.roughness), kMinRoughness);
 	shaderParams.specularF0 = params.specularF0;
 	shaderParams.roughnessAlpha = shaderParams.roughness * shaderParams.roughness;
+	shaderParams.clearCoat = params.clearCoat;
+	shaderParams.clearCoatRoughness = glm::max(glm::saturate<float, glm::defaultp>(params.clearCoatRoughness), kMinRoughness);
+	shaderParams.clearCoatRoughnessAlpha = shaderParams.clearCoatRoughness * shaderParams.clearCoatRoughness;
 
 	if (params.baseColorTexture) {
 		shaderParams.baseColorTexture = params.baseColorTexture->texture();
@@ -112,6 +136,24 @@ void PhysicallyBasedMaterial::modify(const PhysicallyBasedMaterial::Parameters& 
 		shaderParams.normalmap = params.normalmap->texture();
 	} else {
 		shaderParams.normalmap = openrl::getDummyTexture().texture();
+	}
+	if (params.clearCoatTexture) {
+		shaderParams.clearCoatTexture = params.clearCoatTexture->texture();
+	}
+	else {
+		shaderParams.clearCoatTexture = openrl::getDummyTexture().texture();
+	}
+	if (params.clearCoatRoughnessTexture) {
+		shaderParams.clearCoatRoughnessTexture = params.clearCoatRoughnessTexture->texture();
+	}
+	else {
+		shaderParams.clearCoatRoughnessTexture = openrl::getDummyTexture().texture();
+	}
+	if (params.clearCoatNormalmap) {
+		shaderParams.clearCoatNormalmap = params.clearCoatNormalmap->texture();
+	}
+	else {
+		shaderParams.clearCoatNormalmap = openrl::getDummyTexture().texture();
 	}
 
 	m_constants.load(&shaderParams, sizeof(ShaderParams), "PhysicallyBased uniform block");
