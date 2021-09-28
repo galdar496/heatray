@@ -457,50 +457,49 @@ void HeatrayRenderer::resizeGLData()
     glViewport(0, 0, m_windowParams.width, m_windowParams.height);
 }
 
-void HeatrayRenderer::generateSequenceVisualizationData(int sequenceIndex, int renderPasses)
+void HeatrayRenderer::generateSequenceVisualizationData(int sequenceIndex, int renderPasses, bool aperture)
 {
     m_sequenceVisualizationData.clear();
     m_sequenceVisualizationData.resize(renderPasses);
-    switch (m_renderOptions.sampleMode) {
-        // Random and hammerlsey have no index to use.
-        case PassGenerator::RenderOptions::SampleMode::kRandom:
-            util::uniformRandomFloats<glm::vec3>(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex, 0.0f, 1.0f);
-            break;
-        case PassGenerator::RenderOptions::SampleMode::kHalton:
-            util::halton(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
-            break;
-        case PassGenerator::RenderOptions::SampleMode::kHammersley:
-            util::hammersley(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
-            break;
-        case PassGenerator::RenderOptions::SampleMode::kBlueNoise:
-            util::blueNoise(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
-            break;
-		case PassGenerator::RenderOptions::SampleMode::kSobol:
-			util::sobol(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
-			break;
-        default:
-            assert(0);
-    }
-
-// Enable this to see the samples for the aperture visualized.
-#if 0
-    switch (m_renderOptions.bokehShape) {
-        case PassGenerator::RenderOptions::BokehShape::kSpherical:
-            util::radialPseudoRandom(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
-            break;
-        case PassGenerator::RenderOptions::BokehShape::kPentagon:
-            util::randomPolygonal(&m_sequenceVisualizationData[0], 5, renderPasses, sequenceIndex);
-            break;
-        case PassGenerator::RenderOptions::BokehShape::kHexagon:
-            util::randomPolygonal(&m_sequenceVisualizationData[0], 6, renderPasses, sequenceIndex);
-            break;
-        case PassGenerator::RenderOptions::BokehShape::kOctagon:
-            util::randomPolygonal(&m_sequenceVisualizationData[0], 8, renderPasses, sequenceIndex);
-            break;
-        default:
-            assert(0);
-    }
-#endif
+	if (aperture) {
+		switch (m_renderOptions.bokehShape) {
+			case PassGenerator::RenderOptions::BokehShape::kSpherical:
+				util::radialPseudoRandom(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
+				break;
+			case PassGenerator::RenderOptions::BokehShape::kPentagon:
+				util::randomPolygonal(&m_sequenceVisualizationData[0], 5, renderPasses, sequenceIndex);
+				break;
+			case PassGenerator::RenderOptions::BokehShape::kHexagon:
+				util::randomPolygonal(&m_sequenceVisualizationData[0], 6, renderPasses, sequenceIndex);
+				break;
+			case PassGenerator::RenderOptions::BokehShape::kOctagon:
+				util::randomPolygonal(&m_sequenceVisualizationData[0], 8, renderPasses, sequenceIndex);
+				break;
+			default:
+				assert(0);
+		}
+	} else {
+		switch (m_renderOptions.sampleMode) {
+			// Random and hammerlsey have no index to use.
+			case PassGenerator::RenderOptions::SampleMode::kRandom:
+				util::uniformRandomFloats<glm::vec3>(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex, 0.0f, 1.0f);
+				break;
+			case PassGenerator::RenderOptions::SampleMode::kHalton:
+				util::halton(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
+				break;
+			case PassGenerator::RenderOptions::SampleMode::kHammersley:
+				util::hammersley(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
+				break;
+			case PassGenerator::RenderOptions::SampleMode::kBlueNoise:
+				util::blueNoise(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
+				break;
+			case PassGenerator::RenderOptions::SampleMode::kSobol:
+				util::sobol(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
+				break;
+			default:
+				assert(0);
+		}
+	}
 }
 
 void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<PhysicallyBasedMaterial> material, PhysicallyBasedMaterial::Parameters& parameters)
@@ -602,7 +601,7 @@ bool HeatrayRenderer::renderUI()
             }
             if (ImGui::Checkbox("Visualize sequence", &m_visualizeSequenceData)) {
                 if (m_visualizeSequenceData) {
-                    generateSequenceVisualizationData(0, m_renderOptions.maxRenderPasses);
+                    generateSequenceVisualizationData(0, m_renderOptions.maxRenderPasses, false);
                 }
             }
         }
@@ -820,10 +819,15 @@ bool HeatrayRenderer::renderUI()
         ImGui::Begin("Samples");
         static int sequenceIndex = 0;
         static int prefixCount = m_renderOptions.maxRenderPasses;
+		static bool showApertureSamples = false;
+		bool apertureOptionChanged = false;
+		if (ImGui::Checkbox("Show Aperture Samples", &showApertureSamples)) {
+			apertureOptionChanged = true;
+		}
         bool sequenceIndexMoved = ImGui::SliderInt("Sequence Index", &sequenceIndex, 0, PassGenerator::kNumRandomSequences - 1);
         bool prefixCountMoved = ImGui::SliderInt("Prefix Count", &prefixCount, 1, m_renderOptions.maxRenderPasses);
-        if (sequenceIndexMoved || prefixCountMoved) {
-            generateSequenceVisualizationData(sequenceIndex, prefixCount);
+        if (sequenceIndexMoved || prefixCountMoved || apertureOptionChanged) {
+            generateSequenceVisualizationData(sequenceIndex, prefixCount, showApertureSamples);
         }
         ImVec2 windowMin = ImGui::GetWindowContentRegionMin();
         ImVec2 windowMax = ImGui::GetWindowContentRegionMax();

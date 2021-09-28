@@ -59,7 +59,7 @@ private:
     HeatrayRenderer& operator=(const HeatrayRenderer& other) = delete;
 
     void resizeGLData();
-    void generateSequenceVisualizationData(int sequenceIndex, int renderPasses);
+    void generateSequenceVisualizationData(int sequenceIndex, int renderPasses, bool aperture);
     bool renderUI();
     void resetRenderer();
     void saveScreenshot();
