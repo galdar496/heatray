@@ -79,9 +79,9 @@ void main()
 	vec3 Cspec = 0.16 * square(Material.specularF0) * (1.0 - metallic) + baseColor * metallic;
 
 	// The probability that we select the diffuse BRDF to sample while rendering.
-	float diffuseLuminance  = max(0.01, luminosity(Cdiff));
-    float specularLuminance = max(0.01, luminosity(Cspec));
-    float diffuseProbability = diffuseLuminance / (diffuseLuminance + specularLuminance);
+	float diffuseLuminance  = luminosity(Cdiff);
+    float specularLuminance = luminosity(Cspec);
+    float diffuseProbability = diffuseLuminance / greaterThanZero(diffuseLuminance + specularLuminance);
 
 	// First sample the environment light.
 	{
