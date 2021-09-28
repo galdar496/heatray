@@ -25,7 +25,7 @@ namespace util {
 
 inline uint32_t toUint32(const float normalized_f)
 {
-	return normalized_f * std::numeric_limits<uint32_t>::max();
+	return uint32_t(normalized_f * std::numeric_limits<uint32_t>::max());
 }
 
 inline float toNormalizedFloat(const uint32_t u)

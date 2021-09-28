@@ -107,21 +107,21 @@ void main()
 
 	// https://nicedoc.io/KhronosGroup/glTF/extensions/2.0/Khronos/KHR_materials_clearcoat/README.md#user-content-implementation
 	// For clear coat, we assume a fixed F0 of 0.04 (polyurethane has an IOR of 1.5).
-	vec3 Cclear_coat = vec3(F_Schlick(0.04, clearCoatNdotV) * clearCoat);
-	vec3 clearCoatScale = (vec3(1.0) - Cclear_coat);
+	float clearCoatF = F_Schlick(0.04, clearCoatNdotV);
+	float clearCoatScale = clearCoatF * clearCoat;
+	float clearCoatBottomLayerScale = 1.0 - clearCoatScale; // Scale to apply to the bottom layer's diffuse/specular.
 
 	// This approximation comes from https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
-    vec3 Cdiff = (baseColor * (1.0 - metallic)) * clearCoatScale;
-	vec3 Cspec = (0.16 * square(Material.specularF0) * (1.0 - metallic) + baseColor * metallic) * clearCoatScale;
+    vec3 Cdiff = (baseColor * (1.0 - metallic)) * clearCoatBottomLayerScale;
+	vec3 Cspec = (0.16 * square(Material.specularF0) * (1.0 - metallic) + baseColor * metallic) * clearCoatBottomLayerScale;
 
 	// The probability that we select the diffuse BRDF to sample while rendering.
 	float diffuseLuminance  = luminosity(Cdiff);
     float specularLuminance = luminosity(Cspec);
-	float clearCoatLuminance = luminosity(Cclear_coat);
-	float probabilityNormalization = 1.0 / greaterThanZero(diffuseLuminance + specularLuminance + clearCoatLuminance);
+	float probabilityNormalization = 1.0 / greaterThanZero(diffuseLuminance + specularLuminance + clearCoatScale);
     float diffuseProbability = diffuseLuminance * probabilityNormalization;
 	float specularProbability = specularLuminance * probabilityNormalization;
-	float clearCoatProbability = clearCoatLuminance * probabilityNormalization;
+	float clearCoatProbability = clearCoatScale * probabilityNormalization;
 
 	mat3 clearCoatFrame;
 	if (clearCoatProbability > 0.0) {
@@ -139,7 +139,7 @@ void main()
 			sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, roughnessAlpha,
 						  diffuseProbability, true, Globals.environmentLight);
 		} else if (probability.x <= (diffuseProbability + clearCoatProbability)) {
-			sampleSpecular(clearCoatN, V, clearCoatNdotV, clearCoatFrame, rand, Cclear_coat, clearCoatRoughnenessAlpha,
+			sampleSpecular(clearCoatN, V, clearCoatNdotV, clearCoatFrame, rand, vec3(clearCoatScale), clearCoatRoughnenessAlpha,
 						   clearCoatProbability, true, Globals.environmentLight);
 		} else {
 			sampleSpecular(N, V, NdotV, frame, rand, Cspec, roughnessAlpha,
@@ -158,7 +158,7 @@ void main()
 			sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, roughnessAlpha,
 						  diffuseProbability, false, rl_NullPrimitive);
 		} else if (probability.x <= (diffuseProbability + clearCoatProbability)) {
-			sampleSpecular(clearCoatN, V, clearCoatNdotV, clearCoatFrame, rand, Cclear_coat, clearCoatRoughnenessAlpha,
+			sampleSpecular(clearCoatN, V, clearCoatNdotV, clearCoatFrame, rand, vec3(clearCoatScale), clearCoatRoughnenessAlpha,
 						   clearCoatProbability, false, rl_NullPrimitive);
 		} else {
 			sampleSpecular(N, V, NdotV, frame, rand, Cspec, roughnessAlpha,
