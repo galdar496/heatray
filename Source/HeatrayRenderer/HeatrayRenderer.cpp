@@ -432,13 +432,7 @@ void HeatrayRenderer::adjustCamera(const float phi_delta, const float theta_delt
 				m_camera.orbitCamera.phi -= glm::two_pi<float>();
 			}
 
-			if (m_camera.orbitCamera.theta < -glm::half_pi<float>()) {
-				m_camera.orbitCamera.theta += glm::pi<float>();
-			}
-			else if (m_camera.orbitCamera.theta > glm::half_pi<float>()) {
-				m_camera.orbitCamera.theta -= glm::pi<float>();
-			}
-
+			m_camera.orbitCamera.theta = glm::clamp(m_camera.orbitCamera.theta, -glm::half_pi<float>(), glm::half_pi<float>());
 			m_camera.orbitCamera.distance = glm::clamp(m_camera.orbitCamera.distance, 0.0f, m_camera.orbitCamera.max_distance);
 		}
 
