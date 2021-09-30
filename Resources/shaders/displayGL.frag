@@ -130,5 +130,7 @@ void main()
 		finalColor *= cameraExposure;
 	}
 
+	finalColor = LinearToSRGB(finalColor);
+
 	gl_FragColor = vec4(finalColor, 1.0);
 }
