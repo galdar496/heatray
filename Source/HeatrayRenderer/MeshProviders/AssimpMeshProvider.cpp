@@ -265,13 +265,19 @@ void AssimpMeshProvider::ProcessGlassMaterial(aiMaterial const* material)
 
 void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
 {
-    aiString mode;
-    material->Get(AI_MATKEY_GLTF_ALPHAMODE, mode);
-    if (strcmp(mode.C_Str(), "BLEND") == 0) {
-        // This is a transparent material.
-        ProcessGlassMaterial(material);
-        return;
-    }
+	// Check to see if we should be processing this material as glass.
+	{
+		aiString mode;
+		float transmissionFactor = 0.0f;
+		material->Get(AI_MATKEY_GLTF_ALPHAMODE, mode);
+		material->Get(AI_MATKEY_TRANSMISSION_FACTOR, transmissionFactor);
+		if ((strcmp(mode.C_Str(), "BLEND") == 0) ||
+			(transmissionFactor != 0.0f)) {
+			// This is a transparent material.
+			ProcessGlassMaterial(material);
+			return;
+		}
+	}
 
     PhysicallyBasedMaterial::Parameters params;
 
