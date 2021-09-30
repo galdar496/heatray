@@ -252,32 +252,28 @@ inline void sobol(glm::vec3* results, const unsigned int count, int sequenceInde
 	owenScrambleSequence(results, count, sequenceIndex, generator);
 }
 
-// Generates random values on a disk such that the center is (0,0).
-inline void radialPseudoRandom(glm::vec3* results, const unsigned int count, const unsigned int seed)
+// Generates Sobol values on a disk such that the center is (0,0).
+inline void radialSobol(glm::vec3* results, const unsigned int count, const unsigned int sequenceIndex)
 {
     assert(results);
+	sobol(results, count, sequenceIndex);
 
-    // We assume a radius of 1 and that the calling function will scale the values appropriately.
-    std::random_device randomDevice;
-    std::mt19937 generator(randomDevice());
-    generator.seed(seed);
+	// We now redistribute these points within a disk.
+	for (unsigned int iIndex = 0; iIndex < count; ++iIndex) {
+		float s = results[iIndex].x;
+		float t = results[iIndex].y;
 
-    std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
+		float sqrt_t = std::sqrtf(t);
+		float two_pi_s = glm::two_pi<float>() * s;
+		float x = sqrt_t * std::cosf(two_pi_s);
+		float y = sqrt_t * std::sinf(two_pi_s);
 
-    for (unsigned int iIndex = 0; iIndex < count; ++iIndex) {
-        // Use rejection sampling.
-        float x, y;
-        do {
-            x = distribution(generator);
-            y = distribution(generator);
-        } while ((x * x + y * y) > 1.0f);
+		// Get the values to be in the 0-1 range for storage in a texture.
+		x = (x + 1.0f) * 0.5f;
+		y = (y + 1.0f) * 0.5f;
 
-        // Get the values to be in the 0-1 range for storage in a texture.
-        x = (x + 1.0f) * 0.5f;
-        y = (y + 1.0f) * 0.5f;
-
-        results[iIndex] = glm::vec3(x, y, 0.0f);
-    }
+		results[iIndex] = glm::vec3(x, y, 0.0f);
+	}
 }
 
 inline void randomPolygonal(glm::vec3* results, const unsigned int numEdges, const unsigned int count, const unsigned int seed)

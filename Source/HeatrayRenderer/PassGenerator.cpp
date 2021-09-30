@@ -283,21 +283,17 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
     m_frameProgram.set1i(m_frameProgram.getUniformLocation("interactiveMode"), m_renderOptions.enableInteractiveMode ? 1 : 0);
     m_frameProgram.setTexture(m_frameProgram.getUniformLocation("apertureSamplesTexture"), m_apertureSamplesTexture);
 
-    if (m_renderOptions.enableInteractiveMode)
-    {
+    if (m_renderOptions.enableInteractiveMode) {
         m_currentBlockPixel.x += 1;
-        if (m_currentBlockPixel.x == m_renderOptions.kInteractiveBlockSize.x)
-        {
+        if (m_currentBlockPixel.x == m_renderOptions.kInteractiveBlockSize.x) {
             m_currentBlockPixel.x = 0;
             m_currentBlockPixel.y += 1;
-            if (m_currentBlockPixel.y == m_renderOptions.kInteractiveBlockSize.y)
-            {
+            if (m_currentBlockPixel.y == m_renderOptions.kInteractiveBlockSize.y) {
                 m_currentBlockPixel = glm::vec2(0, 0);
                 ++m_currentSampleIndex;
             }
         }
-    }
-    else
+    } else
     {
         ++m_currentSampleIndex;
     }
@@ -316,14 +312,12 @@ void PassGenerator::runLoadSceneJob()
     m_loadSceneCallback([this](const openrl::Program& program)
         {
             RLint sequenceIndex = program.getUniformBlockIndex("RandomSequences");
-            if (sequenceIndex != -1)
-            {
+            if (sequenceIndex != -1) {
                 program.setUniformBlock(sequenceIndex, m_randomSequences.buffer());
             }
 
             RLint globalsIndex = program.getUniformBlockIndex("Globals");
-            if (globalsIndex != -1)
-            {
+            if (globalsIndex != -1) {
                 program.setUniformBlock(globalsIndex, m_globalData.buffer());
             }
         });
@@ -423,8 +417,7 @@ void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
 
 void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptions::SampleMode sampleMode, RenderOptions::BokehShape bokehShape)
 {
-    struct SequenceBlockData
-    {
+    struct SequenceBlockData {
         RLtexture randomNumbers = RL_NULL_TEXTURE; ///< The actual sequence data stored in a 2D texture.
         RLfloat uvStep = 0.0f;  ///< The step to move forward to access the next sample (in UV space).
         RLfloat uvSequenceStep = 0.0f; ///< The step to move forward to access the next sequence (in UV space).
@@ -432,12 +425,11 @@ void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptio
 
     // If we already have previous sequence data, get rid of it.
     // Note that we don't delete the buffer however in order to keep all shader bindings valid.
-    if (m_randomSequences.valid())
-    {
+    if (m_randomSequences.valid()) {
         m_randomSequenceTexture.destroy();
     }
-    else // This is the first time this function is being called.
-    {
+    else {
+		// This is the first time this function is being called.
         m_randomSequences.setTarget(RL_UNIFORM_BLOCK_BUFFER);
         SequenceBlockData dummyData;
         m_randomSequences.load(&dummyData, sizeof(SequenceBlockData), "Random sequences uniform block");
@@ -457,10 +449,8 @@ void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptio
     sampler.magFilter = RL_NEAREST; 
 
     std::vector<glm::vec3> values(kNumRandomSequences * sampleCount);
-    for (unsigned int iSequence = 0; iSequence < kNumRandomSequences; ++iSequence)
-    {
-        switch (sampleMode)
-        {
+    for (unsigned int iSequence = 0; iSequence < kNumRandomSequences; ++iSequence) {
+        switch (sampleMode) {
             case RenderOptions::SampleMode::kRandom:
                 util::uniformRandomFloats<glm::vec3>(&values[iSequence * sampleCount], sampleCount, iSequence, 0.0f, 1.0f);
                 break;
@@ -498,15 +488,10 @@ void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptio
     // Now generate the data random sequence data for aperture sampling for depth of field.
     {
         std::vector<glm::vec3> values(kNumRandomSequences * sampleCount);
-        for (unsigned int iSequence = 0; iSequence < kNumRandomSequences; ++iSequence)
-        {
-            //util::radialPseudoRandom(&values[iSequence * sampleCount], sampleCount, iSequence);
-            util::randomPolygonal(&values[iSequence * sampleCount], 5, sampleCount, iSequence);
-
-            switch (bokehShape)
-            {
-                case PassGenerator::RenderOptions::BokehShape::kSpherical:
-                    util::radialPseudoRandom(&values[iSequence * sampleCount], sampleCount, iSequence);
+        for (unsigned int iSequence = 0; iSequence < kNumRandomSequences; ++iSequence) {
+            switch (bokehShape) {
+                case PassGenerator::RenderOptions::BokehShape::kCircular:
+                    util::radialSobol(&values[iSequence * sampleCount], sampleCount, iSequence);
                     break;
                 case PassGenerator::RenderOptions::BokehShape::kPentagon:
                     util::randomPolygonal(&values[iSequence * sampleCount], 5, sampleCount, iSequence);
@@ -522,8 +507,7 @@ void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptio
             }
         }
 
-        if (m_apertureSamplesTexture.valid())
-        {
+        if (m_apertureSamplesTexture.valid()) {
             m_apertureSamplesTexture.destroy();
         }
 

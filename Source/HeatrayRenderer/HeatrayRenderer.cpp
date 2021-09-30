@@ -463,8 +463,8 @@ void HeatrayRenderer::generateSequenceVisualizationData(int sequenceIndex, int r
     m_sequenceVisualizationData.resize(renderPasses);
 	if (aperture) {
 		switch (m_renderOptions.bokehShape) {
-			case PassGenerator::RenderOptions::BokehShape::kSpherical:
-				util::radialPseudoRandom(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
+			case PassGenerator::RenderOptions::BokehShape::kCircular:
+				util::radialSobol(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
 				break;
 			case PassGenerator::RenderOptions::BokehShape::kPentagon:
 				util::randomPolygonal(&m_sequenceVisualizationData[0], 5, renderPasses, sequenceIndex);
@@ -735,15 +735,15 @@ bool HeatrayRenderer::renderUI()
             shouldResetRenderer = true;
         }
         {
-            static const char* options[] = { "Spherical", "Pentagon", "Hexagon", "Octagon" };
+            static const char* options[] = { "Circular", "Pentagon", "Hexagon", "Octagon" };
             constexpr PassGenerator::RenderOptions::BokehShape realOptions[] = {
-                PassGenerator::RenderOptions::BokehShape::kSpherical,
+                PassGenerator::RenderOptions::BokehShape::kCircular,
                 PassGenerator::RenderOptions::BokehShape::kPentagon,
                 PassGenerator::RenderOptions::BokehShape::kHexagon,
                 PassGenerator::RenderOptions::BokehShape::kOctagon
             };
 
-            static unsigned int currentSelection = 1;
+            static unsigned int currentSelection = 0;
             if (ImGui::BeginCombo("Bokeh shape", options[currentSelection])) {
                 for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
                     bool isSelected = currentSelection == iOption;

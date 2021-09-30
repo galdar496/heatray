@@ -83,13 +83,13 @@ public:
         SampleMode sampleMode = SampleMode::kSobol;
 
         enum class BokehShape {
-            kSpherical,
+			kCircular,
             kPentagon,
             kHexagon,
             kOctagon
         };
 
-        BokehShape bokehShape = BokehShape::kPentagon;
+        BokehShape bokehShape = BokehShape::kCircular;
 
         int maxRayDepth = 10;
     };
