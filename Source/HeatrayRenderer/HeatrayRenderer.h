@@ -66,6 +66,9 @@ private:
 
 	void renderMaterialEditor(std::shared_ptr<PhysicallyBasedMaterial> material);
 
+	void writeSessionFile(const std::string& filename);
+	void readSessionFile(const std::string& filename);
+
 	struct PostProcessingParams {
 		bool tonemapping_enabled = false;
 		float exposure = 0.0f;
@@ -196,9 +199,6 @@ private:
     Camera m_camera;
     bool m_visualizeSequenceData = false;
     std::vector<glm::vec3> m_sequenceVisualizationData;
-
-    float m_cameraExposure = 0.0f;
-    bool m_tonemappingEnabled = false;
 
 	enum class SceneUnits {
 		kMeters, // Heatray default.

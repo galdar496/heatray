@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(3rdParty/imgui)
 add_subdirectory(3rdParty/glm)
+add_subdirectory(3rdParty/tinyxml2)
 
 # Set up include path roots.
 include_directories(
@@ -20,6 +21,7 @@ link_directories(
   3rdParty/glew
   3rdParty/GLUT
   3rdParty/OpenRL
+  3rdParty/tinyxml2
 )
 
 if (APPLE)

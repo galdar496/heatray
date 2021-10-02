@@ -54,7 +54,10 @@ public:
         static constexpr glm::ivec2 kInteractiveBlockSize = glm::ivec2(5, 5);
 
         bool resetInternalState = true; 
-        unsigned int maxRenderPasses = 32; 
+        uint32_t maxRenderPasses = 32;
+		uint32_t maxRayDepth = 10;
+
+		std::string scene = "Multi-Material";
 
 		struct Environment {
 			std::string map = "studio.hdr";
@@ -62,8 +65,6 @@ public:
 			float exposureCompensation = 0.0f;
 			float thetaRotation = 0.0f; // Extra rotation to apply to the environment map.
 		} environment;
-
-        std::string scene = "Multi-Material";
 
         struct Camera {
 			static constexpr size_t NUM_FSTOPS = 11;
@@ -101,8 +102,6 @@ public:
         };
 
         BokehShape bokehShape = BokehShape::kCircular;
-
-        int maxRayDepth = 10;
     };
     
     ///

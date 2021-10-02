@@ -5,6 +5,7 @@
 #include "MeshProviders/AssimpMeshProvider.h"
 #include "MeshProviders/PlaneMeshProvider.h"
 #include "MeshProviders/SphereMeshProvider.h"
+#include "Session/Session.h"
 
 #include "Utility/FileDialog.h"
 #include "Utility/ImGuiLog.h"
@@ -61,7 +62,6 @@ bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
     }
 
     m_renderOptions.camera.aspectRatio = static_cast<float>(m_renderWindowParams.width) / static_cast<float>(m_renderWindowParams.height);
-    m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
 	m_renderOptions.camera.setApertureRadius();
 
     // Load the default scene.
@@ -101,6 +101,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
 {
 	m_groundPlane.reset();
 	m_editableMaterialScene.active = false;
+	m_renderOptions.scene = sceneName;
 
     if (sceneName == "Editable Material") {
 		LOG_INFO("Loading scene: %s", sceneName.c_str());
@@ -301,7 +302,6 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
 			m_camera.orbitCamera.target = m_sceneAABB.center();
 			m_camera.orbitCamera.distance = m_sceneAABB.radius() * 3.0f; // Add some extra scale.
 			m_camera.orbitCamera.max_distance = m_sceneAABB.radius() * 10.0f;
-			m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
 
 			m_distanceScale = m_sceneAABB.radius();
 
@@ -435,7 +435,6 @@ void HeatrayRenderer::adjustCamera(const float phi_delta, const float theta_delt
 			m_camera.orbitCamera.distance = glm::clamp(m_camera.orbitCamera.distance, 0.0f, m_camera.orbitCamera.max_distance);
 		}
 
-		m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
 		m_cameraUpdated = true;
 	}
 }
@@ -496,6 +495,161 @@ void HeatrayRenderer::generateSequenceVisualizationData(int sequenceIndex, int r
 			default:
 				assert(0);
 		}
+	}
+}
+
+void HeatrayRenderer::writeSessionFile(const std::string& filename)
+{
+	Session session;
+
+	// Set the various session variables that we want serialized to disk.
+	
+	// RenderOptions.
+	{
+		// General.
+		session.setVariableValue(Session::kInteractiveMode, m_renderOptions.enableInteractiveMode);
+		session.setVariableValue(Session::kMaxRenderPasses, m_renderOptions.maxRenderPasses);
+		session.setVariableValue(Session::kMaxRayDepth, m_renderOptions.maxRayDepth);
+		session.setVariableValue(Session::kScene, m_renderOptions.scene);
+		session.setVariableValue(Session::kSampleMode, static_cast<uint32_t>(m_renderOptions.sampleMode));
+		session.setVariableValue(Session::kBokehShape, static_cast<uint32_t>(m_renderOptions.bokehShape));
+
+		// Environment.
+		{
+			session.setVariableValue(Session::kEnvironmentMap, m_renderOptions.environment.map);
+			session.setVariableValue(Session::kEnvironmentBuiltIn, m_renderOptions.environment.builtInMap);
+			session.setVariableValue(Session::kEnvironmentExposureCompensation, m_renderOptions.environment.exposureCompensation);
+			session.setVariableValue(Session::kEnvironmentThetaRotation, m_renderOptions.environment.thetaRotation);
+		}
+
+		// Camera.
+		{
+			session.setVariableValue(Session::kCameraAspectRatio, m_renderOptions.camera.aspectRatio);
+			session.setVariableValue(Session::kCameraFocusDistance, m_renderOptions.camera.focusDistance);
+			session.setVariableValue(Session::kCameraFocalLength, m_renderOptions.camera.focalLength);
+			session.setVariableValue(Session::kCameraApertureRadius, m_renderOptions.camera.apertureRadius);
+			session.setVariableValue(Session::kCameraFStop, m_renderOptions.camera.fstop);
+		}
+	}
+
+	// Camera.
+	{
+		session.setVariableValue(Session::kOrbitDistance, m_camera.orbitCamera.distance);
+		session.setVariableValue(Session::kOrbitPhi, m_camera.orbitCamera.phi);
+		session.setVariableValue(Session::kOrbitTheta, m_camera.orbitCamera.theta);
+		session.setVariableValue(Session::kOrbitTargetX, m_camera.orbitCamera.target.x);
+		session.setVariableValue(Session::kOrbitTargetY, m_camera.orbitCamera.target.y);
+		session.setVariableValue(Session::kOrbitTargetZ, m_camera.orbitCamera.target.z);
+		session.setVariableValue(Session::kOrbitMaxDistance, m_camera.orbitCamera.max_distance);
+	}
+
+	// Scene.
+	{
+		session.setVariableValue(Session::kUnits, static_cast<uint32_t>(m_scene_units));
+		session.setVariableValue(Session::kSwapYZ, m_swapYZ);
+		session.setVariableValue(Session::kAABB_MinX, m_sceneAABB.min.x);
+		session.setVariableValue(Session::kAABB_MinY, m_sceneAABB.min.y);
+		session.setVariableValue(Session::kAABB_MinZ, m_sceneAABB.min.z);
+		session.setVariableValue(Session::kAABB_MaxX, m_sceneAABB.max.x);
+		session.setVariableValue(Session::kAABB_MaxY, m_sceneAABB.max.y);
+		session.setVariableValue(Session::kAABB_MaxZ, m_sceneAABB.max.z);
+	}
+
+	// Post processing.
+	{
+		session.setVariableValue(Session::kTonemapEnable, m_post_processing_params.tonemapping_enabled);
+		session.setVariableValue(Session::kExposure, m_post_processing_params.exposure);
+		session.setVariableValue(Session::kBrightness, m_post_processing_params.brightness);
+		session.setVariableValue(Session::kContrast, m_post_processing_params.contrast);
+		session.setVariableValue(Session::kHue, m_post_processing_params.hue);
+		session.setVariableValue(Session::kSaturation, m_post_processing_params.saturation);
+		session.setVariableValue(Session::kVibrance, m_post_processing_params.vibrance);
+		session.setVariableValue(Session::kRed, m_post_processing_params.red);
+		session.setVariableValue(Session::kGreen, m_post_processing_params.green);
+		session.setVariableValue(Session::kBlue, m_post_processing_params.blue);
+	}
+
+	session.writeSessionFile(filename);
+}
+
+void HeatrayRenderer::readSessionFile(const std::string& filename)
+{
+	Session session;
+	if (session.parseSessionFile(filename)) {
+		// RenderOptions.
+		{
+			// General.
+			session.getVariableValue(Session::kInteractiveMode, m_renderOptions.enableInteractiveMode);
+			session.getVariableValue(Session::kMaxRenderPasses, m_renderOptions.maxRenderPasses);
+			session.getVariableValue(Session::kMaxRayDepth, m_renderOptions.maxRayDepth);
+			session.getVariableValue(Session::kScene, m_renderOptions.scene);
+			uint32_t tmp = 0;
+			session.getVariableValue(Session::kSampleMode, tmp);
+			m_renderOptions.sampleMode = static_cast<PassGenerator::RenderOptions::SampleMode>(tmp);
+			session.getVariableValue(Session::kBokehShape, tmp);
+			m_renderOptions.bokehShape = static_cast<PassGenerator::RenderOptions::BokehShape>(tmp);
+
+			// Environment.
+			{
+				session.getVariableValue(Session::kEnvironmentMap, m_renderOptions.environment.map);
+				session.getVariableValue(Session::kEnvironmentBuiltIn, m_renderOptions.environment.builtInMap);
+				session.getVariableValue(Session::kEnvironmentExposureCompensation, m_renderOptions.environment.exposureCompensation);
+				session.getVariableValue(Session::kEnvironmentThetaRotation, m_renderOptions.environment.thetaRotation);
+			}
+
+			// Camera.
+			{
+				session.getVariableValue(Session::kCameraAspectRatio, m_renderOptions.camera.aspectRatio);
+				session.getVariableValue(Session::kCameraFocusDistance, m_renderOptions.camera.focusDistance);
+				session.getVariableValue(Session::kCameraFocalLength, m_renderOptions.camera.focalLength);
+				session.getVariableValue(Session::kCameraApertureRadius, m_renderOptions.camera.apertureRadius);
+				session.getVariableValue(Session::kCameraFStop, m_renderOptions.camera.fstop);
+			}
+		}
+
+		// Camera.
+		{
+			session.getVariableValue(Session::kOrbitDistance, m_camera.orbitCamera.distance);
+			session.getVariableValue(Session::kOrbitPhi, m_camera.orbitCamera.phi);
+			session.getVariableValue(Session::kOrbitTheta, m_camera.orbitCamera.theta);
+			session.getVariableValue(Session::kOrbitTargetX, m_camera.orbitCamera.target.x);
+			session.getVariableValue(Session::kOrbitTargetY, m_camera.orbitCamera.target.y);
+			session.getVariableValue(Session::kOrbitTargetZ, m_camera.orbitCamera.target.z);
+			session.getVariableValue(Session::kOrbitMaxDistance, m_camera.orbitCamera.max_distance);
+		}
+
+		// Scene.
+		{
+			uint32_t tmp = 0;
+			session.getVariableValue(Session::kUnits, tmp);
+			m_scene_units = static_cast<SceneUnits>(tmp);
+			session.getVariableValue(Session::kSwapYZ, m_swapYZ);
+			session.getVariableValue(Session::kAABB_MinX, m_sceneAABB.min.x);
+			session.getVariableValue(Session::kAABB_MinY, m_sceneAABB.min.y);
+			session.getVariableValue(Session::kAABB_MinZ, m_sceneAABB.min.z);
+			session.getVariableValue(Session::kAABB_MaxX, m_sceneAABB.max.x);
+			session.getVariableValue(Session::kAABB_MaxY, m_sceneAABB.max.y);
+			session.getVariableValue(Session::kAABB_MaxZ, m_sceneAABB.max.z);
+		}
+
+		// Post processing.
+		{
+			session.getVariableValue(Session::kTonemapEnable, m_post_processing_params.tonemapping_enabled);
+			session.getVariableValue(Session::kExposure, m_post_processing_params.exposure);
+			session.getVariableValue(Session::kBrightness, m_post_processing_params.brightness);
+			session.getVariableValue(Session::kContrast, m_post_processing_params.contrast);
+			session.getVariableValue(Session::kHue, m_post_processing_params.hue);
+			session.getVariableValue(Session::kSaturation, m_post_processing_params.saturation);
+			session.getVariableValue(Session::kVibrance, m_post_processing_params.vibrance);
+			session.getVariableValue(Session::kRed, m_post_processing_params.red);
+			session.getVariableValue(Session::kGreen, m_post_processing_params.green);
+			session.getVariableValue(Session::kBlue, m_post_processing_params.blue);
+		}
+
+		// Now actually process the parameters.
+		changeScene(m_renderOptions.scene);
+		// NOTE: most everything is handled automatically during a reset.
+		resetRenderer();
 	}
 }
 
@@ -626,6 +780,21 @@ bool HeatrayRenderer::renderUI()
         ImGui::Text("Pass time(s): %f\n", m_currentPassTime);
         ImGui::Text("Total render time(s): %f\n", m_totalRenderTime);
     }
+	if (ImGui::CollapsingHeader("Session")) {
+		if (ImGui::Button("Save")) {
+			std::vector<std::string> filepaths = util::SaveFileDialog("xml");
+			if (!filepaths.empty()) {
+				writeSessionFile(filepaths[0]);
+			}
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Load")) {
+			std::vector<std::string> filepaths = util::OpenFileDialog();
+			if (!filepaths.empty()) {
+				readSessionFile(filepaths[0]);
+			}
+		}
+	}
     if (ImGui::CollapsingHeader("Render options")) {
         {
             static const char* options[] = { "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024", "2048", "4096", "8192" };
@@ -646,7 +815,7 @@ bool HeatrayRenderer::renderUI()
                 }
                 ImGui::EndCombo();
             }
-            if (ImGui::SliderInt("Max ray depth", &m_renderOptions.maxRayDepth, 1, 15)) {
+            if (ImGui::SliderInt("Max ray depth", (int*)(&m_renderOptions.maxRayDepth), 1, 15)) {
                 shouldResetRenderer = true;
             }
             if (ImGui::Checkbox("Enable interactive mode", &m_renderOptions.enableInteractiveMode)) {
@@ -798,7 +967,6 @@ bool HeatrayRenderer::renderUI()
         changed |= ImGui::SliderAngle("Theta", &(m_camera.orbitCamera.theta), -90.0f, 90.0f);
         changed |= ImGui::SliderFloat("Distance", &(m_camera.orbitCamera.distance), 0.0f, m_camera.orbitCamera.max_distance);
         if (changed) {
-            m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
             shouldResetRenderer = true;
         }
 
@@ -956,6 +1124,7 @@ bool HeatrayRenderer::renderUI()
 void HeatrayRenderer::resetRenderer()
 {
     m_renderOptions.resetInternalState = true;
+	m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
     m_currentPass = 0;
     m_totalPasses = m_renderOptions.maxRenderPasses * (m_renderOptions.enableInteractiveMode ? m_renderOptions.kInteractiveBlockSize.x * m_renderOptions.kInteractiveBlockSize.y : 1);
     m_totalRenderTime = 0.0f;

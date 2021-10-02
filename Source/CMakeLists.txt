@@ -10,6 +10,7 @@ target_link_libraries(Heatray
   imgui
   glm
   assimp
+  tinyxml2
   FreeImage
   HeatrayRenderer
   Utility
