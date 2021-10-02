@@ -65,11 +65,21 @@ public:
         std::string scene = "Multi-Material";
 
         struct Camera {
-            float aspectRatio = -1.0f;  ///< Width / height.
-            float focusDistance = 1.0f; ///< In meters.
-            float focalLength = 50.0f;  ///< In millimeters.
-            float apertureRadius = 0.0f; ///< In millimeters.
+			static constexpr size_t NUM_FSTOPS = 11;
+			static constexpr float fstopOptions[NUM_FSTOPS] = {
+				32.0f, 22.0f, 16.0f, 11.0f, 8.0f, 5.6f, 4.0f, 2.8f, 2.0f, 1.4f, 1.0f
+			};
+
+            float aspectRatio    = -1.0f;  ///< Width / height.
+            float focusDistance  = 1.0f;   ///< In meters.
+            float focalLength    = 50.0f;  ///< In millimeters.
+            float apertureRadius = 0.0f;   ///< In meters (should not be set manually!).
+			float fstop			 = fstopOptions[0];
             glm::mat4 viewMatrix = glm::mat4(1.0f);
+
+			void setApertureRadius() {
+				apertureRadius = (focalLength / fstop) / 1000.0f; // Value is in meters.
+			}
         } camera;
 
         enum class SampleMode {

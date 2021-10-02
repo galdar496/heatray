@@ -61,6 +61,7 @@ bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
 
     m_renderOptions.camera.aspectRatio = static_cast<float>(m_renderWindowParams.width) / static_cast<float>(m_renderWindowParams.height);
     m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
+	m_renderOptions.camera.setApertureRadius();
 
     // Load the default scene.
     changeScene(m_renderOptions.scene);
@@ -107,6 +108,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                 mesh.destroy();
             }
             m_sceneData.clear();
+			m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
 
             SphereMeshProvider sphereMeshProvider(50, 50, 1.0f);
             std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
@@ -131,7 +133,8 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                 mesh.destroy();
             }
             m_sceneData.clear();
-            
+			m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
+
             PlaneMeshProvider planeMeshProvider(15, 15);
             glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);
             glm::vec3 yAxis = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -229,6 +232,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                 mesh.destroy();
             }
             m_sceneData.clear();
+			m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
 
             // The default scene is a plane with various spheres.
             {
@@ -309,6 +313,8 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
 			m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
 
 			m_distanceScale = m_sceneAABB.radius();
+
+			m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
 
 			resetRenderer();
         });
@@ -728,12 +734,31 @@ bool HeatrayRenderer::renderUI()
         if (ImGui::SliderFloat("Focus distance(m)", &m_renderOptions.camera.focusDistance, 0.001f, 40.0f)) {
             shouldResetRenderer = true;
         }
-        if (ImGui::SliderFloat("Focal length(mm)", &m_renderOptions.camera.focalLength, 15.0f, 200.0f)) {
+        if (ImGui::SliderFloat("Focal length(mm)", &m_renderOptions.camera.focalLength, 10.0f, 200.0f)) {
+			m_renderOptions.camera.setApertureRadius();
             shouldResetRenderer = true;
         }
-        if (ImGui::SliderFloat("Aperture radius(mm)", &m_renderOptions.camera.apertureRadius, 0.0f, 1.0f)) {
-            shouldResetRenderer = true;
-        }
+		{
+			static unsigned int currentSelection = 0;
+			static const char* options[PassGenerator::RenderOptions::Camera::NUM_FSTOPS] = { 
+				"f32", "f22", "f16", "f11", "f8", "f5.6", "f4", "f2.8", "f2", "f1.4", "f1"
+			};
+			if (ImGui::BeginCombo("f-Stop", options[currentSelection])) {
+				for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
+					bool isSelected = currentSelection == iOption;
+					if (ImGui::Selectable(options[iOption], false)) {
+						currentSelection = iOption;
+						m_renderOptions.camera.fstop = PassGenerator::RenderOptions::Camera::fstopOptions[currentSelection];
+						m_renderOptions.camera.setApertureRadius();
+						shouldResetRenderer = true;
+					}
+					if (isSelected) {
+						ImGui::SetItemDefaultFocus();
+					}
+				}
+				ImGui::EndCombo();
+			}
+		}
         {
             static const char* options[] = { "Circular", "Pentagon", "Hexagon", "Octagon" };
             constexpr PassGenerator::RenderOptions::BokehShape realOptions[] = {
