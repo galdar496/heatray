@@ -9,6 +9,7 @@
 #include "Utility/FileDialog.h"
 #include "Utility/ImGuiLog.h"
 #include <Utility/Random.h>
+#include <Utility/TextureLoader.h>
 
 #include <glm/glm/gtc/matrix_transform.hpp>
 #include <glm/glm/gtc/constants.hpp>
@@ -112,18 +113,17 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
 
             SphereMeshProvider sphereMeshProvider(50, 50, 1.0f);
             std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
-            PhysicallyBasedMaterial::Parameters params;
+			PhysicallyBasedMaterial::Parameters &params = material->parameters();
             params.metallic = 0.0f;
-            params.roughness = 0.0f;
-            params.baseColor = glm::vec3(1.0f);
-            params.specularF0 = 0.5f;
+            params.roughness = 1.0f;
+            params.baseColor = glm::vec3(0.8f);
+            params.specularF0 = 0.0f;
 			params.clearCoat = 0.0f;
 			params.clearCoatRoughness = 0.0f;
-            material->build(params);     
+			params.forceEnableAllTextures = true;
             m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, glm::mat4(1.0f)));
 
 			m_editableMaterialScene.material = material;
-			m_editableMaterialScene.materialParams = params;
 			m_editableMaterialScene.active = true;
         });
     } else if (sceneName == "Multi-Material") {
@@ -143,12 +143,11 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             // Bottom plane.
             {
 				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
-                PhysicallyBasedMaterial::Parameters params;
+                PhysicallyBasedMaterial::Parameters &params = material->parameters();
                 params.metallic = 0.0f;
                 params.roughness = 1.0f;
                 params.baseColor = glm::vec3(0.9f);
                 params.specularF0 = 0.0f;
-                material->build(params);
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.5f, 0.0f));
                 m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation));
             }
@@ -156,12 +155,11 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             // Right plane.
             {
 				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
-                PhysicallyBasedMaterial::Parameters params;
+                PhysicallyBasedMaterial::Parameters& params = material->parameters();
                 params.metallic = 0.0f;
 				params.roughness = 1.0f;
 				params.baseColor = glm::vec3(0.9f);
 				params.specularF0 = 0.0f;
-                material->build(params);
                 glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), zAxis);
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(2.5f, 1.0f, 0.0f));
                 m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation * rotation));
@@ -170,12 +168,11 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             // Back plane.
             {
 				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
-                PhysicallyBasedMaterial::Parameters params;
+                PhysicallyBasedMaterial::Parameters& params = material->parameters();
 				params.metallic = 0.0f;
 				params.roughness = 1.0f;
 				params.baseColor = glm::vec3(0.9f);
 				params.specularF0 = 0.0f;
-                material->build(params);
                 glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), xAxis);
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, -2.5f));
                 m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation * rotation));
@@ -184,12 +181,11 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             // Left plane.
             /*{
                 std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
-                PhysicallyBasedMaterial::Parameters params;
+                PhysicallyBasedMaterial::Parameters &params = material->parameters();
                 params.metallic = 0.0f;
                 params.roughness = 0.8f;
                 params.baseColor = glm::vec3(0.0f, 0.8f, 0.0f);
                 params.specularF0 = 0.5f;
-                material->build(params);
                 glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::half_pi<float>() * 3.0f, zAxis);
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-2.5f, 1.0f, 0.0f));
                 m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation * rotation));
@@ -202,12 +198,11 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             // Sphere 1.
             {
 				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
-                PhysicallyBasedMaterial::Parameters params;
+                PhysicallyBasedMaterial::Parameters& params = material->parameters();;
 				params.metallic = 1.0f;
 				params.roughness = 0.1f;
 				params.baseColor = glm::vec3(0.4f);
 				params.specularF0 = 0.3f;
-                material->build(params);
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-0.9f, -0.5f, -0.8f));
                 m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
             }
@@ -215,12 +210,11 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             // Sphere 2.
             {
 				std::shared_ptr<GlassMaterial> material = std::make_shared<GlassMaterial>();
-                GlassMaterial::Parameters params;
+                GlassMaterial::Parameters& params = material->parameters();
 				params.roughness = 0.1f;
 				params.baseColor = glm::vec3(0.9f, 0.6f, 0.6f);
 				params.ior = 1.57f;
 				params.density = 0.5f;
-                material->build(params);
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(1.2f, -0.5f, 0.8f));
                 m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
             }
@@ -239,12 +233,11 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                 PlaneMeshProvider planeMeshProvider(25, 25);
 
 				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
-                PhysicallyBasedMaterial::Parameters params;
+                PhysicallyBasedMaterial::Parameters& params = material->parameters();;
                 params.metallic = 0.0f;
                 params.roughness = 1.0f;
                 params.baseColor = glm::vec3(0.6f);
                 params.specularF0 = 0.5f;
-                material->build(params); 
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.5f, 0.0f));
                 m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation));
             }
@@ -259,12 +252,11 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             {
                 for (int iSphere = 0; iSphere < 10; ++iSphere) {
 					std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
-                    PhysicallyBasedMaterial::Parameters params;
+                    PhysicallyBasedMaterial::Parameters& params = material->parameters();;
                     params.metallic = 0.0f;
                     params.roughness = roughness;
                     params.baseColor = glm::vec3(1.0f);
                     params.specularF0 = 1.0f;
-                    material->build(params);
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(startX, 0.0f, 0.0f));
                     m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
 
@@ -279,12 +271,11 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
                 startX = (-5.0f * (radius * 2.0f + padding)) + ((radius * 2.0f + padding) * 0.5f);
                 for (int iSphere = 0; iSphere < 10; ++iSphere) {
 					std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
-                    PhysicallyBasedMaterial::Parameters params;
+                    PhysicallyBasedMaterial::Parameters& params = material->parameters();;
                     params.metallic = 1.0f;
                     params.roughness = roughness;
                     params.baseColor = glm::vec3(1.0f);
                     params.specularF0 = 0.5f;
-                    material->build(params);
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(startX, 1.5f, 0.0f));
                     m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
 
@@ -508,9 +499,11 @@ void HeatrayRenderer::generateSequenceVisualizationData(int sequenceIndex, int r
 	}
 }
 
-void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<PhysicallyBasedMaterial> material, PhysicallyBasedMaterial::Parameters& parameters)
+void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<PhysicallyBasedMaterial> material)
 {
 	bool materialChanged = false;
+
+	PhysicallyBasedMaterial::Parameters& parameters = material->parameters();
 
 	if (ImGui::SliderFloat3("BaseColor", parameters.baseColor.data.data, 0.0f, 1.0f)) {
 		materialChanged = true;
@@ -531,9 +524,88 @@ void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<PhysicallyBasedMateri
 		materialChanged = true;
 	}
 
+	enum class TextureType {
+		kBaseColor,
+		kMetallicRoughness,
+		kClearCoat,
+		kClearCoatRoughness
+	} textureType;
+
+	ImGui::Separator();
+	ImGui::Text("Textures");
+	std::string texturePath;
+	{
+		bool textureSelected = false;
+		
+		ImGui::PushID("BaseColor");
+		if (ImGui::Button("Load")) {
+			textureSelected = true;
+			textureType = TextureType::kBaseColor;
+		}
+		ImGui::PopID();
+		ImGui::SameLine();
+		ImGui::Text("BaseColor");
+
+		ImGui::PushID("MetallicRoughness");
+		if (ImGui::Button("Load")) {
+			textureSelected = true;
+			textureType = TextureType::kMetallicRoughness;
+		}
+		ImGui::PopID();
+		ImGui::SameLine();
+		ImGui::Text("MetallicRoughness");
+
+		ImGui::PushID("ClearCoat");
+		if (ImGui::Button("Load")) {
+			textureSelected = true;
+			textureType = TextureType::kClearCoat;
+		}
+		ImGui::PopID();
+		ImGui::SameLine();
+		ImGui::Text("ClearCoat");
+
+		ImGui::PushID("ClearCoatRoughness");
+		if (ImGui::Button("Load")) {
+			textureSelected = true;
+			textureType = TextureType::kClearCoatRoughness;
+		}
+		ImGui::PopID();
+		ImGui::SameLine();
+		ImGui::Text("ClearCoatRoughness");
+
+		if (textureSelected) {
+			std::vector<std::string> filenames = util::OpenFileDialog();
+
+			if (filenames.size() > 0) {
+				texturePath = filenames[0];
+				materialChanged = true;
+			}
+		}
+	}
+
 	if (materialChanged) {
-		m_renderer.runOpenRLTask([this, material, &parameters]() {
-			material->modify(parameters);
+		m_renderer.runOpenRLTask([this, material, texturePath, textureType]() {
+			if (texturePath.empty() == false) {
+				switch (textureType) {
+					case TextureType::kBaseColor:
+						material->parameters().baseColorTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, true));
+						break;
+					case TextureType::kMetallicRoughness:
+						material->parameters().metallicRoughnessTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, false));
+						break;
+					case TextureType::kClearCoat:
+						material->parameters().clearCoatTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, false));
+						break;
+					case TextureType::kClearCoatRoughness:
+						material->parameters().clearCoatRoughnessTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, false));
+						break;
+					default:
+						break;
+				}
+				
+			}
+
+			material->modify();
 			resetRenderer();
 		});
 	}
@@ -698,11 +770,11 @@ bool HeatrayRenderer::renderUI()
 					PlaneMeshProvider planeMeshProvider(planeSize, planeSize);
 
 					std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
-					m_groundPlane.materialParams.metallic = 0.0f;
-					m_groundPlane.materialParams.roughness = 0.9f;
-					m_groundPlane.materialParams.baseColor = glm::vec3(0.9f);
-					m_groundPlane.materialParams.specularF0 = 0.2f;
-					material->build(m_groundPlane.materialParams);
+					PhysicallyBasedMaterial::Parameters& params = material->parameters();
+					params.metallic = 0.0f;
+					params.roughness = 0.9f;
+					params.baseColor = glm::vec3(0.9f);
+					params.specularF0 = 0.2f;
 					glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_sceneAABB.min.y, 0.0f));
 					m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation));
 
@@ -717,7 +789,7 @@ bool HeatrayRenderer::renderUI()
 
 		if (m_groundPlane.mesh) {
 			ImGui::Text("Ground Material");
-			renderMaterialEditor(m_groundPlane.material, m_groundPlane.materialParams);
+			renderMaterialEditor(m_groundPlane.material);
 		}
     }
     if (ImGui::CollapsingHeader("Camera options")) {
@@ -872,7 +944,7 @@ bool HeatrayRenderer::renderUI()
 
 	if (m_editableMaterialScene.active) {
 		ImGui::Begin("PBR Material");
-		renderMaterialEditor(m_editableMaterialScene.material, m_editableMaterialScene.materialParams);
+		renderMaterialEditor(m_editableMaterialScene.material);
 		ImGui::End();
 	}
 

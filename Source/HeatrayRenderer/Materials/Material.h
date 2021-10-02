@@ -18,6 +18,10 @@ public:
 
     openrl::Program& program() { return m_program; }
     openrl::Buffer& uniformBlock() { return m_constants; }
+
+	virtual void build() = 0;
+	virtual void rebuild() = 0;
+	virtual void modify() = 0;
 protected:
     static constexpr char const * m_vertexShader = "positionNormal.vert.rlsl";
 

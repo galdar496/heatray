@@ -64,7 +64,7 @@ private:
     void resetRenderer();
     void saveScreenshot();
 
-	void renderMaterialEditor(std::shared_ptr<PhysicallyBasedMaterial> material, PhysicallyBasedMaterial::Parameters& parameters);
+	void renderMaterialEditor(std::shared_ptr<PhysicallyBasedMaterial> material);
 
 	struct PostProcessingParams {
 		bool tonemapping_enabled = false;
@@ -226,14 +226,12 @@ private:
 				material.reset();
 				mesh = nullptr;
 				meshIndex = ~0;
-				materialParams = PhysicallyBasedMaterial::Parameters();
 			}
 		}
 
 		RLMesh* mesh = nullptr;
 		std::shared_ptr<PhysicallyBasedMaterial> material = nullptr;
 		size_t meshIndex = ~0;
-		PhysicallyBasedMaterial::Parameters materialParams;
 	} m_groundPlane;
 
 	bool m_cameraUpdated = false;
@@ -241,7 +239,6 @@ private:
 
 	struct EditableMaterialScene {
 		std::shared_ptr<PhysicallyBasedMaterial> material = nullptr;
-		PhysicallyBasedMaterial::Parameters materialParams;
 		bool active = false;
 	} m_editableMaterialScene;
 };

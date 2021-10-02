@@ -14,7 +14,7 @@
 struct ShaderParams {
 	// RLtextures need to come first, since they require 8 byte alignment.
 	RLtexture baseColorTexture;
-	RLtexture metallicRoughnessTexture; // R: metallic, G: roughness
+	RLtexture metallicRoughnessTexture; // B: metallic, G: roughness
 	RLtexture emissiveTexture;
 	RLtexture normalmap;
 	RLtexture clearCoatTexture;
@@ -30,12 +30,12 @@ struct ShaderParams {
 	float clearCoatRoughnessAlpha; ///< GGX alpha value (roughness^2).
 };
 
-void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& params)
+void PhysicallyBasedMaterial::build()
 {    
     // Load the parameters into the uniform block buffer.
 	assert(m_constants.valid() == false);
 	m_constants.setTarget(RL_UNIFORM_BLOCK_BUFFER);
-	modify(params);
+	modify();
     assert(m_constants.valid());
 
 	std::stringstream shaderPrefix;
@@ -44,32 +44,32 @@ void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& p
 
 	// Add shader defines based on detected features.
 	{
-		if (params.baseColorTexture) {
+		if (m_params.baseColorTexture || m_params.forceEnableAllTextures) {
 			hasTextures = true;
 			shaderPrefix << "#define HAS_BASE_COLOR_TEXTURE\n";
 		}
-		if (params.metallicRoughnessTexture) {
+		if (m_params.metallicRoughnessTexture || m_params.forceEnableAllTextures) {
 			hasTextures = true;
 			shaderPrefix << "#define HAS_METALLIC_ROUGHNESS_TEXTURE\n";
 		}
-		if (params.emissiveTexture) {
+		if (m_params.emissiveTexture) {
 			hasTextures = true;
 			shaderPrefix << "#define HAS_EMISSIVE_TEXTURE\n";
 		}
-		if (params.normalmap) {
+		if (m_params.normalmap) {
 			hasTextures = true;
 			hasNormalmap = true;
 			shaderPrefix << "#define HAS_NORMALMAP\n";
 		}
-		if (params.clearCoatTexture) {
+		if (m_params.clearCoatTexture || m_params.forceEnableAllTextures) {
 			hasTextures = true;
 			shaderPrefix << "#define HAS_CLEARCOAT_TEXTURE\n";
 		}
-		if (params.clearCoatRoughnessTexture) {
+		if (m_params.clearCoatRoughnessTexture || m_params.forceEnableAllTextures) {
 			hasTextures = true;
 			shaderPrefix << "#define HAS_CLEARCOAT_ROUGHNESS_TEXTURE\n";
 		}
-		if (params.clearCoatNormalmap) {
+		if (m_params.clearCoatNormalmap) {
 			hasTextures = true;
 			hasNormalmap = true;
 			shaderPrefix << "#define HAS_CLEARCOAT_NORMALMAP\n";
@@ -98,7 +98,15 @@ void PhysicallyBasedMaterial::build(const PhysicallyBasedMaterial::Parameters& p
     // This is because there is no RLprimitive at the material level to properly bind.
 }
 
-void PhysicallyBasedMaterial::modify(const PhysicallyBasedMaterial::Parameters& params)
+void PhysicallyBasedMaterial::rebuild()
+{
+	m_program.destroy();
+	m_constants.destroy();
+
+	build();
+}
+
+void PhysicallyBasedMaterial::modify()
 {
 	// Convert the parameters into what the shader expects and compute some new values
 	// based on the parameters.  
@@ -106,51 +114,51 @@ void PhysicallyBasedMaterial::modify(const PhysicallyBasedMaterial::Parameters& 
 
 	constexpr float kMinRoughness = 0.01f; // Too low of a roughness will force a dirac delta response which will cause math errors in the shader code.
 
-	shaderParams.baseColor = glm::saturate(params.baseColor);
-	shaderParams.metallic = glm::saturate<float, glm::defaultp>(params.metallic);
-	shaderParams.roughness = glm::max(glm::saturate<float, glm::defaultp>(params.roughness), kMinRoughness);
-	shaderParams.specularF0 = params.specularF0;
+	shaderParams.baseColor = glm::saturate(m_params.baseColor);
+	shaderParams.metallic = glm::saturate<float, glm::defaultp>(m_params.metallic);
+	shaderParams.roughness = glm::max(glm::saturate<float, glm::defaultp>(m_params.roughness), kMinRoughness);
+	shaderParams.specularF0 = m_params.specularF0;
 	shaderParams.roughnessAlpha = shaderParams.roughness * shaderParams.roughness;
-	shaderParams.clearCoat = params.clearCoat;
-	shaderParams.clearCoatRoughness = glm::max(glm::saturate<float, glm::defaultp>(params.clearCoatRoughness), kMinRoughness);
+	shaderParams.clearCoat = m_params.clearCoat;
+	shaderParams.clearCoatRoughness = glm::max(glm::saturate<float, glm::defaultp>(m_params.clearCoatRoughness), kMinRoughness);
 	shaderParams.clearCoatRoughnessAlpha = shaderParams.clearCoatRoughness * shaderParams.clearCoatRoughness;
 
-	if (params.baseColorTexture) {
-		shaderParams.baseColorTexture = params.baseColorTexture->texture();
+	if (m_params.baseColorTexture) {
+		shaderParams.baseColorTexture = m_params.baseColorTexture->texture();
 	}
 	else {
 		shaderParams.baseColorTexture = openrl::getDummyTexture().texture();
 	}
-	if (params.metallicRoughnessTexture) {
-		shaderParams.metallicRoughnessTexture = params.metallicRoughnessTexture->texture();
+	if (m_params.metallicRoughnessTexture) {
+		shaderParams.metallicRoughnessTexture = m_params.metallicRoughnessTexture->texture();
 	}
 	else {
 		shaderParams.metallicRoughnessTexture = openrl::getDummyTexture().texture();
 	}
-	if (params.emissiveTexture) {
-		shaderParams.emissiveTexture = params.emissiveTexture->texture();
+	if (m_params.emissiveTexture) {
+		shaderParams.emissiveTexture = m_params.emissiveTexture->texture();
 	} else {
 		shaderParams.emissiveTexture = openrl::getDummyTexture().texture();
 	}
-	if (params.normalmap) {
-		shaderParams.normalmap = params.normalmap->texture();
+	if (m_params.normalmap) {
+		shaderParams.normalmap = m_params.normalmap->texture();
 	} else {
 		shaderParams.normalmap = openrl::getDummyTexture().texture();
 	}
-	if (params.clearCoatTexture) {
-		shaderParams.clearCoatTexture = params.clearCoatTexture->texture();
+	if (m_params.clearCoatTexture) {
+		shaderParams.clearCoatTexture = m_params.clearCoatTexture->texture();
 	}
 	else {
 		shaderParams.clearCoatTexture = openrl::getDummyTexture().texture();
 	}
-	if (params.clearCoatRoughnessTexture) {
-		shaderParams.clearCoatRoughnessTexture = params.clearCoatRoughnessTexture->texture();
+	if (m_params.clearCoatRoughnessTexture) {
+		shaderParams.clearCoatRoughnessTexture = m_params.clearCoatRoughnessTexture->texture();
 	}
 	else {
 		shaderParams.clearCoatRoughnessTexture = openrl::getDummyTexture().texture();
 	}
-	if (params.clearCoatNormalmap) {
-		shaderParams.clearCoatNormalmap = params.clearCoatNormalmap->texture();
+	if (m_params.clearCoatNormalmap) {
+		shaderParams.clearCoatNormalmap = m_params.clearCoatNormalmap->texture();
 	}
 	else {
 		shaderParams.clearCoatNormalmap = openrl::getDummyTexture().texture();

@@ -12,7 +12,7 @@
 #include <glm/glm/vec3.hpp>
 #include <memory>
 
-class PhysicallyBasedMaterial : public Material
+class PhysicallyBasedMaterial final : public Material
 {
 public:
     PhysicallyBasedMaterial() = default;
@@ -32,11 +32,18 @@ public:
         float specularF0 = 0.5f;                ///< [0-1]. Specular value at Fresnel of 0 degrees.
 		float clearCoat = 0.0f;                 ///< [0-1]. Controls the clear coat scaling power. 
 		float clearCoatRoughness = 0.0f;        ///< [0-1] such that 0 == completely smooth and 1 == completely rough.
+
+		bool forceEnableAllTextures = false;    ///< If true, all shader texture options are enabled even if no texture is present.
     };
 
-    void build(const Parameters& params);
-	void modify(const Parameters& params);
+    void build() override;
+	void rebuild() override;
+	void modify() override;
+
+	Parameters& parameters() { return m_params;  }
 
 private:
     static constexpr char const * m_shader = "physicallyBased.rlsl"; ///< Shader file with corresponding material code.
+
+	Parameters m_params;
 };

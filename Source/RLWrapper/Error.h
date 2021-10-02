@@ -8,8 +8,11 @@
 
 #pragma once
 
+#include <Utility/Log.h>
+
 #include <OpenRL/rl.h>
-#include <sstream>
+
+#include <assert.h>
 
 #define checkRLErrors() openrl::checkError(__FILE__, __LINE__)
 
@@ -33,11 +36,10 @@ inline void checkError(const char* filename, int lineNumber)
 
     if (errorID != RL_NO_ERROR) {
         // An OpenRL error has occured, report it to the user.
-        std::stringstream stream;
-        stream << filename << " (" << lineNumber << ") - An OpenRL error occured: 0x" << std::hex << errorID;
+		LOG_ERROR("%s (%d) - An OpenRL error occured: 0x%x", filename, lineNumber, errorID);
 
-        // Throw an unhandled exception to stop the system.
-        throw std::runtime_error(stream.str().c_str());
+        // Stop the system.
+		assert(0);
     }
 }
 

@@ -24,8 +24,14 @@ public:
         float density = 0.05f;                  ///< Density [0-1] which controls how much light gets absorbed as it moves through this surface.
     };
 
-    void build(const Parameters& params);
+	void build() override;
+	void rebuild() override;
+	void modify() override;
+
+	Parameters& parameters() { return m_params; }
 
 private:
     static constexpr char const* m_shader = "glass.rlsl"; ///< Shader file with corresponding material code.
+
+	Parameters m_params;
 };

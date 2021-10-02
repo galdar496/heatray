@@ -9,6 +9,11 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>
 {
     m_materials = std::move(materials);
 
+	// Build the materials.
+	for (auto& material : m_materials) {
+		material->build();
+	}
+
     size_t vertexBufferCount = meshProvider->GetVertexBufferCount();
     for (size_t ii = 0; ii < vertexBufferCount; ++ii) {
         openrl::Buffer buffer;

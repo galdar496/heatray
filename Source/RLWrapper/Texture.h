@@ -248,8 +248,8 @@ inline Texture getDummyTexture()
     if (!dummyIsInitialized) {
         Texture::Descriptor desc;
         desc.width = desc.height = 1;
-        float purplePixel[4] = {1.f, 1.f, 1.f, 1.f};
-        dummyTexture.create(purplePixel, desc, Texture::Sampler(), false);
+        float whitePixel[4] = {1.f, 1.f, 1.f, 1.f};
+        dummyTexture.create(whitePixel, desc, Texture::Sampler(), false);
 		dummyIsInitialized = true;
     }
 

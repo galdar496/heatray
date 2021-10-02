@@ -245,7 +245,8 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
 
 void AssimpMeshProvider::ProcessGlassMaterial(aiMaterial const* material)
 {
-    GlassMaterial::Parameters params;
+	std::shared_ptr<GlassMaterial> glassMaterial = std::make_shared<GlassMaterial>();
+	GlassMaterial::Parameters& params = glassMaterial->parameters();
     params.baseColor = { 1.0f, 1.0f, 1.0f };
     params.density = 0.05f;
     params.ior = 1.33f;
@@ -258,8 +259,6 @@ void AssimpMeshProvider::ProcessGlassMaterial(aiMaterial const* material)
 	material->Get(AI_MATKEY_BASE_COLOR, color);
     params.baseColor = glm::vec3(color.r, color.g, color.b);
 
-	std::shared_ptr<GlassMaterial> glassMaterial = std::make_shared<GlassMaterial>();
-    glassMaterial->build(params);
     m_materials.push_back(glassMaterial);
 }
 
@@ -279,7 +278,8 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
 		}
 	}
 
-    PhysicallyBasedMaterial::Parameters params;
+	std::shared_ptr<PhysicallyBasedMaterial> pbrMaterial = std::make_shared<PhysicallyBasedMaterial>();
+	PhysicallyBasedMaterial::Parameters& params = pbrMaterial->parameters();
 
     params.metallic = 0.0f;
     params.roughness = 1.0f;
@@ -345,8 +345,6 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
 		params.clearCoatNormalmap = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, false));
 	}
 
-	std::shared_ptr<PhysicallyBasedMaterial> pbrMaterial = std::make_shared<PhysicallyBasedMaterial>();
-    pbrMaterial->build(params);
     m_materials.push_back(pbrMaterial);
 }
 
