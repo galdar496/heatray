@@ -33,10 +33,10 @@ struct ShaderParams {
 void PhysicallyBasedMaterial::build()
 {    
     // Load the parameters into the uniform block buffer.
-	assert(m_constants.valid() == false);
-	m_constants.setTarget(RL_UNIFORM_BLOCK_BUFFER);
+	assert(m_constants == nullptr);
+	m_constants = openrl::Buffer::create(RL_UNIFORM_BLOCK_BUFFER, nullptr, sizeof(ShaderParams), "PhysicallyBased uniform block");
 	modify();
-    assert(m_constants.valid());
+    assert(m_constants->valid());
 
 	std::stringstream shaderPrefix;
 	bool hasTextures = false;
@@ -92,7 +92,7 @@ void PhysicallyBasedMaterial::build()
     }
 
 	LOG_INFO("Building shader: %s with flags: %s", m_shader, shaderPrefix.str().c_str());
-    m_program = util::buildShader(vertexShader, m_shader, "PhysicallyBased", shaderPrefix.str());
+    m_program = util::buildProgram(vertexShader, m_shader, "PhysicallyBased", shaderPrefix.str());
 
     // NOTE: the association of the program and the uniform block needs to happen in the calling code.
     // This is because there is no RLprimitive at the material level to properly bind.
@@ -100,8 +100,8 @@ void PhysicallyBasedMaterial::build()
 
 void PhysicallyBasedMaterial::rebuild()
 {
-	m_program.destroy();
-	m_constants.destroy();
+	m_program.reset();
+	m_constants.reset();
 
 	build();
 }
@@ -127,42 +127,42 @@ void PhysicallyBasedMaterial::modify()
 		shaderParams.baseColorTexture = m_params.baseColorTexture->texture();
 	}
 	else {
-		shaderParams.baseColorTexture = openrl::getDummyTexture().texture();
+		shaderParams.baseColorTexture = openrl::Texture::getDummyTexture()->texture();
 	}
 	if (m_params.metallicRoughnessTexture) {
 		shaderParams.metallicRoughnessTexture = m_params.metallicRoughnessTexture->texture();
 	}
 	else {
-		shaderParams.metallicRoughnessTexture = openrl::getDummyTexture().texture();
+		shaderParams.metallicRoughnessTexture = openrl::Texture::getDummyTexture()->texture();
 	}
 	if (m_params.emissiveTexture) {
 		shaderParams.emissiveTexture = m_params.emissiveTexture->texture();
 	} else {
-		shaderParams.emissiveTexture = openrl::getDummyTexture().texture();
+		shaderParams.emissiveTexture = openrl::Texture::getDummyTexture()->texture();
 	}
 	if (m_params.normalmap) {
 		shaderParams.normalmap = m_params.normalmap->texture();
 	} else {
-		shaderParams.normalmap = openrl::getDummyTexture().texture();
+		shaderParams.normalmap = openrl::Texture::getDummyTexture()->texture();
 	}
 	if (m_params.clearCoatTexture) {
 		shaderParams.clearCoatTexture = m_params.clearCoatTexture->texture();
 	}
 	else {
-		shaderParams.clearCoatTexture = openrl::getDummyTexture().texture();
+		shaderParams.clearCoatTexture = openrl::Texture::getDummyTexture()->texture();
 	}
 	if (m_params.clearCoatRoughnessTexture) {
 		shaderParams.clearCoatRoughnessTexture = m_params.clearCoatRoughnessTexture->texture();
 	}
 	else {
-		shaderParams.clearCoatRoughnessTexture = openrl::getDummyTexture().texture();
+		shaderParams.clearCoatRoughnessTexture = openrl::Texture::getDummyTexture()->texture();
 	}
 	if (m_params.clearCoatNormalmap) {
 		shaderParams.clearCoatNormalmap = m_params.clearCoatNormalmap->texture();
 	}
 	else {
-		shaderParams.clearCoatNormalmap = openrl::getDummyTexture().texture();
+		shaderParams.clearCoatNormalmap = openrl::Texture::getDummyTexture()->texture();
 	}
 
-	m_constants.load(&shaderParams, sizeof(ShaderParams), "PhysicallyBased uniform block");
+	m_constants->modify(&shaderParams, sizeof(ShaderParams));
 }

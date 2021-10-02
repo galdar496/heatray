@@ -12,7 +12,7 @@
 
 namespace util {
 
-openrl::Texture loadTexture(const char* path, bool generateMips, bool convertToLinear)
+	std::shared_ptr<openrl::Texture> loadTexture(const char* path, bool generateMips, bool convertToLinear)
 {
 	LOG_INFO("Loading texture %s", path);
     openrl::Texture::Sampler sampler;
@@ -21,7 +21,7 @@ openrl::Texture loadTexture(const char* path, bool generateMips, bool convertToL
         sampler.minFilter = RL_NEAREST_MIPMAP_NEAREST;
     }
 
-    openrl::Texture texture;
+	std::shared_ptr<openrl::Texture> texture = nullptr;
 
     if (std::filesystem::path(path).extension() == ".exr") {
         FREE_IMAGE_FORMAT format = FreeImage_GetFileType(path, 0);
@@ -29,10 +29,9 @@ openrl::Texture loadTexture(const char* path, bool generateMips, bool convertToL
 
         // Get the raw image data from FreeImage.
         FIBITMAP* imageData = FreeImage_Load(format, path);
-        if (!imageData)
-        {
+        if (!imageData) {
 			LOG_ERROR("Unable to load image %s", path);
-            return openrl::Texture();
+            return nullptr;
         }
 
         FREE_IMAGE_TYPE type = FreeImage_GetImageType(imageData);
@@ -64,7 +63,7 @@ openrl::Texture loadTexture(const char* path, bool generateMips, bool convertToL
         desc.width          = FreeImage_GetWidth(imageData);
         desc.height         = FreeImage_GetHeight(imageData);
 
-        texture.create(FreeImage_GetBits(imageData), desc, sampler, generateMips);
+		texture = openrl::Texture::create(FreeImage_GetBits(imageData), desc, sampler, generateMips);
         FreeImage_Unload(imageData);
     } else {
         int width, height, channelCount;
@@ -132,13 +131,11 @@ openrl::Texture loadTexture(const char* path, bool generateMips, bool convertToL
         desc.internalFormat = desc.format;
         desc.dataType = isHDR ? RL_FLOAT : RL_UNSIGNED_BYTE;
 
-        texture.create(pixels, desc, sampler, generateMips);
+		texture = openrl::Texture::create(pixels, desc, sampler, generateMips);
         free(pixels);
     }
     
-    assert(texture.valid());
-
-    // Copy elision should turn this into a move.
+    assert(texture->valid());
     return texture;
 }
 

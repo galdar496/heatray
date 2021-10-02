@@ -309,40 +309,40 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
     aiString fileTexturePath;
     if (material->GetTexture(AI_MATKEY_BASE_COLOR_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-        params.baseColorTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, true));
+        params.baseColorTexture = util::loadTexture(texturePath.c_str(), true, true);
     } else if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
         material->GetTexture(aiTextureType_DIFFUSE, 0, &fileTexturePath);
         auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-        params.baseColorTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, true));
+        params.baseColorTexture = util::loadTexture(texturePath.c_str(), true, true);
     }
 	if (material->GetTextureCount(aiTextureType_EMISSIVE) > 0) {
 		aiString emissiveTexturePath;
 		material->GetTexture(aiTextureType_EMISSIVE, 0, &emissiveTexturePath);
 		auto texturePath = (fileParent / emissiveTexturePath.C_Str()).string();
-		params.emissiveTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, true));
+		params.emissiveTexture = util::loadTexture(texturePath.c_str(), true, true);
 	}
     aiString fileRoughnessMetallicTexture;
     if (material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &fileRoughnessMetallicTexture) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileRoughnessMetallicTexture.C_Str()).string();
-        params.metallicRoughnessTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, false));
+        params.metallicRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
     }
 	if (material->GetTextureCount(aiTextureType_NORMALS) > 0) {
 		aiString normalTexturePath;
 		material->GetTexture(aiTextureType_NORMALS, 0, &normalTexturePath);
 		auto texturePath = (fileParent / normalTexturePath.C_Str()).string();
-		params.normalmap = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, false));
+		params.normalmap = util::loadTexture(texturePath.c_str(), true, false);
 	}
 	if (material->GetTexture(AI_MATKEY_CLEARCOAT_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
 		auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-		params.clearCoatTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, false));
+		params.clearCoatTexture = util::loadTexture(texturePath.c_str(), true, false);
 	}
 	if (material->GetTexture(AI_MATKEY_CLEARCOAT_ROUGHNESS_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
 		auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-		params.clearCoatRoughnessTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, false));
+		params.clearCoatRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
 	}
 	if (material->GetTexture(AI_MATKEY_CLEARCOAT_NORMAL_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
 		auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-		params.clearCoatNormalmap = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, false));
+		params.clearCoatNormalmap = util::loadTexture(texturePath.c_str(), true, false);
 	}
 
     m_materials.push_back(pbrMaterial);

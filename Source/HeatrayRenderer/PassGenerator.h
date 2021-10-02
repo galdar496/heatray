@@ -21,6 +21,7 @@
 #include <OpenRL/OpenRL.h>
 #include <any>
 #include <functional>
+#include <memory>
 #include <queue>
 #include <thread>
 #include <vector>
@@ -153,20 +154,26 @@ private:
         
     OpenRLContext m_rlContext = nullptr;
 
-    openrl::Framebuffer m_fbo;          ///< Framebuffer object used for rendering to.
-    openrl::Texture     m_fboTexture;   ///< Color buffer attached to the main framebuffer object.
+    std::shared_ptr<openrl::Framebuffer> m_fbo = nullptr;          ///< Framebuffer object used for rendering to.
+	std::shared_ptr <openrl::Texture>    m_fboTexture = nullptr;   ///< Color buffer attached to the main framebuffer object.
 
-    openrl::Program m_frameProgram; ///< Current frame program used for generating primary rays.
+	std::shared_ptr <openrl::Program> m_frameProgram = nullptr; ///< Current frame program used for generating primary rays.
 
     openrl::PixelPackBuffer m_resultPixels;
 
 	struct EnvironmentLight {
-		openrl::Primitive primitive;
-		openrl::Program program;
-		openrl::Texture texture;
+		std::shared_ptr<openrl::Primitive> primitive = nullptr;
+		std::shared_ptr<openrl::Program> program = nullptr;
+		std::shared_ptr<openrl::Texture> texture = nullptr;
 		float exposure_compensation = 0.0f;
 		float thetaRotation = 0.0f;
 		std::string map_path;
+
+		void reset() {
+			primitive.reset();
+			program.reset();
+			texture.reset();
+		}
 	} m_environmentLight;
 
     PassCompleteCallback m_passCompleteCallback;
@@ -201,14 +208,14 @@ private:
 
     glm::ivec2 m_currentBlockPixel = glm::ivec2(0, 0);
 
-    openrl::Buffer m_randomSequences;
-    openrl::Texture m_randomSequenceTexture; ///< Series of random sequences stored in a 2D texture. Each row of the texture is a different sequence.
-    openrl::Texture m_apertureSamplesTexture; ///< Randomly generated values to use while sampling the aperture for depth of field.
+	std::shared_ptr < openrl::Buffer>  m_randomSequences = nullptr;
+	std::shared_ptr < openrl::Texture> m_randomSequenceTexture = nullptr; ///< Series of random sequences stored in a 2D texture. Each row of the texture is a different sequence.
+	std::shared_ptr < openrl::Texture> m_apertureSamplesTexture = nullptr; ///< Randomly generated values to use while sampling the aperture for depth of field.
 
     struct GlobalData {
         int maxRayDepth = 5;
         int sampleIndex = 0;
         RLprimitive environmentLight = RL_NULL_PRIMITIVE;
     };
-    openrl::Buffer m_globalData;
+	std::shared_ptr<openrl::Buffer> m_globalData = nullptr;
 };

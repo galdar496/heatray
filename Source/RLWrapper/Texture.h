@@ -12,6 +12,7 @@
 
 #include <OpenRL/rl.h>
 #include <assert.h>
+#include <memory>
 
 namespace openrl {
 
@@ -22,12 +23,6 @@ namespace openrl {
 class Texture
 {
 public:
-
-    Texture() = default;
-    Texture(const Texture& other) = default;
-    Texture& operator=(const Texture& other) = default;
-    ~Texture() = default;
-
     struct Descriptor
     {
         ///< Number of color components.
@@ -58,6 +53,15 @@ public:
         RLenum magFilter = RL_LINEAR;
     };
 
+	Texture(const Texture& other) = default;
+	Texture& operator=(const Texture& other) = default;
+	~Texture() {
+		if (m_texture != RL_NULL_TEXTURE) {
+			RLFunc(rlDeleteTextures(1, &m_texture));
+			m_texture = RL_NULL_TEXTURE;
+		}
+	}
+
     ///
     /// Create a texture with passed-in data.
     ///
@@ -66,33 +70,31 @@ public:
     /// @param sampler Sampler to apply to the texture.
     /// @param generateMips If true, mipmaps will be generated after creating the texture.
     ///
-    /// @return If true, the texture was successfully created.
+    /// @return If non-null, the texture was successfully created.
     ///
-    inline bool create(const void* data, const Descriptor &desc, const Sampler &sampler, bool generateMips = true)
+    static std::shared_ptr<Texture> create(const void* data, const Descriptor& desc, const Sampler& sampler, bool generateMips = true)
     {
-        m_desc = desc;
-        m_sampler = sampler;
+		Texture* texture = new Texture(desc, sampler);
 
-        RLFunc(rlGenTextures(1, &m_texture));
-        RLFunc(rlBindTexture(RL_TEXTURE_2D, m_texture));
+        RLFunc(rlBindTexture(RL_TEXTURE_2D, texture->texture()));
 
-        applySampler();
+		texture->applySampler();
 
         RLFunc(rlTexImage2D(RL_TEXTURE_2D,
 							0,
-							m_desc.internalFormat,
-							m_desc.width,
-							m_desc.height,
+							desc.internalFormat,
+							desc.width,
+							desc.height,
 							0,
-							m_desc.format,
-							m_desc.dataType,
+							desc.format,
+							desc.dataType,
 							data));
         if (generateMips) {
             RLFunc(rlGenerateMipmap(RL_TEXTURE_2D));
         }
         RLFunc(rlBindTexture(RL_TEXTURE_2D, RL_NULL_TEXTURE));
 
-        return true;
+        return std::shared_ptr<Texture>(texture);
     }
 
     ///
@@ -103,45 +105,32 @@ public:
     /// @param sampler Sampler to apply to the texture.
     /// @param generateMips If true, mipmaps will be generated after creating the texture.
     ///
-    /// @return If true, the texture was successfully created.
+    /// @return If non-null, the texture was successfully created.
     ///
-    inline bool create3D(const void* data, const Descriptor& desc, const Sampler& sampler, bool generateMips = true)
+    static std::shared_ptr<Texture> create3D(const void* data, const Descriptor& desc, const Sampler& sampler, bool generateMips = true)
     {
-        m_desc = desc;
-        m_sampler = sampler;
+		Texture* texture = new Texture(desc, sampler);
 
-        RLFunc(rlGenTextures(1, &m_texture));
-        RLFunc(rlBindTexture(RL_TEXTURE_3D, m_texture));
+        RLFunc(rlBindTexture(RL_TEXTURE_3D, texture->texture()));
 
-        applySampler(RL_TEXTURE_3D);
+		texture->applySampler(RL_TEXTURE_3D);
 
         RLFunc(rlTexImage3D(RL_TEXTURE_3D,
 							0,
-							m_desc.internalFormat,
-							m_desc.width,
-							m_desc.height,
-							m_desc.depth,
+							desc.internalFormat,
+							desc.width,
+							desc.height,
+							desc.depth,
 							0,
-							m_desc.format,
-							m_desc.dataType,
+							desc.format,
+							desc.dataType,
 							data));
         if (generateMips) {
             RLFunc(rlGenerateMipmap(RL_TEXTURE_3D));
         }
         RLFunc(rlBindTexture(RL_TEXTURE_3D, RL_NULL_TEXTURE));
 
-        return true;
-    }
-
-    ///
-    /// Destroy this texture.
-    ///
-    inline void destroy()
-    {
-        if (m_texture != RL_NULL_TEXTURE) {
-            RLFunc(rlDeleteTextures(1, &m_texture));
-            m_texture = RL_NULL_TEXTURE;
-        }
+		return std::shared_ptr<Texture>(texture);
     }
 
     ///
@@ -218,7 +207,29 @@ public:
     ///
     inline bool valid() const { return (m_texture != RL_NULL_TEXTURE); }
 
+	static std::shared_ptr<Texture> getDummyTexture()
+	{
+		static bool dummyIsInitialized = false;
+		static std::shared_ptr<Texture> dummyTexture;
+
+		if (!dummyIsInitialized) {
+			Texture::Descriptor desc;
+			desc.width = desc.height = 1;
+			float whitePixel[4] = { 1.f, 1.f, 1.f, 1.f };
+			dummyTexture = Texture::create(whitePixel, desc, Texture::Sampler(), false);
+			dummyIsInitialized = true;
+		}
+
+		return dummyTexture;
+	}
+
 private:
+	explicit Texture(const Descriptor& desc, const Sampler& sampler)
+		: m_desc(desc)
+		, m_sampler(sampler)
+	{
+		RLFunc(rlGenTextures(1, &m_texture));
+	}
 
     ///
     /// Set texture sampling parameters through OpenRL API calls.
@@ -239,22 +250,6 @@ private:
     Descriptor  m_desc;     ///< Descriptor used to create the texture.
     Sampler     m_sampler;  ///< Sampler to use for this texture.
 };
-
-inline Texture getDummyTexture()
-{
-    static bool dummyIsInitialized = false;
-    static Texture dummyTexture;
-
-    if (!dummyIsInitialized) {
-        Texture::Descriptor desc;
-        desc.width = desc.height = 1;
-        float whitePixel[4] = {1.f, 1.f, 1.f, 1.f};
-        dummyTexture.create(whitePixel, desc, Texture::Sampler(), false);
-		dummyIsInitialized = true;
-    }
-
-    return dummyTexture;
-}
 
 } // namespace openrl
 

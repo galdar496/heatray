@@ -27,7 +27,7 @@ class RLMesh
 public:
     RLMesh() = default;
 
-    using SetupSystemBindingsCallback = std::function<void(const openrl::Program&)>;
+    using SetupSystemBindingsCallback = std::function<void(const std::shared_ptr<openrl::Program>)>;
     RLMesh(MeshProvider * meshProvider, std::vector<std::shared_ptr<Material>> materials, SetupSystemBindingsCallback callback, glm::mat4 transform);
     ~RLMesh() = default;
 
@@ -37,11 +37,11 @@ public:
     void destroy();
 
 private:
-    std::vector<openrl::Buffer> m_vertexBuffers;
-    std::vector<openrl::Buffer> m_indexBuffers;
+    std::vector<std::shared_ptr<openrl::Buffer>> m_vertexBuffers;
+    std::vector<std::shared_ptr<openrl::Buffer>> m_indexBuffers;
 
     struct Submesh {
-        openrl::Primitive primitive;
+		std::shared_ptr<openrl::Primitive> primitive = nullptr;
 		size_t elementCount = 0;
 		size_t offset = 0;
 		RLenum mode = 0;

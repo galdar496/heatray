@@ -129,7 +129,7 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
 
     // Setup the buffers to render into.
     {
-        m_fbo.create();
+		m_fbo = openrl::Framebuffer::create();
 
         openrl::Texture::Descriptor desc;
         desc.dataType = RL_FLOAT;
@@ -142,13 +142,13 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
         sampler.minFilter = RL_NEAREST;
         sampler.magFilter = RL_NEAREST;
 
-        m_fboTexture.create(nullptr, desc, sampler, false);
-        m_fbo.addAttachment(m_fboTexture, RL_COLOR_ATTACHMENT0);
+        m_fboTexture = openrl::Texture::create(nullptr, desc, sampler, false);
+        m_fbo->addAttachment(m_fboTexture, RL_COLOR_ATTACHMENT0);
 
-        assert(m_fbo.valid());
+        assert(m_fbo->valid());
 
         // Set this framebuffers as the primary source to render into.
-        m_fbo.bind();
+        m_fbo->bind();
 
         RLint bufferSize = renderWidth * renderHeight * sizeof(float) * openrl::PixelPackBuffer::kNumChannels;
         m_resultPixels.create(bufferSize);
@@ -156,64 +156,59 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
 
     // Load up the environment light primitive. This wil likely move to some future location.
     {
-        openrl::Shader environmentLightShader;
         std::vector<std::string> shaderSource;
         util::loadShaderSourceFile("environmentLight.rlsl", shaderSource);
-        if (!environmentLightShader.createFromMultipleStrings(shaderSource, RL_RAY_SHADER, "Environment Light Shader"))
-        {
+		std::shared_ptr<openrl::Shader> environmentLightShader = openrl::Shader::createFromMultipleStrings(shaderSource, openrl::Shader::ShaderType::kRay, "Environment Light Shader");
+        if (!environmentLightShader) {
             return false;
         }
 
-        openrl::Shader environmentLightVertexShader;
-        shaderSource.clear();
-        util::loadShaderSourceFile("passthrough.rlsl", shaderSource);
-        if (!environmentLightVertexShader.createFromMultipleStrings(shaderSource, RL_VERTEX_SHADER, "Environment Light Vertex Shader"))
-        {
+		shaderSource.clear();
+		util::loadShaderSourceFile("passthrough.rlsl", shaderSource);
+		std::shared_ptr<openrl::Shader> environmentLightVertexShader = openrl::Shader::createFromMultipleStrings(shaderSource, openrl::Shader::ShaderType::kVertex, "Environment Light Vertex Shader");
+        if (!environmentLightVertexShader) {
             return false;
         }
 
-        m_environmentLight.program.create();
-		m_environmentLight.program.attach(environmentLightShader);
-		m_environmentLight.program.attach(environmentLightVertexShader);
-        if (!m_environmentLight.program.link("Environment Light Program"))
-        {
+		m_environmentLight.program = openrl::Program::create();
+		m_environmentLight.program->attach(environmentLightShader, openrl::Shader::ShaderType::kRay);
+		m_environmentLight.program->attach(environmentLightVertexShader, openrl::Shader::ShaderType::kVertex);
+        if (!m_environmentLight.program->link("Environment Light Program")) {
             return false;
         }
 
-		m_environmentLight.primitive.create();
-		m_environmentLight.primitive.attachProgram(m_environmentLight.program);
+		m_environmentLight.primitive = openrl::Primitive::create();
+		m_environmentLight.primitive->attachProgram(m_environmentLight.program);
 		changeEnvironment(m_renderOptions.environment);
     }
 
     {
         // Setup global data buffer for all shaders.
         GlobalData data;
-        data.environmentLight = m_environmentLight.primitive.primitive();
-        m_globalData.load(&data, sizeof(GlobalData), "Global data buffer");
+        data.environmentLight = m_environmentLight.primitive->primitive();
+        m_globalData = openrl::Buffer::create(RL_ARRAY_BUFFER, &data, sizeof(GlobalData), "Global data buffer");
     }
 
     // Load the perspective camera frame shader for generating primary rays.
     {
-        openrl::Shader frameShader;
         std::vector<std::string> shaderSource;
         util::loadShaderSourceFile("perspective.rlsl", shaderSource);
-        if (!frameShader.createFromMultipleStrings(shaderSource, RL_FRAME_SHADER, "Perspective Frame Shader"))
-        {
+		std::shared_ptr<openrl::Shader> frameShader = openrl::Shader::createFromMultipleStrings(shaderSource, openrl::Shader::ShaderType::kFrame, "Perspective Frame Shader");
+        if (!frameShader) {
             return false;
         }
 
-        m_frameProgram.create();
-        m_frameProgram.attach(frameShader);
-        if (!m_frameProgram.link("Perspecive Frame Shader"))
-        {
+		m_frameProgram = openrl::Program::create();
+        m_frameProgram->attach(frameShader, openrl::Shader::ShaderType::kFrame);
+        if (!m_frameProgram->link("Perspecive Frame Shader")) {
             return false;
         }
 
         // Heatray uses the null primitive as the frame primitive.
         RLFunc(rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE));
-        m_frameProgram.bind();
-        m_frameProgram.setUniformBlock(m_frameProgram.getUniformBlockIndex("RandomSequences"), m_randomSequences.buffer());
-        m_frameProgram.setUniformBlock(m_frameProgram.getUniformBlockIndex("Globals"), m_globalData.buffer());
+        m_frameProgram->bind();
+        m_frameProgram->setUniformBlock(m_frameProgram->getUniformBlockIndex("RandomSequences"), m_randomSequences->buffer());
+        m_frameProgram->setUniformBlock(m_frameProgram->getUniformBlockIndex("Globals"), m_globalData->buffer());
     }
 
     return true;
@@ -225,12 +220,10 @@ void PassGenerator::runResizeJob(const RLint newRenderWidth, const RLint newRend
     rlViewport(0, 0, newRenderWidth, newRenderHeight);
 
     // Regenerate the render texture to be the proper size.
-    if (m_fboTexture.valid())
-    {
-        m_fboTexture.resize(newRenderWidth, newRenderHeight);
+    if (m_fboTexture && m_fboTexture->valid()) {
+        m_fboTexture->resize(newRenderWidth, newRenderHeight);
 
-        if (m_resultPixels.mapped())
-        {
+        if (m_resultPixels.mapped()) {
             m_resultPixels.unmapPixelData();
         }
         m_resultPixels.destroy();
@@ -247,41 +240,39 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
 
     // The callback invoked at the end of this function _may_ map the pixel data and not unmap it before 
     // ticking this class again. In this case, unmap the pixel data at this point.
-    if (m_resultPixels.mapped())
-    {
+    if (m_resultPixels.mapped()) {
         m_resultPixels.unmapPixelData();
     }
 
     if ((newOptions.enableInteractiveMode != m_renderOptions.enableInteractiveMode) || 
-        (newOptions.resetInternalState != m_renderOptions.resetInternalState))
-    {
+        (newOptions.resetInternalState != m_renderOptions.resetInternalState)) {
         resetRenderingState(newOptions);
     }
 
     // Update global data for this frame.
     {
-        m_globalData.bind();
-        GlobalData* globalData = m_globalData.mapBuffer<GlobalData>();
+        m_globalData->bind();
+        GlobalData* globalData = m_globalData->mapBuffer<GlobalData>();
         globalData->sampleIndex = m_currentSampleIndex;
-        m_globalData.unmapBuffer(); 
-        m_globalData.unbind(); 
+        m_globalData->unmapBuffer();
+        m_globalData->unbind();
     }
     
     glm::vec2 sensorDimensions(36.0f, 24.0f); // Dimensions of 35mm film.
     // https://en.wikipedia.org/wiki/Angle_of_view#Calculating_a_camera's_angle_of_view
     float fovY = 2.0f * std::atan2(sensorDimensions.y, 2.0f * m_renderOptions.camera.focalLength);
 
-    m_frameProgram.bind();
+    m_frameProgram->bind();
     float fovTan = std::tanf(fovY * 0.5f);
-    m_frameProgram.set1f(m_frameProgram.getUniformLocation("fovTan"), fovTan);
-    m_frameProgram.set1f(m_frameProgram.getUniformLocation("aspectRatio"), m_renderOptions.camera.aspectRatio);
-    m_frameProgram.set1f(m_frameProgram.getUniformLocation("focusDistance"), m_renderOptions.camera.focusDistance); 
-    m_frameProgram.set1f(m_frameProgram.getUniformLocation("apertureRadius"), m_renderOptions.camera.apertureRadius);
-    m_frameProgram.setMatrix4fv(m_frameProgram.getUniformLocation("viewMatrix"), &(m_renderOptions.camera.viewMatrix[0][0]));
-    m_frameProgram.set2iv(m_frameProgram.getUniformLocation("blockSize"), &m_renderOptions.kInteractiveBlockSize.x);
-    m_frameProgram.set2iv(m_frameProgram.getUniformLocation("currentBlockPixel"), &m_currentBlockPixel.x);
-    m_frameProgram.set1i(m_frameProgram.getUniformLocation("interactiveMode"), m_renderOptions.enableInteractiveMode ? 1 : 0);
-    m_frameProgram.setTexture(m_frameProgram.getUniformLocation("apertureSamplesTexture"), m_apertureSamplesTexture);
+    m_frameProgram->set1f(m_frameProgram->getUniformLocation("fovTan"), fovTan);
+    m_frameProgram->set1f(m_frameProgram->getUniformLocation("aspectRatio"), m_renderOptions.camera.aspectRatio);
+    m_frameProgram->set1f(m_frameProgram->getUniformLocation("focusDistance"), m_renderOptions.camera.focusDistance);
+    m_frameProgram->set1f(m_frameProgram->getUniformLocation("apertureRadius"), m_renderOptions.camera.apertureRadius);
+    m_frameProgram->setMatrix4fv(m_frameProgram->getUniformLocation("viewMatrix"), &(m_renderOptions.camera.viewMatrix[0][0]));
+    m_frameProgram->set2iv(m_frameProgram->getUniformLocation("blockSize"), &m_renderOptions.kInteractiveBlockSize.x);
+    m_frameProgram->set2iv(m_frameProgram->getUniformLocation("currentBlockPixel"), &m_currentBlockPixel.x);
+    m_frameProgram->set1i(m_frameProgram->getUniformLocation("interactiveMode"), m_renderOptions.enableInteractiveMode ? 1 : 0);
+    m_frameProgram->setTexture(m_frameProgram->getUniformLocation("apertureSamplesTexture"), m_apertureSamplesTexture);
 
     if (m_renderOptions.enableInteractiveMode) {
         m_currentBlockPixel.x += 1;
@@ -299,7 +290,7 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
     }
 
     RLFunc(rlRenderFrame());
-    m_resultPixels.setPixelData(m_fboTexture);
+    m_resultPixels.setPixelData(*m_fboTexture);
 
     // Let the client know that a frame has been completed.
     float passTime = timer.stop();
@@ -309,27 +300,28 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
 void PassGenerator::runLoadSceneJob()
 {
     assert(m_loadSceneCallback);
-    m_loadSceneCallback([this](const openrl::Program& program)
+    m_loadSceneCallback([this](const std::shared_ptr<openrl::Program> program)
         {
-            RLint sequenceIndex = program.getUniformBlockIndex("RandomSequences");
+            RLint sequenceIndex = program->getUniformBlockIndex("RandomSequences");
             if (sequenceIndex != -1) {
-                program.setUniformBlock(sequenceIndex, m_randomSequences.buffer());
+                program->setUniformBlock(sequenceIndex, m_randomSequences->buffer());
             }
 
-            RLint globalsIndex = program.getUniformBlockIndex("Globals");
+            RLint globalsIndex = program->getUniformBlockIndex("Globals");
             if (globalsIndex != -1) {
-                program.setUniformBlock(globalsIndex, m_globalData.buffer());
+                program->setUniformBlock(globalsIndex, m_globalData->buffer());
             }
         });
 }
 
 void PassGenerator::runDestroyJob()
 {
-    m_fbo.destroy();
-    m_fboTexture.destroy();
-    m_globalData.destroy();
-    m_randomSequences.destroy();
-    m_randomSequenceTexture.destroy();
+    m_fbo.reset();
+    m_fboTexture.reset();
+    m_globalData.reset();
+    m_randomSequences.reset();
+    m_randomSequenceTexture.reset();
+	m_environmentLight.reset();
 
     OpenRLDestroyContext(m_rlContext);
 }
@@ -356,11 +348,11 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
     }
 
     if (m_renderOptions.maxRayDepth != newOptions.maxRayDepth) {
-        m_globalData.bind();
-        GlobalData* globalData = m_globalData.mapBuffer<GlobalData>();
+        m_globalData->bind();
+        GlobalData* globalData = m_globalData->mapBuffer<GlobalData>();
         globalData->maxRayDepth = newOptions.maxRayDepth;
-        m_globalData.unmapBuffer();
-        m_globalData.unbind();
+        m_globalData->unmapBuffer();
+        m_globalData->unbind();
     }
 
     // Finally get all of the new render options.
@@ -372,7 +364,6 @@ void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
 {
 	if (newEnv.map != m_environmentLight.map_path) {
 		m_environmentLight.map_path = newEnv.map;
-		m_environmentLight.texture.destroy();
 		if (newEnv.map != "white furnace test") {
 			std::string fullPath;
 			if (newEnv.builtInMap) {
@@ -400,19 +391,19 @@ void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
 			sampler.wrapT = RL_CLAMP_TO_EDGE;
 
 			glm::vec3 data = glm::vec3(0.8f);
-			m_environmentLight.texture.create(&data.x, desc, sampler, false);
+			m_environmentLight.texture->create(&data.x, desc, sampler, false);
 		}
 	}
 
 	m_environmentLight.exposure_compensation = newEnv.exposureCompensation;
 	m_environmentLight.thetaRotation = newEnv.thetaRotation;
 
-	m_environmentLight.primitive.bind();
-	m_environmentLight.program.bind();
-	m_environmentLight.program.setTexture(m_environmentLight.program.getUniformLocation("environmentTexture"), m_environmentLight.texture);
-	m_environmentLight.program.set1f(m_environmentLight.program.getUniformLocation("exposureCompensation"), std::powf(2.0f, m_environmentLight.exposure_compensation));
-	m_environmentLight.program.set1f(m_environmentLight.program.getUniformLocation("thetaRotation"), m_environmentLight.thetaRotation);
-	m_environmentLight.primitive.unbind();
+	m_environmentLight.primitive->bind();
+	m_environmentLight.program->bind();
+	m_environmentLight.program->setTexture(m_environmentLight.program->getUniformLocation("environmentTexture"), m_environmentLight.texture);
+	m_environmentLight.program->set1f(m_environmentLight.program->getUniformLocation("exposureCompensation"), std::powf(2.0f, m_environmentLight.exposure_compensation));
+	m_environmentLight.program->set1f(m_environmentLight.program->getUniformLocation("thetaRotation"), m_environmentLight.thetaRotation);
+	m_environmentLight.primitive->unbind();
 }
 
 void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptions::SampleMode sampleMode, RenderOptions::BokehShape bokehShape)
@@ -425,14 +416,13 @@ void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptio
 
     // If we already have previous sequence data, get rid of it.
     // Note that we don't delete the buffer however in order to keep all shader bindings valid.
-    if (m_randomSequences.valid()) {
-        m_randomSequenceTexture.destroy();
+    if (m_randomSequences && m_randomSequences->valid()) {
+        m_randomSequenceTexture.reset();
     }
     else {
 		// This is the first time this function is being called.
-        m_randomSequences.setTarget(RL_UNIFORM_BLOCK_BUFFER);
         SequenceBlockData dummyData;
-        m_randomSequences.load(&dummyData, sizeof(SequenceBlockData), "Random sequences uniform block");
+		m_randomSequences = openrl::Buffer::create(RL_UNIFORM_BLOCK_BUFFER, &dummyData, sizeof(SequenceBlockData), "Random sequences uniform block");
     }
 
     // Note that each sequence is a 1D texture of values. Since OpenRL doesn't support 1D textures,
@@ -475,15 +465,15 @@ void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptio
     // The sequence data will be stored in a 2D texture that has the following layout:
     //      width  - number of samples in the sequence
     //      height -kNumRandomSequences -- therefore each row is a unique set of sequence data.
-    m_randomSequenceTexture.create(&values[0], desc, sampler, false);
+    m_randomSequenceTexture = openrl::Texture::create(&values[0], desc, sampler, false);
 
-    m_randomSequences.bind();
-    SequenceBlockData* sequences = m_randomSequences.mapBuffer<SequenceBlockData>(RL_WRITE_ONLY);
-    sequences->randomNumbers = m_randomSequenceTexture.texture();
+    m_randomSequences->bind();
+    SequenceBlockData* sequences = m_randomSequences->mapBuffer<SequenceBlockData>(RL_WRITE_ONLY);
+    sequences->randomNumbers = m_randomSequenceTexture->texture();
     sequences->uvStep = 1.0f / static_cast<RLfloat>(sampleCount);
     sequences->uvSequenceStep = 1.0f / static_cast<RLfloat>(kNumRandomSequences);
-    m_randomSequences.unmapBuffer();
-    m_randomSequences.unbind();
+    m_randomSequences->unmapBuffer();
+    m_randomSequences->unbind();
 
     // Now generate the data random sequence data for aperture sampling for depth of field.
     {
@@ -507,11 +497,7 @@ void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptio
             }
         }
 
-        if (m_apertureSamplesTexture.valid()) {
-            m_apertureSamplesTexture.destroy();
-        }
-
-        m_apertureSamplesTexture.create(&values[0], desc, sampler, false);
+        m_apertureSamplesTexture = openrl::Texture::create(&values[0], desc, sampler, false);
     }
  }
 

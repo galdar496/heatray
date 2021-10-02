@@ -13,6 +13,7 @@
 
 #include <OpenRL/rl.h>
 #include <assert.h>
+#include <memory>
 #include <string>
 
 namespace openrl {
@@ -20,35 +21,29 @@ namespace openrl {
 class Framebuffer
 {
 public:
-
-    Framebuffer() = default;
+	~Framebuffer() {
+		if (m_fbo != RL_NULL_FRAMEBUFFER) {
+			RLFunc(rlDeleteFramebuffers(1, &m_fbo));
+			m_fbo = RL_NULL_FRAMEBUFFER;
+		}
+	}
     Framebuffer(const Framebuffer& other) = default;
     Framebuffer& operator=(const Framebuffer& other) = default;
-    ~Framebuffer() = default;
 
-    inline void create()
-    {
-        if (m_fbo == RL_NULL_FRAMEBUFFER) {
-            RLFunc(rlGenFramebuffers(1, &m_fbo));
-        }
-    }
+	static std::shared_ptr<Framebuffer> create() {
+		return std::shared_ptr<Framebuffer>(new Framebuffer);
+	}
 
-    inline void destroy()
+    inline void addAttachment(std::shared_ptr<Texture> attachment, RLenum location)
     {
-        if (m_fbo != RL_NULL_FRAMEBUFFER) {
-            RLFunc(rlDeleteFramebuffers(1, &m_fbo));
-            m_fbo = RL_NULL_FRAMEBUFFER;
-        }
-    }
-
-    inline void addAttachment(const Texture& attachment, RLenum location) const
-    {
-        assert(attachment.valid());
+        assert(attachment->valid());
         assert(m_fbo != RL_NULL_FRAMEBUFFER);
 
         bind();
-        RLFunc(rlFramebufferTexture2D(RL_FRAMEBUFFER, location, RL_TEXTURE_2D, attachment.texture(), 0));
+        RLFunc(rlFramebufferTexture2D(RL_FRAMEBUFFER, location, RL_TEXTURE_2D, attachment->texture(), 0));
         unbind();
+
+		m_attachment = attachment;
     }
 
     inline void bind() const
@@ -72,8 +67,12 @@ public:
     }
 
 private:
+	Framebuffer() {
+		RLFunc(rlGenFramebuffers(1, &m_fbo));
+	}
 
     RLframebuffer m_fbo = RL_NULL_FRAMEBUFFER;
+	std::shared_ptr<Texture> m_attachment = nullptr;
 };
 
 } // namespace openrl.

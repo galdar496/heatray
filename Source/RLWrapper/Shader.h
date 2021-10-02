@@ -25,7 +25,6 @@ namespace openrl {
 class Shader
 {
 public:
-
     ///
     /// Possible shader types.
     ///
@@ -35,12 +34,18 @@ public:
         kFrame,
         kRay,
         kPrefix,
+
+		kCount
     };
 
-    Shader() = default;
+	~Shader() {
+		if (m_shader != RL_NULL_SHADER) {
+			RLFunc(rlDeleteShader(m_shader));
+			m_shader = RL_NULL_SHADER;
+		}
+	}
     Shader(const Shader& other) = default;
     Shader& operator=(const Shader& other) = default;
-    ~Shader() = default;
 
     ///
     /// Create and compile a shader from a passed-in source string.
@@ -49,36 +54,38 @@ public:
     /// @param type Type of the shader to compile as defined by the enum "ShaderType".
     /// @param name Name to use for shader identification.
     ///
-    /// @param If true, the shader was successfully created.
+    /// @param If non-null, the shader was successfully created.
     ///
-    inline bool createFromString(const std::string& shaderSource, const RLenum type, const char* name)
+    static std::shared_ptr<Shader> createFromString(const std::string& shaderSource, const ShaderType type, const char* name)
     {
-        if (shaderSource.length() && createShader(type)) {
-            RLFunc(rlShaderString(m_shader, RL_SHADER_NAME, name));
+        if (shaderSource.length()) {
+			Shader* shader = new Shader(type);
+            RLFunc(rlShaderString(shader->shader(), RL_SHADER_NAME, name));
 
             const char* s = shaderSource.c_str();
-            RLFunc(rlShaderSource(m_shader, 1, &s, nullptr));
+            RLFunc(rlShaderSource(shader->shader(), 1, &s, nullptr));
 
-            if (compile()) {
-                return true;
+            if (shader->compile()) {
+                return std::shared_ptr<Shader>(shader);
             } else {
                 const char* log = nullptr;
-                RLFunc(rlGetShaderString(m_shader, RL_COMPILE_LOG, &log));
+                RLFunc(rlGetShaderString(shader->shader(), RL_COMPILE_LOG, &log));
 				LOG_ERROR("Unable to compile shader %s \n\t%s", name, log);
-                return false;
+                return nullptr;
             }
         }
 
-        return false;;
+        return nullptr;
     }
 
-    inline bool createFromMultipleStrings(const std::vector<std::string>& shaderSource, const RLenum type, const char* name)
+    static std::shared_ptr<Shader> createFromMultipleStrings(const std::vector<std::string>& shaderSource, const ShaderType type, const char* name)
     {
 		constexpr static size_t MAX_NUM_SHADER_STRINGS = 10;
 		assert(shaderSource.size() < MAX_NUM_SHADER_STRINGS);
 
-        if (shaderSource.size() && createShader(type)) {
-            RLFunc(rlShaderString(m_shader, RL_SHADER_NAME, name));
+        if (shaderSource.size()) {
+			Shader* shader = new Shader(type);
+            RLFunc(rlShaderString(shader->shader(), RL_SHADER_NAME, name));
 
 			const char* strings[MAX_NUM_SHADER_STRINGS];
             for (int iIndex = 0; iIndex < shaderSource.size(); ++iIndex) {
@@ -86,30 +93,19 @@ public:
 				strings[iIndex] = shaderSource[iIndex].c_str();
             }
 
-            RLFunc(rlShaderSource(m_shader, shaderSource.size(), &strings[0], nullptr));
+            RLFunc(rlShaderSource(shader->shader(), shaderSource.size(), &strings[0], nullptr));
 
-            if (compile()) {
-                return true;
+            if (shader->compile()) {
+				return std::shared_ptr<Shader>(shader);
             } else {
                 const char* log = nullptr;
-                RLFunc(rlGetShaderString(m_shader, RL_COMPILE_LOG, &log));
+                RLFunc(rlGetShaderString(shader->shader(), RL_COMPILE_LOG, &log));
 				LOG_ERROR("Unable to compile shader %s \n\t%s", name, log);
-                return false;
+                return nullptr;
             }
         }
 
-        return false;;
-    }
-
-    ///
-    /// Destroy this shader.
-    ///
-    inline void destroy()
-    {
-        if (m_shader != RL_NULL_SHADER) {
-            RLFunc(rlDeleteShader(m_shader));
-            m_shader = RL_NULL_SHADER;
-        }
+        return nullptr;
     }
 
     ///
@@ -131,6 +127,24 @@ public:
     }
 
 private:
+	explicit Shader(const ShaderType type) {
+		RLenum rlType = 0;
+		switch (type) {
+			case ShaderType::kVertex:
+				rlType = RL_VERTEX_SHADER;
+				break;
+			case ShaderType::kFrame:
+				rlType = RL_FRAME_SHADER;
+				break;
+			case ShaderType::kRay:
+				rlType = RL_RAY_SHADER;
+				break;
+			case ShaderType::kPrefix:
+				rlType = RL_PREFIX_RAY_SHADER;
+				break;
+		};
+		m_shader = RLFunc(rlCreateShader(rlType));
+	}
 
     ///
     /// Compile the shader for use. Returns true on a successful compile.
@@ -139,23 +153,6 @@ private:
     {
         RLFunc(rlCompileShader(m_shader));
         return valid();
-    }
-
-    ///
-    /// Create the shader.
-    ///
-    /// @param type Type of the shader to compile.
-    ///
-    /// @return If true, the shader was successfully created.
-    ///
-    inline bool createShader(const RLenum type)
-    {
-        assert(type == RL_VERTEX_SHADER ||
-               type == RL_FRAME_SHADER ||
-               type == RL_RAY_SHADER ||
-               type == RL_PREFIX_RAY_SHADER);
-        m_shader = RLFunc(rlCreateShader(type));
-        return true;
     }
 
     RLshader m_shader = RL_NULL_SHADER; ///< OpenRL shader configured by this class.

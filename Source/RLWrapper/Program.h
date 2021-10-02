@@ -16,6 +16,7 @@
 
 #include <OpenRL/rl.h>
 #include <assert.h>
+#include <memory>
 
 namespace openrl {
 
@@ -26,21 +27,18 @@ namespace openrl {
 class Program
 {
 public:
-
-    Program() = default;
+	~Program() {
+		if (m_program != RL_NULL_PROGRAM) {
+			RLFunc(rlDeleteProgram(m_program));
+			m_program = RL_NULL_PROGRAM;
+		}
+	}
     Program(const Program& other) = default;
     Program& operator=(const Program& other) = default;
-    ~Program() = default;
-
-    ///
-    /// Create the RL program.
-    ///
-    inline void create()
-    {
-        if (m_program == RL_NULL_PROGRAM) {
-            m_program = RLFunc(rlCreateProgram());
-        }
-    }
+	
+	static std::shared_ptr<Program> create() {
+		return std::shared_ptr<Program>(new Program);
+	}
 
     ///
     /// Attach the specified shader. The shader must already be valid.
@@ -49,10 +47,11 @@ public:
     ///
     /// @return If true, the shader was properly attached.
     ///
-    inline void attach(const Shader& shader)
+    inline void attach(const std::shared_ptr<Shader> shader, Shader::ShaderType type)
     {
-        assert(shader.valid());
-        RLFunc(rlAttachShader(m_program, shader.shader()));
+        assert(shader->valid());
+        RLFunc(rlAttachShader(m_program, shader->shader()));
+		m_attachedShaders[static_cast<uint8_t>(type)] = shader;
     }
 
     ///
@@ -72,17 +71,6 @@ public:
         }
 
         return true;
-    }
-
-    ///
-    /// Destroy this program.
-    ///
-    inline void destroy()
-    {
-        if (m_program != RL_NULL_PROGRAM) {
-            RLFunc(rlDeleteProgram(m_program));
-            m_program = RL_NULL_PROGRAM;
-        }
     }
 
     ///
@@ -184,10 +172,10 @@ public:
     /// @param location Location of this uniform in the shader.
     /// @param texture Value of the uniform.
     ///
-    inline void setTexture(const RLint location, const Texture& texture) const 
+    inline void setTexture(const RLint location, const std::shared_ptr<Texture> texture) const 
     {
-        assert(texture.valid());
-        RLFunc(rlUniformt(location, texture.texture())); 
+        assert(texture->valid());
+        RLFunc(rlUniformt(location, texture->texture())); 
     }
 
     ///
@@ -233,8 +221,13 @@ public:
     }
 
 private:
+	Program() {
+		m_program = RLFunc(rlCreateProgram());
+	}
 
     RLprogram m_program = RL_NULL_PROGRAM; ///< RL program object.
+
+	std::shared_ptr<Shader> m_attachedShaders[static_cast<uint8_t>(Shader::ShaderType::kCount)];
 };
 
 } // namespace openrl.

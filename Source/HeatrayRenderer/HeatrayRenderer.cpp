@@ -588,16 +588,16 @@ void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<PhysicallyBasedMateri
 			if (texturePath.empty() == false) {
 				switch (textureType) {
 					case TextureType::kBaseColor:
-						material->parameters().baseColorTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, true));
+						material->parameters().baseColorTexture = util::loadTexture(texturePath.c_str(), true, true);
 						break;
 					case TextureType::kMetallicRoughness:
-						material->parameters().metallicRoughnessTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, false));
+						material->parameters().metallicRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
 						break;
 					case TextureType::kClearCoat:
-						material->parameters().clearCoatTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, false));
+						material->parameters().clearCoatTexture = util::loadTexture(texturePath.c_str(), true, false);
 						break;
 					case TextureType::kClearCoatRoughness:
-						material->parameters().clearCoatRoughnessTexture = std::make_shared<openrl::Texture>(util::loadTexture(texturePath.c_str(), true, false));
+						material->parameters().clearCoatRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
 						break;
 					default:
 						break;

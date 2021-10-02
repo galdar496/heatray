@@ -13,36 +13,34 @@
 
 #include <OpenRL/OpenRL.h>
 
+#include <memory>
+
 namespace openrl {
 
 class Primitive
 {
 public:
-    Primitive() = default;
+	~Primitive() {
+		if (m_primitive != RL_NULL_PRIMITIVE) {
+			RLFunc(rlDeletePrimitives(1, &m_primitive));
+		}
+	}
+
     Primitive(const Primitive& other) = default;
     Primitive& operator=(const Primitive& other) = default;
-    ~Primitive() = default;
 
-    inline void create() 
-    {
-        if (m_primitive == RL_NULL_PRIMITIVE) {
-            RLFunc(rlGenPrimitives(1, &m_primitive));
-        }
-    }
+	static std::shared_ptr<Primitive> create() {
+		return std::shared_ptr<Primitive>(new Primitive);
+	}
 
-    inline void destroy()
+    inline void attachProgram(std::shared_ptr<Program> program)
     {
-        if (m_primitive != RL_NULL_PRIMITIVE) {
-            RLFunc(rlDeletePrimitives(1, &m_primitive));
-        }
-    }
-
-    inline void attachProgram(const Program& program)
-    {
-        assert(program.valid());
+        assert(program->valid());
         bind();
-        program.bind();
+        program->bind();
         unbind();
+
+		m_attachedProgram = program;
     }
 
     inline void bind() const { RLFunc(rlBindPrimitive(RL_PRIMITIVE, m_primitive)); }
@@ -51,8 +49,13 @@ public:
     inline bool valid() const { return m_primitive != RL_NULL_PRIMITIVE; }
 
 private:
+	Primitive() {
+		RLFunc(rlGenPrimitives(1, &m_primitive));
+	}
 
     RLprimitive m_primitive = RL_NULL_PRIMITIVE;
+
+	std::shared_ptr<Program> m_attachedProgram = nullptr;
 };
 
 } // namespace openrl.

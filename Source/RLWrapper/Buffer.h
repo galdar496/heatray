@@ -21,45 +21,46 @@ namespace openrl {
 class Buffer
 {
 public:
-
-    Buffer() = default;
+	~Buffer() {
+		if (m_buffer != RL_NULL_BUFFER) {
+			RLFunc(rlDeleteBuffers(1, &m_buffer));
+			m_buffer = RL_NULL_BUFFER;
+		}
+	}
     Buffer(const Buffer& other) = default;
     Buffer& operator=(const Buffer& other) = default;
-    ~Buffer() = default;
 
     ///
-    /// Generate the buffer id and load the data. Returns true on a successful load.
+    /// Generate the buffer id and load the data.
     ///
+	/// @param target The OpenRL target for this buffer.
     /// @param data The data to populate the buffer with.
     /// @param size The size of the data in bytes.
     /// @param name Name of the buffer.
     ///
-    inline void load(const void* data, const size_t size, const char* name = "<unnamed>")
+    static std::shared_ptr<Buffer> create(const RLenum target, const void* data, const size_t size, const char* name = "<unnamed>")
     {
-        // Generate the buffer if necessary.
-        if (m_buffer == RL_NULL_BUFFER) {
-            RLFunc(rlGenBuffers(1, &m_buffer));
-        }
-
-        // Bind the buffer as our current target and load data into it.
-        RLFunc(rlBindBuffer(m_target, m_buffer));
-        RLFunc(rlBufferData(m_target, size, data, m_usage));
-        RLFunc(rlBufferParameterString(m_target, RL_BUFFER_NAME, name));
-        RLFunc(rlBindBuffer(m_target, RL_NULL_BUFFER));
-
-        m_size = size;
+		Buffer* buffer = new Buffer(target, size, name);
+		buffer->modify(data, size);
+		return std::shared_ptr<Buffer>(buffer);
     }
 
-    ///
-    /// Destroy the buffer.
-    ///
-    inline void destroy()
-    {
-        if (m_buffer != RL_NULL_BUFFER) {
-            RLFunc(rlDeleteBuffers(1, &m_buffer));
-            m_buffer = RL_NULL_BUFFER;
-        }
-    }
+	///
+	/// Modify the buffer contents. The new contents MUST be the same size as the previous ones.
+	///
+	/// @param target Target type to set for this buffer.
+	/// @param size The size of the data in bytes.
+	///
+	void modify(const void* data, size_t size) {
+		assert(valid());
+
+		// Bind the buffer as our current target and load data into it.
+		RLFunc(rlBindBuffer(m_target, m_buffer));
+		RLFunc(rlBufferData(m_target, size, data, m_usage));
+		RLFunc(rlBindBuffer(m_target, RL_NULL_BUFFER));
+
+		m_size = size;
+	}
 
     ///
     /// Change the target type for this buffer.
@@ -132,6 +133,15 @@ public:
     inline bool valid() const { return (m_buffer != RL_NULL_BUFFER); }
 
 private:
+	explicit Buffer(const RLenum target, const size_t size, const char* name)
+		: m_target(target)
+		, m_size(size)
+	{
+		RLFunc(rlGenBuffers(1, &m_buffer));
+		RLFunc(rlBindBuffer(m_target, m_buffer));
+		RLFunc(rlBufferParameterString(m_target, RL_BUFFER_NAME, name));
+		RLFunc(rlBindBuffer(m_target, RL_NULL_BUFFER));
+	}
 
     RLbuffer m_buffer   = RL_NULL_BUFFER;   ///< The RL buffer object itself.
     RLenum   m_target   = RL_ARRAY_BUFFER; 	///< Target type.

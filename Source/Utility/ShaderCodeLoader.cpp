@@ -58,7 +58,7 @@ bool loadShaderSourceFile(const char* filepath, std::vector<std::string>& finalS
     return loadShaderSourceFileRecursive(fullPath, finalSourceCode, filesRead);
 }
 
-openrl::Program buildShader(const char* vertexShaderPath, const char* rayShaderPath, const char *name, std::string const & shaderPrefix)
+std::shared_ptr<openrl::Program> buildProgram(const char* vertexShaderPath, const char* rayShaderPath, const char *name, std::string const & shaderPrefix)
 {
     assert(vertexShaderPath);
     assert(rayShaderPath);
@@ -71,8 +71,8 @@ openrl::Program buildShader(const char* vertexShaderPath, const char* rayShaderP
         vertexShaderSource.push_back(shaderPrefix);
     }
     util::loadShaderSourceFile(vertexShaderPath, vertexShaderSource);
-    openrl::Shader vertex;
-    if (!vertex.createFromMultipleStrings(vertexShaderSource, RL_VERTEX_SHADER, (programName + " vertex shader").c_str())) {
+	std::shared_ptr<openrl::Shader> vertex = openrl::Shader::createFromMultipleStrings(vertexShaderSource, openrl::Shader::ShaderType::kVertex, (programName + " vertex shader").c_str());
+    if (!vertex) {
         assert(0 && "Unable to create vertex shader");
     }
 
@@ -81,17 +81,17 @@ openrl::Program buildShader(const char* vertexShaderPath, const char* rayShaderP
         rayShaderSource.push_back(shaderPrefix);
     }
     util::loadShaderSourceFile(rayShaderPath, rayShaderSource);
-    openrl::Shader ray;
-    if (!ray.createFromMultipleStrings(rayShaderSource, RL_RAY_SHADER, (programName + " ray shader").c_str())) {
+	std::shared_ptr<openrl::Shader> ray = openrl::Shader::createFromMultipleStrings(rayShaderSource, openrl::Shader::ShaderType::kRay, (programName + " ray shader").c_str());
+    if (!ray) {
         assert(0 && "Unable to create ray shader");
     }
 
-    openrl::Program program;
-    program.create();
-    program.attach(vertex);
-    program.attach(ray);
-    if (!program.link((programName + " program").c_str())) {
+	std::shared_ptr<openrl::Program> program = openrl::Program::create();
+    program->attach(vertex, openrl::Shader::ShaderType::kVertex);
+    program->attach(ray, openrl::Shader::ShaderType::kRay);
+    if (!program->link((programName + " program").c_str())) {
         assert(0 && "Unable to create program");
+		return nullptr;
     }
 
     return program;

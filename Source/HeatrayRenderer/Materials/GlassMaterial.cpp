@@ -23,15 +23,15 @@ struct ShaderParams
 void GlassMaterial::build()
 {
 	// Load the parameters into the uniform block buffer.
-	assert(m_constants.valid() == false);
-	m_constants.setTarget(RL_UNIFORM_BLOCK_BUFFER);
+	assert(m_constants == nullptr);
+	m_constants = openrl::Buffer::create(RL_UNIFORM_BLOCK_BUFFER, nullptr, sizeof(ShaderParams), "Glass uniform block");
 	modify();
-	assert(m_constants.valid());
+	assert(m_constants->valid());
 
     // Loadup the shader code.
     // TODO: this should use some kind of shader cache.
 	LOG_INFO("Building shader: %s", m_shader);
-    m_program = util::buildShader(m_vertexShader, m_shader, "Glass");
+    m_program = util::buildProgram(m_vertexShader, m_shader, "Glass");
 
     // NOTE: the association of the program and the uniform block needs to happen in the calling code.
     // This is because there is no RLprimitive at the material level to properly bind.
@@ -39,8 +39,8 @@ void GlassMaterial::build()
 
 void GlassMaterial::rebuild()
 {
-	m_program.destroy();
-	m_constants.destroy();
+	m_program.reset();
+	m_constants.reset();
 
 	build();
 }
@@ -63,5 +63,5 @@ void GlassMaterial::modify()
 	float F0 = glm::abs<float>((1.0f - shaderParams.ior) / (1.0f + shaderParams.ior));
 	shaderParams.specularF0 = F0 * F0;
 
-	m_constants.load(&shaderParams, sizeof(ShaderParams), "Glass uniform block");
+	m_constants->modify(&shaderParams, sizeof(ShaderParams));
 }

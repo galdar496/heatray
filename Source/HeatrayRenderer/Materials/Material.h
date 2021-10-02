@@ -10,14 +10,16 @@
 #include <RLWrapper/Buffer.h>
 #include <RLWrapper/Program.h>
 
+#include <memory>
+
 class Material
 {
 public:
     Material() = default;
     virtual ~Material() = default;
 
-    openrl::Program& program() { return m_program; }
-    openrl::Buffer& uniformBlock() { return m_constants; }
+	std::shared_ptr<openrl::Program> program() { return m_program; }
+	std::shared_ptr<openrl::Buffer> uniformBlock() { return m_constants; }
 
 	virtual void build() = 0;
 	virtual void rebuild() = 0;
@@ -25,6 +27,6 @@ public:
 protected:
     static constexpr char const * m_vertexShader = "positionNormal.vert.rlsl";
 
-    openrl::Buffer m_constants; ///< Constants used by this material. Will be uploaded as a uniform block to the corresponding shader.
-    openrl::Program m_program;  ///< Shader representing this material.
+    std::shared_ptr<openrl::Buffer>  m_constants = nullptr; ///< Constants used by this material. Will be uploaded as a uniform block to the corresponding shader.
+    std::shared_ptr<openrl::Program> m_program   = nullptr; ///< Shader representing this material.
 };

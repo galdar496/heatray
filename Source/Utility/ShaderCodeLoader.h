@@ -11,6 +11,7 @@
 
 #include <RLWrapper/Program.h>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -20,6 +21,6 @@ namespace util {
 // together make up the final shader.
 bool loadShaderSourceFile(const char* filepath, std::vector<std::string> &finalSourceCode);
 
-openrl::Program buildShader(const char *vertexShaderPath, const char *rayShaderPath, const char* name, std::string const & shaderPrefix = "");
+std::shared_ptr<openrl::Program> buildProgram(const char *vertexShaderPath, const char *rayShaderPath, const char* name, std::string const & shaderPrefix = "");
 
 } // namespace util.

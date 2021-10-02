@@ -13,6 +13,7 @@
 #include "Texture.h"
 
 #include <assert.h>
+#include <memory>
 
 namespace openrl {
 
@@ -27,24 +28,23 @@ public:
     /// @param size Size to create the buffer (in bytes).
     inline void create(RLint size)
     {
-        m_buffer.setTarget(RL_PIXEL_PACK_BUFFER);
-        m_buffer.load(nullptr, size, "Pixel data");
+		m_buffer = openrl::Buffer::create(RL_PIXEL_PACK_BUFFER, nullptr, size, "Pixel data");
         m_size = size;
     }
 
     inline void destroy() 
     {
         assert(!m_isMapped);
-        m_buffer.destroy(); 
+        m_buffer.reset(); 
     }
 
     inline void setPixelData(const Texture& texture)
     {
         assert(!m_isMapped);
-        m_buffer.bind();
+        m_buffer->bind();
         RLFunc(rlBindTexture(RL_TEXTURE_2D, texture.texture()));
         RLFunc(rlGetTexImage(RL_TEXTURE_2D, 0, RL_RGBA, RL_FLOAT, 0)); // TODO: make this more general.
-        m_buffer.unbind();
+        m_buffer->unbind();
 
         m_width  = texture.width();
         m_height = texture.height();
@@ -54,8 +54,8 @@ public:
     {
         assert(!m_isMapped);
         m_isMapped = true;
-        m_buffer.bind();
-        const float* imagePixels = m_buffer.mapBuffer<const float>(RL_READ_ONLY);
+        m_buffer->bind();
+        const float* imagePixels = m_buffer->mapBuffer<const float>(RL_READ_ONLY);
         return imagePixels;
     }
 
@@ -63,8 +63,8 @@ public:
     {
         assert(m_isMapped);
         m_isMapped = false;
-        m_buffer.unmapBuffer();
-        m_buffer.unbind();
+        m_buffer->unmapBuffer();
+        m_buffer->unbind();
     }
 
     inline RLint size() const { return m_size; }
@@ -77,7 +77,7 @@ public:
 
 private:
 
-    Buffer m_buffer;
+    std::shared_ptr<Buffer> m_buffer = nullptr;
     RLint m_size = -1;   ///< Size of the buffe (in bytes).
     RLint m_width = -1;  ///< Width of the buffer (in pixels).
     RLint m_height = -1; ///< Height of the buffer (in pixels).
