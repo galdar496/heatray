@@ -85,7 +85,7 @@ void main()
 	// Note that since the Fresnel term is used to determine how to sample it ends up getting cancelled out of the following math.
 	// Typically it would show up in the microfacet BRDF but in monte carlo we also divide by the probability of selecting a particular choice,
 	// Since that choice is based on Fresnel is cancels out.
-	if (refractProbability.x < (1.0 - F)) {
+	if (refractProbability.y < (1.0 - F)) {
 		vec3 O = normalize(refract(-I, H, eta));
 
 		float NdotI = saturate(dot(N, I));
