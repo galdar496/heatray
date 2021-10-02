@@ -7,6 +7,7 @@
 //
 
 #include "HeatrayRenderer/HeatrayRenderer.h" // Must be included first for GL/glew reasons.
+#include "Utility/ConsoleLog.h"
 #include "Utility/ImGuiLog.h"
 
 #include <GLUT/freeglut.h>
@@ -133,6 +134,8 @@ void specialUp(int key, int x, int y)
 
 int main(int argc, char **argv)
 {
+	util::ConsoleLog::install();
+
     glutInit(&argc, argv);
     glutInitWindowPosition(100,100);
     glutInitWindowSize(kDefaultWindowWidth, kDefaultWindowHeight);
@@ -152,8 +155,6 @@ int main(int argc, char **argv)
     glutSpecialFunc(specialPressed);
     glutSpecialUpFunc(specialUp);
 
-	util::ImGuiLog::install();
-
     heatray.init(kDefaultWindowWidth, kDefaultWindowHeight);
 
     // ImGui setup code.
@@ -165,6 +166,8 @@ int main(int argc, char **argv)
         ImGui_ImplGLUT_Init();
         ImGui_ImplOpenGL2_Init();
     }
+
+	util::ImGuiLog::install();
 
     glutMainLoop();
     

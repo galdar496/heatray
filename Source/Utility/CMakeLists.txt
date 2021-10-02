@@ -2,6 +2,8 @@ add_library(Utility STATIC
 	AABB.h
 	AsyncTaskQueue.h
 	BlueNoise.h
+	ConsoleLog.cpp
+	ConsoleLog.h
 	FileIO.h
 	FileIO.cpp
 	Hash.h
