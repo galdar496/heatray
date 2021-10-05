@@ -887,7 +887,7 @@ bool HeatrayRenderer::renderUI()
         }
     }
     if (ImGui::CollapsingHeader("Environment options")) {
-        static const char* options[] = { "studio.hdr", "glacier.exr", "uffizi.exr", "bridge.hdr", "arches.hdr", "white furnace test", "custom..." };
+        static const char* options[] = { "studio.hdr", "glacier.exr", "uffizi.exr", "bridge.hdr", "arches.hdr", "white furnace test", "Load Custom..." };
 		static constexpr size_t NUM_OPTIONS = sizeof(options) / sizeof(options[0]);
 		static constexpr size_t CUSTOM_OPTION_INDEX = NUM_OPTIONS - 1;
 
@@ -936,12 +936,12 @@ bool HeatrayRenderer::renderUI()
 		}
         ImGui::Checkbox("Swap Y & Z on load", &m_swapYZ);
 
-        static const char* options[] = { "Sphere Array", "Multi-Material", "Editable PBR Material", "Editable Glass Material", "custom..."};
+        static const char* options[] = { "Sphere Array", "Multi-Material", "Editable PBR Material", "Editable Glass Material", "Load Custom..."};
 		static constexpr size_t NUM_OPTIONS = sizeof(options) / sizeof(options[0]);
 		static constexpr size_t CUSTOM_OPTION_INDEX = NUM_OPTIONS - 1;
 
         static unsigned int currentSelection = 1;
-        if (ImGui::BeginCombo("Built-In Scenes", options[currentSelection])) {
+        if (ImGui::BeginCombo("Scenes", options[currentSelection])) {
             for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
                 bool isSelected = currentSelection == iOption;
                 if (ImGui::Selectable(options[iOption], false)) {
