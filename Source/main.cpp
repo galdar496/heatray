@@ -61,8 +61,6 @@ void render()
 void update()
 {
     glutPostRedisplay();
-
-    heatray.handlePendingFileLoads();
 }
 
 void shutdown()

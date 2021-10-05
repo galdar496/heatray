@@ -391,7 +391,7 @@ void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
 			sampler.wrapT = RL_CLAMP_TO_EDGE;
 
 			glm::vec3 data = glm::vec3(0.8f);
-			m_environmentLight.texture->create(&data.x, desc, sampler, false);
+			m_environmentLight.texture = openrl::Texture::create(&data.x, desc, sampler, false);
 		}
 	}
 

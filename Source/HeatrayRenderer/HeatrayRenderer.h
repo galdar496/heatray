@@ -20,7 +20,7 @@
 #include "OrbitCamera.h"
 #include "PassGenerator.h"
 #include "RLMesh.h"
-#include "Materials/PhysicallyBasedMaterial.h"
+#include "Materials/Material.h"
 
 #include <Utility/FileIO.h>
 #include <Utility/AABB.h>
@@ -48,7 +48,6 @@ public:
     void resize(const GLint newWidth, const GLint newHeight);
     void changeScene(std::string const & sceneName);
     void render();
-    void handlePendingFileLoads();
 	void adjustCamera(const float phi_delta, const float theta_delta, const float distance_delta);
 
 	static constexpr size_t UI_WINDOW_WIDTH = 500;
@@ -63,8 +62,6 @@ private:
     bool renderUI();
     void resetRenderer();
     void saveScreenshot();
-
-	void renderMaterialEditor(std::shared_ptr<PhysicallyBasedMaterial> material);
 
 	void writeSessionFile(const std::string& filename);
 	void readSessionFile(const std::string& filename);
@@ -208,7 +205,6 @@ private:
 
     std::vector<RLMesh> m_sceneData;
 
-    bool m_userRequestedFileLoad = false;
     bool m_swapYZ = false;
 
     float m_currentPassTime = 0.0f;
@@ -230,7 +226,7 @@ private:
 		}
 
 		RLMesh* mesh = nullptr;
-		std::shared_ptr<PhysicallyBasedMaterial> material = nullptr;
+		std::shared_ptr<Material> material = nullptr;
 		size_t meshIndex = ~0;
 	} m_groundPlane;
 
@@ -238,7 +234,15 @@ private:
 	float m_distanceScale = 1.0f;
 
 	struct EditableMaterialScene {
-		std::shared_ptr<PhysicallyBasedMaterial> material = nullptr;
+		std::shared_ptr<Material> material = nullptr;
 		bool active = false;
+
+		enum class Type {
+			PBR,
+			Glass
+		};
+		Type type = Type::PBR;
 	} m_editableMaterialScene;
+
+	void renderMaterialEditor(std::shared_ptr<Material> material, EditableMaterialScene::Type type);
 };

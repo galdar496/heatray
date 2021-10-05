@@ -1,6 +1,7 @@
 #include "HeatrayRenderer.h"
 
 #include "Materials/GlassMaterial.h"
+#include "Materials/PhysicallyBasedMaterial.h"
 #include "Materials/ShowNormalsMaterial.h"
 #include "MeshProviders/AssimpMeshProvider.h"
 #include "MeshProviders/PlaneMeshProvider.h"
@@ -103,8 +104,9 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
 	m_editableMaterialScene.active = false;
 	m_renderOptions.scene = sceneName;
 
-    if (sceneName == "Editable Material") {
-		LOG_INFO("Loading scene: %s", sceneName.c_str());
+	LOG_INFO("Loading scene: %s", sceneName.c_str());
+
+    if (sceneName == "Editable PBR Material") {
         m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
             for (auto mesh : m_sceneData) {
                 mesh.destroy();
@@ -126,9 +128,31 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
 
 			m_editableMaterialScene.material = material;
 			m_editableMaterialScene.active = true;
+			m_editableMaterialScene.type = EditableMaterialScene::Type::PBR;
         });
-    } else if (sceneName == "Multi-Material") {
-		LOG_INFO("Loading scene: %s", sceneName.c_str());
+	} else if (sceneName == "Editable Glass Material") {
+		m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
+			for (auto mesh : m_sceneData) {
+				mesh.destroy();
+			}
+			m_sceneData.clear();
+			m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
+
+			SphereMeshProvider sphereMeshProvider(50, 50, 1.0f);
+			std::shared_ptr<GlassMaterial> material = std::make_shared<GlassMaterial>();
+			GlassMaterial::Parameters& params = material->parameters();
+			params.baseColor = glm::vec3(0.8f);
+			params.ior = 1.33f;
+			params.roughness = 0.0f;
+			params.density = 0.8f;
+
+			m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, glm::mat4(1.0f)));
+
+			m_editableMaterialScene.material = material;
+			m_editableMaterialScene.active = true;
+			m_editableMaterialScene.type = EditableMaterialScene::Type::Glass;
+		});
+	} else if (sceneName == "Multi-Material") {
         m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
             for (auto mesh : m_sceneData) {
                 mesh.destroy();
@@ -221,7 +245,6 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             }
         });
     } else if (sceneName == "Sphere Array") {
-		LOG_INFO("Loading scene: %s", sceneName.c_str());
         m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
             for (auto mesh : m_sceneData) {
                 mesh.destroy();
@@ -292,7 +315,6 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             }
             m_sceneData.clear();
 
-			LOG_INFO("Loading scene: %s", sceneName.c_str());
             AssimpMeshProvider assimpMeshProvider(sceneName, (m_scene_units == SceneUnits::kCentimeters), m_swapYZ);
 
             const std::vector<std::shared_ptr<Material>> &materials = assimpMeshProvider.GetMaterials();
@@ -397,20 +419,6 @@ void HeatrayRenderer::render()
     }
 
     m_justResized = false;
-}
-
-void HeatrayRenderer::handlePendingFileLoads()
-{
-    if (m_userRequestedFileLoad) {
-        std::vector<std::string> filenames = util::OpenFileDialog();
-
-        if (filenames.size() > 0) {
-            changeScene(filenames[0]);
-            resetRenderer();
-        }
-
-        m_userRequestedFileLoad = false;
-    }
 }
 
 void HeatrayRenderer::adjustCamera(const float phi_delta, const float theta_delta, const float distance_delta)
@@ -653,115 +661,140 @@ void HeatrayRenderer::readSessionFile(const std::string& filename)
 	}
 }
 
-void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<PhysicallyBasedMaterial> material)
+void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material, EditableMaterialScene::Type type)
 {
-	bool materialChanged = false;
+	if (type == EditableMaterialScene::Type::PBR) {
+		bool materialChanged = false;
+		std::shared_ptr<PhysicallyBasedMaterial> pbrMaterial = std::static_pointer_cast<PhysicallyBasedMaterial>(material);
+		PhysicallyBasedMaterial::Parameters& parameters = pbrMaterial->parameters();
 
-	PhysicallyBasedMaterial::Parameters& parameters = material->parameters();
-
-	if (ImGui::SliderFloat3("BaseColor", parameters.baseColor.data.data, 0.0f, 1.0f)) {
-		materialChanged = true;
-	}
-	if (ImGui::SliderFloat("Metallic", &parameters.metallic, 0.0f, 1.0f)) {
-		materialChanged = true;
-	}
-	if (ImGui::SliderFloat("Roughness", &parameters.roughness, 0.0f, 1.0f)) {
-		materialChanged = true;
-	}
-	if (ImGui::SliderFloat("SpecularF0", &parameters.specularF0, 0.0f, 1.0f)) {
-		materialChanged = true;
-	}
-	if (ImGui::SliderFloat("ClearCoat", &parameters.clearCoat, 0.0f, 1.0f)) {
-		materialChanged = true;
-	}
-	if (ImGui::SliderFloat("ClearCoat Roughness", &parameters.clearCoatRoughness, 0.0f, 1.0f)) {
-		materialChanged = true;
-	}
-
-	enum class TextureType {
-		kBaseColor,
-		kMetallicRoughness,
-		kClearCoat,
-		kClearCoatRoughness
-	} textureType;
-
-	ImGui::Separator();
-	ImGui::Text("Textures");
-	std::string texturePath;
-	{
-		bool textureSelected = false;
-		
-		ImGui::PushID("BaseColor");
-		if (ImGui::Button("Load")) {
-			textureSelected = true;
-			textureType = TextureType::kBaseColor;
+		if (ImGui::SliderFloat3("BaseColor", parameters.baseColor.data.data, 0.0f, 1.0f)) {
+			materialChanged = true;
 		}
-		ImGui::PopID();
-		ImGui::SameLine();
-		ImGui::Text("BaseColor");
-
-		ImGui::PushID("MetallicRoughness");
-		if (ImGui::Button("Load")) {
-			textureSelected = true;
-			textureType = TextureType::kMetallicRoughness;
+		if (ImGui::SliderFloat("Metallic", &parameters.metallic, 0.0f, 1.0f)) {
+			materialChanged = true;
 		}
-		ImGui::PopID();
-		ImGui::SameLine();
-		ImGui::Text("MetallicRoughness");
-
-		ImGui::PushID("ClearCoat");
-		if (ImGui::Button("Load")) {
-			textureSelected = true;
-			textureType = TextureType::kClearCoat;
+		if (ImGui::SliderFloat("Roughness", &parameters.roughness, 0.0f, 1.0f)) {
+			materialChanged = true;
 		}
-		ImGui::PopID();
-		ImGui::SameLine();
-		ImGui::Text("ClearCoat");
-
-		ImGui::PushID("ClearCoatRoughness");
-		if (ImGui::Button("Load")) {
-			textureSelected = true;
-			textureType = TextureType::kClearCoatRoughness;
+		if (ImGui::SliderFloat("SpecularF0", &parameters.specularF0, 0.0f, 1.0f)) {
+			materialChanged = true;
 		}
-		ImGui::PopID();
-		ImGui::SameLine();
-		ImGui::Text("ClearCoatRoughness");
+		if (ImGui::SliderFloat("ClearCoat", &parameters.clearCoat, 0.0f, 1.0f)) {
+			materialChanged = true;
+		}
+		if (ImGui::SliderFloat("ClearCoat Roughness", &parameters.clearCoatRoughness, 0.0f, 1.0f)) {
+			materialChanged = true;
+		}
 
-		if (textureSelected) {
-			std::vector<std::string> filenames = util::OpenFileDialog();
+		enum class TextureType {
+			kBaseColor,
+			kMetallicRoughness,
+			kClearCoat,
+			kClearCoatRoughness
+		} textureType;
 
-			if (filenames.size() > 0) {
-				texturePath = filenames[0];
-				materialChanged = true;
+		ImGui::Separator();
+		ImGui::Text("Textures");
+		std::string texturePath;
+		{
+			bool textureSelected = false;
+
+			ImGui::PushID("BaseColor");
+			if (ImGui::Button("Load")) {
+				textureSelected = true;
+				textureType = TextureType::kBaseColor;
+			}
+			ImGui::PopID();
+			ImGui::SameLine();
+			ImGui::Text("BaseColor");
+
+			ImGui::PushID("MetallicRoughness");
+			if (ImGui::Button("Load")) {
+				textureSelected = true;
+				textureType = TextureType::kMetallicRoughness;
+			}
+			ImGui::PopID();
+			ImGui::SameLine();
+			ImGui::Text("MetallicRoughness");
+
+			ImGui::PushID("ClearCoat");
+			if (ImGui::Button("Load")) {
+				textureSelected = true;
+				textureType = TextureType::kClearCoat;
+			}
+			ImGui::PopID();
+			ImGui::SameLine();
+			ImGui::Text("ClearCoat");
+
+			ImGui::PushID("ClearCoatRoughness");
+			if (ImGui::Button("Load")) {
+				textureSelected = true;
+				textureType = TextureType::kClearCoatRoughness;
+			}
+			ImGui::PopID();
+			ImGui::SameLine();
+			ImGui::Text("ClearCoatRoughness");
+
+			if (textureSelected) {
+				std::vector<std::string> filenames = util::OpenFileDialog();
+
+				if (filenames.size() > 0) {
+					texturePath = filenames[0];
+					materialChanged = true;
+				}
 			}
 		}
-	}
 
-	if (materialChanged) {
-		m_renderer.runOpenRLTask([this, material, texturePath, textureType]() {
-			if (texturePath.empty() == false) {
-				switch (textureType) {
+		if (materialChanged) {
+			m_renderer.runOpenRLTask([this, pbrMaterial, texturePath, textureType]() {
+				if (texturePath.empty() == false) {
+					switch (textureType) {
 					case TextureType::kBaseColor:
-						material->parameters().baseColorTexture = util::loadTexture(texturePath.c_str(), true, true);
+						pbrMaterial->parameters().baseColorTexture = util::loadTexture(texturePath.c_str(), true, true);
 						break;
 					case TextureType::kMetallicRoughness:
-						material->parameters().metallicRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
+						pbrMaterial->parameters().metallicRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
 						break;
 					case TextureType::kClearCoat:
-						material->parameters().clearCoatTexture = util::loadTexture(texturePath.c_str(), true, false);
+						pbrMaterial->parameters().clearCoatTexture = util::loadTexture(texturePath.c_str(), true, false);
 						break;
 					case TextureType::kClearCoatRoughness:
-						material->parameters().clearCoatRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
+						pbrMaterial->parameters().clearCoatRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
 						break;
 					default:
 						break;
+					}
 				}
-				
-			}
 
-			material->modify();
-			resetRenderer();
-		});
+				pbrMaterial->modify();
+				resetRenderer();
+			});
+		}
+	} else if (type == EditableMaterialScene::Type::Glass) {
+		bool materialChanged = false;
+		std::shared_ptr<GlassMaterial> glassMaterial = std::static_pointer_cast<GlassMaterial>(material);
+		GlassMaterial::Parameters& parameters = glassMaterial->parameters();
+
+		if (ImGui::SliderFloat3("BaseColor", parameters.baseColor.data.data, 0.0f, 1.0f)) {
+			materialChanged = true;
+		}
+		if (ImGui::SliderFloat("IOR", &parameters.ior, 1.0f, 4.0f)) {
+			materialChanged = true;
+		}
+		if (ImGui::SliderFloat("Roughness", &parameters.roughness, 0.0f, 1.0f)) {
+			materialChanged = true;
+		}
+		if (ImGui::SliderFloat("Density", &parameters.density, 0.0f, 1.0f)) {
+			materialChanged = true;
+		}
+
+		if (materialChanged) {
+			m_renderer.runOpenRLTask([this, glassMaterial]() {
+				glassMaterial->modify();
+				resetRenderer();
+			});
+		}
 	}
 }
 
@@ -894,9 +927,6 @@ bool HeatrayRenderer::renderUI()
 		}
     }
     if (ImGui::CollapsingHeader("Scene options")) {
-        if (ImGui::Button("Load Scene...")) {
-            m_userRequestedFileLoad = true;
-        }
 		ImGui::Text("Scene Units:");
 		if (ImGui::RadioButton("Meters", m_scene_units == SceneUnits::kMeters)) {
 			m_scene_units = SceneUnits::kMeters;
@@ -906,7 +936,9 @@ bool HeatrayRenderer::renderUI()
 		}
         ImGui::Checkbox("Swap Y & Z on load", &m_swapYZ);
 
-        static const char* options[] = { "Sphere Array", "Multi-Material", "Editable Material" };
+        static const char* options[] = { "Sphere Array", "Multi-Material", "Editable PBR Material", "Editable Glass Material", "custom..."};
+		static constexpr size_t NUM_OPTIONS = sizeof(options) / sizeof(options[0]);
+		static constexpr size_t CUSTOM_OPTION_INDEX = NUM_OPTIONS - 1;
 
         static unsigned int currentSelection = 1;
         if (ImGui::BeginCombo("Built-In Scenes", options[currentSelection])) {
@@ -914,9 +946,22 @@ bool HeatrayRenderer::renderUI()
                 bool isSelected = currentSelection == iOption;
                 if (ImGui::Selectable(options[iOption], false)) {
                     currentSelection = iOption;
-                    m_renderOptions.scene = options[iOption];
-                    changeScene(m_renderOptions.scene);
-                    shouldResetRenderer = true;
+					bool newScene = false;
+					if (currentSelection == CUSTOM_OPTION_INDEX) {
+						std::vector<std::string> filenames = util::OpenFileDialog();
+
+						if (filenames.size() > 0) {
+							m_renderOptions.scene = filenames[0];
+							newScene = true;
+						}
+					} else {
+						newScene = true;
+						m_renderOptions.scene = options[iOption];
+					}
+					if (newScene) {
+						changeScene(m_renderOptions.scene);
+						shouldResetRenderer = true;
+					}
                 }
                 if (isSelected) {
                     ImGui::SetItemDefaultFocus();
@@ -944,6 +989,7 @@ bool HeatrayRenderer::renderUI()
 					params.roughness = 0.9f;
 					params.baseColor = glm::vec3(0.9f);
 					params.specularF0 = 0.2f;
+					params.forceEnableAllTextures = true;
 					glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_sceneAABB.min.y, 0.0f));
 					m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation));
 
@@ -958,7 +1004,7 @@ bool HeatrayRenderer::renderUI()
 
 		if (m_groundPlane.mesh) {
 			ImGui::Text("Ground Material");
-			renderMaterialEditor(m_groundPlane.material);
+			renderMaterialEditor(m_groundPlane.material, EditableMaterialScene::Type::PBR);
 		}
     }
     if (ImGui::CollapsingHeader("Camera options")) {
@@ -1111,8 +1157,8 @@ bool HeatrayRenderer::renderUI()
     }
 
 	if (m_editableMaterialScene.active) {
-		ImGui::Begin("PBR Material");
-		renderMaterialEditor(m_editableMaterialScene.material);
+		ImGui::Begin("Material");
+		renderMaterialEditor(m_editableMaterialScene.material, m_editableMaterialScene.type);
 		ImGui::End();
 	}
 
