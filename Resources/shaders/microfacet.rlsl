@@ -12,6 +12,15 @@
 #include "rayAttributes.rlsl"
 #include "utility.rlsl"
 
+// Note that this is not the alpha roughness, but the material roughness.
+vec3 computeMultiscattering(sampler2D multiscatterLUT, vec3 Cspec, float NdotI, float roughness)
+{
+	// https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf
+	float msLUTvalue = texture2D(multiscatterLUT, vec2(NdotI, roughness)).r;
+	vec3 f_ms = 1.0 + Cspec * ((1.0 - msLUTvalue) / msLUTvalue);
+	return f_ms;
+}
+
 void sampleDiffuse(vec3 N, vec3 I, float NdotI, mat3 frame, vec2 rand, 
 				   vec3 Cdiff, vec3 Cspec, float roughnessAlpha,
 				   float sampleProbability, bool isDirectLightingSample, primitive rayMissPrimitive)
@@ -64,12 +73,7 @@ void sampleSpecular(vec3 N, vec3 I, float NdotI, mat3 frame, vec2 rand,
 		vec3 specular = (F * G * IdotH) / (NdotH * NdotI);
 
 		// Account for multiscattering.
-		// https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf
-		{
-			float msLUTvalue = texture2D(multiscatterLUT, vec2(NdotI, roughness)).r;
-			vec3 f_ms = 1.0 + Cspec * ((1.0 - msLUTvalue) / msLUTvalue);
-			specular *= f_ms;
-		}
+		specular *= computeMultiscattering(multiscatterLUT, Cspec, NdotI, roughness);
 
 		vec3 reflectance = specular;
 		reflectance /= sampleProbability;

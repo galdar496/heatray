@@ -38,7 +38,7 @@ void specularSample(vec3 N, vec3 H, vec3 I, vec3 O, vec3 weight, bool isDirectLi
 		// The PDF of our sample function is (D * NdotH) / (4 * VdotH).
 		float G = G2_Smith_GGX(NdotO, NdotI, Material.roughnessAlpha);
 
-		vec3 reflectance = vec3((G * HdotI) / (NdotH * NdotI));
+		vec3 reflectance = Material.baseColor * ((G * HdotI) / (NdotH * NdotI));
 		reflectance *= weight;
 
 		if (dot(reflectance, reflectance) > 1e-5) {
@@ -84,7 +84,7 @@ void main()
 	vec2 refractProbability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex);
 	float F = F_Fresnel(eta, HdotI);
 
-	// Note that since the Fresnel term is used to determine how to sample it ends up getting cancelled out of the reflection math.
+	// Note that since the Fresnel term is used to determine how to sample it ends up getting cancelled out of the following math.
 	if (refractProbability.y < (1.0 - F)) {
 		vec3 O = normalize(refract(-I, H, eta));
 
@@ -93,13 +93,11 @@ void main()
 		float NdotH = abs(dot(H, N));
 		float NdotO = abs(dot(N, O));
 
-		// The PDF of our sample function is (D * NdotH) / (4 * VdotH).
 		float G = G2_Smith_GGX(NdotO, NdotI, Material.roughnessAlpha);
 
 		// https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf
-		// And for the PDF: https://hal.inria.fr/hal-00996995v1/document
+		// The PDF of our sample function is (D * NdotH) / (4 * VdotH).
 		vec3 transmission = Material.baseColor * (G * HdotI) / (NdotH * NdotI);
-		transmission /= (1.0 - F);
 
 		transmission *= weight;
 		if (dot(transmission, transmission) > 1e-5 && rl_InRay.depth < Globals.maxRayDepth) {
@@ -111,16 +109,17 @@ void main()
 			emitRay();
 		}
 	} else {
-		// Make sure that the base color properly affects the reflected value.
-		weight *= Material.baseColor;
-
-		// Do reflection. Use the same microfacet to do direct lighting and a different one for indirect.
+		// Do reflection. Use the unique microfacets for the direct and indirect lighting.
 		{
+			rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex);
+			H = frame * sampleGGX(rand.x, rand.y, Material.roughnessAlpha);
+
+			HdotI = dot(H, I);
 			vec3 O = normalize(2.0 * HdotI * H - I);
 			specularSample(N, H, I, O, weight, true, Globals.environmentLight);
 		}
 		if (rl_InRay.depth < Globals.maxRayDepth) {
-			rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex);
+			rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex);
 			H = frame * sampleGGX(rand.x, rand.y, Material.roughnessAlpha);
 
 			HdotI = dot(H, I);
