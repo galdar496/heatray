@@ -64,6 +64,7 @@ void sampleSpecular(vec3 N, vec3 I, float NdotI, mat3 frame, vec2 rand,
 		vec3 specular = (F * G * IdotH) / (NdotH * NdotI);
 
 		// Account for multiscattering.
+		// https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf
 		{
 			float msLUTvalue = texture2D(multiscatterLUT, vec2(NdotI, roughness)).r;
 			vec3 f_ms = 1.0 + Cspec * ((1.0 - msLUTvalue) / msLUTvalue);
