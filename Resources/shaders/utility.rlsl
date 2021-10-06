@@ -75,7 +75,7 @@ vec3 cosineWeightedSample(float u1, float u2)
 }
 
 // The PDF for this function is:
-//	(D * NdotH) / (4 * LdotH)
+//	(D * NdotH) / (4 * VdotH)
 vec3 sampleGGX(float u1, float u2, float roughnessAlpha) // Returns the half-vector.
 {
 	// Importance sample.

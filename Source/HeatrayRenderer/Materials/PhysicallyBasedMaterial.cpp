@@ -1,4 +1,5 @@
 #include "PhysicallyBasedMaterial.h"
+#include "MultiScatterUtil.h"
 
 #include <RLWrapper/Shader.h>
 #include <Utility/Log.h>
@@ -28,6 +29,9 @@ struct ShaderParams {
 	float clearCoat;
 	float clearCoatRoughness;
 	float clearCoatRoughnessAlpha; ///< GGX alpha value (roughness^2).
+
+	// Extra automatic parameters.
+	RLtexture multiscatterLUT;
 };
 
 void PhysicallyBasedMaterial::build()
@@ -113,11 +117,12 @@ void PhysicallyBasedMaterial::modify()
 	ShaderParams shaderParams;
 
 	constexpr float kMinRoughness = 0.01f; // Too low of a roughness will force a dirac delta response which will cause math errors in the shader code.
+	constexpr float kMaxSpecularF0 = 0.08f;
 
 	shaderParams.baseColor = glm::saturate(m_params.baseColor);
 	shaderParams.metallic = glm::saturate<float, glm::defaultp>(m_params.metallic);
 	shaderParams.roughness = glm::max(glm::saturate<float, glm::defaultp>(m_params.roughness), kMinRoughness);
-	shaderParams.specularF0 = m_params.specularF0;
+	shaderParams.specularF0 = m_params.specularF0 * kMaxSpecularF0;
 	shaderParams.roughnessAlpha = shaderParams.roughness * shaderParams.roughness;
 	shaderParams.clearCoat = m_params.clearCoat;
 	shaderParams.clearCoatRoughness = glm::max(glm::saturate<float, glm::defaultp>(m_params.clearCoatRoughness), kMinRoughness);
@@ -163,6 +168,8 @@ void PhysicallyBasedMaterial::modify()
 	else {
 		shaderParams.clearCoatNormalmap = openrl::Texture::getDummyTexture()->texture();
 	}
+
+	shaderParams.multiscatterLUT = loadMultiscatterTexture()->texture();
 
 	m_constants->modify(&shaderParams, sizeof(ShaderParams));
 }

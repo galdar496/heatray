@@ -20,6 +20,9 @@ Heatray is a C++ path tracer utilizing [OpenRL](https://en.wikipedia.org/wiki/Op
 * Interactive UI via [imgui](https://github.com/ocornut/imgui)
 * Materials:
     * Physically-based
+	** Roughness/Metallic
+	** Clearcoat
+	** Multiscattering
     * Glass
 ## Theory
 Checkout [this link](http://galdar496.github.io/heatray/) to get an overview of the mathematics behind Heatray.

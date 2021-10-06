@@ -37,6 +37,8 @@ uniformblock Material {
 	float clearCoat;
 	float clearCoatRoughness;
 	float clearCoatRoughnessAlpha;
+
+	sampler2D multiscatterLUT;
 };
 
 void setup()
@@ -111,9 +113,13 @@ void main()
 	float clearCoatScale = clearCoatF * clearCoat;
 	float clearCoatBottomLayerScale = 1.0 - clearCoatScale; // Scale to apply to the bottom layer's diffuse/specular.
 
-	// This approximation comes from https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
     vec3 Cdiff = (baseColor * (1.0 - metallic)) * clearCoatBottomLayerScale;
-	vec3 Cspec = (0.16 * square(Material.specularF0) * (1.0 - metallic) + baseColor * metallic) * clearCoatBottomLayerScale;
+
+	// This approximation comes from https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
+	//vec3 Cspec = (0.16 * square(Material.specularF0) * (1.0 - metallic) + baseColor * metallic) * clearCoatBottomLayerScale;
+
+	// And this comes from the Disney BRDF explorer: https://github.com/wdas/brdf/blob/main/src/brdfs/disney.brdf#L104
+	vec3 Cspec = mix(vec3(Material.specularF0), baseColor, vec3(metallic)) * clearCoatBottomLayerScale;
 
 	// The probability that we select the diffuse BRDF to sample while rendering.
 	float diffuseLuminance  = luminosity(Cdiff);
@@ -140,10 +146,10 @@ void main()
 						  diffuseProbability, true, Globals.environmentLight);
 		} else if (probability.x <= (diffuseProbability + clearCoatProbability)) {
 			sampleSpecular(clearCoatN, V, clearCoatNdotV, clearCoatFrame, rand, vec3(clearCoatScale), clearCoatRoughnenessAlpha,
-						   clearCoatProbability, true, Globals.environmentLight);
+						   clearCoatProbability, true, Globals.environmentLight, Material.multiscatterLUT, roughness);
 		} else {
 			sampleSpecular(N, V, NdotV, frame, rand, Cspec, roughnessAlpha,
-						   specularProbability, true, Globals.environmentLight);
+						   specularProbability, true, Globals.environmentLight, Material.multiscatterLUT, roughness);
 		}
 	}
 
@@ -159,10 +165,10 @@ void main()
 						  diffuseProbability, false, rl_NullPrimitive);
 		} else if (probability.x <= (diffuseProbability + clearCoatProbability)) {
 			sampleSpecular(clearCoatN, V, clearCoatNdotV, clearCoatFrame, rand, vec3(clearCoatScale), clearCoatRoughnenessAlpha,
-						   clearCoatProbability, false, rl_NullPrimitive);
+						   clearCoatProbability, false, rl_NullPrimitive, Material.multiscatterLUT, roughness);
 		} else {
 			sampleSpecular(N, V, NdotV, frame, rand, Cspec, roughnessAlpha,
-						   specularProbability, false, rl_NullPrimitive);
+						   specularProbability, false, rl_NullPrimitive, Material.multiscatterLUT, roughness);
 		}
 	}
 }

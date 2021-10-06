@@ -17,13 +17,16 @@ namespace util {
 	LOG_INFO("Loading texture %s", path);
     openrl::Texture::Sampler sampler;
     if (!generateMips) { // default sampler state is with mipmapping enabled.
-        sampler.magFilter = RL_NEAREST;
-        sampler.minFilter = RL_NEAREST_MIPMAP_NEAREST;
+        sampler.magFilter = RL_LINEAR;
+        sampler.minFilter = RL_LINEAR;
+		sampler.wrapS = RL_CLAMP_TO_EDGE;
+		sampler.wrapT = RL_CLAMP_TO_EDGE;
     }
 
 	std::shared_ptr<openrl::Texture> texture = nullptr;
 
-    if (std::filesystem::path(path).extension() == ".exr") {
+    if ((std::filesystem::path(path).extension() == ".exr") ||
+		(std::filesystem::path(path).extension() == ".tiff")) {
         FREE_IMAGE_FORMAT format = FreeImage_GetFileType(path, 0);
         assert(FreeImage_FIFSupportsReading(format));
 

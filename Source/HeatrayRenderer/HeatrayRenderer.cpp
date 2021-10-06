@@ -1,6 +1,7 @@
 #include "HeatrayRenderer.h"
 
 #include "Materials/GlassMaterial.h"
+#include "Materials/MultiScatterUtil.h"
 #include "Materials/PhysicallyBasedMaterial.h"
 #include "Materials/ShowNormalsMaterial.h"
 #include "MeshProviders/AssimpMeshProvider.h"
@@ -1095,6 +1096,11 @@ bool HeatrayRenderer::renderUI()
 			}
         }
     }
+	if (ImGui::CollapsingHeader("Developer")) {
+		if (ImGui::Button("Generate MultiScatter LUT")) {
+			generateMultiScatterTexture();
+		}
+	}
 
 	// Console log.
 	{
@@ -1177,12 +1183,12 @@ void HeatrayRenderer::resetRenderer()
 }
 
 void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char* message) {
-    printf("\n*** ");
+	LOG_ERROR("FreeImage*** ");
     if (fif != FIF_UNKNOWN) {
-        printf("%s Format\n", FreeImage_GetFormatFromFIF(fif));
+        LOG_ERROR("%s Format", FreeImage_GetFormatFromFIF(fif));
     }
-    printf(message);
-    printf(" ***\n");
+	LOG_ERROR(message);
+	LOG_ERROR("***");
 }
 
 void HeatrayRenderer::saveScreenshot()

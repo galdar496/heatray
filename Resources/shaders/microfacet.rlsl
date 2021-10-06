@@ -20,8 +20,9 @@ void sampleDiffuse(vec3 N, vec3 I, float NdotI, mat3 frame, vec2 rand,
 	vec3 dir = cosineWeightedSample(rand.x, rand.y);
 	vec3 O = frame * dir;
 	
-	float NdotO = saturate(dot(N, O));
+	float NdotO = dot(N, O);
 	if (NdotO > 0.0) {
+		NdotO = saturate(NdotO);
 		// Note that the PDF of cosine-weighted sampling is cos(theta)/pi but cancels out.
 		vec3 diffuse = Cdiff;
 
@@ -42,31 +43,34 @@ void sampleDiffuse(vec3 N, vec3 I, float NdotI, mat3 frame, vec2 rand,
 
 void sampleSpecular(vec3 N, vec3 I, float NdotI, mat3 frame, vec2 rand, 
 				    vec3 Cspec, float roughnessAlpha,
-				    float sampleProbability, bool isDirectLightingSample, primitive rayMissPrimitive)
+				    float sampleProbability, bool isDirectLightingSample, primitive rayMissPrimitive,
+					sampler2D multiscatterLUT, float roughness)
 {
-	// Note that sampleVisibleGGX() is returning a microfacet normal. 
+	// Note that sampleGGX() is returning a microfacet normal. 
 	// We still need to reflect about that normal to get our final sample direction.
-	vec3 localSpaceI = transpose(frame) * I;
-	vec3 H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, roughnessAlpha);
-	float IdotH = saturate(dot(I, H));
+	vec3 H = frame * sampleGGX(rand.x, rand.y, roughnessAlpha);
+	float IdotH = dot(I, H);
 	vec3 O = normalize(2.0 * IdotH * H - I);
 
-	float NdotO = saturate(dot(N, O));
-	if (IdotH > 0.0) {
-		// PDF is actually (G1 * D * NdotI) / NdotH. However we're optimizing out most of the terms here from the 
-		// standard microfacet BRDF to arrive at:
-		//	(F * G2) / G1
-		// See http://jcgt.org/published/0007/04/01/paper.pdf for more information.
+	float NdotO = dot(N, O);
+	if (NdotO > 0.0) {
+		IdotH = saturate(IdotH);
+		NdotO = saturate(NdotO);
 		float NdotH = saturate(dot(N, H));
 
-		vec3 F = F_Schlick(Cspec, IdotH);
-		float G2 = G2_Smith_GGX(NdotO, NdotI, roughnessAlpha);
-		float G1 = G1_Smith_GGX(NdotI, roughnessAlpha);
+		// The PDF of our sample function is (D * NdotH) / (4 * VdotH).
+		float G = G2_Smith_GGX(NdotO, NdotI, roughnessAlpha);
+		vec3  F = F_Schlick(Cspec, IdotH);
+		vec3 specular = (F * G * IdotH) / (NdotH * NdotI);
 
-		// Microfacet BRDF.
-		vec3 specular = (F * G2) / greaterThanZero(G1);
+		// Account for multiscattering.
+		{
+			float msLUTvalue = texture2D(multiscatterLUT, vec2(NdotI, roughness)).r;
+			vec3 f_ms = 1.0 + Cspec * ((1.0 - msLUTvalue) / msLUTvalue);
+			specular *= f_ms;
+		}
+
 		vec3 reflectance = specular;
-		// Note that the PDF has already cancelled out.
 		reflectance /= sampleProbability;
 		reflectance *= rl_InRay.weight;
 
