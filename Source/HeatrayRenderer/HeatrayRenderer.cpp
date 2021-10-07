@@ -67,7 +67,7 @@ bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
 	m_renderOptions.camera.setApertureRadius();
 
     // Load the default scene.
-    changeScene(m_renderOptions.scene);
+    changeScene(m_renderOptions.scene, true);
 
     return true;
 }
@@ -99,7 +99,7 @@ void HeatrayRenderer::resize(const GLint newWindowWidth, const GLint newWindowHe
     m_justResized = true;
 }
 
-void HeatrayRenderer::changeScene(std::string const& sceneName)
+void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveCamera)
 {
 	m_groundPlane.reset();
 	m_editableMaterialScene.active = false;
@@ -310,7 +310,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             }
         });
     } else {
-        m_renderer.loadScene([this, sceneName](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
+        m_renderer.loadScene([this, sceneName, moveCamera](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
             for (auto mesh : m_sceneData) {
                 mesh.destroy();
             }
@@ -321,14 +321,18 @@ void HeatrayRenderer::changeScene(std::string const& sceneName)
             const std::vector<std::shared_ptr<Material>> &materials = assimpMeshProvider.GetMaterials();
             
             m_sceneData.push_back(RLMesh(&assimpMeshProvider, materials, systemSetupCallback, glm::mat4(1.0f)));
-			m_sceneAABB = assimpMeshProvider.sceneAABB();
-			m_camera.orbitCamera.target = m_sceneAABB.center();
-			m_camera.orbitCamera.distance = m_sceneAABB.radius() * 3.0f; // Add some extra scale.
-			m_camera.orbitCamera.max_distance = m_sceneAABB.radius() * 10.0f;
 
-			m_distanceScale = m_sceneAABB.radius();
+			// We'll automatically setup camera and AABB info if requested to do so.
+			if (moveCamera) {
+				m_sceneAABB = assimpMeshProvider.sceneAABB();
+				m_camera.orbitCamera.target = m_sceneAABB.center();
+				m_camera.orbitCamera.distance = m_sceneAABB.radius() * 3.0f; // Add some extra scale.
+				m_camera.orbitCamera.max_distance = m_sceneAABB.radius() * 10.0f;
 
-			m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
+				m_distanceScale = m_sceneAABB.radius();
+
+				m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
+			}
 
 			resetRenderer();
         });
@@ -655,8 +659,9 @@ void HeatrayRenderer::readSessionFile(const std::string& filename)
 			session.getVariableValue(Session::kBlue, m_post_processing_params.blue);
 		}
 
-		// Now actually process the parameters.
-		changeScene(m_renderOptions.scene);
+		// Now actually process the parameters. NOTE: we do not allow the camera to be reset because we want to use
+		// the values present in the session file.
+		changeScene(m_renderOptions.scene, false);
 		// NOTE: most everything is handled automatically during a reset.
 		resetRenderer();
 	}
@@ -960,7 +965,7 @@ bool HeatrayRenderer::renderUI()
 						m_renderOptions.scene = options[iOption];
 					}
 					if (newScene) {
-						changeScene(m_renderOptions.scene);
+						changeScene(m_renderOptions.scene, true);
 						shouldResetRenderer = true;
 					}
                 }
@@ -1013,6 +1018,7 @@ bool HeatrayRenderer::renderUI()
         bool changed = ImGui::SliderAngle("Phi", &(m_camera.orbitCamera.phi), 0.0f, 360.0f);
         changed |= ImGui::SliderAngle("Theta", &(m_camera.orbitCamera.theta), -90.0f, 90.0f);
         changed |= ImGui::SliderFloat("Distance", &(m_camera.orbitCamera.distance), 0.0f, m_camera.orbitCamera.max_distance);
+		changed |= ImGui::InputFloat3("Target", m_camera.orbitCamera.target.data.data, "%f", ImGuiInputTextFlags_CharsDecimal);
         if (changed) {
             shouldResetRenderer = true;
         }

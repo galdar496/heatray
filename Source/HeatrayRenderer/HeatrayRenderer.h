@@ -46,7 +46,7 @@ public:
     bool init(const GLint renderWidth, const GLint renderHeight);
     void destroy();
     void resize(const GLint newWidth, const GLint newHeight);
-    void changeScene(std::string const & sceneName);
+    void changeScene(std::string const & sceneName, bool moveCamera);
     void render();
 	void adjustCamera(const float phi_delta, const float theta_delta, const float distance_delta);
 

@@ -123,7 +123,7 @@ namespace util {
         desc.height = height;
         switch (channelCount) {
             case 1:
-                desc.format = RL_FLOAT; break;
+                desc.format = RL_LUMINANCE; break;
             case 3:
                 desc.format = RL_RGB; break;
             case 4:
