@@ -16,6 +16,8 @@ uniform float red;
 uniform float green;
 uniform float blue;
 
+in vec2 textureCoords;
+
 const float SRGB_ALPHA = 0.055;
 
 // ACES tonemapping adapted from: https://github.com/TheRealMJP/BakingLab/blob/master/BakingLab/ACES.hlsl
@@ -67,7 +69,7 @@ vec3 SRGBToLinear(vec3 srgb) {
 void main()
 {
 	// raytraced texture is rgb of all accumulated passes and w = # of passes performed.
-	vec4 result = texture2D(raytracedTexture, gl_TexCoord[0].st);
+	vec4 result = texture2D(raytracedTexture, textureCoords.xy);
 	vec3 finalColor = result.xyz / result.w;
 
 	// Apply the color processing pipeline.

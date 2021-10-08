@@ -83,7 +83,11 @@ private:
     struct DisplayProgram
     {
         GLuint program = 0;
-        GLuint shader = 0;
+        GLuint fragShader = 0;
+		GLuint vertexShader = 0;
+
+		GLuint vbo = 0;
+		GLuint vao = 0;
 
         GLint displayTextureLocation = -1;
         GLint tonemappingEnabledLocation = -1;
@@ -96,28 +100,50 @@ private:
 		GLint redLocation = -1;
 		GLint greenLocation = -1;
 		GLint blueLocation = -1;
+		GLint xStartLocation = -1;
 
         void init()
         {
-            shader = glCreateShader(GL_FRAGMENT_SHADER);
-            std::string shaderSource;
-            util::readTextFile("Resources/Shaders/DisplayGL.frag", shaderSource);
-            const char* source = shaderSource.c_str();
-            glShaderSource(shader, 1, &source, nullptr);
-            glCompileShader(shader);
-            GLint success = 0;
-            glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-			if (success != GL_TRUE) {
-				GLsizei log_length = 0;
-				GLchar  log[1024];
-				glGetShaderInfoLog(shader, sizeof(log), &log_length, log);
-				LOG_ERROR("Unable to compile display shader: \n\t%s", log);
+			GLint success = 0;
+			{
+				fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+				std::string shaderSource;
+				util::readTextFile("Resources/Shaders/displayGL.frag", shaderSource);
+				const char* source = shaderSource.c_str();
+				glShaderSource(fragShader, 1, &source, nullptr);
+				glCompileShader(fragShader);
+				glGetShaderiv(fragShader, GL_COMPILE_STATUS, &success);
+				if (success != GL_TRUE) {
+					GLsizei log_length = 0;
+					GLchar  log[1024];
+					glGetShaderInfoLog(fragShader, sizeof(log), &log_length, log);
+					LOG_ERROR("Unable to compile display frag shader: \n\t%s", log);
+				}
+				assert(success == GL_TRUE);
 			}
-			assert(success == GL_TRUE);
+
+			{
+				vertexShader = glCreateShader(GL_VERTEX_SHADER);
+				std::string shaderSource;
+				util::readTextFile("Resources/Shaders/displayGL.vert", shaderSource);
+				const char* source = shaderSource.c_str();
+				glShaderSource(vertexShader, 1, &source, nullptr);
+				glCompileShader(vertexShader);
+				success = 0;
+				glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+				if (success != GL_TRUE) {
+					GLsizei log_length = 0;
+					GLchar  log[1024];
+					glGetShaderInfoLog(vertexShader, sizeof(log), &log_length, log);
+					LOG_ERROR("Unable to compile display vertex shader: \n\t%s", log);
+				}
+				assert(success == GL_TRUE);
+			}
 
             // Create the display program.
             program = glCreateProgram();
-            glAttachShader(program, shader);
+            glAttachShader(program, fragShader);
+			glAttachShader(program, vertexShader);
             glLinkProgram(program);
             glGetProgramiv(program, GL_LINK_STATUS, &success);
             assert(success == GL_TRUE);
@@ -134,28 +160,56 @@ private:
 			redLocation = glGetUniformLocation(program, "red");
 			greenLocation = glGetUniformLocation(program, "green");
 			blueLocation = glGetUniformLocation(program, "blue");
+			xStartLocation = glGetUniformLocation(program, "xStart");
+
+			// Create the display VBO.
+			{
+				// NOTE: we create a empty VBO because the vertices are figured out in-shader.
+				glGenVertexArrays(1, &vao);
+				glBindVertexArray(vao);
+
+				glGenBuffers(1, &vbo);
+				glBindBuffer(GL_ARRAY_BUFFER, vbo);
+				glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 4, nullptr, GL_STATIC_DRAW);
+
+				glEnableVertexAttribArray(0);
+				glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 0, 0);
+
+				glBindVertexArray(0);
+			}
         }
 
         /// @param texture Location of the texture to use for the shader.
-		void bind(GLint texture, const PostProcessingParams& post_params) const
+		void bind(GLint texture, const PostProcessingParams& post_params, size_t windowWidth) const
         {
             glUseProgram(program);
-            glUniform1i(displayTextureLocation, texture);
-            glUniform1i(tonemappingEnabledLocation, post_params.tonemapping_enabled ? 1 : 0);
-            glUniform1f(cameraExposureLocation, std::powf(2.0, post_params.exposure));
-			glUniform1f(brightnessLocation, post_params.brightness);
-			glUniform1f(hueLocation, post_params.hue);
-			glUniform1f(saturationLocation, post_params.saturation);
-			glUniform1f(vibranceLocation, post_params.vibrance);
-			glUniform1f(redLocation, post_params.red);
-			glUniform1f(greenLocation, post_params.green);
-			glUniform1f(blueLocation, post_params.blue);
 
+			// Vertex
 			{
-				// Contrast needs to be properly remapped before being used by the shader.
-				float integer_contrast = post_params.contrast * 255.0f;
-				float contrast = (259.0f * (integer_contrast + 255.0f)) / (255.0f * (259.0f - integer_contrast));
-				glUniform1f(contrastLocation, contrast);
+				// Shift the screen quad to account for the UI.
+				float start = ((float(UI_WINDOW_WIDTH) / float(windowWidth)) * 2.0f) - 1.0f;
+				glUniform1f(xStartLocation, start);
+			}
+
+			// Fragment
+			{
+				glUniform1i(displayTextureLocation, texture);
+				glUniform1i(tonemappingEnabledLocation, post_params.tonemapping_enabled ? 1 : 0);
+				glUniform1f(cameraExposureLocation, std::powf(2.0, post_params.exposure));
+				glUniform1f(brightnessLocation, post_params.brightness);
+				glUniform1f(hueLocation, post_params.hue);
+				glUniform1f(saturationLocation, post_params.saturation);
+				glUniform1f(vibranceLocation, post_params.vibrance);
+				glUniform1f(redLocation, post_params.red);
+				glUniform1f(greenLocation, post_params.green);
+				glUniform1f(blueLocation, post_params.blue);
+
+				{
+					// Contrast needs to be properly remapped before being used by the shader.
+					float integer_contrast = post_params.contrast * 255.0f;
+					float contrast = (259.0f * (integer_contrast + 255.0f)) / (255.0f * (259.0f - integer_contrast));
+					glUniform1f(contrastLocation, contrast);
+				}
 			}
         }
 
@@ -163,6 +217,17 @@ private:
         {
             glUseProgram(0);
         }
+
+		void draw(GLint texture, const PostProcessingParams& post_params, size_t windowWidth) const
+		{
+			bind(texture, post_params, windowWidth);
+
+			glBindVertexArray(vao);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			glBindVertexArray(0);
+	
+			unbind();
+		}
     };
 
     PassGenerator m_renderer; ///< Generator of pathtraced frames.

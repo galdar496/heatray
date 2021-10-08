@@ -10,11 +10,10 @@
 #include "Utility/ConsoleLog.h"
 #include "Utility/ImGuiLog.h"
 
-#include <GLUT/freeglut.h>
-
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glut.h"
-#include "imgui/imgui_impl_opengl2.h"
+#include <GLFW/glfw3.h>
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
 
 #include "../3rdParty/glm/glm/glm.hpp"
 
@@ -24,7 +23,9 @@ const std::string kVersion      = "4.0";
 const std::string kWindowTitle  = "Heatray " + kVersion;
 
 bool mousePositionValid = false;
+bool isMovingCamera = false;
 glm::vec2 previousMousePosition;
+glm::ivec2 previousWindowSize;
 
 namespace {
     // The renderer exists as a global variable to be accessed by all
@@ -41,133 +42,134 @@ const int kCheesyMultiplier = 1;
 const int kCheesyMultiplier = 2;
 #endif
 
-void resizeWindow(int width, int height)
+static void glfw_error_callback(int error, const char* description)
 {
-    heatray.resize(width * kCheesyMultiplier, height * kCheesyMultiplier);
-    ImGui_ImplGLUT_ReshapeFunc(width * kCheesyMultiplier, height * kCheesyMultiplier);
+	LOG_ERROR("glfw error %d: %s\n", error, description);
 }
 
-void render()
-{  
-    ImGui_ImplOpenGL2_NewFrame();
-    ImGui_ImplGLUT_NewFrame();
-
-    heatray.render();
-    
-    ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
-    glutSwapBuffers();
-}
-
-void update()
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    glutPostRedisplay();
-}
-
-void shutdown()
-{
-    heatray.destroy();
-
-    // ImGui deinit.
-    {
-        ImGui_ImplOpenGL2_Shutdown();
-        ImGui_ImplGLUT_Shutdown();
-        ImGui::DestroyContext();
-    }
-}
-
-void motion(int x, int y)
-{
-	// If we're inside of the rendering window then let the renderer know that the user wants to move the camera.
-	if (x >= HeatrayRenderer::UI_WINDOW_WIDTH) {
-		if (!mousePositionValid) {
-			previousMousePosition = glm::vec2(x, y);
-			mousePositionValid = true;
-		} else {
-			glm::vec2 mouseDelta = glm::vec2(x, y) - previousMousePosition;
-			heatray.adjustCamera(mouseDelta.x, mouseDelta.y, 0.0f);
-			previousMousePosition = glm::vec2(x, y);
-		}
+	if (previousMousePosition.x >= HeatrayRenderer::UI_WINDOW_WIDTH) {
+		heatray.adjustCamera(0.0f, 0.0f, static_cast<float>(-yoffset));
 	}
-
-    ImGui_ImplGLUT_MotionFunc(x * kCheesyMultiplier, y * kCheesyMultiplier);
-}
-
-void mouseMove(int button, int state, int x, int y)
-{
-	if (button == GLUT_LEFT_BUTTON) {
-		mousePositionValid = false;
-	}
-    ImGui_ImplGLUT_MouseFunc(button, state, x * kCheesyMultiplier, y * kCheesyMultiplier);
-}
-
-#ifdef __FREEGLUT_EXT_H__
-void mouseWheel(int button, int dir, int x, int y)
-{
-	if (x >= HeatrayRenderer::UI_WINDOW_WIDTH) {
-		heatray.adjustCamera(0.0f, 0.0f, static_cast<float>(-dir));
-	}
-	ImGui_ImplGLUT_MouseWheelFunc(button, dir, x, y);
-}
-#endif // __FREEGLUT_EXT_H__
-
-void keyboardPressed(unsigned char c, int x, int y)
-{
-    ImGui_ImplGLUT_KeyboardFunc(c, x * kCheesyMultiplier, y * kCheesyMultiplier);
-}
-
-void keyboardUp(unsigned char c, int x, int y)
-{
-    ImGui_ImplGLUT_KeyboardUpFunc(c, x * kCheesyMultiplier, y * kCheesyMultiplier);
-}
-
-void specialPressed(int key, int x, int y)
-{
-    ImGui_ImplGLUT_SpecialFunc(key, x * kCheesyMultiplier, y * kCheesyMultiplier);
-}
-
-void specialUp(int key, int x, int y)
-{
-    ImGui_ImplGLUT_SpecialUpFunc(key, x * kCheesyMultiplier, y * kCheesyMultiplier);
 }
 
 int main(int argc, char **argv)
 {
 	util::ConsoleLog::install();
 
-    glutInit(&argc, argv);
-    glutInitWindowPosition(100,100);
-    glutInitWindowSize(kDefaultWindowWidth, kDefaultWindowHeight);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
-    glutCreateWindow(kWindowTitle.c_str());
+	glfwSetErrorCallback(glfw_error_callback);
+	if (!glfwInit()) {
+		return 1;
+	}
 
-    glutReshapeFunc(resizeWindow);
-    glutDisplayFunc(render);
-    glutIdleFunc(update);
-    glutMotionFunc(motion);
-    glutMouseFunc(mouseMove);
-#ifdef __FREEGLUT_EXT_H__
-	glutMouseWheelFunc(mouseWheel);
-#endif // __FREEGLUT_EXT_H__
-    glutKeyboardFunc(keyboardPressed);
-    glutKeyboardUpFunc(keyboardUp);
-    glutSpecialFunc(specialPressed);
-    glutSpecialUpFunc(specialUp);
+	// GL 4.6 + GLSL 460
+	const char* glsl_version = "#version 460";
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, (_DEBUG ? GLFW_TRUE : GLFW_FALSE));
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    heatray.init(kDefaultWindowWidth, kDefaultWindowHeight);
+	GLFWwindow* window = glfwCreateWindow(kDefaultWindowWidth, kDefaultWindowHeight, kWindowTitle.c_str(), nullptr, nullptr);
+	if (window == nullptr) {
+		return 1;
+	}
 
-    // ImGui setup code.
-    if (true) {
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGui::StyleColorsDark();
+	glfwMakeContextCurrent(window);
 
-        ImGui_ImplGLUT_Init();
-        ImGui_ImplOpenGL2_Init();
-    }
+	// Enable vsync
+	glfwSwapInterval(1);
 
-	util::ImGuiLog::install();
+	// Callbacks
+	glfwSetScrollCallback(window, scrollCallback);
 
-    glutMainLoop();
+	// Handles GLEW init as well.
+	heatray.init(kDefaultWindowWidth, kDefaultWindowHeight);
+	heatray.resize(kDefaultWindowWidth * kCheesyMultiplier, kDefaultWindowHeight * kCheesyMultiplier);
+
+	// ImGui setup code.
+	{
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGui::StyleColorsDark();
+
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
+		ImGui_ImplOpenGL3_Init(glsl_version);
+
+		util::ImGuiLog::install();
+	}
+
+	previousWindowSize = glm::ivec2(kDefaultWindowWidth, kDefaultWindowHeight);
+
+	// Main loop.
+	while (!glfwWindowShouldClose(window)) {
+		glfwPollEvents();
+
+		// Resize.
+		{
+			glm::ivec2 newWindowSize;
+			glfwGetWindowSize(window, &newWindowSize.x, &newWindowSize.y);
+			if (newWindowSize != previousWindowSize) {
+				heatray.resize(newWindowSize.x * kCheesyMultiplier, newWindowSize.y * kCheesyMultiplier);
+				previousWindowSize = newWindowSize;
+			}
+		}
+
+		// Handle mouse.
+		{
+			// Buttons.
+			{
+				if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+					if (!isMovingCamera) {
+						isMovingCamera = true;
+						mousePositionValid = false;
+					}
+				} else {
+					isMovingCamera = false;
+				}
+			}
+
+			// Position.
+			{
+				double x, y;
+				glfwGetCursorPos(window, &x, &y);
+
+				// If we're inside of the rendering window then let the renderer know that the user wants to move the camera.
+				if (x >= HeatrayRenderer::UI_WINDOW_WIDTH) {
+					if (isMovingCamera) {
+						if (!mousePositionValid) {
+							previousMousePosition = glm::vec2(x, y);
+							mousePositionValid = true;
+						} else {
+							glm::vec2 mouseDelta = glm::vec2(x, y) - previousMousePosition;
+							heatray.adjustCamera(mouseDelta.x, mouseDelta.y, 0.0f);							
+						}
+					}
+
+					previousMousePosition = glm::vec2(x, y);
+				}
+			}
+		}
+
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		heatray.render();
+
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		
+		glfwSwapBuffers(window);
+	}
+
+	heatray.destroy();
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+
+	glfwDestroyWindow(window);
+	glfwTerminate();
     
     return 0;
 }

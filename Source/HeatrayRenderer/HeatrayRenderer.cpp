@@ -38,9 +38,6 @@ bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
         #endif
 
         // Create the pixel-pack buffer and gl texture to use for displaying the raytraced result.
-        glEnable(GL_TEXTURE_2D);
-        glDisable(GL_LIGHTING);
-        glDisable(GL_BLEND);
 
         glGenBuffers(1, &m_displayPixelBuffer);
         glGenTextures(1, &m_displayTexture);
@@ -55,12 +52,12 @@ bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
         m_displayProgram.init();
 
         // Make sure that OpenGL doesn't automatically clamp our display texture. This is because the raytraced image
-		// that will be stored in it is actually an accumulation of every ray that has gone through a given pixel.
+		// that will be stored is actually an accumulation of every ray that has gone through a given pixel.
 		// Therefore each pixel value will quickly move beyond 1.0.  Only enabled on Windows as it doesn't seem to be
         // available on macOS.
-        #if defined(_WIN32) || defined(_WIN64)
-        glClampColorARB(GL_CLAMP_FRAGMENT_COLOR, GL_FALSE);
-        #endif
+#if defined(_WIN32) || defined(_WIN64)
+        glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
+#endif
     }
 
     m_renderOptions.camera.aspectRatio = static_cast<float>(m_renderWindowParams.width) / static_cast<float>(m_renderWindowParams.height);
@@ -371,19 +368,10 @@ void HeatrayRenderer::render()
 
     // Display the current raytraced result.
     {
-		// Shift the quad to account for the UI.
-		float start = ((float(UI_WINDOW_WIDTH) / float(m_windowParams.width)) * 2.0f) - 1.0f;
-
-        m_displayProgram.bind(0, m_post_processing_params); 
-        glBindTexture(GL_TEXTURE_2D, m_displayTexture);
-        glBegin(GL_QUADS);
-			glTexCoord2d(0.0, 0.0); glVertex2f(start, -1.0f);
-			glTexCoord2d(1.0, 0.0); glVertex2f(1.0f, -1.0f);
-			glTexCoord2d(1.0, 1.0); glVertex2f(1.0f, 1.0f);
-			glTexCoord2d(0.0, 1.0); glVertex2f(start, 1.0f);
-        glEnd();
-        glBindTexture(GL_TEXTURE_2D, 0);
-        m_displayProgram.unbind();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, m_displayTexture);
+		m_displayProgram.draw(0, m_post_processing_params, float(m_windowParams.width));
+		glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     // If requested to do a screenshot, perform it now.

@@ -19,7 +19,7 @@ include_directories(
 link_directories(
   3rdParty/FreeImage
   3rdParty/glew
-  3rdParty/GLUT
+  3rdParty/GLFW
   3rdParty/OpenRL
   3rdParty/tinyxml2
 )
