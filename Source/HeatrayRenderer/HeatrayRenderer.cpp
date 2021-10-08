@@ -336,6 +336,13 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
     }
 }
 
+void HeatrayRenderer::changeEnvironment(std::string const& envMapPath)
+{
+	m_renderOptions.environment.map = envMapPath;
+	m_renderOptions.environment.builtInMap = false;
+	resetRenderer();
+}
+
 void HeatrayRenderer::render()
 {
     // Copy the most recent frame (if necessary).

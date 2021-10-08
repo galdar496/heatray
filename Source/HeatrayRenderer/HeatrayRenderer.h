@@ -47,6 +47,7 @@ public:
     void destroy();
     void resize(const GLint newWidth, const GLint newHeight);
     void changeScene(std::string const & sceneName, bool moveCamera);
+	void changeEnvironment(std::string const& envMapPath);
     void render();
 	void adjustCamera(const float phi_delta, const float theta_delta, const float distance_delta);
 

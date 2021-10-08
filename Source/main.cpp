@@ -42,7 +42,7 @@ const int kCheesyMultiplier = 1;
 const int kCheesyMultiplier = 2;
 #endif
 
-static void glfw_error_callback(int error, const char* description)
+void glfwErrorCallback(int error, const char* description)
 {
 	LOG_ERROR("glfw error %d: %s\n", error, description);
 }
@@ -54,11 +54,31 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 	}
 }
 
+void glfwPathDropCallback(GLFWwindow* window, int pathCount, const char* paths[])
+{
+	if (pathCount) {
+		// Is this an env map or a scene file?
+		static constexpr char * ENV_FORMATS[] = { ".exr", ".hdr" };
+		static constexpr size_t NUM_ENV_FORMATS = sizeof(ENV_FORMATS) / sizeof(ENV_FORMATS[0]);
+	
+		std::string path(paths[0]);
+		for (size_t iFormat = 0; iFormat < NUM_ENV_FORMATS; ++iFormat) {
+			if (path.find(ENV_FORMATS[iFormat]) != std::string::npos) {
+				heatray.changeEnvironment(path);
+				return;
+			}
+		}
+
+		// If we've gotten this far then we assume the path is a scene file.
+		heatray.changeScene(path, true);
+	}
+}
+
 int main(int argc, char **argv)
 {
 	util::ConsoleLog::install();
 
-	glfwSetErrorCallback(glfw_error_callback);
+	glfwSetErrorCallback(glfwErrorCallback);
 	if (!glfwInit()) {
 		return 1;
 	}
@@ -82,6 +102,7 @@ int main(int argc, char **argv)
 
 	// Callbacks
 	glfwSetScrollCallback(window, scrollCallback);
+	glfwSetDropCallback(window, glfwPathDropCallback);
 
 	// Handles GLEW init as well.
 	heatray.init(kDefaultWindowWidth, kDefaultWindowHeight);
