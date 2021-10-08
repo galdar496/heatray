@@ -44,6 +44,8 @@ public:
 
 private:
     static constexpr char const * m_shader = "physicallyBased.rlsl"; ///< Shader file with corresponding material code.
+	std::shared_ptr<openrl::Texture> m_multiscatterLUT = nullptr;
+	std::shared_ptr<openrl::Texture> m_dummyTexture = nullptr;
 
 	Parameters m_params;
 };

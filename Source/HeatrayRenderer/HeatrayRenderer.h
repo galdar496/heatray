@@ -35,7 +35,7 @@ public:
     {
         m_totalPasses = m_renderOptions.maxRenderPasses * (m_renderOptions.enableInteractiveMode ? (m_renderOptions.kInteractiveBlockSize.x * m_renderOptions.kInteractiveBlockSize.y) : 1);
     }
-    ~HeatrayRenderer() = default;
+	~HeatrayRenderer() = default;
 
     struct WindowParams
     {
@@ -269,8 +269,6 @@ private:
 	};
 	SceneUnits m_scene_units = SceneUnits::kMeters;
 
-    std::vector<RLMesh> m_sceneData;
-
     bool m_swapYZ = false;
 
     float m_currentPassTime = 0.0f;
@@ -284,16 +282,14 @@ private:
 
 	struct GroundPlane {
 		void reset() {
-			if (mesh) {
+			if (mesh.valid()) {
 				material.reset();
-				mesh = nullptr;
-				meshIndex = ~0;
+				mesh.destroy();
 			}
 		}
 
-		RLMesh* mesh = nullptr;
+		RLMesh mesh;
 		std::shared_ptr<Material> material = nullptr;
-		size_t meshIndex = ~0;
 	} m_groundPlane;
 
 	bool m_cameraUpdated = false;

@@ -35,7 +35,10 @@ struct ShaderParams {
 };
 
 void PhysicallyBasedMaterial::build()
-{    
+{
+	m_multiscatterLUT = loadMultiscatterTexture();
+	m_dummyTexture = openrl::Texture::getDummyTexture();
+
     // Load the parameters into the uniform block buffer.
 	assert(m_constants == nullptr);
 	m_constants = openrl::Buffer::create(RL_UNIFORM_BLOCK_BUFFER, nullptr, sizeof(ShaderParams), "PhysicallyBased uniform block");
@@ -133,44 +136,44 @@ void PhysicallyBasedMaterial::modify()
 		shaderParams.baseColorTexture = m_params.baseColorTexture->texture();
 	}
 	else {
-		shaderParams.baseColorTexture = openrl::Texture::getDummyTexture()->texture();
+		shaderParams.baseColorTexture = m_dummyTexture->texture();
 	}
 	if (m_params.metallicRoughnessTexture) {
 		shaderParams.metallicRoughnessTexture = m_params.metallicRoughnessTexture->texture();
 	}
 	else {
-		shaderParams.metallicRoughnessTexture = openrl::Texture::getDummyTexture()->texture();
+		shaderParams.metallicRoughnessTexture = m_dummyTexture->texture();
 	}
 	if (m_params.emissiveTexture) {
 		shaderParams.emissiveTexture = m_params.emissiveTexture->texture();
 	} else {
-		shaderParams.emissiveTexture = openrl::Texture::getDummyTexture()->texture();
+		shaderParams.emissiveTexture = m_dummyTexture->texture();
 	}
 	if (m_params.normalmap) {
 		shaderParams.normalmap = m_params.normalmap->texture();
 	} else {
-		shaderParams.normalmap = openrl::Texture::getDummyTexture()->texture();
+		shaderParams.normalmap = m_dummyTexture->texture();
 	}
 	if (m_params.clearCoatTexture) {
 		shaderParams.clearCoatTexture = m_params.clearCoatTexture->texture();
 	}
 	else {
-		shaderParams.clearCoatTexture = openrl::Texture::getDummyTexture()->texture();
+		shaderParams.clearCoatTexture = m_dummyTexture->texture();
 	}
 	if (m_params.clearCoatRoughnessTexture) {
 		shaderParams.clearCoatRoughnessTexture = m_params.clearCoatRoughnessTexture->texture();
 	}
 	else {
-		shaderParams.clearCoatRoughnessTexture = openrl::Texture::getDummyTexture()->texture();
+		shaderParams.clearCoatRoughnessTexture = m_dummyTexture->texture();
 	}
 	if (m_params.clearCoatNormalmap) {
 		shaderParams.clearCoatNormalmap = m_params.clearCoatNormalmap->texture();
 	}
 	else {
-		shaderParams.clearCoatNormalmap = openrl::Texture::getDummyTexture()->texture();
+		shaderParams.clearCoatNormalmap = m_dummyTexture->texture();
 	}
 
-	shaderParams.multiscatterLUT = loadMultiscatterTexture()->texture();
+	shaderParams.multiscatterLUT = m_multiscatterLUT->texture();
 
 	m_constants->modify(&shaderParams, sizeof(ShaderParams));
 }

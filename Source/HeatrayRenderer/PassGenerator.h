@@ -22,16 +22,10 @@
 #include <any>
 #include <functional>
 #include <memory>
+#include <string>
 #include <queue>
 #include <thread>
 #include <vector>
-
-struct CameraInfo
-{
-    float fov = 0.0f; // Vertical FOV (in radians).
-
-    // In the future: aperature, focal distance, etc.
-};
    
 class PassGenerator              
 {
@@ -57,10 +51,10 @@ public:
         uint32_t maxRenderPasses = 32;
 		uint32_t maxRayDepth = 10;
 
-		std::string scene = "Multi-Material";
+		std::string scene;
 
 		struct Environment {
-			std::string map = "studio.hdr";
+			std::string map;
 			bool builtInMap = true;
 			float exposureCompensation = 0.0f;
 			float thetaRotation = 0.0f; // Extra rotation to apply to the environment map.
@@ -121,8 +115,9 @@ public:
     ///
     void resize(const RLint newWidth, const RLint newHeight);
 
-    using LoadSceneCallback = std::function<void(RLMesh::SetupSystemBindingsCallback systemSetupCallback)>;
-    void loadScene(LoadSceneCallback callback);
+
+    using LoadSceneCallback = std::function<void(std::vector<RLMesh> &sceneData, RLMesh::SetupSystemBindingsCallback systemSetupCallback)>;
+	void loadScene(LoadSceneCallback callback, bool clearOldScene = true);
 
 	///
 	/// Run a general OpenRL task. This can be useful for things that need to happen on the OpenRL thread
@@ -148,7 +143,7 @@ private:
     bool runInitJob(const RLint renderWidth, const RLint renderHeight);
     void runResizeJob(const RLint newRenderWidth, const RLint newRenderHeight);
     void runRenderFrameJob(const RenderOptions& newOptions);
-    void runLoadSceneJob();
+    void runLoadSceneJob(bool clearOldScene);
     void runDestroyJob();
         
     OpenRLContext m_rlContext = nullptr;
@@ -217,4 +212,6 @@ private:
         RLprimitive environmentLight = RL_NULL_PRIMITIVE;
     };
 	std::shared_ptr<openrl::Buffer> m_globalData = nullptr;
+
+	std::vector<RLMesh> m_sceneData;
 };

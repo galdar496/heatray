@@ -63,6 +63,10 @@ bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
     m_renderOptions.camera.aspectRatio = static_cast<float>(m_renderWindowParams.width) / static_cast<float>(m_renderWindowParams.height);
 	m_renderOptions.camera.setApertureRadius();
 
+	// Setup some defaults.
+	m_renderOptions.environment.map = "studio.hdr";
+	m_renderOptions.scene = "Multi-Material";
+
     // Load the default scene.
     changeScene(m_renderOptions.scene, true);
 
@@ -71,6 +75,11 @@ bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
 
 void HeatrayRenderer::destroy()
 {
+	// Run a job to destroy any possible RL objects we may have created.
+	m_renderer.runOpenRLTask([this]() {
+		m_editableMaterialScene.material.reset();
+		m_groundPlane.reset();
+	});
     m_renderer.destroy();
 
     glDeleteBuffers(1, &m_displayPixelBuffer);
@@ -105,11 +114,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
 	LOG_INFO("Loading scene: %s", sceneName.c_str());
 
     if (sceneName == "Editable PBR Material") {
-        m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
-            for (auto mesh : m_sceneData) {
-                mesh.destroy();
-            }
-            m_sceneData.clear();
+        m_renderer.loadScene([this](std::vector<RLMesh> &sceneData, RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
 			m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
 
             SphereMeshProvider sphereMeshProvider(50, 50, 1.0f);
@@ -122,18 +127,14 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
 			params.clearCoat = 0.0f;
 			params.clearCoatRoughness = 0.0f;
 			params.forceEnableAllTextures = true;
-            m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, glm::mat4(1.0f)));
+			sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, glm::mat4(1.0f)));
 
 			m_editableMaterialScene.material = material;
 			m_editableMaterialScene.active = true;
 			m_editableMaterialScene.type = EditableMaterialScene::Type::PBR;
         });
 	} else if (sceneName == "Editable Glass Material") {
-		m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
-			for (auto mesh : m_sceneData) {
-				mesh.destroy();
-			}
-			m_sceneData.clear();
+		m_renderer.loadScene([this](std::vector<RLMesh>& sceneData, RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
 			m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
 
 			SphereMeshProvider sphereMeshProvider(50, 50, 1.0f);
@@ -144,18 +145,14 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
 			params.roughness = 0.0f;
 			params.density = 0.8f;
 
-			m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, glm::mat4(1.0f)));
+			sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, glm::mat4(1.0f)));
 
 			m_editableMaterialScene.material = material;
 			m_editableMaterialScene.active = true;
 			m_editableMaterialScene.type = EditableMaterialScene::Type::Glass;
 		});
 	} else if (sceneName == "Multi-Material") {
-        m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
-            for (auto mesh : m_sceneData) {
-                mesh.destroy();
-            }
-            m_sceneData.clear();
+        m_renderer.loadScene([this](std::vector<RLMesh>& sceneData, RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
 			m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
 
             PlaneMeshProvider planeMeshProvider(15, 15);
@@ -172,7 +169,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
                 params.baseColor = glm::vec3(0.9f);
                 params.specularF0 = 0.0f;
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.5f, 0.0f));
-                m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation));
+				sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation));
             }
 #if 0
             // Right plane.
@@ -185,7 +182,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
 				params.specularF0 = 0.0f;
                 glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), zAxis);
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(2.5f, 1.0f, 0.0f));
-                m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation * rotation));
+				sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation * rotation));
             }
 
             // Back plane.
@@ -198,7 +195,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
 				params.specularF0 = 0.0f;
                 glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), xAxis);
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, -2.5f));
-                m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation * rotation));
+				sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation * rotation));
             }
 
             // Left plane.
@@ -211,7 +208,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
                 params.specularF0 = 0.5f;
                 glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::half_pi<float>() * 3.0f, zAxis);
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-2.5f, 1.0f, 0.0f));
-                m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation * rotation));
+                sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation * rotation));
             }*/
 #endif
 
@@ -227,7 +224,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
 				params.baseColor = glm::vec3(0.4f);
 				params.specularF0 = 0.3f;
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-0.9f, -0.5f, -0.8f));
-                m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
+				sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
             }
 
             // Sphere 2.
@@ -239,15 +236,11 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
 				params.ior = 1.57f;
 				params.density = 0.5f;
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(1.2f, -0.5f, 0.8f));
-                m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
+				sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
             }
         });
     } else if (sceneName == "Sphere Array") {
-        m_renderer.loadScene([this](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
-            for (auto mesh : m_sceneData) {
-                mesh.destroy();
-            }
-            m_sceneData.clear();
+        m_renderer.loadScene([this](std::vector<RLMesh>& sceneData, RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
 			m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
 
             // The default scene is a plane with various spheres.
@@ -261,7 +254,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
                 params.baseColor = glm::vec3(0.6f);
                 params.specularF0 = 0.5f;
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.5f, 0.0f));
-                m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation));
+				sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation));
             }
 
             float radius = 0.5f;
@@ -280,7 +273,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
                     params.baseColor = glm::vec3(1.0f);
                     params.specularF0 = 1.0f;
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(startX, 0.0f, 0.0f));
-                    m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
+					sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
 
                     roughness += 0.1f;
                     startX += radius * 2.0f + padding;
@@ -299,7 +292,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
                     params.baseColor = glm::vec3(1.0f);
                     params.specularF0 = 0.5f;
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(startX, 1.5f, 0.0f));
-                    m_sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
+                    sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
 
                     roughness += 0.1f;
                     startX += radius * 2.0f + padding;
@@ -307,17 +300,12 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
             }
         });
     } else {
-        m_renderer.loadScene([this, sceneName, moveCamera](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
-            for (auto mesh : m_sceneData) {
-                mesh.destroy();
-            }
-            m_sceneData.clear();
-
+        m_renderer.loadScene([this, sceneName, moveCamera](std::vector<RLMesh>& sceneData, RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
             AssimpMeshProvider assimpMeshProvider(sceneName, (m_scene_units == SceneUnits::kCentimeters), m_swapYZ);
 
             const std::vector<std::shared_ptr<Material>> &materials = assimpMeshProvider.GetMaterials();
             
-            m_sceneData.push_back(RLMesh(&assimpMeshProvider, materials, systemSetupCallback, glm::mat4(1.0f)));
+			sceneData.push_back(RLMesh(&assimpMeshProvider, materials, systemSetupCallback, glm::mat4(1.0f)));
 
 			// We'll automatically setup camera and AABB info if requested to do so.
 			if (moveCamera) {
@@ -971,14 +959,9 @@ bool HeatrayRenderer::renderUI()
             ImGui::EndCombo();
         }
 
-		bool groundPlaneExists = (m_groundPlane.mesh != nullptr);
-
-		if (ImGui::Button(groundPlaneExists ? "Remove Ground Plane" : "Add Ground Plane")) {
-			m_renderer.loadScene([this, groundPlaneExists](RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
-				if (groundPlaneExists) {
-					auto groundRLmesh = m_sceneData.begin() + m_groundPlane.meshIndex;
-					groundRLmesh->destroy();
-					m_sceneData.erase(groundRLmesh);
+		if (ImGui::Button(m_groundPlane.mesh.valid() ? "Remove Ground Plane" : "Add Ground Plane")) {
+			m_renderer.loadScene([this](std::vector<RLMesh> &sceneData, RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
+				if (m_groundPlane.mesh.valid()) {
 					m_groundPlane.reset();
 				} else {
 					size_t planeSize = size_t(m_sceneAABB.radius()) * 5;
@@ -992,18 +975,16 @@ bool HeatrayRenderer::renderUI()
 					params.specularF0 = 0.2f;
 					params.forceEnableAllTextures = true;
 					glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_sceneAABB.min.y, 0.0f));
-					m_sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation));
 
+					m_groundPlane.mesh = RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation);
 					m_groundPlane.material = material;
-					m_groundPlane.meshIndex = m_sceneData.size() - 1;
-					m_groundPlane.mesh = &(m_sceneData[m_groundPlane.meshIndex]);
 				}
 
 				resetRenderer();
-			});
+			}, false);
 		}
 
-		if (m_groundPlane.mesh) {
+		if (m_groundPlane.material) {
 			ImGui::Text("Ground Material");
 			renderMaterialEditor(m_groundPlane.material, EditableMaterialScene::Type::PBR);
 		}

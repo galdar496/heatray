@@ -18,7 +18,6 @@
 
 PassGenerator::~PassGenerator()
 {
-    destroy();
 }
 
 void PassGenerator::init(const RLint renderWidth, const RLint renderHeight)
@@ -48,7 +47,8 @@ void PassGenerator::init(const RLint renderWidth, const RLint renderHeight)
 			}
 			case JobType::kLoadScene:
 			{
-				runLoadSceneJob();
+				bool clearOldScene = std::any_cast<bool>(job.params);
+				runLoadSceneJob(clearOldScene);
 				break;
 			}
 			case JobType::kDestroy:
@@ -102,11 +102,11 @@ void PassGenerator::renderPass(const RenderOptions& newOptions, PassCompleteCall
 	m_jobProcessor.addTask(std::move(job));
 }
 
-void PassGenerator::loadScene(LoadSceneCallback callback)
+void PassGenerator::loadScene(LoadSceneCallback callback, bool clearOldScene)
 {
     m_loadSceneCallback = callback;
 
-    Job job(JobType::kLoadScene, std::make_any<void *>(nullptr));
+    Job job(JobType::kLoadScene, std::make_any<bool>(clearOldScene));
 	m_jobProcessor.addTask(std::move(job));
 }
 
@@ -297,10 +297,18 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
     m_passCompleteCallback(m_resultPixels, passTime);
 }
 
-void PassGenerator::runLoadSceneJob()
+void PassGenerator::runLoadSceneJob(bool clearOldScene)
 {
     assert(m_loadSceneCallback);
-    m_loadSceneCallback([this](const std::shared_ptr<openrl::Program> program)
+
+	if (clearOldScene) {
+		for (auto& mesh : m_sceneData) {
+			mesh.destroy();
+		}
+		m_sceneData.clear();
+	}
+	
+    m_loadSceneCallback(m_sceneData, [this](const std::shared_ptr<openrl::Program> program)
         {
             RLint sequenceIndex = program->getUniformBlockIndex("RandomSequences");
             if (sequenceIndex != -1) {
@@ -321,7 +329,13 @@ void PassGenerator::runDestroyJob()
     m_globalData.reset();
     m_randomSequences.reset();
     m_randomSequenceTexture.reset();
+	m_apertureSamplesTexture.reset();
 	m_environmentLight.reset();
+	m_sceneData.clear();
+	m_frameProgram.reset();
+
+	m_resultPixels.unmapPixelData();
+	m_resultPixels.destroy();
 
     OpenRLDestroyContext(m_rlContext);
 }
@@ -356,7 +370,7 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
     }
 
     // Finally get all of the new render options.
-    memcpy(&m_renderOptions, &newOptions, sizeof(RenderOptions));
+	m_renderOptions = newOptions;
     m_renderOptions.resetInternalState = false;
 }
 
@@ -395,15 +409,17 @@ void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
 		}
 	}
 
-	m_environmentLight.exposure_compensation = newEnv.exposureCompensation;
-	m_environmentLight.thetaRotation = newEnv.thetaRotation;
+	if (m_environmentLight.texture) {
+		m_environmentLight.exposure_compensation = newEnv.exposureCompensation;
+		m_environmentLight.thetaRotation = newEnv.thetaRotation;
 
-	m_environmentLight.primitive->bind();
-	m_environmentLight.program->bind();
-	m_environmentLight.program->setTexture(m_environmentLight.program->getUniformLocation("environmentTexture"), m_environmentLight.texture);
-	m_environmentLight.program->set1f(m_environmentLight.program->getUniformLocation("exposureCompensation"), std::powf(2.0f, m_environmentLight.exposure_compensation));
-	m_environmentLight.program->set1f(m_environmentLight.program->getUniformLocation("thetaRotation"), m_environmentLight.thetaRotation);
-	m_environmentLight.primitive->unbind();
+		m_environmentLight.primitive->bind();
+		m_environmentLight.program->bind();
+		m_environmentLight.program->setTexture(m_environmentLight.program->getUniformLocation("environmentTexture"), m_environmentLight.texture);
+		m_environmentLight.program->set1f(m_environmentLight.program->getUniformLocation("exposureCompensation"), std::powf(2.0f, m_environmentLight.exposure_compensation));
+		m_environmentLight.program->set1f(m_environmentLight.program->getUniformLocation("thetaRotation"), m_environmentLight.thetaRotation);
+		m_environmentLight.primitive->unbind();
+	}
 }
 
 void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptions::SampleMode sampleMode, RenderOptions::BokehShape bokehShape)

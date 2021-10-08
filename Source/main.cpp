@@ -44,7 +44,7 @@ const int kCheesyMultiplier = 2;
 
 void glfwErrorCallback(int error, const char* description)
 {
-	LOG_ERROR("glfw error %d: %s\n", error, description);
+	LOG_ERROR("GLFW error %d: %s\n", error, description);
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)

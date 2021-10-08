@@ -119,6 +119,7 @@ void RLMesh::destroy()
 {
     m_vertexBuffers.clear();
     m_vertexBuffers.clear();
+	m_indexBuffers.clear();
     m_submeshes.clear();
 	m_materials.clear();
 }

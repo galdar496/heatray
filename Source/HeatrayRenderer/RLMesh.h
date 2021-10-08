@@ -36,6 +36,8 @@ public:
 
     void destroy();
 
+	bool valid() const { return m_indexBuffers.size() > 0; }
+
 private:
     std::vector<std::shared_ptr<openrl::Buffer>> m_vertexBuffers;
     std::vector<std::shared_ptr<openrl::Buffer>> m_indexBuffers;

@@ -209,18 +209,18 @@ public:
 
 	static std::shared_ptr<Texture> getDummyTexture()
 	{
-		static bool dummyIsInitialized = false;
-		static std::shared_ptr<Texture> dummyTexture;
+		static std::weak_ptr<Texture> dummyTexture;
 
-		if (!dummyIsInitialized) {
+		std::shared_ptr<Texture> texture = dummyTexture.lock();
+		if (!texture) {
 			Texture::Descriptor desc;
 			desc.width = desc.height = 1;
 			float whitePixel[4] = { 1.f, 1.f, 1.f, 1.f };
-			dummyTexture = Texture::create(whitePixel, desc, Texture::Sampler(), false);
-			dummyIsInitialized = true;
+			texture = Texture::create(whitePixel, desc, Texture::Sampler(), false);
+			dummyTexture = texture;
 		}
 
-		return dummyTexture;
+		return texture;
 	}
 
 private:

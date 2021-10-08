@@ -12,7 +12,10 @@
 #include <assert.h>
 #include <vector>
 
+namespace {
 static constexpr char* const LUT_FILENAME = "Resources/multiscatter_lut.tiff";
+static std::weak_ptr<openrl::Texture> multiscatterTexture;
+}
 
 inline float square(float f) { return f * f;  }
 
@@ -134,6 +137,11 @@ void generateMultiScatterTexture()
 
 std::shared_ptr<openrl::Texture> loadMultiscatterTexture()
 {
-	static std::shared_ptr<openrl::Texture> multiscatterTexture = util::loadTexture(LUT_FILENAME, false, false);
-	return multiscatterTexture;
+	std::shared_ptr<openrl::Texture> texture = multiscatterTexture.lock();
+	if (!texture) {
+		texture = util::loadTexture(LUT_FILENAME, false, false);
+		multiscatterTexture = texture;
+	}
+
+	return texture;
 }
