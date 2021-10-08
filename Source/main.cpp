@@ -166,9 +166,9 @@ int main(int argc, char **argv)
 							heatray.adjustCamera(mouseDelta.x, mouseDelta.y, 0.0f);							
 						}
 					}
-
-					previousMousePosition = glm::vec2(x, y);
 				}
+
+				previousMousePosition = glm::vec2(x, y);
 			}
 		}
 
