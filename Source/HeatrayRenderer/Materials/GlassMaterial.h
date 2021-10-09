@@ -14,7 +14,8 @@
 class GlassMaterial : public Material
 {
 public:
-    GlassMaterial() = default;
+    GlassMaterial(const std::string &name)
+		: Material(name, Material::Type::Glass) {}
     virtual ~GlassMaterial() = default;
 
     struct Parameters {

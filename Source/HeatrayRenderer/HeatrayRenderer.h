@@ -298,13 +298,7 @@ private:
 	struct EditableMaterialScene {
 		std::shared_ptr<Material> material = nullptr;
 		bool active = false;
-
-		enum class Type {
-			PBR,
-			Glass
-		};
-		Type type = Type::PBR;
 	} m_editableMaterialScene;
 
-	void renderMaterialEditor(std::shared_ptr<Material> material, EditableMaterialScene::Type type);
+	void renderMaterialEditor(std::shared_ptr<Material> material);
 };

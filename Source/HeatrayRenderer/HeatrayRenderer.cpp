@@ -107,7 +107,10 @@ void HeatrayRenderer::resize(const GLint newWindowWidth, const GLint newWindowHe
 
 void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveCamera)
 {
-	m_groundPlane.reset();
+	m_renderer.runOpenRLTask([this]() {
+		m_groundPlane.reset();
+	});
+
 	m_editableMaterialScene.active = false;
 	m_renderOptions.scene = sceneName;
 
@@ -118,7 +121,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
 			m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
 
             SphereMeshProvider sphereMeshProvider(50, 50, 1.0f);
-            std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
+            std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>("PBR");
 			PhysicallyBasedMaterial::Parameters &params = material->parameters();
             params.metallic = 0.0f;
             params.roughness = 1.0f;
@@ -131,14 +134,13 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
 
 			m_editableMaterialScene.material = material;
 			m_editableMaterialScene.active = true;
-			m_editableMaterialScene.type = EditableMaterialScene::Type::PBR;
         });
 	} else if (sceneName == "Editable Glass Material") {
 		m_renderer.loadScene([this](std::vector<RLMesh>& sceneData, RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
 			m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
 
 			SphereMeshProvider sphereMeshProvider(50, 50, 1.0f);
-			std::shared_ptr<GlassMaterial> material = std::make_shared<GlassMaterial>();
+			std::shared_ptr<GlassMaterial> material = std::make_shared<GlassMaterial>("Glass");
 			GlassMaterial::Parameters& params = material->parameters();
 			params.baseColor = glm::vec3(0.8f);
 			params.ior = 1.33f;
@@ -149,7 +151,6 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
 
 			m_editableMaterialScene.material = material;
 			m_editableMaterialScene.active = true;
-			m_editableMaterialScene.type = EditableMaterialScene::Type::Glass;
 		});
 	} else if (sceneName == "Multi-Material") {
         m_renderer.loadScene([this](std::vector<RLMesh>& sceneData, RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
@@ -162,7 +163,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
 
             // Bottom plane.
             {
-				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
+				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>("Ground");
                 PhysicallyBasedMaterial::Parameters &params = material->parameters();
                 params.metallic = 0.0f;
                 params.roughness = 1.0f;
@@ -217,7 +218,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
 
             // Sphere 1.
             {
-				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
+				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>("PBR");
                 PhysicallyBasedMaterial::Parameters& params = material->parameters();;
 				params.metallic = 1.0f;
 				params.roughness = 0.1f;
@@ -229,7 +230,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
 
             // Sphere 2.
             {
-				std::shared_ptr<GlassMaterial> material = std::make_shared<GlassMaterial>();
+				std::shared_ptr<GlassMaterial> material = std::make_shared<GlassMaterial>("Glass");
                 GlassMaterial::Parameters& params = material->parameters();
 				params.roughness = 0.1f;
 				params.baseColor = glm::vec3(0.9f, 0.6f, 0.6f);
@@ -247,7 +248,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
             {
                 PlaneMeshProvider planeMeshProvider(25, 25);
 
-				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
+				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>("Ground");
                 PhysicallyBasedMaterial::Parameters& params = material->parameters();;
                 params.metallic = 0.0f;
                 params.roughness = 1.0f;
@@ -266,7 +267,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
             // Non-metals.
             {
                 for (int iSphere = 0; iSphere < 10; ++iSphere) {
-					std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
+					std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>(util::createStringWithFormat("Sphere dialectric roughness %f", roughness));
                     PhysicallyBasedMaterial::Parameters& params = material->parameters();;
                     params.metallic = 0.0f;
                     params.roughness = roughness;
@@ -285,7 +286,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
                 roughness = 0.0f;
                 startX = (-5.0f * (radius * 2.0f + padding)) + ((radius * 2.0f + padding) * 0.5f);
                 for (int iSphere = 0; iSphere < 10; ++iSphere) {
-					std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
+					std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>(util::createStringWithFormat("Sphere conductor roughness %f", roughness));
                     PhysicallyBasedMaterial::Parameters& params = material->parameters();;
                     params.metallic = 1.0f;
                     params.roughness = roughness;
@@ -650,9 +651,9 @@ void HeatrayRenderer::readSessionFile(const std::string& filename)
 	}
 }
 
-void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material, EditableMaterialScene::Type type)
+void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
 {
-	if (type == EditableMaterialScene::Type::PBR) {
+	if (material->type() == Material::Type::PBR) {
 		bool materialChanged = false;
 		std::shared_ptr<PhysicallyBasedMaterial> pbrMaterial = std::static_pointer_cast<PhysicallyBasedMaterial>(material);
 		PhysicallyBasedMaterial::Parameters& parameters = pbrMaterial->parameters();
@@ -760,7 +761,7 @@ void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material, E
 				resetRenderer();
 			});
 		}
-	} else if (type == EditableMaterialScene::Type::Glass) {
+	} else if (material->type() == Material::Type::Glass) {
 		bool materialChanged = false;
 		std::shared_ptr<GlassMaterial> glassMaterial = std::static_pointer_cast<GlassMaterial>(material);
 		GlassMaterial::Parameters& parameters = glassMaterial->parameters();
@@ -959,6 +960,36 @@ bool HeatrayRenderer::renderUI()
             ImGui::EndCombo();
         }
 
+		{
+			static std::string currentMaterialName = "<none>";
+			static std::weak_ptr<Material> currentMaterial;
+			if (ImGui::BeginCombo("Materials", currentMaterialName.c_str())) {
+				if (ImGui::Selectable("<none>", false)) {
+					currentMaterial.reset();
+				} else {
+
+					const std::vector<RLMesh>& sceneData = m_renderer.sceneData();
+					for (auto& mesh : sceneData) {
+						for (auto& material : mesh.materials()) {
+							if (ImGui::Selectable(material->name().c_str(), false)) {
+								currentMaterialName = material->name();
+								currentMaterial = material;
+								break;
+							}
+						}
+					}
+				}
+				ImGui::EndCombo();
+			}
+
+			std::shared_ptr<Material> validMaterial = currentMaterial.lock();
+			if (validMaterial) {
+				ImGui::Begin(currentMaterialName.c_str());
+				renderMaterialEditor(validMaterial);
+				ImGui::End();				
+			}
+		}
+
 		if (ImGui::Button(m_groundPlane.mesh.valid() ? "Remove Ground Plane" : "Add Ground Plane")) {
 			m_renderer.loadScene([this](std::vector<RLMesh> &sceneData, RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
 				if (m_groundPlane.mesh.valid()) {
@@ -967,7 +998,7 @@ bool HeatrayRenderer::renderUI()
 					size_t planeSize = size_t(m_sceneAABB.radius()) * 5;
 					PlaneMeshProvider planeMeshProvider(planeSize, planeSize);
 
-					std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>();
+					std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>("Ground Plane");
 					PhysicallyBasedMaterial::Parameters& params = material->parameters();
 					params.metallic = 0.0f;
 					params.roughness = 0.9f;
@@ -986,7 +1017,7 @@ bool HeatrayRenderer::renderUI()
 
 		if (m_groundPlane.material) {
 			ImGui::Text("Ground Material");
-			renderMaterialEditor(m_groundPlane.material, EditableMaterialScene::Type::PBR);
+			renderMaterialEditor(m_groundPlane.material);
 		}
     }
     if (ImGui::CollapsingHeader("Camera options")) {
@@ -1146,7 +1177,7 @@ bool HeatrayRenderer::renderUI()
 
 	if (m_editableMaterialScene.active) {
 		ImGui::Begin("Material");
-		renderMaterialEditor(m_editableMaterialScene.material, m_editableMaterialScene.type);
+		renderMaterialEditor(m_editableMaterialScene.material);
 		ImGui::End();
 	}
 

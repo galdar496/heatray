@@ -245,7 +245,8 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
 
 void AssimpMeshProvider::ProcessGlassMaterial(aiMaterial const* material)
 {
-	std::shared_ptr<GlassMaterial> glassMaterial = std::make_shared<GlassMaterial>();
+	std::string name = material->GetName().C_Str();
+	std::shared_ptr<GlassMaterial> glassMaterial = std::make_shared<GlassMaterial>(name);
 	GlassMaterial::Parameters& params = glassMaterial->parameters();
     params.baseColor = { 1.0f, 1.0f, 1.0f };
     params.density = 0.05f;
@@ -278,7 +279,8 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
 		}
 	}
 
-	std::shared_ptr<PhysicallyBasedMaterial> pbrMaterial = std::make_shared<PhysicallyBasedMaterial>();
+	std::string name = material->GetName().C_Str();
+	std::shared_ptr<PhysicallyBasedMaterial> pbrMaterial = std::make_shared<PhysicallyBasedMaterial>(name);
 	PhysicallyBasedMaterial::Parameters& params = pbrMaterial->parameters();
 
     params.metallic = 0.0f;

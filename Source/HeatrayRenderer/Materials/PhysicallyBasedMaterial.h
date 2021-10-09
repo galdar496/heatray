@@ -15,7 +15,8 @@
 class PhysicallyBasedMaterial final : public Material
 {
 public:
-    PhysicallyBasedMaterial() = default;
+	explicit PhysicallyBasedMaterial(const std::string& name)
+		: Material(name, Material::Type::PBR) {}
     virtual ~PhysicallyBasedMaterial() = default;
 
     struct Parameters {

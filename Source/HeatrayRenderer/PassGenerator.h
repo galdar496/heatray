@@ -127,6 +127,8 @@ public:
 	void runOpenRLTask(OpenRLTask task);
 
     static constexpr RLint kNumRandomSequences = 16;
+
+	const std::vector<RLMesh>& sceneData() const { return m_sceneData;  }
     
 private:
     
