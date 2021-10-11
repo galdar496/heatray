@@ -727,7 +727,7 @@ void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
 			ImGui::Text("ClearCoatRoughness");
 
 			if (textureSelected) {
-				std::vector<std::string> filenames = util::OpenFileDialog();
+				std::vector<std::string> filenames = util::OpenFileDialog("*");
 
 				if (filenames.size() > 0) {
 					texturePath = filenames[0];
@@ -812,7 +812,7 @@ bool HeatrayRenderer::renderUI()
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Load")) {
-			std::vector<std::string> filepaths = util::OpenFileDialog();
+			std::vector<std::string> filepaths = util::OpenFileDialog("xml");
 			if (!filepaths.empty()) {
 				readSessionFile(filepaths[0]);
 			}
@@ -892,7 +892,7 @@ bool HeatrayRenderer::renderUI()
 						m_renderOptions.environment.map = std::string(options[iOption]);
 						m_renderOptions.environment.builtInMap = true;
 					} else {
-						std::vector<std::string> filenames = util::OpenFileDialog();
+						std::vector<std::string> filenames = util::OpenFileDialog("*");
 
 						if (filenames.size() > 0) {
 							m_renderOptions.environment.map = filenames[0];
@@ -938,7 +938,7 @@ bool HeatrayRenderer::renderUI()
                     currentSelection = iOption;
 					bool newScene = false;
 					if (currentSelection == CUSTOM_OPTION_INDEX) {
-						std::vector<std::string> filenames = util::OpenFileDialog();
+						std::vector<std::string> filenames = util::OpenFileDialog("*");
 
 						if (filenames.size() > 0) {
 							m_renderOptions.scene = filenames[0];

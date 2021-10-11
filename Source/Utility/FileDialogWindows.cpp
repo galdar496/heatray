@@ -4,7 +4,7 @@
 
 namespace util {
 
-std::vector<std::string> OpenFileDialog()
+std::vector<std::string> OpenFileDialog(const std::string& extension)
 {
     char path[512];
 
@@ -14,8 +14,8 @@ std::vector<std::string> OpenFileDialog()
     ofn.lpstrFile = path;
     path[0] = '\0';
     ofn.nMaxFile = sizeof(path) / sizeof(path[0]);
-    ofn.lpstrFilter = "*.*\0\0";
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+    ofn.lpstrFilter = ("*." + extension).c_str();
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT;
 
     if (GetOpenFileNameA(&ofn)) {
         std::vector<std::string> retVal;

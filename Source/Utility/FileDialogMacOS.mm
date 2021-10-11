@@ -5,7 +5,7 @@
 namespace util
 {
 
-std::vector<std::string> OpenFileDialog()
+std::vector<std::string> OpenFileDialog(const std::string &extension)
 {
 	NSOpenPanel * openPanel = [NSOpenPanel openPanel];
 	
