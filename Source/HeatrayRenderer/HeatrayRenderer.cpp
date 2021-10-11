@@ -804,12 +804,14 @@ bool HeatrayRenderer::renderUI()
         ImGui::Text("Total render time(s): %f\n", m_totalRenderTime);
     }
 	if (ImGui::CollapsingHeader("Session")) {
+		ImGui::PushID("Session_Save");
 		if (ImGui::Button("Save")) {
 			std::vector<std::string> filepaths = util::SaveFileDialog("xml");
 			if (!filepaths.empty()) {
 				writeSessionFile(filepaths[0]);
 			}
 		}
+		ImGui::PopID();
 		ImGui::SameLine();
 		if (ImGui::Button("Load")) {
 			std::vector<std::string> filepaths = util::OpenFileDialog("xml");
@@ -1101,6 +1103,7 @@ bool HeatrayRenderer::renderUI()
     }
     if (ImGui::CollapsingHeader("Screenshot")) {
         ImGui::Checkbox("HDR", &m_hdrScreenshot);
+		ImGui::PushID("Screenshot_Save");
         if (ImGui::Button("Save")) {
 			std::vector<std::string> names = util::SaveFileDialog(m_hdrScreenshot ? "tiff" : "png");
 			if (!names.empty()) {
@@ -1108,6 +1111,7 @@ bool HeatrayRenderer::renderUI()
 				m_shouldSaveScreenshot = true; // Do this on the next frame before drawing UI.
 			}
         }
+		ImGui::PopID();
     }
 	if (ImGui::CollapsingHeader("Developer")) {
 		if (ImGui::Button("Generate MultiScatter LUT")) {
