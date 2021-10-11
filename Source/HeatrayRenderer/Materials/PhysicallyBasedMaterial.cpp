@@ -85,21 +85,15 @@ void PhysicallyBasedMaterial::build()
 
     // Loadup the shader code.
     // TODO: this should use some kind of shader cache.
-    char const * vertexShader;
     if (hasTextures) {
 		if (hasNormalmap) {
-			vertexShader = "positionNormalTexCoordTangentBitangent.vert.rlsl";
 			shaderPrefix << "#define USE_TANGENT_SPACE\n";
-		} else {
-			vertexShader = "positionNormalTexCoord.vert.rlsl";
 		}
 		shaderPrefix << "#define HAS_TEXTURES\n";
-    } else {
-        vertexShader = "positionNormal.vert.rlsl";
     }
 
 	LOG_INFO("Building shader: %s with flags: %s", m_shader, shaderPrefix.str().c_str());
-    m_program = util::buildProgram(vertexShader, m_shader, "PhysicallyBased", shaderPrefix.str());
+    m_program = util::buildProgram(m_vertexShader, m_shader, "PhysicallyBased", shaderPrefix.str());
 
     // NOTE: the association of the program and the uniform block needs to happen in the calling code.
     // This is because there is no RLprimitive at the material level to properly bind.

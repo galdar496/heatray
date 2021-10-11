@@ -19,6 +19,12 @@
 
 #include <assert.h>
 
+#if defined(_DEBUG)
+	#define HEATRAY_DEBUG 1
+#else
+	#define HEATRAY_DEBUG 0
+#endif // defined(_DEBUG)
+
 const std::string kVersion      = "4.0";
 const std::string kWindowTitle  = "Heatray " + kVersion;
 
@@ -87,7 +93,7 @@ int main(int argc, char **argv)
 	const char* glsl_version = "#version 460";
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, (_DEBUG ? GLFW_TRUE : GLFW_FALSE));
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, (HEATRAY_DEBUG ? GLFW_TRUE : GLFW_FALSE));
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	GLFWwindow* window = glfwCreateWindow(kDefaultWindowWidth, kDefaultWindowHeight, kWindowTitle.c_str(), nullptr, nullptr);

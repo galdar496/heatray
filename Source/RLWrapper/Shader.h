@@ -73,7 +73,9 @@ public:
 				LOG_ERROR("Unable to compile shader %s \n\t%s", name, log);
                 return nullptr;
             }
-        }
+        } else {
+			LOG_ERROR("Attempting to build shader \"%s\" with an empty source file!", name);
+		}
 
         return nullptr;
     }
@@ -103,7 +105,9 @@ public:
 				LOG_ERROR("Unable to compile shader %s \n\t%s", name, log);
                 return nullptr;
             }
-        }
+		} else {
+			LOG_ERROR("Attempting to build shader \"%s\" with an empty source file!", name);
+		}
 
         return nullptr;
     }
