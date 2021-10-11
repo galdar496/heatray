@@ -2,21 +2,33 @@ uniform mat4 worldFromEntity;
 
 attribute vec3 positionAttribute;
 attribute vec3 normalAttribute;
+
+#if defined(HAS_TEXTURES)
 attribute vec2 texCoordAttribute;
+varying vec2 texCoord;
+#endif // defined(HAS_TEXTURES)
+
+#if defined(USE_TANGENT_SPACE)
 attribute vec3 tangentAttribute;
 attribute vec3 bitangentAttribute;
-
-varying vec3 normal;
-varying vec2 texCoord;
 varying vec3 tangent;
 varying vec3 bitangent;
+#endif // defined(USE_TANGENT_SPACE)
+
+varying vec3 normal;
 
 void main()
 {
 	rl_Position = worldFromEntity * vec4(positionAttribute, 1);
 	mat3 normalMatrix = mat3(worldFromEntity);
 	normal = normalMatrix * normalAttribute;
+
+#if defined(HAS_TEXTURES)
     texCoord = texCoordAttribute;
+#endif // defined(HAS_TEXTURES)
+
+#if defined(USE_TANGENT_SPACE)
 	tangent = normalMatrix * tangentAttribute;
 	bitangent = normalMatrix * bitangentAttribute;
+#endif // defined(USE_TANGENT_SPACE)
 }
