@@ -73,6 +73,18 @@ void main()
 		weight = beersLaw(); // Account for absorption.
 	}
 
+	// Handle debug visualizations (if applicable).
+	if (Globals.enableVisualizer == 1) {
+		if (Globals.showGeometricNormals == 1) {
+			accumulate(vec4((normal + 1.0) * 0.5, 1.0));
+		} else if (Globals.showFinalNormals == 1) {
+			accumulate(vec4((N + 1.0) * 0.5, 1.0));
+		} else if (Globals.showRoughness == 1) {
+			accumulate(vec4(Material.roughness, Material.roughness, Material.roughness, 1.0));
+		}
+		return;
+	}
+
 	mat3 frame = orthonormalFrame(N);
 	vec3 I = -rl_InRay.direction;
 	float eta = nIn / nOut;

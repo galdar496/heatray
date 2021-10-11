@@ -79,11 +79,6 @@ void main()
 	vec3 baseColor = Material.baseColor;
 #endif //  defined(HAS_BASE_COLOR_TEXTURE)
 
-#if defined(HAS_EMISSIVE_TEXTURE)
-	vec3 emissiveColor = texture2D(Material.emissiveTexture, texCoord).rgb;
-	accumulate(emissiveColor);
-#endif // defined(HAS_EMISSIVE_TEXTURE)
-
 	float metallic = Material.metallic;
 	float roughness = Material.roughness;
 	float roughnessAlpha = Material.roughnessAlpha;
@@ -104,6 +99,59 @@ void main()
 	clearCoatRoughness *= texture2D(Material.clearCoatRoughnessTexture, texCoord).r;
 	clearCoatRoughnenessAlpha = clearCoatRoughness * clearCoatRoughness;
 #endif // defined(HAS_CLEARCOAT_ROUGHNESS_TEXTURE)
+
+	// Handle debug visualizations (if applicable).
+	if (Globals.enableVisualizer == 1) {
+		if (Globals.showGeometricNormals == 1) {
+			accumulate(vec4((normal + 1.0) * 0.5, 1.0));
+		}
+#if defined(HAS_TEXTURES)
+		else if (Globals.showUVs == 1) {
+			accumulate(vec4(texCoord, 0.0, 1.0));
+		}
+#endif // defined(HAS_TEXTURES)
+#if defined(HAS_EMISSIVE_TEXTURE)
+		else if (Globals.showEmissive == 1) {
+			accumulate(vec4(texture2D(Material.emissiveTexture, texCoord).rgb, 1.0));
+		}
+#endif //defined(HAS_EMISSIVE_TEXTURE)
+#if defined(USE_TANGENT_SPACE)
+		else if (Globals.showTangents == 1) {
+			accumulate(vec4((tangent + 1.0) * 0.5, 1.0));
+		} else if (Globals.showBitangents == 1) {
+			accumulate(vec4((bitangent + 1.0) * 0.5, 1.0));
+		}
+#if defined(HAS_NORMALMAP)
+		else if (Globals.showNormalmap == 1) {
+			accumulate(vec4(texture2D(Material.normalmap, texCoord).xyz, 1.0));
+		}
+#endif // defined(HAS_NORMALMAP)
+#endif // defined(USE_TANGENT_SPACE)
+		else if (Globals.showFinalNormals == 1) {
+			accumulate(vec4((N + 1.0) * 0.5, 1.0));
+		} else if (Globals.showBaseColor == 1) {
+			accumulate(vec4(baseColor, 1.0));
+		} else if (Globals.showRoughness == 1) {
+			accumulate(vec4(roughness, roughness, roughness, 1.0));
+		} else if (Globals.showMetallic == 1) {
+			accumulate(vec4(metallic, metallic, metallic, 1.0));
+		} else if (Globals.showClearcoat == 1) {
+			accumulate(vec4(clearCoat, clearCoat, clearCoat, 1.0));
+		} else if (Globals.showClearcoatRoughness == 1) {
+			accumulate(vec4(clearCoatRoughness, clearCoatRoughness, clearCoatRoughness, 1.0));
+		}
+#if defined(HAS_CLEARCOAT_NORMALMAP)
+		else if (Globals.showClearcoatNormalmap == 1) {
+			accumulate(vec4(texture2D(Material.clearCoatNormalmap, texCoord).xyz, 1.0));
+		}
+#endif // defined(HAS_CLEARCOAT_NORMALMAP)
+		return;
+	}
+
+#if defined(HAS_EMISSIVE_TEXTURE)
+	vec3 emissiveColor = texture2D(Material.emissiveTexture, texCoord).rgb;
+	accumulate(emissiveColor);
+#endif // defined(HAS_EMISSIVE_TEXTURE)
 
 	float clearCoatNdotV = saturate(dot(clearCoatN, V));
 

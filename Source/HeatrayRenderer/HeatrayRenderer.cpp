@@ -1021,6 +1021,44 @@ bool HeatrayRenderer::renderUI()
 			ImGui::Text("Ground Material");
 			renderMaterialEditor(m_groundPlane.material);
 		}
+
+		// Debug visualizations.
+		{
+			static const char* options[] = { "None", "Geometric Normals", "UVs", "Tangnents", "Bitangents", "Normalmap", "Final Normals",
+											 "Base color", "Roughness", "Meallic", "Emissive", "Clearcoat", "Clearcoat roughness", "Clearcoat normalmap" };
+			constexpr PassGenerator::RenderOptions::DebugVisualizationMode realOptions[] = {
+				PassGenerator::RenderOptions::DebugVisualizationMode::kNone,
+				PassGenerator::RenderOptions::DebugVisualizationMode::kGeometricNormals,
+				PassGenerator::RenderOptions::DebugVisualizationMode::kUVs,
+				PassGenerator::RenderOptions::DebugVisualizationMode::kTangents,
+				PassGenerator::RenderOptions::DebugVisualizationMode::kBitangents,
+				PassGenerator::RenderOptions::DebugVisualizationMode::kNormalmap,
+				PassGenerator::RenderOptions::DebugVisualizationMode::kFinalNormals,
+				PassGenerator::RenderOptions::DebugVisualizationMode::kBaseColor,
+				PassGenerator::RenderOptions::DebugVisualizationMode::kRoughness,
+				PassGenerator::RenderOptions::DebugVisualizationMode::kMetallic,
+				PassGenerator::RenderOptions::DebugVisualizationMode::kEmissive,
+				PassGenerator::RenderOptions::DebugVisualizationMode::kClearcoat,
+				PassGenerator::RenderOptions::DebugVisualizationMode::kClearcoatRoughness,
+				PassGenerator::RenderOptions::DebugVisualizationMode::kClearcoatNormalmap
+			};
+
+			static unsigned int currentSelection = 0;
+			if (ImGui::BeginCombo("Debug Visualization", options[currentSelection])) {
+				for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
+					bool isSelected = currentSelection == iOption;
+					if (ImGui::Selectable(options[iOption], false)) {
+						currentSelection = iOption;
+						m_renderOptions.debugVisMode = realOptions[iOption];
+						shouldResetRenderer = true;
+					}
+					if (isSelected) {
+						ImGui::SetItemDefaultFocus();
+					}
+				}
+				ImGui::EndCombo();
+			}
+		}
     }
     if (ImGui::CollapsingHeader("Camera options")) {
         ImGui::Text("Orbital Camera");

@@ -118,7 +118,7 @@ void PassGenerator::runOpenRLTask(OpenRLTask task)
 
 bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight)
 {
-    // OpenRLContextAttribute attributes[] = {kOpenRL_EnableRayPrefixShaders, 1, NULL}; // For a future date.
+    //OpenRLContextAttribute attributes[] = {kOpenRL_EnableRayPrefixShaders, 1, NULL};
     m_rlContext = OpenRLCreateContext(nullptr, nullptr, nullptr);
     RLFunc(OpenRLSetCurrentContext(m_rlContext));
 
@@ -154,7 +154,7 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
         m_resultPixels.create(bufferSize);
     }
 
-    // Load up the environment light primitive. This wil likely move to some future location.
+    // Load up the environment light primitive. This will likely move to some future location.
     {
         std::vector<std::string> shaderSource;
         util::loadShaderSourceFile("environmentLight.rlsl", shaderSource);
@@ -368,6 +368,87 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
         m_globalData->unmapBuffer();
         m_globalData->unbind();
     }
+
+	if (m_renderOptions.debugVisMode != newOptions.debugVisMode) {
+		m_globalData->bind();
+		GlobalData* globalData = m_globalData->mapBuffer<GlobalData>();
+		// Reset all params.
+		globalData->enableDebugVisualizer = 0;
+		globalData->showGeometricNormals = 0;
+		globalData->showUVs = 0;
+		globalData->showTangents = 0;
+		globalData->showBitangents = 0;
+		globalData->showNormalmap = 0;
+		globalData->showFinalNormals = 0;
+		globalData->showBaseColor = 0;
+		globalData->showRoughness = 0;
+		globalData->showMetallic = 0;
+		globalData->showEmissive = 0;
+		globalData->showClearcoat = 0;
+		globalData->showClearcoatRoughness = 0;
+		globalData->showClearcoatNormalmap = 0;
+		switch (newOptions.debugVisMode) {
+			case RenderOptions::DebugVisualizationMode::kNone:
+				globalData->enableDebugVisualizer = 0;
+				break;
+			case RenderOptions::DebugVisualizationMode::kGeometricNormals:
+				globalData->enableDebugVisualizer = 1;
+				globalData->showGeometricNormals = 1;
+				break;
+			case RenderOptions::DebugVisualizationMode::kUVs:
+				globalData->enableDebugVisualizer = 1;
+				globalData->showUVs = 1;
+				break;
+			case RenderOptions::DebugVisualizationMode::kTangents:
+				globalData->enableDebugVisualizer = 1;
+				globalData->showTangents = 1;
+				break;
+			case RenderOptions::DebugVisualizationMode::kBitangents:
+				globalData->enableDebugVisualizer = 1;
+				globalData->showBitangents = 1;
+				break;
+			case RenderOptions::DebugVisualizationMode::kNormalmap:
+				globalData->enableDebugVisualizer = 1;
+				globalData->showNormalmap = 1;
+				break;
+			case RenderOptions::DebugVisualizationMode::kFinalNormals:
+				globalData->enableDebugVisualizer = 1;
+				globalData->showFinalNormals = 1;
+				break;
+			case RenderOptions::DebugVisualizationMode::kBaseColor:
+				globalData->enableDebugVisualizer = 1;
+				globalData->showBaseColor = 1;
+				break;
+			case RenderOptions::DebugVisualizationMode::kRoughness:
+				globalData->enableDebugVisualizer = 1;
+				globalData->showRoughness = 1;
+				break;
+			case RenderOptions::DebugVisualizationMode::kMetallic:
+				globalData->enableDebugVisualizer = 1;
+				globalData->showMetallic = 1;
+				break;
+			case RenderOptions::DebugVisualizationMode::kEmissive:
+				globalData->enableDebugVisualizer = 1;
+				globalData->showEmissive = 1;
+				break;
+			case RenderOptions::DebugVisualizationMode::kClearcoat:
+				globalData->enableDebugVisualizer = 1;
+				globalData->showClearcoat = 1;
+				break;
+			case RenderOptions::DebugVisualizationMode::kClearcoatRoughness:
+				globalData->enableDebugVisualizer = 1;
+				globalData->showClearcoatRoughness = 1;
+				break;
+			case RenderOptions::DebugVisualizationMode::kClearcoatNormalmap:
+				globalData->enableDebugVisualizer = 1;
+				globalData->showClearcoatNormalmap = 1;
+				break;
+			default:
+				break;
+		}
+		m_globalData->unmapBuffer();
+		m_globalData->unbind();
+	}
 
     // Finally get all of the new render options.
 	m_renderOptions = newOptions;

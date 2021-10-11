@@ -96,6 +96,25 @@ public:
         };
 
         BokehShape bokehShape = BokehShape::kCircular;
+
+		enum class DebugVisualizationMode {
+			kNone,
+			kGeometricNormals,
+			kUVs,
+			kTangents,
+			kBitangents,
+			kNormalmap,
+			kFinalNormals,
+			kBaseColor,
+			kRoughness,
+			kMetallic,
+			kEmissive,
+			kClearcoat,
+			kClearcoatRoughness,
+			kClearcoatNormalmap
+		};
+
+		DebugVisualizationMode debugVisMode = DebugVisualizationMode::kNone;
     };
     
     ///
@@ -204,14 +223,30 @@ private:
 
     glm::ivec2 m_currentBlockPixel = glm::ivec2(0, 0);
 
-	std::shared_ptr < openrl::Buffer>  m_randomSequences = nullptr;
-	std::shared_ptr < openrl::Texture> m_randomSequenceTexture = nullptr; ///< Series of random sequences stored in a 2D texture. Each row of the texture is a different sequence.
-	std::shared_ptr < openrl::Texture> m_apertureSamplesTexture = nullptr; ///< Randomly generated values to use while sampling the aperture for depth of field.
+	std::shared_ptr<openrl::Buffer>  m_randomSequences = nullptr;
+	std::shared_ptr<openrl::Texture> m_randomSequenceTexture = nullptr; ///< Series of random sequences stored in a 2D texture. Each row of the texture is a different sequence.
+	std::shared_ptr<openrl::Texture> m_apertureSamplesTexture = nullptr; ///< Randomly generated values to use while sampling the aperture for depth of field.
 
     struct GlobalData {
         int maxRayDepth = 5;
         int sampleIndex = 0;
         RLprimitive environmentLight = RL_NULL_PRIMITIVE;
+
+		// Debugging.
+		int enableDebugVisualizer = 0;
+		int showGeometricNormals = 0;
+		int showUVs = 0;
+		int showTangents = 0;
+		int showBitangents = 0;
+		int showNormalmap = 0;
+		int showFinalNormals = 0;
+		int showBaseColor = 0;
+		int showRoughness = 0;
+		int showMetallic = 0;
+		int showEmissive = 0;
+		int showClearcoat = 0;
+		int showClearcoatRoughness = 0;
+		int showClearcoatNormalmap = 0;
     };
 	std::shared_ptr<openrl::Buffer> m_globalData = nullptr;
 
