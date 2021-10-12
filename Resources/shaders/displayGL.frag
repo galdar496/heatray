@@ -74,9 +74,6 @@ void main()
 
 	// Apply the color processing pipeline.
 	{
-		// Apply exposure compensation.
-		finalColor *= cameraExposure;
-
 		if (tonemappingEnabled == 1) {
 			// Perform ACES tonemapping. Incoming color is in linear space.
 			finalColor = LinearToSRGB(finalColor);
@@ -131,6 +128,9 @@ void main()
 			finalColor.g *= green;
 			finalColor.b *= blue;
 		}
+
+		// Apply exposure compensation.
+		finalColor *= cameraExposure;
 	}
 
 	finalColor = LinearToSRGB(finalColor);
