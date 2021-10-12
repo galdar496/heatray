@@ -14,7 +14,7 @@ std::vector<std::string> OpenFileDialog(const std::string& extension)
     ofn.lpstrFile = path;
     path[0] = '\0';
     ofn.nMaxFile = sizeof(path) / sizeof(path[0]);
-    ofn.lpstrFilter = ("*." + extension).c_str();
+	ofn.lpstrFilter = "*.*\0\0";// ("*." + extension).c_str();
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT;
 
     if (GetOpenFileNameA(&ofn)) {
