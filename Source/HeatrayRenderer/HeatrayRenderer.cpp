@@ -64,7 +64,7 @@ bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
 	m_renderOptions.camera.setApertureRadius();
 
 	// Setup some defaults.
-	m_renderOptions.environment.map = "studio.hdr";
+	m_renderOptions.environment.map = "noon_grass.exr";
 	m_renderOptions.scene = "Multi-Material";
 
     // Load the default scene.
@@ -879,7 +879,7 @@ bool HeatrayRenderer::renderUI()
         }
     }
     if (ImGui::CollapsingHeader("Environment options")) {
-        static const char* options[] = { "studio.hdr", "glacier.exr", "uffizi.exr", "bridge.hdr", "arches.hdr", "white furnace test", "Load Custom..." };
+        static const char* options[] = { "noon_grass.exr", "kloppenheim.exr", "peppermint_powerplant.exr", "urban_alley.exr", "studio.hdr", "glacier.exr", "uffizi.exr", "white furnace test", "Load Custom..." };
 		static constexpr size_t NUM_OPTIONS = sizeof(options) / sizeof(options[0]);
 		static constexpr size_t CUSTOM_OPTION_INDEX = NUM_OPTIONS - 1;
 
