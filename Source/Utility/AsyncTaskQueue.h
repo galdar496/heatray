@@ -100,14 +100,14 @@ private:
 	std::thread             m_thread;
 	std::condition_variable m_condition_variable;
 	std::queue<T>           m_queue;
-	bool                    m_stop;
+	bool                    m_stop = false;
 	AsyncTaskFunction       m_async_task_function;
 	bool				    m_thread_launched = false;
 
 	enum class State {
 		kIdle,
 		kProcessing
-	} m_thread_state;
+	} m_thread_state = State::kIdle;
 
 	void threadFunc()
 	{
