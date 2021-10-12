@@ -142,4 +142,10 @@ namespace util {
     return texture;
 }
 
+uint8_t* loadLDRTexturePixels(const char* path, int& width, int& height, int& channelCount)
+{
+	stbi_uc* pixels = stbi_load(path, &width, &height, &channelCount, 0);
+	return static_cast<uint8_t*>(pixels);
 }
+
+} // namespace util.

@@ -9,6 +9,7 @@
 #include "HeatrayRenderer/HeatrayRenderer.h" // Must be included first for GL/glew reasons.
 #include "Utility/ConsoleLog.h"
 #include "Utility/ImGuiLog.h"
+#include "Utility/TextureLoader.h"
 
 #include <GLFW/glfw3.h>
 #include <imgui/imgui.h>
@@ -99,6 +100,19 @@ int main(int argc, char **argv)
 	GLFWwindow* window = glfwCreateWindow(kDefaultWindowWidth, kDefaultWindowHeight, kWindowTitle.c_str(), nullptr, nullptr);
 	if (window == nullptr) {
 		return 1;
+	}
+
+	// Setup the window icon.
+	{
+		int width, height, channelCount = 0;
+		uint8_t* pixels = util::loadLDRTexturePixels("Resources/logo.png", width, height, channelCount);
+
+		GLFWimage icon;
+		icon.pixels = pixels;
+		icon.width = width;
+		icon.height = height;
+		glfwSetWindowIcon(window, 1, &icon);
+		free(pixels);
 	}
 
 	glfwMakeContextCurrent(window);

@@ -17,4 +17,6 @@ namespace util {
 /// @return A valid texture setup with proper formats based on the image in "path".
 std::shared_ptr<openrl::Texture> loadTexture(const char* path, bool generateMips = true, bool convertToLinear = true);
 
+uint8_t* loadLDRTexturePixels(const char* path, int& width, int& height, int& channelCount);
+
 } // namespace util.

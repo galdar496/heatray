@@ -1,5 +1,6 @@
 add_executable(Heatray
   main.cpp
+  app.rc
 )
 
 include_directories(
