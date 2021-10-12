@@ -244,20 +244,6 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
         m_renderer.loadScene([this](std::vector<RLMesh>& sceneData, RLMesh::SetupSystemBindingsCallback systemSetupCallback) {
 			m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
 
-            // The default scene is a plane with various spheres.
-            {
-                PlaneMeshProvider planeMeshProvider(25, 25);
-
-				std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>("Ground");
-                PhysicallyBasedMaterial::Parameters& params = material->parameters();;
-                params.metallic = 0.0f;
-                params.roughness = 1.0f;
-                params.baseColor = glm::vec3(0.6f);
-                params.specularF0 = 0.5f;
-                glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.5f, 0.0f));
-				sceneData.push_back(RLMesh(&planeMeshProvider, { material }, systemSetupCallback, translation));
-            }
-
             float radius = 0.5f;
             SphereMeshProvider sphereMeshProvider(50, 50, radius);
             float roughness = 0.0f;
@@ -272,7 +258,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
                     params.metallic = 0.0f;
                     params.roughness = roughness;
                     params.baseColor = glm::vec3(1.0f);
-                    params.specularF0 = 1.0f;
+                    params.specularF0 = 0.0f;
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(startX, 0.0f, 0.0f));
 					sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
 
@@ -291,7 +277,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
                     params.metallic = 1.0f;
                     params.roughness = roughness;
                     params.baseColor = glm::vec3(1.0f);
-                    params.specularF0 = 0.5f;
+                    params.specularF0 = 0.0f;
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(startX, 1.5f, 0.0f));
                     sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, translation));
 
