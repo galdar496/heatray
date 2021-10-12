@@ -91,6 +91,16 @@ vec3 sampleGGX(float u1, float u2, float roughnessAlpha) // Returns the half-vec
 	return normalize(vec3(x, y, z));
 }
 
+vec3 Y_up_from_Z_up(vec3 yUp)
+{
+	return vec3(yUp.x, yUp.z, yUp.y);
+}
+
+vec3 Z_up_from_Y_up(vec3 zUp)
+{
+	return vec3(zUp.x, zUp.z, zUp.y);
+}
+
 // A more accurate GGX importance sample by taking masking into account.
 // The PDF used to generate this function is:
 //	(G1 * D * NdotL) / NdotH
@@ -98,30 +108,34 @@ vec3 sampleGGX(float u1, float u2, float roughnessAlpha) // Returns the half-vec
 // Note that this is isotropic but could be expanded to anisotropic by accounting for two roughness values.
 vec3 sampleVisibleGGX(vec3 localSpaceV, float u1, float u2, float roughnessAlpha)
 {
+	vec3 zUpV = Z_up_from_Y_up(localSpaceV);
+
 	// Stretch the view vector so we are sampling as though roughnessAlpha == 1.
-	vec3 Vh = normalize(vec3(localSpaceV.x * roughnessAlpha, 
-	                         localSpaceV.y, 
-							 localSpaceV.z * roughnessAlpha));
+	vec3 Vh = normalize(vec3(zUpV.x * roughnessAlpha, 
+	                         zUpV.y * roughnessAlpha, 
+							 zUpV.z));
 
 	// Build an orthonormal basis about Vh.
-	float lengthSquared = (Vh.x * Vh.x) + (Vh.z * Vh.z);
-	vec3 T1 = lengthSquared > 0.0 ? vec3(-Vh.z, 0.0, Vh.x) * inversesqrt(lengthSquared) : vec3(1.0, 0.0, 0.0);
+	float lengthSquared = (Vh.x * Vh.x) + (Vh.y * Vh.y);
+	vec3 T1 = (lengthSquared > 0.0) ? vec3(-Vh.y, Vh.x, 0.0) * inversesqrt(lengthSquared) : vec3(1.0, 0.0, 0.0);
 	vec3 T2 = cross(Vh, T1);
 
 	// Parameterize the projected area.
-	float sinTheta = sqrt(u1);
+	float r = sqrt(u1);
 	float phi = kTwoPI * u2;
-	float t1 = sinTheta * cos(phi);
-	float t2 = sinTheta * sin(phi);
-	float s = 0.5 * (1.0 + Vh.y);
+	float t1 = r * cos(phi);
+	float t2 = r * sin(phi);
+	float s = 0.5 * (1.0 + Vh.z);
 	float t1Squared = square(t1);
-	t2 = (1.0 - s) * sqrt(1.0 - t1Squared) + s * t2;
+	t2 = (1.0 - s) * sqrt(1.0 - t1Squared) + (s * t2);
 
 	// Calculate the normal in this stretched tangent space.
-	vec3 Nh = t1 * T1 + sqrt(max(0.0, 1.0 - t1Squared - square(t2))) * Vh + t2 * T2;
+	vec3 Nh = (t1 * T1) + (t2 * T2) + sqrt(max(0.0, 1.0 - t1Squared - square(t2))) * Vh;
 	
 	// Unstretch this normal.
-	return normalize(vec3(roughnessAlpha * Nh.x, max(0.0, Nh.y), roughnessAlpha * Nh.z));
+	vec3 zUp = normalize(vec3(roughnessAlpha * Nh.x, roughnessAlpha * Nh.y, max(0.0, Nh.z)));
+
+	return Y_up_from_Z_up(zUp);
 }
 
 float pow5(float x)

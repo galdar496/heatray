@@ -89,8 +89,9 @@ void main()
 	vec3 I = -rl_InRay.direction;
 	float eta = nIn / nOut;
 
+	vec3 localSpaceI = transpose(frame) * I;
 	vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth, Globals.sampleIndex);
-	vec3 H = frame * sampleGGX(rand.x, rand.y, Material.roughnessAlpha);
+	vec3 H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, Material.roughnessAlpha);
 	float HdotI = saturate(dot(H, I));
 
 	vec2 refractProbability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex);
@@ -102,14 +103,14 @@ void main()
 
 		float NdotI = saturate(dot(N, I));
 		// Note that these are purposely not clamped as the BSDF considers the entire sphere as opposed to a hemisphere.
-		float NdotH = abs(dot(H, N));
 		float NdotO = abs(dot(N, O));
 
-		float G = G2_Smith_GGX(NdotO, NdotI, Material.roughnessAlpha);
+		float G2 = G2_Smith_GGX(NdotI, NdotO, Material.roughnessAlpha);
+		float G1 = G1_Smith_GGX(NdotI, Material.roughnessAlpha);
 
 		// https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf
-		// The PDF of our sample function is (D * NdotH) / (4 * VdotH).
-		vec3 transmission = Material.baseColor * (G * HdotI) / (NdotH * NdotI);
+		// And for the PDF: https://hal.inria.fr/hal-00996995v1/document
+		vec3 transmission = Material.baseColor * G2 / greaterThanZero(G1);
 
 		transmission *= weight;
 		if (dot(transmission, transmission) > 1e-5 && rl_InRay.depth < Globals.maxRayDepth) {
@@ -132,7 +133,7 @@ void main()
 		}
 		if (rl_InRay.depth < Globals.maxRayDepth) {
 			rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex);
-			H = frame * sampleGGX(rand.x, rand.y, Material.roughnessAlpha);
+			H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, Material.roughnessAlpha);
 
 			HdotI = dot(H, I);
 			vec3 O = normalize(2.0 * HdotI * H - I);
