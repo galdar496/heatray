@@ -11,7 +11,7 @@
 
 #include <glm/glm/vec3.hpp>
 
-class GlassMaterial : public Material
+class GlassMaterial final : public Material
 {
 public:
     GlassMaterial(const std::string &name)

@@ -10,6 +10,8 @@
 
 #include "RLMesh.h"
 
+#include "Lights/EnvironmentLight.h"
+
 #include <RLWrapper/Framebuffer.h>
 #include <RLWrapper/PixelPackBuffer.h>
 #include <RLWrapper/Primitive.h>
@@ -176,20 +178,7 @@ private:
 
     openrl::PixelPackBuffer m_resultPixels;
 
-	struct EnvironmentLight {
-		std::shared_ptr<openrl::Primitive> primitive = nullptr;
-		std::shared_ptr<openrl::Program> program = nullptr;
-		std::shared_ptr<openrl::Texture> texture = nullptr;
-		float exposure_compensation = 0.0f;
-		float thetaRotation = 0.0f;
-		std::string map_path;
-
-		void reset() {
-			primitive.reset();
-			program.reset();
-			texture.reset();
-		}
-	} m_environmentLight;
+	std::shared_ptr<EnvironmentLight> m_environmentLight = nullptr;
 
     PassCompleteCallback m_passCompleteCallback;
     LoadSceneCallback m_loadSceneCallback;

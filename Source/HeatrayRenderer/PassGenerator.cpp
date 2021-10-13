@@ -154,38 +154,13 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
         m_resultPixels.create(bufferSize);
     }
 
-    // Load up the environment light primitive. This will likely move to some future location.
-    {
-        std::vector<std::string> shaderSource;
-        util::loadShaderSourceFile("environmentLight.rlsl", shaderSource);
-		std::shared_ptr<openrl::Shader> environmentLightShader = openrl::Shader::createFromMultipleStrings(shaderSource, openrl::Shader::ShaderType::kRay, "Environment Light Shader");
-        if (!environmentLightShader) {
-            return false;
-        }
-
-		shaderSource.clear();
-		util::loadShaderSourceFile("passthrough.rlsl", shaderSource);
-		std::shared_ptr<openrl::Shader> environmentLightVertexShader = openrl::Shader::createFromMultipleStrings(shaderSource, openrl::Shader::ShaderType::kVertex, "Environment Light Vertex Shader");
-        if (!environmentLightVertexShader) {
-            return false;
-        }
-
-		m_environmentLight.program = openrl::Program::create();
-		m_environmentLight.program->attach(environmentLightShader, openrl::Shader::ShaderType::kRay);
-		m_environmentLight.program->attach(environmentLightVertexShader, openrl::Shader::ShaderType::kVertex);
-        if (!m_environmentLight.program->link("Environment Light Program")) {
-            return false;
-        }
-
-		m_environmentLight.primitive = openrl::Primitive::create();
-		m_environmentLight.primitive->attachProgram(m_environmentLight.program);
-		changeEnvironment(m_renderOptions.environment);
-    }
+	// Initialize the environment light.
+	m_environmentLight = std::shared_ptr<EnvironmentLight>(new EnvironmentLight);
 
     {
         // Setup global data buffer for all shaders.
         GlobalData data;
-        data.environmentLight = m_environmentLight.primitive->primitive();
+        data.environmentLight = m_environmentLight->primitive();
         m_globalData = openrl::Buffer::create(RL_ARRAY_BUFFER, &data, sizeof(GlobalData), "Global data buffer");
     }
 
@@ -457,49 +432,13 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
 
 void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
 {
-	if (newEnv.map != m_environmentLight.map_path) {
-		m_environmentLight.map_path = newEnv.map;
-		if (newEnv.map != "white furnace test") {
-			std::string fullPath;
-			if (newEnv.builtInMap) {
-				static const char* basePath = "Resources/Environments/";
-				fullPath = std::string(basePath) + newEnv.map;
-			}
-			else {
-				fullPath = newEnv.map;
-			}
-			m_environmentLight.texture = util::loadTexture(fullPath.c_str(), true);
-		} else {
-			// Load a white furnace texture. Set to 0.8 instead of full white so that it's obvious if there is more energy being emitted
-			// by the surface than should be.
-			openrl::Texture::Descriptor desc;
-			desc.dataType = RL_FLOAT;
-			desc.format = RL_RGB;
-			desc.internalFormat = RL_RGB;
-			desc.width = 1;
-			desc.height = 1;
+	m_environmentLight->rotate(newEnv.thetaRotation);
+	m_environmentLight->setExposure(newEnv.exposureCompensation);
 
-			openrl::Texture::Sampler sampler;
-			sampler.magFilter = RL_LINEAR;
-			sampler.minFilter = RL_LINEAR;
-			sampler.wrapS = RL_CLAMP_TO_EDGE;
-			sampler.wrapT = RL_CLAMP_TO_EDGE;
-
-			glm::vec3 data = glm::vec3(0.8f);
-			m_environmentLight.texture = openrl::Texture::create(&data.x, desc, sampler, false);
-		}
-	}
-
-	if (m_environmentLight.texture) {
-		m_environmentLight.exposure_compensation = newEnv.exposureCompensation;
-		m_environmentLight.thetaRotation = newEnv.thetaRotation;
-
-		m_environmentLight.primitive->bind();
-		m_environmentLight.program->bind();
-		m_environmentLight.program->setTexture(m_environmentLight.program->getUniformLocation("environmentTexture"), m_environmentLight.texture);
-		m_environmentLight.program->set1f(m_environmentLight.program->getUniformLocation("exposureCompensation"), std::powf(2.0f, m_environmentLight.exposure_compensation));
-		m_environmentLight.program->set1f(m_environmentLight.program->getUniformLocation("thetaRotation"), m_environmentLight.thetaRotation);
-		m_environmentLight.primitive->unbind();
+	if (newEnv.map != "white furnace test") {
+		m_environmentLight->changeImageSource(newEnv.map.c_str(), newEnv.builtInMap);
+	} else {
+		m_environmentLight->enableWhiteFurnaceTest();
 	}
 }
 

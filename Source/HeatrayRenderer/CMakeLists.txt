@@ -14,6 +14,7 @@ target_link_libraries(HeatrayRenderer
 	FileDialog
 )
 
+add_subdirectory(Lights)
 add_subdirectory(Materials)
 add_subdirectory(MeshProviders)
 add_subdirectory(Session)
