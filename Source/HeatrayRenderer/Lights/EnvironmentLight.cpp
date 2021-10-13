@@ -14,35 +14,10 @@ EnvironmentLight::EnvironmentLight()
 {
 	// Setup the environment light OpenRL data.
 
-	// Shader.
-	std::shared_ptr<openrl::Shader> rayShader = nullptr;
-	std::shared_ptr<openrl::Shader> vertexShader = nullptr;
-	{
-		std::vector<std::string> shaderSource;
+	m_program = util::buildProgram("passthrough.rlsl", "environmentLight.rlsl", "Environment Light");
+	assert(m_program);
 
-		// Vertex.
-		util::loadShaderSourceFile("passthrough.rlsl", shaderSource);
-		vertexShader = openrl::Shader::createFromMultipleStrings(shaderSource, openrl::Shader::ShaderType::kVertex, "Environment Light Vertex Shader");
-		assert(vertexShader);
-
-		shaderSource.clear();
-
-		// Ray.
-		util::loadShaderSourceFile("environmentLight.rlsl", shaderSource);
-		rayShader = openrl::Shader::createFromMultipleStrings(shaderSource, openrl::Shader::ShaderType::kRay, "Environment Light Ray Shader");
-		assert(rayShader);
-	}
-
-	// Program.
-	{
-		m_program = openrl::Program::create();
-		m_program->attach(vertexShader, openrl::Shader::ShaderType::kRay);
-		m_program->attach(rayShader, openrl::Shader::ShaderType::kVertex);
-		bool linked = m_program->link("Environment Light Program");
-		assert(linked);
-	}
-
-	// Now create the primitive and associate the program with it.
+	// Create the primitive and associate the program with it.
 	m_primitive = openrl::Primitive::create();
 	m_primitive->attachProgram(m_program);
 

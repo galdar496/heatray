@@ -174,7 +174,7 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
         }
 
 		m_frameProgram = openrl::Program::create();
-        m_frameProgram->attach(frameShader, openrl::Shader::ShaderType::kFrame);
+        m_frameProgram->attach(frameShader);
         if (!m_frameProgram->link("Perspecive Frame Shader")) {
             return false;
         }

@@ -47,11 +47,11 @@ public:
     ///
     /// @return If true, the shader was properly attached.
     ///
-    inline void attach(const std::shared_ptr<Shader> shader, Shader::ShaderType type)
+    inline void attach(const std::shared_ptr<Shader> shader)
     {
         assert(shader->valid());
         RLFunc(rlAttachShader(m_program, shader->shader()));
-		m_attachedShaders[static_cast<uint8_t>(type)] = shader;
+		m_attachedShaders[static_cast<uint8_t>(shader->type())] = shader;
     }
 
     ///

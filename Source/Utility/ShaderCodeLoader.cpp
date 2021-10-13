@@ -87,8 +87,8 @@ std::shared_ptr<openrl::Program> buildProgram(const char* vertexShaderPath, cons
     }
 
 	std::shared_ptr<openrl::Program> program = openrl::Program::create();
-    program->attach(vertex, openrl::Shader::ShaderType::kVertex);
-    program->attach(ray, openrl::Shader::ShaderType::kRay);
+    program->attach(vertex);
+    program->attach(ray);
     if (!program->link((programName + " program").c_str())) {
         assert(0 && "Unable to create program");
 		return nullptr;

@@ -130,8 +130,11 @@ public:
         return (success == RL_TRUE);
     }
 
+	inline ShaderType type() const { return m_type; }
+
 private:
-	explicit Shader(const ShaderType type) {
+	explicit Shader(const ShaderType type) 
+		: m_type(type) {
 		RLenum rlType = 0;
 		switch (type) {
 			case ShaderType::kVertex:
@@ -160,6 +163,8 @@ private:
     }
 
     RLshader m_shader = RL_NULL_SHADER; ///< OpenRL shader configured by this class.
+
+	const ShaderType m_type;
 };
 
 } // namespace openrl
