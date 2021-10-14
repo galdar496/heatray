@@ -1,5 +1,6 @@
 #include "PhysicallyBasedMaterial.h"
 #include "MultiScatterUtil.h"
+#include "../Lights/ShaderLightingDefines.h"
 
 #include <RLWrapper/Shader.h>
 #include <Utility/Log.h>
@@ -48,6 +49,9 @@ void PhysicallyBasedMaterial::build()
 	std::stringstream shaderPrefix;
 	bool hasTextures = false;
 	bool hasNormalmap = false;
+
+	// Defines for lighting.
+	ShaderLightingDefines::appendLightingShaderDefines(shaderPrefix);
 
 	// Add shader defines based on detected features.
 	{

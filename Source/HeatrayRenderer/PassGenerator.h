@@ -11,6 +11,7 @@
 #include "RLMesh.h"
 
 #include "Lights/EnvironmentLight.h"
+#include "Lights/SceneLighting.h"
 
 #include <RLWrapper/Framebuffer.h>
 #include <RLWrapper/PixelPackBuffer.h>
@@ -179,6 +180,7 @@ private:
     openrl::PixelPackBuffer m_resultPixels;
 
 	std::shared_ptr<EnvironmentLight> m_environmentLight = nullptr;
+	std::shared_ptr<SceneLighting> m_sceneLighting = nullptr;
 
     PassCompleteCallback m_passCompleteCallback;
     LoadSceneCallback m_loadSceneCallback;
@@ -219,7 +221,6 @@ private:
     struct GlobalData {
         int maxRayDepth = 5;
         int sampleIndex = 0;
-        RLprimitive environmentLight = RL_NULL_PRIMITIVE;
 
 		// Debugging.
 		int enableDebugVisualizer = 0;

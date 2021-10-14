@@ -9,6 +9,7 @@
 #include "rayAttributes.rlsl"
 
 #include "globalData.rlsl"
+#include "lighting.rlsl"
 #include "sequence.rlsl"
 #include "utility.rlsl"
 
@@ -64,10 +65,10 @@ void main()
     createRay();
 		rl_OutRay.origin		   = (viewMatrix * vec4(origin, 1.0)).xyz;
 		rl_OutRay.direction		   = (viewMatrix * vec4(dir, 0.0)).xyz; // OpenRL auto-normalizes the direction for emitted rays.
-		rl_OutRay.defaultPrimitive = Globals.environmentLight;
+		rl_OutRay.defaultPrimitive = EnvironmentLight.lightPrimitive;
 		rl_OutRay.weight           = vec3(1.0);
 		rl_OutRay.sequenceID       = sequenceID;
-	emitRay(); 
+	emitRay();
 }
 
 

@@ -1,0 +1,22 @@
+//
+//  lighting.rlsl
+//  Heatray
+//
+//  Utilities to handle lighting for all supported light types.
+//
+//
+
+uniformblock EnvironmentLight {
+	sampler2D texture; // 2D lat/long map defining environment colors.
+	float exposureCompensation; // Exposure adjustment to the environment light.
+	float thetaRotation; // Extra rotation to apply to the environment;
+	primitive lightPrimitive;
+};
+
+uniformblock DirectionalLights {
+	int numberOfLights;
+	
+	vec3 directions[MAX_NUM_DIRECTIONAL_LIGHTS];
+	vec3 colors[MAX_NUM_DIRECTIONAL_LIGHTS];
+	primitive primitives[MAX_NUM_DIRECTIONAL_LIGHTS];
+};

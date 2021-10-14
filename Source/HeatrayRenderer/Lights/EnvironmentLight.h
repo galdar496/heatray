@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "ShaderLightingDefines.h"
+
 #include <RLWrapper/Primitive.h>
 #include <Utility/TextureLoader.h>
 
@@ -15,6 +17,7 @@
 
 // Forward declarations.
 namespace openrl {
+class Buffer;
 class Program;
 class Texture;
 } // namespace openrl.
@@ -22,7 +25,7 @@ class Texture;
 class EnvironmentLight
 {
 public:
-	EnvironmentLight();
+	explicit EnvironmentLight(std::shared_ptr<openrl::Buffer> lightBuffer);
 	~EnvironmentLight() = default;
 
 	///
@@ -40,10 +43,15 @@ public:
 	void rotate(const float theta_radians);
 	void setExposure(const float exposureCompensation);
 
-	RLprimitive primitive() const { return m_primitive->primitive(); }
-private:
-	void setUniforms() const;
+	///
+	/// Copy to the light buffer that represents the environment light
+	/// in a scene.
+	///
+	void copyToLightBuffer(EnvironmentLightBuffer* buffer);
 
+	std::shared_ptr<openrl::Program> program() const { return m_program; }
+	std::shared_ptr<openrl::Primitive> primitive() const { return m_primitive; }
+private:
 	std::shared_ptr<openrl::Primitive> m_primitive = nullptr;
 	std::shared_ptr<openrl::Texture> m_texture = nullptr;
 	std::shared_ptr<openrl::Program> m_program = nullptr;

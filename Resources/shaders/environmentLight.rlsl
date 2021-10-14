@@ -6,12 +6,9 @@
 //
 //
 
+#include "lighting.rlsl"
 #include "rayAttributes.rlsl"
 #include "utility.rlsl"
-
-uniform sampler2D environmentTexture; // 2D lat/long map defining environment colors.
-uniform float exposureCompensation; // Exposure adjustment to the environment light.
-uniform float thetaRotation; // Extra rotation to apply to the environment;
 
 void setup()
 {
@@ -21,7 +18,7 @@ void setup()
 void main()
 {
 	vec3 dir = rl_InRay.direction;
-	float theta = atan(dir.x, -dir.z) + thetaRotation;
+	float theta = atan(dir.x, -dir.z) + EnvironmentLight.thetaRotation;
 	if (theta > kTwoPI) {
 		theta = theta - kTwoPI;
 	}
@@ -30,7 +27,7 @@ void main()
 	float u   = (theta / kTwoPI) + 0.5;
 	float v   = (-phi * kOneOverPI) + 0.5;
 
-	vec3 sample = texture2D(environmentTexture, vec2(u, 1.0 - v)).rgb * exposureCompensation;
+	vec3 sample = texture2D(EnvironmentLight.texture, vec2(u, 1.0 - v)).rgb * EnvironmentLight.exposureCompensation;
 	vec3 result = rl_InRay.weight * sample;
 	accumulate(result); 
 }

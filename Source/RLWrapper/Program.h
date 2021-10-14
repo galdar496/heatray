@@ -89,7 +89,6 @@ public:
     {
         RLint index = RLFunc(rlGetUniformBlockIndex(m_program, name.c_str()));
         return index;
-
     }
 
     ///

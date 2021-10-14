@@ -1,4 +1,5 @@
 #include "GlassMaterial.h"
+#include "../Lights/ShaderLightingDefines.h"
 
 #include <RLWrapper/Shader.h>
 #include <Utility/Log.h>
@@ -9,6 +10,7 @@
 #include <glm/glm/gtx/compatibility.hpp>
 
 #include <assert.h>
+#include <sstream>
 
 struct ShaderParams
 {
@@ -28,10 +30,15 @@ void GlassMaterial::build()
 	modify();
 	assert(m_constants->valid());
 
+	std::stringstream shaderPrefix;
+
+	// Defines for lighting.
+	ShaderLightingDefines::appendLightingShaderDefines(shaderPrefix);
+
     // Loadup the shader code.
     // TODO: this should use some kind of shader cache.
-	LOG_INFO("Building shader: %s", m_shader);
-    m_program = util::buildProgram(m_vertexShader, m_shader, "Glass");
+	LOG_INFO("Building shader: %s with flags: %s", m_shader, shaderPrefix.str().c_str());
+    m_program = util::buildProgram(m_vertexShader, m_shader, "Glass", shaderPrefix.str());
 
     // NOTE: the association of the program and the uniform block needs to happen in the calling code.
     // This is because there is no RLprimitive at the material level to properly bind.

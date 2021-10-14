@@ -154,20 +154,29 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
         m_resultPixels.create(bufferSize);
     }
 
-	// Initialize the environment light.
-	m_environmentLight = std::shared_ptr<EnvironmentLight>(new EnvironmentLight);
+	// Initialize scene lighting.
+	{
+		m_sceneLighting = std::shared_ptr<SceneLighting>(new SceneLighting);
+		m_environmentLight = m_sceneLighting->addEnvironmentLight();
+
+		// TMP HACK!!!
+		//m_sceneLighting->addDirectionalLight();
+	}
 
     {
         // Setup global data buffer for all shaders.
         GlobalData data;
-        data.environmentLight = m_environmentLight->primitive();
         m_globalData = openrl::Buffer::create(RL_ARRAY_BUFFER, &data, sizeof(GlobalData), "Global data buffer");
     }
 
     // Load the perspective camera frame shader for generating primary rays.
     {
+		std::stringstream defines;
+		ShaderLightingDefines::appendLightingShaderDefines(defines);
+
         std::vector<std::string> shaderSource;
-        util::loadShaderSourceFile("perspective.rlsl", shaderSource);
+		shaderSource.push_back(defines.str());
+		util::loadShaderSourceFile("perspective.rlsl", shaderSource);
 		std::shared_ptr<openrl::Shader> frameShader = openrl::Shader::createFromMultipleStrings(shaderSource, openrl::Shader::ShaderType::kFrame, "Perspective Frame Shader");
         if (!frameShader) {
             return false;
@@ -184,6 +193,7 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
         m_frameProgram->bind();
         m_frameProgram->setUniformBlock(m_frameProgram->getUniformBlockIndex("RandomSequences"), m_randomSequences->buffer());
         m_frameProgram->setUniformBlock(m_frameProgram->getUniformBlockIndex("Globals"), m_globalData->buffer());
+		m_sceneLighting->bindLightingBuffersToProgram(m_frameProgram);
     }
 
     return true;
@@ -294,6 +304,8 @@ void PassGenerator::runLoadSceneJob(bool clearOldScene)
             if (globalsIndex != -1) {
                 program->setUniformBlock(globalsIndex, m_globalData->buffer());
             }
+
+			m_sceneLighting->bindLightingBuffersToProgram(program);
         });
 }
 
@@ -308,6 +320,7 @@ void PassGenerator::runDestroyJob()
 	m_environmentLight.reset();
 	m_sceneData.clear();
 	m_frameProgram.reset();
+	m_sceneLighting.reset();
 
 	m_resultPixels.unmapPixelData();
 	m_resultPixels.destroy();
@@ -440,6 +453,8 @@ void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
 	} else {
 		m_environmentLight->enableWhiteFurnaceTest();
 	}
+
+	m_sceneLighting->updateLight(m_environmentLight);
 }
 
 void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptions::SampleMode sampleMode, RenderOptions::BokehShape bokehShape)

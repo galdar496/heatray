@@ -8,8 +8,9 @@
 
 #include "brdfs.rlsl"
 #include "globalData.rlsl"
-#include "sequence.rlsl"
+#include "lighting.rlsl"
 #include "rayAttributes.rlsl"
+#include "sequence.rlsl"
 #include "utility.rlsl"
 
 // Note that this is not the alpha roughness, but the material roughness.
@@ -19,6 +20,70 @@ vec3 computeMultiscattering(sampler2D multiscatterLUT, vec3 Cspec, float NdotI, 
 	float msLUTvalue = texture2D(multiscatterLUT, vec2(NdotI, roughness)).r;
 	vec3 f_ms = 1.0 + Cspec * ((1.0 - msLUTvalue) / msLUTvalue);
 	return f_ms;
+}
+
+void sampleDiffuseLight(vec3 N, vec3 lightDir,
+						vec3 Cdiff, vec3 Cspec, float roughnessAlpha,
+						float sampleProbability, primitive lightPrimitive)
+{
+	float NdotO = dot(N, lightDir);
+	if (NdotO > 0.0) {
+		NdotO = saturate(NdotO);
+
+		// Use lambert for the BRDF.
+		vec3 diffuse = (Cdiff / kPI) * NdotO;
+
+		vec3 reflectance = diffuse;
+		reflectance /= sampleProbability;
+
+		reflectance *= rl_InRay.weight;
+		if (dot(reflectance, reflectance) > 1e-5) {
+			createRay();
+				rl_OutRay.direction = lightDir;
+				rl_OutRay.weight = reflectance;
+				rl_OutRay.occlusionTest = true;
+				rl_OutRay.defaultPrimitive = lightPrimitive;
+			emitRay();
+		}
+	}
+}
+
+void sampleSpecularLight(vec3 N, vec3 I, float NdotI, vec3 lightDir,  
+						 vec3 Cspec, float roughnessAlpha,
+						 float sampleProbability, primitive lightPrimitive,
+						 sampler2D multiscatterLUT, float roughness)
+{
+	float NdotO = dot(N, lightDir);
+	if (NdotO > 0.0) {
+		NdotO = saturate(NdotO);
+		vec3 H = normalize(I + lightDir);
+		float NdotH = saturate(dot(N, H));
+
+		// Microfacet BRDF: (DFG) / (4*NdotL*NdotV)
+
+		float D = D_GGX(NdotH, roughnessAlpha);
+		vec3 F = F_Schlick(Cspec, NdotI);
+		float G = G2_Smith_GGX(NdotO, NdotI, roughnessAlpha);
+		
+		// Note that the NdotO cancels out here.
+		vec3 specular = (D * F * G) / (4.0 * NdotI);
+
+		// Account for multiscattering.
+		specular *= computeMultiscattering(multiscatterLUT, Cspec, NdotI, roughness);
+
+		vec3 reflectance = specular;
+		reflectance /= sampleProbability;
+		reflectance *= rl_InRay.weight;
+
+		if (dot(reflectance, reflectance) > 1e-5) {
+			createRay();
+				rl_OutRay.direction = lightDir;
+				rl_OutRay.weight = reflectance;
+				rl_OutRay.occlusionTest = true;
+				rl_OutRay.defaultPrimitive = lightPrimitive;
+			emitRay();
+		}
+	}
 }
 
 void sampleDiffuse(vec3 N, vec3 I, float NdotI, mat3 frame, vec2 rand, 
@@ -65,7 +130,6 @@ void sampleSpecular(vec3 N, vec3 I, float NdotI, mat3 frame, vec2 rand,
 	float NdotO = dot(N, O);
 	if (NdotO > 0.0) {
 		NdotO = saturate(NdotO);
-		float NdotH = saturate(dot(N, H));
 
 		// PDF is actually (G1 * D * NdotI) / NdotH. However we're optimizing out most of the terms here from the 
 		// standard microfacet BRDF to arrive at:

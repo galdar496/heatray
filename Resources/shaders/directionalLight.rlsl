@@ -1,0 +1,25 @@
+//
+//  directionalLight.rlsl
+//  Heatray
+//
+//  Handle implementation of a directional light source.
+//
+//
+
+#include "rayAttributes.rlsl"
+#include "lighting.rlsl"
+
+uniform int lightIndex; // Index of this light in the directional light buffers.
+
+void setup()
+{
+	rl_OutputRayCount[0] = 0; // No rays are fired from this shader.
+}
+
+void main()
+{
+	// Lookup the color for this particular light.
+	vec3 result = rl_InRay.weight * DirectionalLights.colors[lightIndex];
+
+	accumulate(result); 
+}
