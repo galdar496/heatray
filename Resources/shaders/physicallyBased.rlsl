@@ -151,7 +151,7 @@ void main()
 
 #if defined(HAS_EMISSIVE_TEXTURE)
 	vec3 emissiveColor = texture2D(Material.emissiveTexture, texCoord).rgb;
-	accumulate(emissiveColor);
+	accumulate(rl_InRay.weight * emissiveColor);
 #endif // defined(HAS_EMISSIVE_TEXTURE)
 
 	float clearCoatNdotV = saturate(dot(clearCoatN, V));
