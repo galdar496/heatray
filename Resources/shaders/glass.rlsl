@@ -133,7 +133,19 @@ void main()
 			specularSample(N, H, I, O, weight, true, EnvironmentLight.lightPrimitive);
 		}
 		if (rl_InRay.depth < Globals.maxRayDepth) {
-			rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex);
+			// Perform Russian Roulette.
+			if (rl_InRay.depth > 3) {
+				// For Russian Roulette, we always use 3 sequences away for random numbers.
+				vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex);
+				float probability = max(weight.x, max(weight.y, weight.z));
+				if (rand.x > probability) {
+					return; // This ray has been terminated.
+				}
+
+				rl_InRay.weight /= probability;
+			}
+
+			rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 4, Globals.sampleIndex);
 			H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, Material.roughnessAlpha);
 
 			HdotI = dot(H, I);

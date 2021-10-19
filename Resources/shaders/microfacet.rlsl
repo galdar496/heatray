@@ -58,11 +58,12 @@ void sampleSpecularLight(vec3 N, vec3 I, float NdotI, vec3 lightDir,
 		NdotO = saturate(NdotO);
 		vec3 H = normalize(I + lightDir);
 		float NdotH = saturate(dot(N, H));
+		float IdotH = saturate(dot(I, H));
 
 		// Microfacet BRDF: (DFG) / (4*NdotL*NdotV)
 
 		float D = D_GGX(NdotH, roughnessAlpha);
-		vec3 F = F_Schlick(Cspec, NdotI);
+		vec3 F = F_Schlick(Cspec, IdotH);
 		float G = G2_Smith_GGX(NdotO, NdotI, roughnessAlpha);
 		
 		// Note that the NdotO cancels out here.
