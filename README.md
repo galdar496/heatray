@@ -3,6 +3,8 @@
 
 **Note**: *Heatray is currently being completely rewritten with an emphasis on being physically correct, statistically accurate, and with lessons learned from years of building production offline and realtime renderers.*
 
+Join our discord server! https://discord.gg/Ux9G7QR2vP
+
 ## Overview
 Heatray is a C++ path tracer utilizing [OpenRL](https://en.wikipedia.org/wiki/OpenRL) to perform raytracing. An OpenGL viewer is used to visualize the passes as they are performed in realtime.
 ## Latest Images
