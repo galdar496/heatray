@@ -76,7 +76,7 @@ void main()
 
 	vec3 baseColor = Material.baseColor;
 #if defined(HAS_BASE_COLOR_TEXTURE)
-	vec3 baseColor *= texture2D(Material.baseColorTexture, texCoord).rgb;
+	baseColor *= texture2D(Material.baseColorTexture, texCoord).rgb;
 #endif //  defined(HAS_BASE_COLOR_TEXTURE)
 
 	float metallic = Material.metallic;
