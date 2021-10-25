@@ -18,7 +18,7 @@ vec3 computeMultiscattering(sampler2D multiscatterLUT, vec3 Cspec, float NdotI, 
 {
 	// https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf
 	float msLUTvalue = texture2D(multiscatterLUT, vec2(NdotI, roughness)).r;
-	vec3 f_ms = 1.0 + Cspec * ((1.0 - msLUTvalue) / msLUTvalue);
+	vec3 f_ms = 1.0 + Cspec * msLUTvalue;
 	return f_ms;
 }
 

@@ -114,7 +114,10 @@ void generateMultiScatterTexture()
 		const float alpha = roughness * roughness;
 		for (float col = 0.0f; col < IMAGE_DIMENSIONS; ++col) {
 			const float NdotV = glm::saturate<float, glm::defaultp>((col + 0.5f) / IMAGE_DIMENSIONS);
-			results[resultIndex] = generateValue(NdotV, alpha, SAMPLE_COUNT, randomSequence);
+			float value = generateValue(NdotV, alpha, SAMPLE_COUNT, randomSequence);
+			value = ((1.0f - value) / value); // Value is stored like this to avoid shader operations later.
+
+			results[resultIndex] = value;
 			++resultIndex;
 		}
 	}

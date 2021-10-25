@@ -445,6 +445,10 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
 
 void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
 {
+	if (!m_environmentLight) {
+		return;
+	}
+
 	m_environmentLight->rotate(newEnv.thetaRotation);
 	m_environmentLight->setExposure(newEnv.exposureCompensation);
 
