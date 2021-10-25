@@ -15,21 +15,21 @@
 
 struct ShaderParams {
 	// RLtextures need to come first, since they require 8 byte alignment.
-	RLtexture baseColorTexture;
-	RLtexture metallicRoughnessTexture; // B: metallic, G: roughness
-	RLtexture emissiveTexture;
-	RLtexture normalmap;
-	RLtexture clearCoatTexture;
-	RLtexture clearCoatRoughnessTexture;
-	RLtexture clearCoatNormalmap;
+	RLtexture baseColorTexture = RL_NULL_TEXTURE;
+	RLtexture metallicRoughnessTexture = RL_NULL_TEXTURE; // B: metallic, G: roughness
+	RLtexture emissiveTexture = RL_NULL_TEXTURE;
+	RLtexture normalmap = RL_NULL_TEXTURE;
+	RLtexture clearCoatTexture = RL_NULL_TEXTURE;
+	RLtexture clearCoatRoughnessTexture = RL_NULL_TEXTURE;
+	RLtexture clearCoatNormalmap = RL_NULL_TEXTURE;
 	glm::vec3 baseColor;
-	float metallic;
-	float roughness;
-	float specularF0;
-	float roughnessAlpha; ///< GGX alpha value (roughness^2).
-	float clearCoat;
-	float clearCoatRoughness;
-	float clearCoatRoughnessAlpha; ///< GGX alpha value (roughness^2).
+	float metallic = 0.0f;
+	float roughness = 0.0f;
+	float specularF0 = 0.0f;
+	float roughnessAlpha = 0.0f; ///< GGX alpha value (roughness^2).
+	float clearCoat = 0.0f;
+	float clearCoatRoughness = 0.0f;
+	float clearCoatRoughnessAlpha = 0.0f; ///< GGX alpha value (roughness^2).
 
 	// Extra automatic parameters.
 	RLtexture multiscatterLUT;

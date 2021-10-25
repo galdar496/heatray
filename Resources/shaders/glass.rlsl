@@ -17,8 +17,14 @@ varying vec3 normal;
 varying vec2 texCoord;
 #endif // defined(HAS_TEXTURES)
 
+#if defined(USE_TANGENT_SPACE)
+varying vec3 tangent;
+varying vec3 bitangent;
+#endif // defined(USE_TANGENT_SPACE)
+
 uniformblock Material {
 	sampler2D baseColorTexture;
+	sampler2D normalmap;
 	sampler2D metallicRoughnessTexture;
 	vec3 baseColor;
 	float roughness;
@@ -73,6 +79,14 @@ void main()
 	float nOut = Material.ior;
 	vec3 weight = rl_InRay.weight;
 
+#if defined(HAS_NORMALMAP)
+	{
+		mat3 normalTransform = mat3(normalize(tangent), normalize(bitangent), N);
+		vec3 normalTS = texture2D(Material.normalmap, texCoord).xyz * 2.0 - 1.0;
+		N = normalize(normalTransform * normalTS);
+	}
+#endif // defined(HAS_NORMALMAP)
+
 	vec3 baseColor = Material.baseColor;
 #if defined(HAS_BASE_COLOR_TEXTURE)
 	baseColor *= texture2D(Material.baseColorTexture, texCoord).rgb;
@@ -105,12 +119,26 @@ void main()
 			accumulate(vec4(baseColor, 1.0));
 		} else if (Globals.showRoughness == 1) {
 			accumulate(vec4(roughness, roughness, roughness, 1.0));
+		} else if (Globals.showFinalNormals == 1) {
+			accumulate(vec4((N + 1.0) * 0.5, 1.0));
 		}
 #if defined(HAS_TEXTURES)
 		else if (Globals.showUVs == 1) {
 			accumulate(vec4(texCoord, 0.0, 1.0));
 		}
 #endif // defined(HAS_TEXTURES)
+#if defined(USE_TANGENT_SPACE)
+		else if (Globals.showTangents == 1) {
+			accumulate(vec4((tangent + 1.0) * 0.5, 1.0));
+		} else if (Globals.showBitangents == 1) {
+			accumulate(vec4((bitangent + 1.0) * 0.5, 1.0));
+		}
+#if defined(HAS_NORMALMAP)
+		else if (Globals.showNormalmap == 1) {
+			accumulate(vec4(texture2D(Material.normalmap, texCoord).xyz, 1.0));
+		}
+#endif // defined(HAS_NORMALMAP)
+#endif // defined(USE_TANGENT_SPACE)
 		return;
 	}
 

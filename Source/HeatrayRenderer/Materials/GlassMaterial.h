@@ -20,6 +20,7 @@ public:
 
     struct Parameters {
 		std::shared_ptr<openrl::Texture> baseColorTexture = nullptr;
+		std::shared_ptr<openrl::Texture> normalmap = nullptr;
 		std::shared_ptr<openrl::Texture> metallicRoughnessTexture = nullptr;
         glm::vec3 baseColor = glm::vec3(1.0f);  ///< Color applied to object (linear). If the object is a dialectric, this color represents albedo, otherwise this is the specular reflection color.   
         float roughness = 1.0f;                 ///< [0-1] such that 0 == completely smooth and 1 == completely rough.

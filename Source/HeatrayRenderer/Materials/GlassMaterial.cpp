@@ -15,14 +15,15 @@
 struct ShaderParams
 {
 	// RLtextures need to come first, since they require 8 byte alignment.
-	RLtexture baseColorTexture;
-	RLtexture metallicRoughnessTexture; // B: metallic, G: roughness
+	RLtexture baseColorTexture = RL_NULL_TEXTURE;
+	RLtexture normalmap = RL_NULL_TEXTURE;
+	RLtexture metallicRoughnessTexture = RL_NULL_TEXTURE; // B: metallic, G: roughness
 	glm::vec3 baseColor;
-	float roughness;
-	float roughnessAlpha; ///< GGX alpha value (roughness^2).
-	float ior;
-	float density;
-	float specularF0;
+	float roughness = 0.0f;
+	float roughnessAlpha = 0.0f; ///< GGX alpha value (roughness^2).
+	float ior = 1.0f;
+	float density = 0.0f;
+	float specularF0 = 0.0f;
 };
 
 void GlassMaterial::build()
@@ -37,6 +38,7 @@ void GlassMaterial::build()
 
 	std::stringstream shaderPrefix;
 	bool hasTextures = false;
+	bool hasNormalmap = false;
 
 	// Defines for lighting.
 	ShaderLightingDefines::appendLightingShaderDefines(shaderPrefix);
@@ -51,11 +53,19 @@ void GlassMaterial::build()
 			hasTextures = true;
 			shaderPrefix << "#define HAS_METALLIC_ROUGHNESS_TEXTURE\n";
 		}
+		if (m_params.normalmap) {
+			hasTextures = true;
+			hasNormalmap = true;
+			shaderPrefix << "#define HAS_NORMALMAP\n";
+		}
 	}
 
     // Loadup the shader code.
     // TODO: this should use some kind of shader cache.
 	if (hasTextures) {
+		if (hasNormalmap) {
+			shaderPrefix << "#define USE_TANGENT_SPACE\n";
+		}
 		shaderPrefix << "#define HAS_TEXTURES\n";
 	}
 
@@ -97,6 +107,12 @@ void GlassMaterial::modify()
 	}
 	else {
 		shaderParams.baseColorTexture = m_dummyTexture->texture();
+	}
+	if (m_params.normalmap) {
+		shaderParams.normalmap = m_params.normalmap->texture();
+	}
+	else {
+		shaderParams.normalmap = m_dummyTexture->texture();
 	}
 	if (m_params.metallicRoughnessTexture) {
 		shaderParams.metallicRoughnessTexture = m_params.metallicRoughnessTexture->texture();
