@@ -14,6 +14,8 @@
 
 struct ShaderParams
 {
+	// RLtextures need to come first, since they require 8 byte alignment.
+	RLtexture metallicRoughnessTexture; // B: metallic, G: roughness
 	glm::vec3 baseColor;
 	float roughness;
 	float roughnessAlpha; ///< GGX alpha value (roughness^2).
@@ -24,6 +26,8 @@ struct ShaderParams
 
 void GlassMaterial::build()
 {
+	m_dummyTexture = openrl::Texture::getDummyTexture();
+
 	// Load the parameters into the uniform block buffer.
 	assert(m_constants == nullptr);
 	m_constants = openrl::Buffer::create(RL_UNIFORM_BLOCK_BUFFER, nullptr, sizeof(ShaderParams), "Glass uniform block");
@@ -31,12 +35,25 @@ void GlassMaterial::build()
 	assert(m_constants->valid());
 
 	std::stringstream shaderPrefix;
+	bool hasTextures = false;
 
 	// Defines for lighting.
 	ShaderLightingDefines::appendLightingShaderDefines(shaderPrefix);
 
+	// Add shader defines based on detected features.
+	{
+		if (m_params.metallicRoughnessTexture || m_params.forceEnableAllTextures) {
+			hasTextures = true;
+			shaderPrefix << "#define HAS_METALLIC_ROUGHNESS_TEXTURE\n";
+		}
+	}
+
     // Loadup the shader code.
     // TODO: this should use some kind of shader cache.
+	if (hasTextures) {
+		shaderPrefix << "#define HAS_TEXTURES\n";
+	}
+
 	LOG_INFO("Building shader: %s with flags: %s", m_shader, shaderPrefix.str().c_str());
     m_program = util::buildProgram(m_vertexShader, m_shader, "Glass", shaderPrefix.str());
 
@@ -69,6 +86,13 @@ void GlassMaterial::modify()
 	// Calculate F0 based on the IOR.
 	float F0 = glm::abs<float>((1.0f - shaderParams.ior) / (1.0f + shaderParams.ior));
 	shaderParams.specularF0 = F0 * F0;
+
+	if (m_params.metallicRoughnessTexture) {
+		shaderParams.metallicRoughnessTexture = m_params.metallicRoughnessTexture->texture();
+	}
+	else {
+		shaderParams.metallicRoughnessTexture = m_dummyTexture->texture();
+	}
 
 	m_constants->modify(&shaderParams, sizeof(ShaderParams));
 }

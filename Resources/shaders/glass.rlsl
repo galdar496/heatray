@@ -13,7 +13,12 @@
 
 varying vec3 normal;
 
+#if defined(HAS_TEXTURES)
+varying vec2 texCoord;
+#endif // defined(HAS_TEXTURES)
+
 uniformblock Material {
+	sampler2D metallicRoughnessTexture;
 	vec3 baseColor;
 	float roughness;
 	float roughnessAlpha;
@@ -74,6 +79,15 @@ void main()
 		weight = beersLaw(); // Account for absorption.
 	}
 
+	float roughness = Material.roughness;
+	float roughnessAlpha = Material.roughnessAlpha;
+#if defined(HAS_METALLIC_ROUGHNESS_TEXTURE)
+	vec2 metallicRoughness = texture2D(Material.metallicRoughnessTexture, texCoord).bg;
+	// Ignore metallic as this is a glass shader.
+	roughness *= metallicRoughness.g;
+	roughnessAlpha = roughness * roughness;
+#endif // defined(HAS_METALLIC_ROUGHNESS_TEXTURE)
+
 	// Handle debug visualizations (if applicable).
 	if (Globals.enableVisualizer == 1) {
 		if (Globals.showGeometricNormals == 1) {
@@ -81,8 +95,13 @@ void main()
 		} else if (Globals.showFinalNormals == 1) {
 			accumulate(vec4((N + 1.0) * 0.5, 1.0));
 		} else if (Globals.showRoughness == 1) {
-			accumulate(vec4(Material.roughness, Material.roughness, Material.roughness, 1.0));
+			accumulate(vec4(roughness, roughness, roughness, 1.0));
 		}
+#if defined(HAS_TEXTURES)
+		else if (Globals.showUVs == 1) {
+			accumulate(vec4(texCoord, 0.0, 1.0));
+		}
+#endif // defined(HAS_TEXTURES)
 		return;
 	}
 
@@ -92,7 +111,7 @@ void main()
 
 	vec3 localSpaceI = transpose(frame) * I;
 	vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth, Globals.sampleIndex);
-	vec3 H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, Material.roughnessAlpha);
+	vec3 H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, roughnessAlpha);
 	float HdotI = saturate(dot(H, I));
 
 	vec2 refractProbability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex);
@@ -106,8 +125,8 @@ void main()
 		// Note that these are purposely not clamped as the BSDF considers the entire sphere as opposed to a hemisphere.
 		float NdotO = abs(dot(N, O));
 
-		float G2 = G2_Smith_GGX(NdotI, NdotO, Material.roughnessAlpha);
-		float G1 = G1_Smith_GGX(NdotI, Material.roughnessAlpha);
+		float G2 = G2_Smith_GGX(NdotI, NdotO, roughnessAlpha);
+		float G1 = G1_Smith_GGX(NdotI, roughnessAlpha);
 
 		// https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf
 		// And for the PDF: https://hal.inria.fr/hal-00996995v1/document
@@ -126,7 +145,7 @@ void main()
 		// Do reflection. Use the unique microfacets for the direct and indirect lighting.
 		{
 			rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex);
-			H = frame * sampleGGX(rand.x, rand.y, Material.roughnessAlpha);
+			H = frame * sampleGGX(rand.x, rand.y, roughnessAlpha);
 
 			HdotI = dot(H, I);
 			vec3 O = normalize(2.0 * HdotI * H - I);
@@ -146,7 +165,7 @@ void main()
 			}
 
 			rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 4, Globals.sampleIndex);
-			H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, Material.roughnessAlpha);
+			H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, roughnessAlpha);
 
 			HdotI = dot(H, I);
 			vec3 O = normalize(2.0 * HdotI * H - I);

@@ -260,6 +260,18 @@ void AssimpMeshProvider::ProcessGlassMaterial(aiMaterial const* material)
 	material->Get(AI_MATKEY_BASE_COLOR, color);
     params.baseColor = glm::vec3(color.r, color.g, color.b);
 
+	// Textures.
+	{
+		auto filePath = std::filesystem::path(m_filename);
+		auto fileParent = filePath.parent_path();
+
+		aiString assimpPath;
+		if (material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &assimpPath) == aiReturn_SUCCESS) {
+			auto texturePath = (fileParent / assimpPath.C_Str()).string();
+			params.metallicRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
+		}
+	}
+
     m_materials.push_back(glassMaterial);
 }
 

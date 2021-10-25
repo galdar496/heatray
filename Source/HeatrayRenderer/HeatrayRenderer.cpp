@@ -146,6 +146,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
 			params.ior = 1.33f;
 			params.roughness = 0.0f;
 			params.density = 0.8f;
+			params.forceEnableAllTextures = true;
 
 			sceneData.push_back(RLMesh(&sphereMeshProvider, { material }, systemSetupCallback, glm::mat4(1.0f)));
 
@@ -639,6 +640,13 @@ void HeatrayRenderer::readSessionFile(const std::string& filename)
 
 void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
 {
+	enum class TextureType {
+		kBaseColor,
+		kMetallicRoughness,
+		kClearCoat,
+		kClearCoatRoughness
+	} textureType;
+
 	if (material->type() == Material::Type::PBR) {
 		bool materialChanged = false;
 		std::shared_ptr<PhysicallyBasedMaterial> pbrMaterial = std::static_pointer_cast<PhysicallyBasedMaterial>(material);
@@ -662,13 +670,6 @@ void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
 		if (ImGui::SliderFloat("ClearCoat Roughness", &parameters.clearCoatRoughness, 0.0f, 1.0f)) {
 			materialChanged = true;
 		}
-
-		enum class TextureType {
-			kBaseColor,
-			kMetallicRoughness,
-			kClearCoat,
-			kClearCoatRoughness
-		} textureType;
 
 		ImGui::Separator();
 		ImGui::Text("Textures");
@@ -765,8 +766,43 @@ void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
 			materialChanged = true;
 		}
 
+		ImGui::Separator();
+		ImGui::Text("Textures");
+		std::string texturePath;
+		{
+			bool textureSelected = false;
+
+			ImGui::PushID("MetallicRoughness");
+			if (ImGui::Button("Load")) {
+				textureSelected = true;
+				textureType = TextureType::kMetallicRoughness;
+			}
+			ImGui::PopID();
+			ImGui::SameLine();
+			ImGui::Text("MetallicRoughness");
+
+			if (textureSelected) {
+				std::vector<std::string> filenames = util::OpenFileDialog("*");
+
+				if (filenames.size() > 0) {
+					texturePath = filenames[0];
+					materialChanged = true;
+				}
+			}
+		}
+
 		if (materialChanged) {
-			m_renderer.runOpenRLTask([this, glassMaterial]() {
+			m_renderer.runOpenRLTask([this, glassMaterial, texturePath, textureType]() {
+				if (texturePath.empty() == false) {
+					switch (textureType) {
+					case TextureType::kMetallicRoughness:
+						glassMaterial->parameters().metallicRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
+						break;
+					default:
+						break;
+					}
+				}
+
 				glassMaterial->modify();
 				resetRenderer();
 			});
