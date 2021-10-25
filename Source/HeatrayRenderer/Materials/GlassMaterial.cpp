@@ -15,6 +15,7 @@
 struct ShaderParams
 {
 	// RLtextures need to come first, since they require 8 byte alignment.
+	RLtexture baseColorTexture;
 	RLtexture metallicRoughnessTexture; // B: metallic, G: roughness
 	glm::vec3 baseColor;
 	float roughness;
@@ -42,6 +43,10 @@ void GlassMaterial::build()
 
 	// Add shader defines based on detected features.
 	{
+		if (m_params.baseColorTexture || m_params.forceEnableAllTextures) {
+			hasTextures = true;
+			shaderPrefix << "#define HAS_BASE_COLOR_TEXTURE\n";
+		}
 		if (m_params.metallicRoughnessTexture || m_params.forceEnableAllTextures) {
 			hasTextures = true;
 			shaderPrefix << "#define HAS_METALLIC_ROUGHNESS_TEXTURE\n";
@@ -87,6 +92,12 @@ void GlassMaterial::modify()
 	float F0 = glm::abs<float>((1.0f - shaderParams.ior) / (1.0f + shaderParams.ior));
 	shaderParams.specularF0 = F0 * F0;
 
+	if (m_params.baseColorTexture) {
+		shaderParams.baseColorTexture = m_params.baseColorTexture->texture();
+	}
+	else {
+		shaderParams.baseColorTexture = m_dummyTexture->texture();
+	}
 	if (m_params.metallicRoughnessTexture) {
 		shaderParams.metallicRoughnessTexture = m_params.metallicRoughnessTexture->texture();
 	}

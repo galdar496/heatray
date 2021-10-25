@@ -18,6 +18,7 @@ varying vec2 texCoord;
 #endif // defined(HAS_TEXTURES)
 
 uniformblock Material {
+	sampler2D baseColorTexture;
 	sampler2D metallicRoughnessTexture;
 	vec3 baseColor;
 	float roughness;
@@ -32,7 +33,7 @@ void setup()
     rl_OutputRayCount[0] = 2; // One for direct lighting, one for indirect lighting.
 }
 
-void specularSample(vec3 N, vec3 H, vec3 I, vec3 O, vec3 weight, bool isDirectLightSample, primitive rayMissPrimitive)
+void specularSample(vec3 N, vec3 H, vec3 I, vec3 O, vec3 weight, bool isDirectLightSample, primitive rayMissPrimitive, vec3 baseColor)
 {
 	float NdotO = saturate(dot(N, O));
 
@@ -44,7 +45,7 @@ void specularSample(vec3 N, vec3 H, vec3 I, vec3 O, vec3 weight, bool isDirectLi
 		// The PDF of our sample function is (D * NdotH) / (4 * VdotH).
 		float G = G2_Smith_GGX(NdotO, NdotI, Material.roughnessAlpha);
 
-		vec3 reflectance = Material.baseColor * ((G * HdotI) / (NdotH * NdotI));
+		vec3 reflectance = baseColor * ((G * HdotI) / (NdotH * NdotI));
 		reflectance *= weight;
 
 		if (dot(reflectance, reflectance) > 1e-5) {
@@ -58,9 +59,9 @@ void specularSample(vec3 N, vec3 H, vec3 I, vec3 O, vec3 weight, bool isDirectLi
 	}
 }
 
-vec3 beersLaw()
+vec3 beersLaw(vec3 baseColor)
 {
-	vec3 absorption = vec3(1.0) - Material.baseColor;
+	vec3 absorption = vec3(1.0) - baseColor;
 	float rayLength = length(rl_IntersectionPoint - rl_InRay.origin);
 	return rl_InRay.weight * exp(absorption * Material.density * -rayLength);
 }
@@ -71,12 +72,18 @@ void main()
 	float nIn = 1.0; // air.
 	float nOut = Material.ior;
 	vec3 weight = rl_InRay.weight;
+
+	vec3 baseColor = Material.baseColor;
+#if defined(HAS_BASE_COLOR_TEXTURE)
+	baseColor *= texture2D(Material.baseColorTexture, texCoord).rgb;
+#endif //  defined(HAS_BASE_COLOR_TEXTURE)
+
 	if (rl_FrontFacing == false) {
 		// We're inside of the shape.
 		N = -N;
 		nIn = Material.ior;
 		nOut = 1.0;
-		weight = beersLaw(); // Account for absorption.
+		weight = beersLaw(baseColor); // Account for absorption.
 	}
 
 	float roughness = Material.roughness;
@@ -94,6 +101,8 @@ void main()
 			accumulate(vec4((normal + 1.0) * 0.5, 1.0));
 		} else if (Globals.showFinalNormals == 1) {
 			accumulate(vec4((N + 1.0) * 0.5, 1.0));
+		} else if (Globals.showBaseColor == 1) {
+			accumulate(vec4(baseColor, 1.0));
 		} else if (Globals.showRoughness == 1) {
 			accumulate(vec4(roughness, roughness, roughness, 1.0));
 		}
@@ -130,7 +139,7 @@ void main()
 
 		// https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf
 		// And for the PDF: https://hal.inria.fr/hal-00996995v1/document
-		vec3 transmission = Material.baseColor * G2 / greaterThanZero(G1);
+		vec3 transmission = baseColor * G2 / greaterThanZero(G1);
 
 		transmission *= weight;
 		if (dot(transmission, transmission) > 1e-5 && rl_InRay.depth < Globals.maxRayDepth) {
@@ -149,7 +158,7 @@ void main()
 
 			HdotI = dot(H, I);
 			vec3 O = normalize(2.0 * HdotI * H - I);
-			specularSample(N, H, I, O, weight, true, EnvironmentLight.lightPrimitive);
+			specularSample(N, H, I, O, weight, true, EnvironmentLight.lightPrimitive, baseColor);
 		}
 		if (rl_InRay.depth < Globals.maxRayDepth) {
 			// Perform Russian Roulette.
@@ -169,7 +178,7 @@ void main()
 
 			HdotI = dot(H, I);
 			vec3 O = normalize(2.0 * HdotI * H - I);
-			specularSample(N, H, I, O, weight, false, rl_NullPrimitive);
+			specularSample(N, H, I, O, weight, false, rl_NullPrimitive, baseColor);
 		}
 	}
 }

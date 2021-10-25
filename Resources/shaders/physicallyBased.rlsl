@@ -74,10 +74,9 @@ void main()
 	vec3 V = -rl_InRay.direction;
 	float NdotV = saturate(dot(N, V));
 
-#if defined(HAS_BASE_COLOR_TEXTURE)
-	vec3 baseColor = Material.baseColor * texture2D(Material.baseColorTexture, texCoord).rgb;
-#else
 	vec3 baseColor = Material.baseColor;
+#if defined(HAS_BASE_COLOR_TEXTURE)
+	vec3 baseColor *= texture2D(Material.baseColorTexture, texCoord).rgb;
 #endif //  defined(HAS_BASE_COLOR_TEXTURE)
 
 	float metallic = Material.metallic;

@@ -266,6 +266,16 @@ void AssimpMeshProvider::ProcessGlassMaterial(aiMaterial const* material)
 		auto fileParent = filePath.parent_path();
 
 		aiString assimpPath;
+		if (material->GetTexture(AI_MATKEY_BASE_COLOR_TEXTURE, &assimpPath) == aiReturn_SUCCESS) {
+			auto texturePath = (fileParent / assimpPath.C_Str()).string();
+			params.baseColorTexture = util::loadTexture(texturePath.c_str(), true, true);
+		}
+		else if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
+			material->GetTexture(aiTextureType_DIFFUSE, 0, &assimpPath);
+			auto texturePath = (fileParent / assimpPath.C_Str()).string();
+			params.baseColorTexture = util::loadTexture(texturePath.c_str(), true, true);
+		}
+
 		if (material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &assimpPath) == aiReturn_SUCCESS) {
 			auto texturePath = (fileParent / assimpPath.C_Str()).string();
 			params.metallicRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);

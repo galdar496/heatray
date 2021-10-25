@@ -772,6 +772,15 @@ void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
 		{
 			bool textureSelected = false;
 
+			ImGui::PushID("BaseColor");
+			if (ImGui::Button("Load")) {
+				textureSelected = true;
+				textureType = TextureType::kBaseColor;
+			}
+			ImGui::PopID();
+			ImGui::SameLine();
+			ImGui::Text("BaseColor");
+
 			ImGui::PushID("MetallicRoughness");
 			if (ImGui::Button("Load")) {
 				textureSelected = true;
@@ -795,6 +804,9 @@ void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
 			m_renderer.runOpenRLTask([this, glassMaterial, texturePath, textureType]() {
 				if (texturePath.empty() == false) {
 					switch (textureType) {
+					case TextureType::kBaseColor:
+						glassMaterial->parameters().baseColorTexture = util::loadTexture(texturePath.c_str(), true, true);
+						break;
 					case TextureType::kMetallicRoughness:
 						glassMaterial->parameters().metallicRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
 						break;
