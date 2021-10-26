@@ -37,6 +37,7 @@ public:
 	void updateLight(std::shared_ptr<DirectionalLight> light);
 
 	std::shared_ptr<EnvironmentLight> addEnvironmentLight();
+	void removeEnvironmentLight();
 	void updateLight(std::shared_ptr<EnvironmentLight> light);
 
 private:

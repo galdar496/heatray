@@ -17,16 +17,7 @@ SceneLighting::SceneLighting()
 void SceneLighting::clear()
 {
 	// Environment Light.
-	{
-		m_environment.light.reset();
-
-		m_environment.buffer->bind();
-		EnvironmentLightBuffer* environmentLight = m_environment.buffer->mapBuffer<EnvironmentLightBuffer>();
-		environmentLight->primitive = RL_NULL_PRIMITIVE;
-		environmentLight->texture = RL_NULL_TEXTURE;
-		m_environment.buffer->unmapBuffer();
-		m_environment.buffer->unbind();
-	}
+	removeEnvironmentLight();
 
 	// Directional Lights.
 	{
@@ -75,6 +66,18 @@ std::shared_ptr<EnvironmentLight> SceneLighting::addEnvironmentLight()
 	updateLight(m_environment.light);
 
 	return m_environment.light;
+}
+
+void SceneLighting::removeEnvironmentLight()
+{
+	m_environment.light.reset();
+
+	m_environment.buffer->bind();
+	EnvironmentLightBuffer* environmentLight = m_environment.buffer->mapBuffer<EnvironmentLightBuffer>();
+	environmentLight->primitive = RL_NULL_PRIMITIVE;
+	environmentLight->texture = RL_NULL_TEXTURE;
+	m_environment.buffer->unmapBuffer();
+	m_environment.buffer->unbind();
 }
 
 void SceneLighting::updateLight(std::shared_ptr<EnvironmentLight> light)

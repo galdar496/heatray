@@ -913,12 +913,12 @@ bool HeatrayRenderer::renderUI()
         }
     }
     if (ImGui::CollapsingHeader("Environment options")) {
-        static const char* options[] = { "noon_grass.exr", "kloppenheim.exr", "peppermint_powerplant.exr", "urban_alley.exr", "chinese_garden.exr", "studio.hdr", "glacier.exr", "uffizi.exr", "white furnace test", "Load Custom..." };
+        static const char* options[] = { "<none>", "noon_grass.exr", "kloppenheim.exr", "peppermint_powerplant.exr", "urban_alley.exr", "chinese_garden.exr", "studio.hdr", "glacier.exr", "uffizi.exr", "white furnace test", "Load Custom..." };
 		static constexpr size_t NUM_OPTIONS = sizeof(options) / sizeof(options[0]);
 		static constexpr size_t CUSTOM_OPTION_INDEX = NUM_OPTIONS - 1;
 
 
-        static size_t currentSelection = 0;
+        static size_t currentSelection = 1;
         if (ImGui::BeginCombo("Environment map", options[currentSelection])) {
             for (size_t iOption = 0; iOption < NUM_OPTIONS; ++iOption) {
                 bool isSelected = (currentSelection == iOption);

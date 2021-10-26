@@ -446,19 +446,25 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
 void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
 {
 	if (!m_environmentLight) {
-		return;
+		m_environmentLight = m_sceneLighting->addEnvironmentLight();
 	}
 
 	m_environmentLight->rotate(newEnv.thetaRotation);
 	m_environmentLight->setExposure(newEnv.exposureCompensation);
 
-	if (newEnv.map != "white furnace test") {
-		m_environmentLight->changeImageSource(newEnv.map.c_str(), newEnv.builtInMap);
-	} else {
+	if (newEnv.map == "white furnace test") {
 		m_environmentLight->enableWhiteFurnaceTest();
 	}
+	else if (newEnv.map == "<none>") {
+		m_sceneLighting->removeEnvironmentLight();
+		m_environmentLight = nullptr;
+	} else {
+		m_environmentLight->changeImageSource(newEnv.map.c_str(), newEnv.builtInMap);
+	}
 
-	m_sceneLighting->updateLight(m_environmentLight);
+	if (m_environmentLight) {
+		m_sceneLighting->updateLight(m_environmentLight);
+	}
 }
 
 void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptions::SampleMode sampleMode, RenderOptions::BokehShape bokehShape)
