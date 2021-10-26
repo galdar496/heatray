@@ -13,6 +13,7 @@
 #include <glm/glm/glm.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp>
 
+#include <algorithm>
 #include <assert.h>
 #include <string>
 
@@ -196,6 +197,36 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
 		m_sceneLighting->bindLightingBuffersToProgram(m_frameProgram);
     }
 
+	// Generate the block pixel offsets for interactive rendering.
+	{
+		std::vector<glm::vec3> coords;
+		for (int row = 0; row < RenderOptions::kInteractiveBlockSize.x; ++row) {
+			for (int col = 0; col < RenderOptions::kInteractiveBlockSize.y; ++col) {
+				coords.push_back(glm::vec3(row, col, 0.0f));
+			}
+		}
+
+		// Shuffle the points so that there is some inherit randomness to make the visualization less regular.
+		std::random_device randomDevice;
+		std::mt19937 generator(randomDevice());
+		std::shuffle(coords.begin(), coords.end(), generator);
+
+		openrl::Texture::Sampler sampler;
+		sampler.wrapS = RL_REPEAT;
+		sampler.wrapT = RL_REPEAT;
+		sampler.minFilter = RL_NEAREST;
+		sampler.magFilter = RL_NEAREST;
+
+		openrl::Texture::Descriptor desc;
+		desc.dataType = RL_FLOAT;
+		desc.format = RL_RGB;
+		desc.internalFormat = RL_RGB;
+		desc.width = RenderOptions::kInteractiveBlockSize.x;
+		desc.height = RenderOptions::kInteractiveBlockSize.y;
+
+		m_interactiveBlockCoordsTexture = openrl::Texture::create(coords.data(), desc, sampler, false);
+	}
+
     return true;
 }
 
@@ -255,17 +286,19 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
     m_frameProgram->set1f(m_frameProgram->getUniformLocation("apertureRadius"), m_renderOptions.camera.apertureRadius);
     m_frameProgram->setMatrix4fv(m_frameProgram->getUniformLocation("viewMatrix"), &(m_renderOptions.camera.viewMatrix[0][0]));
     m_frameProgram->set2iv(m_frameProgram->getUniformLocation("blockSize"), &m_renderOptions.kInteractiveBlockSize.x);
-    m_frameProgram->set2iv(m_frameProgram->getUniformLocation("currentBlockPixel"), &m_currentBlockPixel.x);
+    m_frameProgram->set2iv(m_frameProgram->getUniformLocation("currentBlockPixelSample"), &m_currentBlockPixelSample.x);
     m_frameProgram->set1i(m_frameProgram->getUniformLocation("interactiveMode"), m_renderOptions.enableInteractiveMode ? 1 : 0);
     m_frameProgram->setTexture(m_frameProgram->getUniformLocation("apertureSamplesTexture"), m_apertureSamplesTexture);
+	m_frameProgram->setTexture(m_frameProgram->getUniformLocation("interactiveBlockSamplesTexture"), m_interactiveBlockCoordsTexture);
 
+	// In interactive mode, we now move to the next pixel sample within a block of pixels.
     if (m_renderOptions.enableInteractiveMode) {
-        m_currentBlockPixel.x += 1;
-        if (m_currentBlockPixel.x == m_renderOptions.kInteractiveBlockSize.x) {
-            m_currentBlockPixel.x = 0;
-            m_currentBlockPixel.y += 1;
-            if (m_currentBlockPixel.y == m_renderOptions.kInteractiveBlockSize.y) {
-                m_currentBlockPixel = glm::vec2(0, 0);
+		m_currentBlockPixelSample.x += 1;
+        if (m_currentBlockPixelSample.x == m_renderOptions.kInteractiveBlockSize.x) {
+			m_currentBlockPixelSample.x = 0;
+			m_currentBlockPixelSample.y += 1;
+            if (m_currentBlockPixelSample.y == m_renderOptions.kInteractiveBlockSize.y) {
+				m_currentBlockPixelSample = glm::vec2(0, 0);
                 ++m_currentSampleIndex;
             }
         }
@@ -321,6 +354,7 @@ void PassGenerator::runDestroyJob()
 	m_sceneData.clear();
 	m_frameProgram.reset();
 	m_sceneLighting.reset();
+	m_interactiveBlockCoordsTexture.reset();
 
 	m_resultPixels.unmapPixelData();
 	m_resultPixels.destroy();
@@ -331,7 +365,7 @@ void PassGenerator::runDestroyJob()
 void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
 {
     m_currentSampleIndex = 0;
-    m_currentBlockPixel = glm::ivec2(0, 0);
+	m_currentBlockPixelSample = glm::ivec2(0, 0);
     rlClear(RL_COLOR_BUFFER_BIT);
 
     // Walk over the render options and switch things out iff something has changed.

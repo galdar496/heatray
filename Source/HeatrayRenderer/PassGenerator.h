@@ -48,7 +48,7 @@ public:
         // This speeds up raytraced for a more interactive experience but is slower to generate final frames.
         // Defaulted on.
         bool enableInteractiveMode = true;
-        static constexpr glm::ivec2 kInteractiveBlockSize = glm::ivec2(5, 5);
+        static constexpr glm::ivec2 kInteractiveBlockSize = glm::ivec2(4, 4);
 
         bool resetInternalState = true; 
         uint32_t maxRenderPasses = 32;
@@ -212,7 +212,7 @@ private:
 
     RenderOptions m_renderOptions;
 
-    glm::ivec2 m_currentBlockPixel = glm::ivec2(0, 0);
+    glm::ivec2 m_currentBlockPixelSample = glm::ivec2(0, 0);
 
 	std::shared_ptr<openrl::Buffer>  m_randomSequences = nullptr;
 	std::shared_ptr<openrl::Texture> m_randomSequenceTexture = nullptr; ///< Series of random sequences stored in a 2D texture. Each row of the texture is a different sequence.
@@ -241,4 +241,8 @@ private:
 	std::shared_ptr<openrl::Buffer> m_globalData = nullptr;
 
 	std::vector<RLMesh> m_sceneData;
+
+	// 2D pixel coordinates used when determine which pixel within a block
+	// should sample when in interactive mode.
+	std::shared_ptr<openrl::Texture> m_interactiveBlockCoordsTexture = nullptr;
 };
