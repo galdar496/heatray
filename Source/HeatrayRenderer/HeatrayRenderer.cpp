@@ -1113,9 +1113,9 @@ bool HeatrayRenderer::renderUI()
             shouldResetRenderer = true;
         }
 		{
-			static unsigned int currentSelection = 0;
+			static unsigned int currentSelection = 1;
 			static const char* options[PassGenerator::RenderOptions::Camera::NUM_FSTOPS] = { 
-				"f32", "f22", "f16", "f11", "f8", "f5.6", "f4", "f2.8", "f2", "f1.4", "f1"
+				"<disabled>", "f32", "f22", "f16", "f11", "f8", "f5.6", "f4", "f2.8", "f2", "f1.4", "f1"
 			};
 			if (ImGui::BeginCombo("f-Stop", options[currentSelection])) {
 				for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
