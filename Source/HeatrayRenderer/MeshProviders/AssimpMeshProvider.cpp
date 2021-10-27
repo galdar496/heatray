@@ -258,8 +258,7 @@ void AssimpMeshProvider::ProcessGlassMaterial(aiMaterial const* material)
 
     aiColor3D color;
 	if (material->Get(AI_MATKEY_BASE_COLOR, color) == aiReturn_SUCCESS) {
-		// GLTF models thin transparency only and defines the "tint" as 1.0 - baseColor so we perform that mapping here.
-		params.baseColor = glm::vec3(1.0f) - glm::vec3(color.r, color.g, color.b);
+		params.baseColor = glm::vec3(color.r, color.g, color.b);
 	}
 
 	// Textures.
