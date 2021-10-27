@@ -417,6 +417,8 @@ void HeatrayRenderer::adjustCamera(const float phi_delta, const float theta_delt
 
 			m_camera.orbitCamera.theta = glm::clamp(m_camera.orbitCamera.theta, -glm::half_pi<float>(), glm::half_pi<float>());
 			m_camera.orbitCamera.distance = glm::clamp(m_camera.orbitCamera.distance, 0.0f, m_camera.orbitCamera.max_distance);
+
+			m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
 		}
 
 		m_cameraUpdated = true;
@@ -1105,7 +1107,7 @@ bool HeatrayRenderer::renderUI()
         }
 
         ImGui::Text("Lens Properties");
-        if (ImGui::SliderFloat("Focus distance(m)", &m_renderOptions.camera.focusDistance, 0.001f, 40.0f)) {
+        if (ImGui::SliderFloat("Focus distance(m)", &m_renderOptions.camera.focusDistance, 0.0f, m_camera.orbitCamera.max_distance)) {
             shouldResetRenderer = true;
         }
         if (ImGui::SliderFloat("Focal length(mm)", &m_renderOptions.camera.focalLength, 10.0f, 200.0f)) {
