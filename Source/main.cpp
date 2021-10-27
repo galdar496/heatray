@@ -151,7 +151,10 @@ int main(int argc, char **argv)
 			glm::ivec2 newWindowSize;
 			glfwGetWindowSize(window, &newWindowSize.x, &newWindowSize.y);
 			if (newWindowSize != previousWindowSize) {
-				heatray.resize(newWindowSize.x * kCheesyMultiplier, newWindowSize.y * kCheesyMultiplier);
+				if ((newWindowSize.x > 0) &&
+					(newWindowSize.y > 0)) {
+					heatray.resize(newWindowSize.x * kCheesyMultiplier, newWindowSize.y * kCheesyMultiplier);
+				}
 				previousWindowSize = newWindowSize;
 			}
 		}

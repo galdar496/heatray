@@ -1031,7 +1031,7 @@ bool HeatrayRenderer::renderUI()
 				if (m_groundPlane.mesh.valid()) {
 					m_groundPlane.reset();
 				} else {
-					size_t planeSize = size_t(m_sceneAABB.radius()) * 5;
+					size_t planeSize = std::max(size_t(1), size_t(m_sceneAABB.radius())) * 5;
 					PlaneMeshProvider planeMeshProvider(planeSize, planeSize);
 
 					std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>("Ground Plane");
