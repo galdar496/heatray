@@ -48,7 +48,7 @@ public:
         // This speeds up raytraced for a more interactive experience but is slower to generate final frames.
         // Defaulted on.
         bool enableInteractiveMode = true;
-        static constexpr glm::ivec2 kInteractiveBlockSize = glm::ivec2(4, 4);
+        static constexpr glm::ivec2 kInteractiveBlockSize = glm::ivec2(3, 3);
 
         bool resetInternalState = true; 
         uint32_t maxRenderPasses = 32;
