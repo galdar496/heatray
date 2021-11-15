@@ -147,11 +147,11 @@ void main()
     float eta = nIn / nOut;
 
     vec3 localSpaceI = transpose(frame) * I;
-    vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth, Globals.sampleIndex);
+    vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
     vec3 H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, roughnessAlpha);
     float HdotI = saturate(dot(H, I));
 
-    vec2 refractProbability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex);
+    vec2 refractProbability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
     float F = F_Fresnel(eta, HdotI);
 
     // Note that since the Fresnel term is used to determine how to sample it ends up getting cancelled out of the following math.
@@ -181,7 +181,7 @@ void main()
     } else {
         // Do reflection. Use the unique microfacets for the direct and indirect lighting.
         {
-            rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex);
+            rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
             H = frame * sampleGGX(rand.x, rand.y, roughnessAlpha);
 
             HdotI = dot(H, I);
@@ -192,7 +192,7 @@ void main()
             // Perform Russian Roulette.
             if (rl_InRay.depth > 3) {
                 // For Russian Roulette, we always use 3 sequences away for random numbers.
-                vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex);
+                vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
                 float probability = max(weight.x, max(weight.y, weight.z));
                 if (rand.x > probability) {
                     return; // This ray has been terminated.
@@ -201,7 +201,7 @@ void main()
                 rl_InRay.weight /= probability;
             }
 
-            rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 4, Globals.sampleIndex);
+            rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 4, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
             H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, roughnessAlpha);
 
             HdotI = dot(H, I);

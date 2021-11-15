@@ -23,6 +23,8 @@ uniform ivec2 currentBlockPixelSample;
 uniform int interactiveMode;
 uniform sampler2D apertureSamplesTexture;
 uniform sampler2D interactiveBlockSamplesTexture;
+uniform float maxSampleIndex;
+uniform sampler2D sequenceOffsetsTexture;
 
 void setup()
 {
@@ -52,11 +54,12 @@ void main()
     // This pixel is being sampled, increment its sample count.
     accumulate(vec4(0.0, 0.0, 0.0, 1.0));
 
-    // Determine which sequence this pixel should use. This can and probably should be changed.
-    float rand = random(rl_FrameCoord.xy / rl_FrameSize.xy);
-    int sequenceID = int(floor(rand * kNumRandomSequences));
+    int sequenceID = int(floor(random(rl_FrameCoord.xy / rl_FrameSize.xy) * kNumRandomSequences));
+
+    float rand = texture2D(sequenceOffsetsTexture, rl_FrameCoord.xy / rl_FrameSize.xy).x;
+    int sequenceIndex = int(floor(rand * maxSampleIndex));
     
-    vec2 sampleOffset = getSequenceValue(sequenceID, Globals.sampleIndex);
+    vec2 sampleOffset = getSequenceValue(sequenceID, Globals.sampleIndex + sequenceIndex);
     vec2 samplePoint = (rl_FrameCoord.xy - vec2(0.5)) + sampleOffset; // -0.5 to get the lower-left corner of the pixel.
     vec2 pixelUV = samplePoint / rl_FrameSize.xy;
 
@@ -67,18 +70,19 @@ void main()
 
     // Compute the origin and direction based on the focal length and aperture of the camera (dof).
     vec3 focalPoint = focusDistance * dirCameraSpace;
-    vec2 apertureSample = texture2D(apertureSamplesTexture, getSequenceUV(sequenceID, Globals.sampleIndex)).xy;
+    vec2 apertureSample = texture2D(apertureSamplesTexture, getSequenceUV(sequenceID, Globals.sampleIndex + sequenceIndex)).xy;
     // Sample is compressed to be between 0-1.
     apertureSample = ((apertureSample * 2.0) - 1.0) * apertureRadius;
     vec3 origin = vec3(apertureSample, 0.0);
     vec3 dir = focalPoint - origin;
 
     createRay();
-        rl_OutRay.origin		   = (viewMatrix * vec4(origin, 1.0)).xyz;
-        rl_OutRay.direction		   = (viewMatrix * vec4(dir, 0.0)).xyz; // OpenRL auto-normalizes the direction for emitted rays.
-        rl_OutRay.defaultPrimitive = EnvironmentLight.lightPrimitive;
-        rl_OutRay.weight           = vec3(1.0);
-        rl_OutRay.sequenceID       = sequenceID;
+        rl_OutRay.origin		      = (viewMatrix * vec4(origin, 1.0)).xyz;
+        rl_OutRay.direction		      = (viewMatrix * vec4(dir, 0.0)).xyz; // OpenRL auto-normalizes the direction for emitted rays.
+        rl_OutRay.defaultPrimitive    = EnvironmentLight.lightPrimitive;
+        rl_OutRay.weight              = vec3(1.0);
+        rl_OutRay.sequenceID          = sequenceID;
+        rl_OutRay.sequenceIndexOffset = sequenceIndex;
     emitRay();
 }
 

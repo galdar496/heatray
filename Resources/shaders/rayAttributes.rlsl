@@ -7,3 +7,4 @@
 
 rayattribute vec3 weight;
 rayattribute int sequenceID;
+rayattribute int sequenceIndexOffset;

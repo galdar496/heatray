@@ -246,6 +246,32 @@ void PassGenerator::runResizeJob(const RLint newRenderWidth, const RLint newRend
         RLint bufferSize = newRenderWidth * newRenderHeight * sizeof(float) * openrl::PixelPackBuffer::kNumChannels;
         m_resultPixels.create(bufferSize);
 
+        // Generate the random sequence used in the frame shader when generating primary rays
+        // to determine which offset into the main sequence data is used.
+        {
+            std::vector<glm::vec3> randomValues;
+            randomValues.resize(newRenderWidth * newRenderHeight);
+            util::sobol(randomValues.data(), randomValues.size(), 0);
+
+            openrl::Texture::Descriptor desc;
+            desc.dataType       = RL_FLOAT;
+            desc.format         = RL_RGB;
+            desc.internalFormat = RL_RGB;
+            desc.width          = newRenderWidth;
+            desc.height         = newRenderHeight;
+
+            openrl::Texture::Sampler sampler;
+            sampler.minFilter = RL_NEAREST;
+            sampler.magFilter = RL_NEAREST;
+            sampler.wrapS     = RL_CLAMP_TO_EDGE;
+            sampler.wrapT     = RL_CLAMP_TO_EDGE;
+
+            m_sequenceOffsetsTexture = openrl::Texture::create(randomValues.data(),
+                                                               desc,
+                                                               sampler,
+                                                               false);
+        }
+
         m_renderOptions.resetInternalState = true;
     }
 }
@@ -290,6 +316,8 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
     m_frameProgram->set1i(m_frameProgram->getUniformLocation("interactiveMode"), m_renderOptions.enableInteractiveMode ? 1 : 0);
     m_frameProgram->setTexture(m_frameProgram->getUniformLocation("apertureSamplesTexture"), m_apertureSamplesTexture);
     m_frameProgram->setTexture(m_frameProgram->getUniformLocation("interactiveBlockSamplesTexture"), m_interactiveBlockCoordsTexture);
+    m_frameProgram->set1f(m_frameProgram->getUniformLocation("maxSampleIndex"), float(m_renderOptions.maxRenderPasses));
+    m_frameProgram->setTexture(m_frameProgram->getUniformLocation("sequenceOffsetsTexture"), m_sequenceOffsetsTexture);
 
     // In interactive mode, we now move to the next pixel sample within a block of pixels.
     if (m_renderOptions.enableInteractiveMode) {
@@ -354,6 +382,7 @@ void PassGenerator::runDestroyJob()
     m_frameProgram.reset();
     m_sceneLighting.reset();
     m_interactiveBlockCoordsTexture.reset();
+    m_sequenceOffsetsTexture.reset();
 
     m_resultPixels.unmapPixelData();
     m_resultPixels.destroy();
@@ -534,7 +563,9 @@ void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptio
 
     openrl::Texture::Sampler sampler;
     sampler.minFilter = RL_NEAREST;
-    sampler.magFilter = RL_NEAREST; 
+    sampler.magFilter = RL_NEAREST;
+    sampler.wrapS     = RL_REPEAT;
+    sampler.wrapT     = RL_REPEAT;
 
     std::vector<glm::vec3> values(kNumRandomSequences * sampleCount);
     for (unsigned int iSequence = 0; iSequence < kNumRandomSequences; ++iSequence) {

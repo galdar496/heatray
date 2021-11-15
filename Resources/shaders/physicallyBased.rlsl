@@ -184,11 +184,11 @@ void main()
 
     // First sample the environment light.
     {
-        vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth, Globals.sampleIndex);
+        vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
 
         // Determine if we sample diffuse or specular.
         // For direct lighting, we always use the next sequence for this probability.
-        vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex);
+        vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
         if (probability.x <= diffuseProbability) {
             sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, roughnessAlpha,
                           diffuseProbability, true, EnvironmentLight.lightPrimitive);
@@ -217,7 +217,7 @@ void main()
         // Perform Russian Roulette.
         if (rl_InRay.depth > 3) {
             // For Russian Roulette, we always use 2 sequences away for random numbers.
-            vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex);
+            vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
             float probability = max(rl_InRay.weight.x, max(rl_InRay.weight.y, rl_InRay.weight.z));
             if (rand.x > probability) {
                 return; // This ray has been terminated.
@@ -227,10 +227,10 @@ void main()
         }
 
         // For indirect lighting, we always use 3 sequences away for random numbers.
-        vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex);
+        vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
 
         // Determine if we sample diffuse or specular. We use 4 sequences away to determine this probability.
-        vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 4, Globals.sampleIndex);
+        vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 4, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
         if (probability.x <= diffuseProbability) {
             sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, roughnessAlpha,
                           diffuseProbability, false, rl_NullPrimitive);

@@ -19,9 +19,9 @@ inline std::string createStringWithFormat(const char* format, va_list args) {
     va_copy(argsCopy, args);
 
     std::string out;
-    char str[2048] = { 0 };
+    char str[4096] = { 0 };
     int length = vsnprintf(str, 2047, format, argsCopy);
-    assert(length < 2048);
+    assert(length < 4096);
     out = str;
     va_end(argsCopy);
 
