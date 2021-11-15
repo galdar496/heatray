@@ -30,7 +30,10 @@ uniformblock Material {
     sampler2D clearCoatTexture;
     sampler2D clearCoatRoughnessTexture;
     sampler2D clearCoatNormalmap;
+    sampler2D multiscatterLUT;
+
     vec3 baseColor;
+    vec3 emissiveColor;
     float metallic;
     float roughness;
     float specularF0;
@@ -38,8 +41,6 @@ uniformblock Material {
     float clearCoat;
     float clearCoatRoughness;
     float clearCoatRoughnessAlpha;
-
-    sampler2D multiscatterLUT;
 };
 
 void setup()
@@ -100,6 +101,12 @@ void main()
     clearCoatRoughnenessAlpha = clearCoatRoughness * clearCoatRoughness;
 #endif // defined(HAS_CLEARCOAT_ROUGHNESS_TEXTURE)
 
+    vec3 emissive = Material.emissiveColor;
+#if defined(HAS_EMISSIVE_TEXTURE)
+    emissive = texture2D(Material.emissiveTexture, texCoord).rgb;
+#endif // defined(HAS_EMISSIVE_TEXTURE)
+    accumulate(rl_InRay.weight * emissive);
+
     // Handle debug visualizations (if applicable).
     if (Globals.enableVisualizer == 1) {
         if (Globals.showGeometricNormals == 1) {
@@ -110,11 +117,6 @@ void main()
             accumulate(vec4(texCoord, 0.0, 1.0));
         }
 #endif // defined(HAS_TEXTURES)
-#if defined(HAS_EMISSIVE_TEXTURE)
-        else if (Globals.showEmissive == 1) {
-            accumulate(vec4(texture2D(Material.emissiveTexture, texCoord).rgb, 1.0));
-        }
-#endif //defined(HAS_EMISSIVE_TEXTURE)
 #if defined(USE_TANGENT_SPACE)
         else if (Globals.showTangents == 1) {
             accumulate(vec4((tangent + 1.0) * 0.5, 1.0));
@@ -131,6 +133,8 @@ void main()
             accumulate(vec4((N + 1.0) * 0.5, 1.0));
         } else if (Globals.showBaseColor == 1) {
             accumulate(vec4(baseColor, 1.0));
+        } else if (Globals.showEmissive == 1) {
+            accumulate(vec4(emissive, 1.0));
         } else if (Globals.showRoughness == 1) {
             accumulate(vec4(roughness, roughness, roughness, 1.0));
         } else if (Globals.showMetallic == 1) {
@@ -147,11 +151,6 @@ void main()
 #endif // defined(HAS_CLEARCOAT_NORMALMAP)
         return;
     }
-
-#if defined(HAS_EMISSIVE_TEXTURE)
-    vec3 emissiveColor = texture2D(Material.emissiveTexture, texCoord).rgb;
-    accumulate(rl_InRay.weight * emissiveColor);
-#endif // defined(HAS_EMISSIVE_TEXTURE)
 
     float clearCoatNdotV = saturate(dot(clearCoatN, V));
 

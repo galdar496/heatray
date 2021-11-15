@@ -22,7 +22,10 @@ struct ShaderParams {
     RLtexture clearCoatTexture = RL_NULL_TEXTURE;
     RLtexture clearCoatRoughnessTexture = RL_NULL_TEXTURE;
     RLtexture clearCoatNormalmap = RL_NULL_TEXTURE;
+    RLtexture multiscatterLUT;
+
     glm::vec3 baseColor;
+    glm::vec3 emissiveColor;
     float metallic = 0.0f;
     float roughness = 0.0f;
     float specularF0 = 0.0f;
@@ -30,9 +33,6 @@ struct ShaderParams {
     float clearCoat = 0.0f;
     float clearCoatRoughness = 0.0f;
     float clearCoatRoughnessAlpha = 0.0f; ///< GGX alpha value (roughness^2).
-
-    // Extra automatic parameters.
-    RLtexture multiscatterLUT;
 };
 
 void PhysicallyBasedMaterial::build()
@@ -122,6 +122,7 @@ void PhysicallyBasedMaterial::modify()
     constexpr float kMaxClearcoat = 0.2f; // As suggested by Burley.
 
     shaderParams.baseColor = glm::saturate(m_params.baseColor);
+    shaderParams.emissiveColor = glm::saturate(m_params.emissiveColor);
     shaderParams.metallic = glm::saturate<float, glm::defaultp>(m_params.metallic);
     shaderParams.roughness = glm::max(glm::saturate<float, glm::defaultp>(m_params.roughness), kMinRoughness);
     shaderParams.specularF0 = m_params.specularF0 * kMaxSpecularF0;

@@ -327,6 +327,9 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
     material->Get(AI_MATKEY_ROUGHNESS_FACTOR, params.roughness);
     material->Get(AI_MATKEY_CLEARCOAT_FACTOR, params.clearCoat);
     material->Get(AI_MATKEY_CLEARCOAT_ROUGHNESS_FACTOR, params.clearCoatRoughness);
+    if (material->Get(AI_MATKEY_COLOR_EMISSIVE, color) == aiReturn_SUCCESS) {
+        params.emissiveColor = glm::vec3(color.r, color.g, color.b);
+    }
 
     {
         float ior = 0.0f;
