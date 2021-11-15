@@ -374,24 +374,36 @@ void HeatrayRenderer::render()
             resetRenderer();
         }
 
-        m_renderingFrame = true;
-        m_shouldCopyPixels.store(false);
-        // Tell the pathtracer to start generating a new frame.
-        m_renderer.renderPass(m_renderOptions,
-            [this](const openrl::PixelPackBuffer& results, float passTime)
-            { 
-                const float* pixelData = results.mapPixelData();
-                m_pathracedPixels.store(pixelData);
-                m_pixelDimensions = glm::ivec2(results.width(), results.height());
-                m_shouldCopyPixels.store(true);
-                m_renderingFrame = false;
-                m_currentPassTime = passTime;
-                m_totalRenderTime += passTime;
-                ++m_currentPass;
-            });
+        bool skipRendering = false;
+        if (m_renderOptions.debugPassRendering) {
+            if (m_debugPassChanged) {
+                m_debugPassChanged = false;
+            }
+            else {
+                skipRendering = true;
+            }
+        }
 
-        m_renderOptions.resetInternalState = false;
-        m_resetRequested = false;
+        if (!skipRendering) {
+            m_renderingFrame = true;
+            m_shouldCopyPixels.store(false);
+            // Tell the pathtracer to start generating a new frame.
+            m_renderer.renderPass(m_renderOptions,
+                [this](const openrl::PixelPackBuffer& results, float passTime)
+                {
+                    const float* pixelData = results.mapPixelData();
+                    m_pathracedPixels.store(pixelData);
+                    m_pixelDimensions = glm::ivec2(results.width(), results.height());
+                    m_shouldCopyPixels.store(true);
+                    m_renderingFrame = false;
+                    m_currentPassTime = passTime;
+                    m_totalRenderTime += passTime;
+                    ++m_currentPass;
+                });
+
+            m_renderOptions.resetInternalState = false;
+            m_resetRequested = false;
+        }
     }
 
     m_justResized = false;
@@ -1116,7 +1128,7 @@ bool HeatrayRenderer::renderUI()
         }
         {
             static unsigned int currentSelection = 1;
-            static const char* options[PassGenerator::RenderOptions::Camera::NUM_FSTOPS] = { 
+            static const char* options[PassGenerator::RenderOptions::Camera::NUM_FSTOPS] = {
                 "<disabled>", "f32", "f22", "f16", "f11", "f8", "f5.6", "f4", "f2.8", "f2", "f1.4", "f1"
             };
             if (ImGui::BeginCombo("f-Stop", options[currentSelection])) {
@@ -1190,6 +1202,22 @@ bool HeatrayRenderer::renderUI()
     if (ImGui::CollapsingHeader("Developer")) {
         if (ImGui::Button("Generate MultiScatter LUT")) {
             generateMultiScatterTexture();
+        }
+
+        // UI to handle debug pass rendering.
+        {
+            if (ImGui::Checkbox("Pass Debugging", &m_renderOptions.debugPassRendering)) {
+                shouldResetRenderer = true;
+            }
+
+            if (m_renderOptions.debugPassRendering) {
+                if (ImGui::SliderInt("Pass", &m_renderOptions.debugPassIndex, 0, m_totalPasses)) {
+                    shouldResetRenderer = true;
+                    m_debugPassChanged = true;
+                }
+            } else {
+                m_renderOptions.debugPassIndex = 0;
+            }
         }
     }
 

@@ -255,7 +255,7 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
     util::Timer timer(true);
 
     // The callback invoked at the end of this function _may_ map the pixel data and not unmap it before 
-    // ticking this class again. In this case, unmap the pixel data at this point.
+    // kicking this class again. In this case, unmap the pixel data at this point.
     if (m_resultPixels.mapped()) {
         m_resultPixels.unmapPixelData();
     }
@@ -302,8 +302,7 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
                 ++m_currentSampleIndex;
             }
         }
-    } else
-    {
+    } else {
         ++m_currentSampleIndex;
     }
 
@@ -470,6 +469,10 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
         }
         m_globalData->unmapBuffer();
         m_globalData->unbind();
+    }
+
+    if (newOptions.debugPassRendering) {
+        m_currentSampleIndex = newOptions.debugPassIndex;
     }
 
     // Finally get all of the new render options.

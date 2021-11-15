@@ -118,6 +118,9 @@ public:
         };
 
         DebugVisualizationMode debugVisMode = DebugVisualizationMode::kNone;
+
+        bool debugPassRendering = false;
+        int debugPassIndex = 0;
     };
     
     ///

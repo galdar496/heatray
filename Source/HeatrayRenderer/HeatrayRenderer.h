@@ -301,4 +301,6 @@ private:
     } m_editableMaterialScene;
 
     void renderMaterialEditor(std::shared_ptr<Material> material);
+
+    bool m_debugPassChanged = false;
 };
