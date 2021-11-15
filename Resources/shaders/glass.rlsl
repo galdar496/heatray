@@ -23,15 +23,15 @@ varying vec3 bitangent;
 #endif // defined(USE_TANGENT_SPACE)
 
 uniformblock Material {
-	sampler2D baseColorTexture;
-	sampler2D normalmap;
-	sampler2D metallicRoughnessTexture;
-	vec3 baseColor;
-	float roughness;
-	float roughnessAlpha;
-	float ior;
-	float density;
-	float specularF0;
+    sampler2D baseColorTexture;
+    sampler2D normalmap;
+    sampler2D metallicRoughnessTexture;
+    vec3 baseColor;
+    float roughness;
+    float roughnessAlpha;
+    float ior;
+    float density;
+    float specularF0;
 };
 
 void setup()
@@ -41,172 +41,172 @@ void setup()
 
 void specularSample(vec3 N, vec3 H, vec3 I, vec3 O, vec3 weight, bool isDirectLightSample, primitive rayMissPrimitive, vec3 baseColor)
 {
-	float NdotO = saturate(dot(N, O));
+    float NdotO = saturate(dot(N, O));
 
-	if (NdotO > 0.0) {
-		float NdotI = saturate(dot(N, I));
-		float HdotI = saturate(dot(H, I));
-		float NdotH = saturate(dot(N, H));
+    if (NdotO > 0.0) {
+        float NdotI = saturate(dot(N, I));
+        float HdotI = saturate(dot(H, I));
+        float NdotH = saturate(dot(N, H));
 
-		// The PDF of our sample function is (D * NdotH) / (4 * VdotH).
-		float G = G2_Smith_GGX(NdotO, NdotI, Material.roughnessAlpha);
+        // The PDF of our sample function is (D * NdotH) / (4 * VdotH).
+        float G = G2_Smith_GGX(NdotO, NdotI, Material.roughnessAlpha);
 
-		vec3 reflectance = baseColor * ((G * HdotI) / (NdotH * NdotI));
-		reflectance *= weight;
+        vec3 reflectance = baseColor * ((G * HdotI) / (NdotH * NdotI));
+        reflectance *= weight;
 
-		if (dot(reflectance, reflectance) > 1e-5) {
-			createRay();
-				rl_OutRay.direction = O;
-				rl_OutRay.weight = reflectance; 
-				rl_OutRay.occlusionTest = isDirectLightSample;
-				rl_OutRay.defaultPrimitive = rayMissPrimitive;
-			emitRay();
-		}
-	}
+        if (dot(reflectance, reflectance) > 1e-5) {
+            createRay();
+                rl_OutRay.direction = O;
+                rl_OutRay.weight = reflectance; 
+                rl_OutRay.occlusionTest = isDirectLightSample;
+                rl_OutRay.defaultPrimitive = rayMissPrimitive;
+            emitRay();
+        }
+    }
 }
 
 vec3 beersLaw(vec3 baseColor)
 {
-	vec3 absorption = vec3(1.0) - baseColor;
-	float rayLength = length(rl_IntersectionPoint - rl_InRay.origin);
-	return rl_InRay.weight * exp(absorption * Material.density * -rayLength);
+    vec3 absorption = vec3(1.0) - baseColor;
+    float rayLength = length(rl_IntersectionPoint - rl_InRay.origin);
+    return rl_InRay.weight * exp(absorption * Material.density * -rayLength);
 }
 
 void main()
 {
-	vec3 N = normalize(normal);
-	float nIn = 1.0; // air.
-	float nOut = Material.ior;
-	vec3 weight = rl_InRay.weight;
+    vec3 N = normalize(normal);
+    float nIn = 1.0; // air.
+    float nOut = Material.ior;
+    vec3 weight = rl_InRay.weight;
 
 #if defined(HAS_NORMALMAP)
-	{
-		mat3 normalTransform = mat3(normalize(tangent), normalize(bitangent), N);
-		vec3 normalTS = texture2D(Material.normalmap, texCoord).xyz * 2.0 - 1.0;
-		N = normalize(normalTransform * normalTS);
-	}
+    {
+        mat3 normalTransform = mat3(normalize(tangent), normalize(bitangent), N);
+        vec3 normalTS = texture2D(Material.normalmap, texCoord).xyz * 2.0 - 1.0;
+        N = normalize(normalTransform * normalTS);
+    }
 #endif // defined(HAS_NORMALMAP)
 
-	vec3 baseColor = Material.baseColor;
+    vec3 baseColor = Material.baseColor;
 #if defined(HAS_BASE_COLOR_TEXTURE)
-	baseColor *= texture2D(Material.baseColorTexture, texCoord).rgb;
+    baseColor *= texture2D(Material.baseColorTexture, texCoord).rgb;
 #endif //  defined(HAS_BASE_COLOR_TEXTURE)
 
-	if (rl_FrontFacing == false) {
-		// We're inside of the shape.
-		N = -N;
-		nIn = Material.ior;
-		nOut = 1.0;
-		weight = beersLaw(baseColor); // Account for absorption.
-	}
+    if (rl_FrontFacing == false) {
+        // We're inside of the shape.
+        N = -N;
+        nIn = Material.ior;
+        nOut = 1.0;
+        weight = beersLaw(baseColor); // Account for absorption.
+    }
 
-	float roughness = Material.roughness;
-	float roughnessAlpha = Material.roughnessAlpha;
+    float roughness = Material.roughness;
+    float roughnessAlpha = Material.roughnessAlpha;
 #if defined(HAS_METALLIC_ROUGHNESS_TEXTURE)
-	vec2 metallicRoughness = texture2D(Material.metallicRoughnessTexture, texCoord).bg;
-	// Ignore metallic as this is a glass shader.
-	roughness *= metallicRoughness.g;
-	roughnessAlpha = roughness * roughness;
+    vec2 metallicRoughness = texture2D(Material.metallicRoughnessTexture, texCoord).bg;
+    // Ignore metallic as this is a glass shader.
+    roughness *= metallicRoughness.g;
+    roughnessAlpha = roughness * roughness;
 #endif // defined(HAS_METALLIC_ROUGHNESS_TEXTURE)
 
-	// Handle debug visualizations (if applicable).
-	if (Globals.enableVisualizer == 1) {
-		if (Globals.showGeometricNormals == 1) {
-			accumulate(vec4((normal + 1.0) * 0.5, 1.0));
-		} else if (Globals.showFinalNormals == 1) {
-			accumulate(vec4((N + 1.0) * 0.5, 1.0));
-		} else if (Globals.showBaseColor == 1) {
-			accumulate(vec4(baseColor, 1.0));
-		} else if (Globals.showRoughness == 1) {
-			accumulate(vec4(roughness, roughness, roughness, 1.0));
-		} else if (Globals.showFinalNormals == 1) {
-			accumulate(vec4((N + 1.0) * 0.5, 1.0));
-		}
+    // Handle debug visualizations (if applicable).
+    if (Globals.enableVisualizer == 1) {
+        if (Globals.showGeometricNormals == 1) {
+            accumulate(vec4((normal + 1.0) * 0.5, 1.0));
+        } else if (Globals.showFinalNormals == 1) {
+            accumulate(vec4((N + 1.0) * 0.5, 1.0));
+        } else if (Globals.showBaseColor == 1) {
+            accumulate(vec4(baseColor, 1.0));
+        } else if (Globals.showRoughness == 1) {
+            accumulate(vec4(roughness, roughness, roughness, 1.0));
+        } else if (Globals.showFinalNormals == 1) {
+            accumulate(vec4((N + 1.0) * 0.5, 1.0));
+        }
 #if defined(HAS_TEXTURES)
-		else if (Globals.showUVs == 1) {
-			accumulate(vec4(texCoord, 0.0, 1.0));
-		}
+        else if (Globals.showUVs == 1) {
+            accumulate(vec4(texCoord, 0.0, 1.0));
+        }
 #endif // defined(HAS_TEXTURES)
 #if defined(USE_TANGENT_SPACE)
-		else if (Globals.showTangents == 1) {
-			accumulate(vec4((tangent + 1.0) * 0.5, 1.0));
-		} else if (Globals.showBitangents == 1) {
-			accumulate(vec4((bitangent + 1.0) * 0.5, 1.0));
-		}
+        else if (Globals.showTangents == 1) {
+            accumulate(vec4((tangent + 1.0) * 0.5, 1.0));
+        } else if (Globals.showBitangents == 1) {
+            accumulate(vec4((bitangent + 1.0) * 0.5, 1.0));
+        }
 #if defined(HAS_NORMALMAP)
-		else if (Globals.showNormalmap == 1) {
-			accumulate(vec4(texture2D(Material.normalmap, texCoord).xyz, 1.0));
-		}
+        else if (Globals.showNormalmap == 1) {
+            accumulate(vec4(texture2D(Material.normalmap, texCoord).xyz, 1.0));
+        }
 #endif // defined(HAS_NORMALMAP)
 #endif // defined(USE_TANGENT_SPACE)
-		return;
-	}
+        return;
+    }
 
-	mat3 frame = orthonormalFrame(N);
-	vec3 I = -rl_InRay.direction;
-	float eta = nIn / nOut;
+    mat3 frame = orthonormalFrame(N);
+    vec3 I = -rl_InRay.direction;
+    float eta = nIn / nOut;
 
-	vec3 localSpaceI = transpose(frame) * I;
-	vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth, Globals.sampleIndex);
-	vec3 H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, roughnessAlpha);
-	float HdotI = saturate(dot(H, I));
+    vec3 localSpaceI = transpose(frame) * I;
+    vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth, Globals.sampleIndex);
+    vec3 H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, roughnessAlpha);
+    float HdotI = saturate(dot(H, I));
 
-	vec2 refractProbability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex);
-	float F = F_Fresnel(eta, HdotI);
+    vec2 refractProbability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex);
+    float F = F_Fresnel(eta, HdotI);
 
-	// Note that since the Fresnel term is used to determine how to sample it ends up getting cancelled out of the following math.
-	if (refractProbability.y < (1.0 - F)) {
-		vec3 O = normalize(refract(-I, H, eta));
+    // Note that since the Fresnel term is used to determine how to sample it ends up getting cancelled out of the following math.
+    if (refractProbability.y < (1.0 - F)) {
+        vec3 O = normalize(refract(-I, H, eta));
 
-		float NdotI = saturate(dot(N, I));
-		// Note that these are purposely not clamped as the BSDF considers the entire sphere as opposed to a hemisphere.
-		float NdotO = abs(dot(N, O));
+        float NdotI = saturate(dot(N, I));
+        // Note that these are purposely not clamped as the BSDF considers the entire sphere as opposed to a hemisphere.
+        float NdotO = abs(dot(N, O));
 
-		float G2 = G2_Smith_GGX(NdotI, NdotO, roughnessAlpha);
-		float G1 = G1_Smith_GGX(NdotI, roughnessAlpha);
+        float G2 = G2_Smith_GGX(NdotI, NdotO, roughnessAlpha);
+        float G1 = G1_Smith_GGX(NdotI, roughnessAlpha);
 
-		// https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf
-		// And for the PDF: https://hal.inria.fr/hal-00996995v1/document
-		vec3 transmission = baseColor * G2 / greaterThanZero(G1);
+        // https://www.cs.cornell.edu/~srm/publications/EGSR07-btdf.pdf
+        // And for the PDF: https://hal.inria.fr/hal-00996995v1/document
+        vec3 transmission = baseColor * G2 / greaterThanZero(G1);
 
-		transmission *= weight;
-		if (dot(transmission, transmission) > 1e-5 && rl_InRay.depth < Globals.maxRayDepth) {
-			createRay();
-				rl_OutRay.direction = O;
-				rl_OutRay.weight = transmission;
-				rl_OutRay.occlusionTest = false;
-				rl_OutRay.defaultPrimitive = EnvironmentLight.lightPrimitive;
-			emitRay();
-		}
-	} else {
-		// Do reflection. Use the unique microfacets for the direct and indirect lighting.
-		{
-			rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex);
-			H = frame * sampleGGX(rand.x, rand.y, roughnessAlpha);
+        transmission *= weight;
+        if (dot(transmission, transmission) > 1e-5 && rl_InRay.depth < Globals.maxRayDepth) {
+            createRay();
+                rl_OutRay.direction = O;
+                rl_OutRay.weight = transmission;
+                rl_OutRay.occlusionTest = false;
+                rl_OutRay.defaultPrimitive = EnvironmentLight.lightPrimitive;
+            emitRay();
+        }
+    } else {
+        // Do reflection. Use the unique microfacets for the direct and indirect lighting.
+        {
+            rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex);
+            H = frame * sampleGGX(rand.x, rand.y, roughnessAlpha);
 
-			HdotI = dot(H, I);
-			vec3 O = normalize(2.0 * HdotI * H - I);
-			specularSample(N, H, I, O, weight, true, EnvironmentLight.lightPrimitive, baseColor);
-		}
-		if (rl_InRay.depth < Globals.maxRayDepth) {
-			// Perform Russian Roulette.
-			if (rl_InRay.depth > 3) {
-				// For Russian Roulette, we always use 3 sequences away for random numbers.
-				vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex);
-				float probability = max(weight.x, max(weight.y, weight.z));
-				if (rand.x > probability) {
-					return; // This ray has been terminated.
-				}
+            HdotI = dot(H, I);
+            vec3 O = normalize(2.0 * HdotI * H - I);
+            specularSample(N, H, I, O, weight, true, EnvironmentLight.lightPrimitive, baseColor);
+        }
+        if (rl_InRay.depth < Globals.maxRayDepth) {
+            // Perform Russian Roulette.
+            if (rl_InRay.depth > 3) {
+                // For Russian Roulette, we always use 3 sequences away for random numbers.
+                vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex);
+                float probability = max(weight.x, max(weight.y, weight.z));
+                if (rand.x > probability) {
+                    return; // This ray has been terminated.
+                }
 
-				rl_InRay.weight /= probability;
-			}
+                rl_InRay.weight /= probability;
+            }
 
-			rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 4, Globals.sampleIndex);
-			H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, roughnessAlpha);
+            rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 4, Globals.sampleIndex);
+            H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, roughnessAlpha);
 
-			HdotI = dot(H, I);
-			vec3 O = normalize(2.0 * HdotI * H - I);
-			specularSample(N, H, I, O, weight, false, rl_NullPrimitive, baseColor);
-		}
-	}
+            HdotI = dot(H, I);
+            vec3 O = normalize(2.0 * HdotI * H - I);
+            specularSample(N, H, I, O, weight, false, rl_NullPrimitive, baseColor);
+        }
+    }
 }

@@ -12,22 +12,22 @@
 
 void setup()
 {
-	rl_OutputRayCount[0] = 0; // No rays are fired from this shader.
+    rl_OutputRayCount[0] = 0; // No rays are fired from this shader.
 }
 
 void main()
 {
-	vec3 dir = rl_InRay.direction;
-	float theta = atan(dir.x, -dir.z) + EnvironmentLight.thetaRotation;
-	if (theta > kTwoPI) {
-		theta = theta - kTwoPI;
-	}
+    vec3 dir = rl_InRay.direction;
+    float theta = atan(dir.x, -dir.z) + EnvironmentLight.thetaRotation;
+    if (theta > kTwoPI) {
+        theta = theta - kTwoPI;
+    }
 
-	float phi = atan(dir.y, sqrt(dir.x * dir.x + dir.z * dir.z));
-	float u   = (theta / kTwoPI) + 0.5;
-	float v   = (-phi * kOneOverPI) + 0.5;
+    float phi = atan(dir.y, sqrt(dir.x * dir.x + dir.z * dir.z));
+    float u   = (theta / kTwoPI) + 0.5;
+    float v   = (-phi * kOneOverPI) + 0.5;
 
-	vec3 sample = texture2D(EnvironmentLight.texture, vec2(u, 1.0 - v)).rgb * EnvironmentLight.exposureCompensation;
-	vec3 result = rl_InRay.weight * sample;
-	accumulate(result); 
+    vec3 sample = texture2D(EnvironmentLight.texture, vec2(u, 1.0 - v)).rgb * EnvironmentLight.exposureCompensation;
+    vec3 result = rl_InRay.weight * sample;
+    accumulate(result); 
 }

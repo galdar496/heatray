@@ -36,10 +36,10 @@ inline void checkError(const char* filename, int lineNumber)
 
     if (errorID != RL_NO_ERROR) {
         // An OpenRL error has occured, report it to the user.
-		LOG_ERROR("%s (%d) - An OpenRL error occured: 0x%x", filename, lineNumber, errorID);
+        LOG_ERROR("%s (%d) - An OpenRL error occured: 0x%x", filename, lineNumber, errorID);
 
         // Stop the system.
-		assert(0);
+        assert(0);
     }
 }
 

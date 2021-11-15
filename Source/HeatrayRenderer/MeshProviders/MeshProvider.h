@@ -31,18 +31,18 @@ enum VertexAttributeUsage {
     VertexAttributeUsage_Normal,
     VertexAttributeUsage_TexCoord,
     VertexAttributeUsage_Tangents,
-	VertexAttributeUsage_Bitangents,
+    VertexAttributeUsage_Bitangents,
 
     VertexAttributeUsageCount,
 };
 
 struct VertexAttribute {
     VertexAttributeUsage usage;
-	int buffer = -1;
-	int componentCount = 0;
-	int size = 0;
-	size_t offset = 0;
-	int stride = 0;
+    int buffer = -1;
+    int componentCount = 0;
+    int size = 0;
+    size_t offset = 0;
+    int stride = 0;
 };
 
 class MeshProvider
@@ -51,10 +51,10 @@ public:
     struct Submesh {
         int vertexAttributeCount = 0;
         VertexAttribute vertexAttributes[VertexAttributeUsageCount];
-		size_t indexBuffer = 0;
-		size_t indexOffset = 0;
-		size_t elementCount = 0;
-		DrawMode drawMode = DrawMode::Triangles;
+        size_t indexBuffer = 0;
+        size_t indexOffset = 0;
+        size_t elementCount = 0;
+        DrawMode drawMode = DrawMode::Triangles;
         int materialIndex = -1;
         glm::mat4 localTransform;
     };

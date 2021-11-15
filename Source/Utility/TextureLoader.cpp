@@ -12,28 +12,28 @@
 
 namespace util {
 
-	std::shared_ptr<openrl::Texture> loadTexture(const char* path, bool generateMips, bool convertToLinear)
+    std::shared_ptr<openrl::Texture> loadTexture(const char* path, bool generateMips, bool convertToLinear)
 {
-	LOG_INFO("Loading texture %s", path);
+    LOG_INFO("Loading texture %s", path);
     openrl::Texture::Sampler sampler;
     if (!generateMips) { // default sampler state is with mipmapping enabled.
         sampler.magFilter = RL_LINEAR;
         sampler.minFilter = RL_LINEAR;
-		sampler.wrapS = RL_CLAMP_TO_EDGE;
-		sampler.wrapT = RL_CLAMP_TO_EDGE;
+        sampler.wrapS = RL_CLAMP_TO_EDGE;
+        sampler.wrapT = RL_CLAMP_TO_EDGE;
     }
 
-	std::shared_ptr<openrl::Texture> texture = nullptr;
+    std::shared_ptr<openrl::Texture> texture = nullptr;
 
     if ((std::filesystem::path(path).extension() == ".exr") ||
-		(std::filesystem::path(path).extension() == ".tiff")) {
+        (std::filesystem::path(path).extension() == ".tiff")) {
         FREE_IMAGE_FORMAT format = FreeImage_GetFileType(path, 0);
         assert(FreeImage_FIFSupportsReading(format));
 
         // Get the raw image data from FreeImage.
         FIBITMAP* imageData = FreeImage_Load(format, path);
         if (!imageData) {
-			LOG_ERROR("Unable to load image %s", path);
+            LOG_ERROR("Unable to load image %s", path);
             return nullptr;
         }
 
@@ -66,7 +66,7 @@ namespace util {
         desc.width          = FreeImage_GetWidth(imageData);
         desc.height         = FreeImage_GetHeight(imageData);
 
-		texture = openrl::Texture::create(FreeImage_GetBits(imageData), desc, sampler, generateMips);
+        texture = openrl::Texture::create(FreeImage_GetBits(imageData), desc, sampler, generateMips);
         FreeImage_Unload(imageData);
     } else {
         int width, height, channelCount;
@@ -76,46 +76,46 @@ namespace util {
         bool isHDR = stbi_is_hdr(path);
         if (isHDR) {
             pixels = (unsigned char *)stbi_loadf(path, &width, &height, &channelCount, 0);
-			if (!pixels) {
-				LOG_ERROR("Unable to load texture %s", path);
-				return texture;
-			}
+            if (!pixels) {
+                LOG_ERROR("Unable to load texture %s", path);
+                return texture;
+            }
         } else {
             pixels = stbi_load(path, &width, &height, &channelCount, 0);
-			if (!pixels) {
-				LOG_ERROR("Unable to load texture %s", path);
-				return texture;
-			}
+            if (!pixels) {
+                LOG_ERROR("Unable to load texture %s", path);
+                return texture;
+            }
 
-			if (convertToLinear) {
-				LOG_INFO("Converting from sRGB to Linear");
-				// Convert from sRGB to linear. Note: it's assumed that any non-HDR immage is sRGB encoded however
-				// we want linear colors for rendering.
-				constexpr static size_t ALPHA_CHANNEL = 3;
-				constexpr static float MAX_BYTE_VALUE = 255.0f;
-				constexpr static float SRGB_ALPHA = 0.055f;
-				for (size_t i = 0; i < width * height; ++i) {
-					// For each pixel, we alter the RGB components but leave any alpha channel alone.
-					for (size_t channel = 0; channel < channelCount; ++channel) {
-						if (channel != ALPHA_CHANNEL) {
-							size_t pixelIndex = (i * channelCount) + channel;
-							float channelData = float(pixels[pixelIndex]) / MAX_BYTE_VALUE;
+            if (convertToLinear) {
+                LOG_INFO("Converting from sRGB to Linear");
+                // Convert from sRGB to linear. Note: it's assumed that any non-HDR immage is sRGB encoded however
+                // we want linear colors for rendering.
+                constexpr static size_t ALPHA_CHANNEL = 3;
+                constexpr static float MAX_BYTE_VALUE = 255.0f;
+                constexpr static float SRGB_ALPHA = 0.055f;
+                for (size_t i = 0; i < width * height; ++i) {
+                    // For each pixel, we alter the RGB components but leave any alpha channel alone.
+                    for (size_t channel = 0; channel < channelCount; ++channel) {
+                        if (channel != ALPHA_CHANNEL) {
+                            size_t pixelIndex = (i * channelCount) + channel;
+                            float channelData = float(pixels[pixelIndex]) / MAX_BYTE_VALUE;
 
-							// Actual sRGB->linear convertion.
-							if (channelData <= 0.04045f) {
-								channelData /= 12.92f;
-							}
-							else {
-								channelData = std::powf((channelData + SRGB_ALPHA) / (1.0f + SRGB_ALPHA), 2.4f);
-							}
+                            // Actual sRGB->linear convertion.
+                            if (channelData <= 0.04045f) {
+                                channelData /= 12.92f;
+                            }
+                            else {
+                                channelData = std::powf((channelData + SRGB_ALPHA) / (1.0f + SRGB_ALPHA), 2.4f);
+                            }
 
-							// Conversion back to an 8bit byte.
-							pixels[pixelIndex] = uint8_t(channelData * MAX_BYTE_VALUE);
-						}
-					}
-				}
-				LOG_INFO("\tDONE");
-			}
+                            // Conversion back to an 8bit byte.
+                            pixels[pixelIndex] = uint8_t(channelData * MAX_BYTE_VALUE);
+                        }
+                    }
+                }
+                LOG_INFO("\tDONE");
+            }
         }
 
         openrl::Texture::Descriptor desc;
@@ -134,7 +134,7 @@ namespace util {
         desc.internalFormat = desc.format;
         desc.dataType = isHDR ? RL_FLOAT : RL_UNSIGNED_BYTE;
 
-		texture = openrl::Texture::create(pixels, desc, sampler, generateMips);
+        texture = openrl::Texture::create(pixels, desc, sampler, generateMips);
         free(pixels);
     }
     
@@ -144,8 +144,8 @@ namespace util {
 
 uint8_t* loadLDRTexturePixels(const char* path, int& width, int& height, int& channelCount)
 {
-	stbi_uc* pixels = stbi_load(path, &width, &height, &channelCount, 0);
-	return static_cast<uint8_t*>(pixels);
+    stbi_uc* pixels = stbi_load(path, &width, &height, &channelCount, 0);
+    return static_cast<uint8_t*>(pixels);
 }
 
 } // namespace util.

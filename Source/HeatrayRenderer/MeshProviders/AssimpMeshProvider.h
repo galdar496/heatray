@@ -67,7 +67,7 @@ public:
         return m_materials;
     }
 
-	const util::AABB& sceneAABB() const { return m_sceneAABB; }
+    const util::AABB& sceneAABB() const { return m_sceneAABB; }
 
 private:
     void LoadModel(std::string const & filename, bool convert_to_meters);
@@ -88,5 +88,5 @@ private:
 
     bool m_swapYZ = false;
 
-	util::AABB m_sceneAABB;
+    util::AABB m_sceneAABB;
 };

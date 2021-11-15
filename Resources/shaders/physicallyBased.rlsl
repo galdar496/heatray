@@ -23,23 +23,23 @@ varying vec3 bitangent;
 #endif // defined(USE_TANGENT_SPACE)
 
 uniformblock Material {
-	sampler2D baseColorTexture;
-	sampler2D metallicRoughnessTexture;
-	sampler2D emissiveTexture;
-	sampler2D normalmap;
-	sampler2D clearCoatTexture;
-	sampler2D clearCoatRoughnessTexture;
-	sampler2D clearCoatNormalmap;
-	vec3 baseColor;
-	float metallic;
-	float roughness;
-	float specularF0;
-	float roughnessAlpha;
-	float clearCoat;
-	float clearCoatRoughness;
-	float clearCoatRoughnessAlpha;
+    sampler2D baseColorTexture;
+    sampler2D metallicRoughnessTexture;
+    sampler2D emissiveTexture;
+    sampler2D normalmap;
+    sampler2D clearCoatTexture;
+    sampler2D clearCoatRoughnessTexture;
+    sampler2D clearCoatNormalmap;
+    vec3 baseColor;
+    float metallic;
+    float roughness;
+    float specularF0;
+    float roughnessAlpha;
+    float clearCoat;
+    float clearCoatRoughness;
+    float clearCoatRoughnessAlpha;
 
-	sampler2D multiscatterLUT;
+    sampler2D multiscatterLUT;
 };
 
 void setup()
@@ -49,197 +49,197 @@ void setup()
 
 void main()
 {
-	if (rl_FrontFacing == false) return;
+    if (rl_FrontFacing == false) return;
 
-	vec3 N = normalize(normal);
-	vec3 clearCoatN = N;
+    vec3 N = normalize(normal);
+    vec3 clearCoatN = N;
 
 #if defined(HAS_NORMALMAP)
-	{
-		mat3 normalTransform = mat3(normalize(tangent), normalize(bitangent), N);
-		vec3 normalTS = texture2D(Material.normalmap, texCoord).xyz * 2.0 - 1.0;
-		N = normalize(normalTransform * normalTS);
-	}
+    {
+        mat3 normalTransform = mat3(normalize(tangent), normalize(bitangent), N);
+        vec3 normalTS = texture2D(Material.normalmap, texCoord).xyz * 2.0 - 1.0;
+        N = normalize(normalTransform * normalTS);
+    }
 #endif // defined(HAS_NORMALMAP)
 
 #if defined(HAS_CLEARCOAT_NORMALMAP)
-	{
-		mat3 clearCoatNormalTransform = mat3(normalize(tangent), normalize(bitangent), clearCoatN);
-		vec3 clearCoatNormalTS = texture2D(Material.clearCoatNormalmap, texCoord).xyz * 2.0 - 1.0;
-		clearCoatN = normalize(clearCoatNormalTransform * clearCoatNormalTS);
-	}
+    {
+        mat3 clearCoatNormalTransform = mat3(normalize(tangent), normalize(bitangent), clearCoatN);
+        vec3 clearCoatNormalTS = texture2D(Material.clearCoatNormalmap, texCoord).xyz * 2.0 - 1.0;
+        clearCoatN = normalize(clearCoatNormalTransform * clearCoatNormalTS);
+    }
 #endif // defined(HAS_CLEARCOAT_NORMALMAP)
 
-	mat3 frame = orthonormalFrame(N);
-	vec3 V = -rl_InRay.direction;
-	float NdotV = saturate(dot(N, V));
+    mat3 frame = orthonormalFrame(N);
+    vec3 V = -rl_InRay.direction;
+    float NdotV = saturate(dot(N, V));
 
-	vec3 baseColor = Material.baseColor;
+    vec3 baseColor = Material.baseColor;
 #if defined(HAS_BASE_COLOR_TEXTURE)
-	baseColor *= texture2D(Material.baseColorTexture, texCoord).rgb;
+    baseColor *= texture2D(Material.baseColorTexture, texCoord).rgb;
 #endif //  defined(HAS_BASE_COLOR_TEXTURE)
 
-	float metallic = Material.metallic;
-	float roughness = Material.roughness;
-	float roughnessAlpha = Material.roughnessAlpha;
+    float metallic = Material.metallic;
+    float roughness = Material.roughness;
+    float roughnessAlpha = Material.roughnessAlpha;
 #if defined(HAS_METALLIC_ROUGHNESS_TEXTURE)
-	vec2 metallicRoughness = texture2D(Material.metallicRoughnessTexture, texCoord).bg;
-	metallic *= metallicRoughness.r;
-	roughness *= metallicRoughness.g;
-	roughnessAlpha = roughness * roughness;
+    vec2 metallicRoughness = texture2D(Material.metallicRoughnessTexture, texCoord).bg;
+    metallic *= metallicRoughness.r;
+    roughness *= metallicRoughness.g;
+    roughnessAlpha = roughness * roughness;
 #endif // defined(HAS_METALLIC_ROUGHNESS_TEXTURE)
 
-	float clearCoat = Material.clearCoat;
-	float clearCoatRoughness = Material.clearCoatRoughness;
-	float clearCoatRoughnenessAlpha = Material.clearCoatRoughnessAlpha;
+    float clearCoat = Material.clearCoat;
+    float clearCoatRoughness = Material.clearCoatRoughness;
+    float clearCoatRoughnenessAlpha = Material.clearCoatRoughnessAlpha;
 #if defined(HAS_CLEARCOAT_TEXTURE)
-	clearCoat *= texture2D(Material.clearCoatTexture, texCoord).r;
+    clearCoat *= texture2D(Material.clearCoatTexture, texCoord).r;
 #endif // defined(HAS_CLEARCOAT_TEXTURE)
 #if defined(HAS_CLEARCOAT_ROUGHNESS_TEXTURE)
-	clearCoatRoughness *= texture2D(Material.clearCoatRoughnessTexture, texCoord).r;
-	clearCoatRoughnenessAlpha = clearCoatRoughness * clearCoatRoughness;
+    clearCoatRoughness *= texture2D(Material.clearCoatRoughnessTexture, texCoord).r;
+    clearCoatRoughnenessAlpha = clearCoatRoughness * clearCoatRoughness;
 #endif // defined(HAS_CLEARCOAT_ROUGHNESS_TEXTURE)
 
-	// Handle debug visualizations (if applicable).
-	if (Globals.enableVisualizer == 1) {
-		if (Globals.showGeometricNormals == 1) {
-			accumulate(vec4((normal + 1.0) * 0.5, 1.0));
-		}
+    // Handle debug visualizations (if applicable).
+    if (Globals.enableVisualizer == 1) {
+        if (Globals.showGeometricNormals == 1) {
+            accumulate(vec4((normal + 1.0) * 0.5, 1.0));
+        }
 #if defined(HAS_TEXTURES)
-		else if (Globals.showUVs == 1) {
-			accumulate(vec4(texCoord, 0.0, 1.0));
-		}
+        else if (Globals.showUVs == 1) {
+            accumulate(vec4(texCoord, 0.0, 1.0));
+        }
 #endif // defined(HAS_TEXTURES)
 #if defined(HAS_EMISSIVE_TEXTURE)
-		else if (Globals.showEmissive == 1) {
-			accumulate(vec4(texture2D(Material.emissiveTexture, texCoord).rgb, 1.0));
-		}
+        else if (Globals.showEmissive == 1) {
+            accumulate(vec4(texture2D(Material.emissiveTexture, texCoord).rgb, 1.0));
+        }
 #endif //defined(HAS_EMISSIVE_TEXTURE)
 #if defined(USE_TANGENT_SPACE)
-		else if (Globals.showTangents == 1) {
-			accumulate(vec4((tangent + 1.0) * 0.5, 1.0));
-		} else if (Globals.showBitangents == 1) {
-			accumulate(vec4((bitangent + 1.0) * 0.5, 1.0));
-		}
+        else if (Globals.showTangents == 1) {
+            accumulate(vec4((tangent + 1.0) * 0.5, 1.0));
+        } else if (Globals.showBitangents == 1) {
+            accumulate(vec4((bitangent + 1.0) * 0.5, 1.0));
+        }
 #if defined(HAS_NORMALMAP)
-		else if (Globals.showNormalmap == 1) {
-			accumulate(vec4(texture2D(Material.normalmap, texCoord).xyz, 1.0));
-		}
+        else if (Globals.showNormalmap == 1) {
+            accumulate(vec4(texture2D(Material.normalmap, texCoord).xyz, 1.0));
+        }
 #endif // defined(HAS_NORMALMAP)
 #endif // defined(USE_TANGENT_SPACE)
-		else if (Globals.showFinalNormals == 1) {
-			accumulate(vec4((N + 1.0) * 0.5, 1.0));
-		} else if (Globals.showBaseColor == 1) {
-			accumulate(vec4(baseColor, 1.0));
-		} else if (Globals.showRoughness == 1) {
-			accumulate(vec4(roughness, roughness, roughness, 1.0));
-		} else if (Globals.showMetallic == 1) {
-			accumulate(vec4(metallic, metallic, metallic, 1.0));
-		} else if (Globals.showClearcoat == 1) {
-			accumulate(vec4(clearCoat, clearCoat, clearCoat, 1.0));
-		} else if (Globals.showClearcoatRoughness == 1) {
-			accumulate(vec4(clearCoatRoughness, clearCoatRoughness, clearCoatRoughness, 1.0));
-		}
+        else if (Globals.showFinalNormals == 1) {
+            accumulate(vec4((N + 1.0) * 0.5, 1.0));
+        } else if (Globals.showBaseColor == 1) {
+            accumulate(vec4(baseColor, 1.0));
+        } else if (Globals.showRoughness == 1) {
+            accumulate(vec4(roughness, roughness, roughness, 1.0));
+        } else if (Globals.showMetallic == 1) {
+            accumulate(vec4(metallic, metallic, metallic, 1.0));
+        } else if (Globals.showClearcoat == 1) {
+            accumulate(vec4(clearCoat, clearCoat, clearCoat, 1.0));
+        } else if (Globals.showClearcoatRoughness == 1) {
+            accumulate(vec4(clearCoatRoughness, clearCoatRoughness, clearCoatRoughness, 1.0));
+        }
 #if defined(HAS_CLEARCOAT_NORMALMAP)
-		else if (Globals.showClearcoatNormalmap == 1) {
-			accumulate(vec4(texture2D(Material.clearCoatNormalmap, texCoord).xyz, 1.0));
-		}
+        else if (Globals.showClearcoatNormalmap == 1) {
+            accumulate(vec4(texture2D(Material.clearCoatNormalmap, texCoord).xyz, 1.0));
+        }
 #endif // defined(HAS_CLEARCOAT_NORMALMAP)
-		return;
-	}
+        return;
+    }
 
 #if defined(HAS_EMISSIVE_TEXTURE)
-	vec3 emissiveColor = texture2D(Material.emissiveTexture, texCoord).rgb;
-	accumulate(rl_InRay.weight * emissiveColor);
+    vec3 emissiveColor = texture2D(Material.emissiveTexture, texCoord).rgb;
+    accumulate(rl_InRay.weight * emissiveColor);
 #endif // defined(HAS_EMISSIVE_TEXTURE)
 
-	float clearCoatNdotV = saturate(dot(clearCoatN, V));
+    float clearCoatNdotV = saturate(dot(clearCoatN, V));
 
-	// https://nicedoc.io/KhronosGroup/glTF/extensions/2.0/Khronos/KHR_materials_clearcoat/README.md#user-content-implementation
-	// For clear coat, we assume a fixed F0 of 0.04 (polyurethane has an IOR of 1.5).
-	float clearCoatF = F_Schlick(0.04, clearCoatNdotV);
-	float clearCoatScale = clearCoatF * clearCoat;
-	float clearCoatBottomLayerScale = 1.0 - clearCoatScale; // Scale to apply to the bottom layer's diffuse/specular.
+    // https://nicedoc.io/KhronosGroup/glTF/extensions/2.0/Khronos/KHR_materials_clearcoat/README.md#user-content-implementation
+    // For clear coat, we assume a fixed F0 of 0.04 (polyurethane has an IOR of 1.5).
+    float clearCoatF = F_Schlick(0.04, clearCoatNdotV);
+    float clearCoatScale = clearCoatF * clearCoat;
+    float clearCoatBottomLayerScale = 1.0 - clearCoatScale; // Scale to apply to the bottom layer's diffuse/specular.
 
     vec3 Cdiff = (baseColor * (1.0 - metallic)) * clearCoatBottomLayerScale;
 
-	// This approximation comes from https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
-	//vec3 Cspec = (0.16 * square(Material.specularF0) * (1.0 - metallic) + baseColor * metallic) * clearCoatBottomLayerScale;
+    // This approximation comes from https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
+    //vec3 Cspec = (0.16 * square(Material.specularF0) * (1.0 - metallic) + baseColor * metallic) * clearCoatBottomLayerScale;
 
-	// And this comes from the Disney BRDF explorer: https://github.com/wdas/brdf/blob/main/src/brdfs/disney.brdf#L104
-	vec3 Cspec = mix(vec3(Material.specularF0), baseColor, vec3(metallic)) * clearCoatBottomLayerScale;
+    // And this comes from the Disney BRDF explorer: https://github.com/wdas/brdf/blob/main/src/brdfs/disney.brdf#L104
+    vec3 Cspec = mix(vec3(Material.specularF0), baseColor, vec3(metallic)) * clearCoatBottomLayerScale;
 
-	// The probability that we select the diffuse BRDF to sample while rendering.
-	float diffuseLuminance  = luminosity(Cdiff);
+    // The probability that we select the diffuse BRDF to sample while rendering.
+    float diffuseLuminance  = luminosity(Cdiff);
     float specularLuminance = luminosity(Cspec);
-	float probabilityNormalization = 1.0 / greaterThanZero(diffuseLuminance + specularLuminance + clearCoatScale);
+    float probabilityNormalization = 1.0 / greaterThanZero(diffuseLuminance + specularLuminance + clearCoatScale);
     float diffuseProbability = diffuseLuminance * probabilityNormalization;
-	float specularProbability = specularLuminance * probabilityNormalization;
-	float clearCoatProbability = clearCoatScale * probabilityNormalization;
+    float specularProbability = specularLuminance * probabilityNormalization;
+    float clearCoatProbability = clearCoatScale * probabilityNormalization;
 
-	mat3 clearCoatFrame;
-	if (clearCoatProbability > 0.0) {
-		clearCoatFrame = orthonormalFrame(clearCoatN);
-	}
+    mat3 clearCoatFrame;
+    if (clearCoatProbability > 0.0) {
+        clearCoatFrame = orthonormalFrame(clearCoatN);
+    }
 
-	// First sample the environment light.
-	{
-		vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth, Globals.sampleIndex);
+    // First sample the environment light.
+    {
+        vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth, Globals.sampleIndex);
 
-		// Determine if we sample diffuse or specular.
-		// For direct lighting, we always use the next sequence for this probability.
-		vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex);
-		if (probability.x <= diffuseProbability) {
-			sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, roughnessAlpha,
-						  diffuseProbability, true, EnvironmentLight.lightPrimitive);
-		} else if (probability.x <= (diffuseProbability + clearCoatProbability)) {
-			sampleSpecular(clearCoatN, V, clearCoatNdotV, clearCoatFrame, rand, vec3(clearCoatScale), clearCoatRoughnenessAlpha,
-						   clearCoatProbability, true, EnvironmentLight.lightPrimitive, Material.multiscatterLUT, roughness);
-		} else {
-			sampleSpecular(N, V, NdotV, frame, rand, Cspec, roughnessAlpha,
-						   specularProbability, true, EnvironmentLight.lightPrimitive, Material.multiscatterLUT, roughness);
-		}
+        // Determine if we sample diffuse or specular.
+        // For direct lighting, we always use the next sequence for this probability.
+        vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex);
+        if (probability.x <= diffuseProbability) {
+            sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, roughnessAlpha,
+                          diffuseProbability, true, EnvironmentLight.lightPrimitive);
+        } else if (probability.x <= (diffuseProbability + clearCoatProbability)) {
+            sampleSpecular(clearCoatN, V, clearCoatNdotV, clearCoatFrame, rand, vec3(clearCoatScale), clearCoatRoughnenessAlpha,
+                           clearCoatProbability, true, EnvironmentLight.lightPrimitive, Material.multiscatterLUT, roughness);
+        } else {
+            sampleSpecular(N, V, NdotV, frame, rand, Cspec, roughnessAlpha,
+                           specularProbability, true, EnvironmentLight.lightPrimitive, Material.multiscatterLUT, roughness);
+        }
 
-		/*if (probability.x <= diffuseProbability) {
-			sampleDiffuseLight(N, DirectionalLights.directions[0], Cdiff, Cspec, roughnessAlpha,
-						  diffuseProbability, DirectionalLights.primitives[0]);
-		} else if (probability.x <= (diffuseProbability + clearCoatProbability)) {
-			sampleSpecularLight(clearCoatN, V, clearCoatNdotV, DirectionalLights.directions[0], vec3(clearCoatScale), clearCoatRoughnenessAlpha,
-						   clearCoatProbability, DirectionalLights.primitives[0], Material.multiscatterLUT, roughness);
-		} else {
-			sampleSpecularLight(N, V, NdotV, DirectionalLights.directions[0], Cspec, roughnessAlpha,
-						   specularProbability, DirectionalLights.primitives[0], Material.multiscatterLUT, roughness);
-		}*/
-	}
+        /*if (probability.x <= diffuseProbability) {
+            sampleDiffuseLight(N, DirectionalLights.directions[0], Cdiff, Cspec, roughnessAlpha,
+                          diffuseProbability, DirectionalLights.primitives[0]);
+        } else if (probability.x <= (diffuseProbability + clearCoatProbability)) {
+            sampleSpecularLight(clearCoatN, V, clearCoatNdotV, DirectionalLights.directions[0], vec3(clearCoatScale), clearCoatRoughnenessAlpha,
+                           clearCoatProbability, DirectionalLights.primitives[0], Material.multiscatterLUT, roughness);
+        } else {
+            sampleSpecularLight(N, V, NdotV, DirectionalLights.directions[0], Cspec, roughnessAlpha,
+                           specularProbability, DirectionalLights.primitives[0], Material.multiscatterLUT, roughness);
+        }*/
+    }
 
-	// Now sample the indirect lighting.
-	if (rl_InRay.depth < Globals.maxRayDepth) {
-		// Perform Russian Roulette.
-		if (rl_InRay.depth > 3) {
-			// For Russian Roulette, we always use 2 sequences away for random numbers.
-			vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex);
-			float probability = max(rl_InRay.weight.x, max(rl_InRay.weight.y, rl_InRay.weight.z));
-			if (rand.x > probability) {
-				return; // This ray has been terminated.
-			}
+    // Now sample the indirect lighting.
+    if (rl_InRay.depth < Globals.maxRayDepth) {
+        // Perform Russian Roulette.
+        if (rl_InRay.depth > 3) {
+            // For Russian Roulette, we always use 2 sequences away for random numbers.
+            vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex);
+            float probability = max(rl_InRay.weight.x, max(rl_InRay.weight.y, rl_InRay.weight.z));
+            if (rand.x > probability) {
+                return; // This ray has been terminated.
+            }
 
-			rl_InRay.weight /= probability;
-		}
+            rl_InRay.weight /= probability;
+        }
 
-		// For indirect lighting, we always use 3 sequences away for random numbers.
-		vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex);
+        // For indirect lighting, we always use 3 sequences away for random numbers.
+        vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex);
 
-		// Determine if we sample diffuse or specular. We use 4 sequences away to determine this probability.
-		vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 4, Globals.sampleIndex);
-		if (probability.x <= diffuseProbability) {
-			sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, roughnessAlpha,
-						  diffuseProbability, false, rl_NullPrimitive);
-		} else if (probability.x <= (diffuseProbability + clearCoatProbability)) {
-			sampleSpecular(clearCoatN, V, clearCoatNdotV, clearCoatFrame, rand, vec3(clearCoatScale), clearCoatRoughnenessAlpha,
-						   clearCoatProbability, false, rl_NullPrimitive, Material.multiscatterLUT, roughness);
-		} else {
-			sampleSpecular(N, V, NdotV, frame, rand, Cspec, roughnessAlpha,
-						   specularProbability, false, rl_NullPrimitive, Material.multiscatterLUT, roughness);
-		}
-	}
+        // Determine if we sample diffuse or specular. We use 4 sequences away to determine this probability.
+        vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 4, Globals.sampleIndex);
+        if (probability.x <= diffuseProbability) {
+            sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, roughnessAlpha,
+                          diffuseProbability, false, rl_NullPrimitive);
+        } else if (probability.x <= (diffuseProbability + clearCoatProbability)) {
+            sampleSpecular(clearCoatN, V, clearCoatNdotV, clearCoatFrame, rand, vec3(clearCoatScale), clearCoatRoughnenessAlpha,
+                           clearCoatProbability, false, rl_NullPrimitive, Material.multiscatterLUT, roughness);
+        } else {
+            sampleSpecular(N, V, NdotV, frame, rand, Cspec, roughnessAlpha,
+                           specularProbability, false, rl_NullPrimitive, Material.multiscatterLUT, roughness);
+        }
+    }
 }

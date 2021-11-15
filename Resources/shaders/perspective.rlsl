@@ -31,55 +31,55 @@ void setup()
 
 void main()
 {
-	// If we're in interactive mode then we'll only render a single pixel with a block of pixels.
-	if (interactiveMode != 0) {
-		// Determine which block we're in so that all pixels within the block use the same random UV offset.
-		ivec2 blockIndex = ivec2(rl_FrameCoord.xy - vec2(0.5)) / blockSize;
-		float randX = random(vec2(blockIndex));
-		float randY = random(vec2(blockIndex.yx));
+    // If we're in interactive mode then we'll only render a single pixel with a block of pixels.
+    if (interactiveMode != 0) {
+        // Determine which block we're in so that all pixels within the block use the same random UV offset.
+        ivec2 blockIndex = ivec2(rl_FrameCoord.xy - vec2(0.5)) / blockSize;
+        float randX = random(vec2(blockIndex));
+        float randY = random(vec2(blockIndex.yx));
 
-		// Determine a random pixel within the block to sample based on the samples in the texture. The texture
-		// samples are laid out such that each pixel in the block will be sampled.
-		vec2 blockSampleUV = (1.0 / vec2(blockSize)) * vec2(currentBlockPixelSample) + vec2(randX, randY);
-		ivec2 blockPixelToSample = ivec2(texture2D(interactiveBlockSamplesTexture, blockSampleUV).xy);
+        // Determine a random pixel within the block to sample based on the samples in the texture. The texture
+        // samples are laid out such that each pixel in the block will be sampled.
+        vec2 blockSampleUV = (1.0 / vec2(blockSize)) * vec2(currentBlockPixelSample) + vec2(randX, randY);
+        ivec2 blockPixelToSample = ivec2(texture2D(interactiveBlockSamplesTexture, blockSampleUV).xy);
 
-		ivec2 thisBlockPixel = ivec2(rl_FrameCoord.xy - vec2(0.5)) % blockSize; // (x,y) within the local block for the current screen pixel.
-		if (thisBlockPixel != blockPixelToSample) {
-			return; 
-		}
-	}
+        ivec2 thisBlockPixel = ivec2(rl_FrameCoord.xy - vec2(0.5)) % blockSize; // (x,y) within the local block for the current screen pixel.
+        if (thisBlockPixel != blockPixelToSample) {
+            return; 
+        }
+    }
 
-	// This pixel is being sampled, increment its sample count.
-	accumulate(vec4(0.0, 0.0, 0.0, 1.0));
+    // This pixel is being sampled, increment its sample count.
+    accumulate(vec4(0.0, 0.0, 0.0, 1.0));
 
-	// Determine which sequence this pixel should use. This can and probably should be changed.
-	float rand = random(rl_FrameCoord.xy / rl_FrameSize.xy);
-	int sequenceID = int(floor(rand * kNumRandomSequences));
-	
-	vec2 sampleOffset = getSequenceValue(sequenceID, Globals.sampleIndex);
-	vec2 samplePoint = (rl_FrameCoord.xy - vec2(0.5)) + sampleOffset; // -0.5 to get the lower-left corner of the pixel.
-	vec2 pixelUV = samplePoint / rl_FrameSize.xy;
+    // Determine which sequence this pixel should use. This can and probably should be changed.
+    float rand = random(rl_FrameCoord.xy / rl_FrameSize.xy);
+    int sequenceID = int(floor(rand * kNumRandomSequences));
+    
+    vec2 sampleOffset = getSequenceValue(sequenceID, Globals.sampleIndex);
+    vec2 samplePoint = (rl_FrameCoord.xy - vec2(0.5)) + sampleOffset; // -0.5 to get the lower-left corner of the pixel.
+    vec2 pixelUV = samplePoint / rl_FrameSize.xy;
 
-	// The following math assumes that the image plane is 1 unit away from the camera origin.
-	float x = (2.0 * pixelUV.x - 1.0) * aspectRatio * fovTan;
-	float y = (1.0 - 2.0 * pixelUV.y) * fovTan * -1.0; // * -1 because this Y vector is upside down (OpenRL 0,0 is bottom left corner).
-	vec3 dirCameraSpace = normalize(vec3(x, y, -1.0));
+    // The following math assumes that the image plane is 1 unit away from the camera origin.
+    float x = (2.0 * pixelUV.x - 1.0) * aspectRatio * fovTan;
+    float y = (1.0 - 2.0 * pixelUV.y) * fovTan * -1.0; // * -1 because this Y vector is upside down (OpenRL 0,0 is bottom left corner).
+    vec3 dirCameraSpace = normalize(vec3(x, y, -1.0));
 
-	// Compute the origin and direction based on the focal length and aperture of the camera (dof).
-	vec3 focalPoint = focusDistance * dirCameraSpace;
-	vec2 apertureSample = texture2D(apertureSamplesTexture, getSequenceUV(sequenceID, Globals.sampleIndex)).xy;
-	// Sample is compressed to be between 0-1.
-	apertureSample = ((apertureSample * 2.0) - 1.0) * apertureRadius;
-	vec3 origin = vec3(apertureSample, 0.0);
+    // Compute the origin and direction based on the focal length and aperture of the camera (dof).
+    vec3 focalPoint = focusDistance * dirCameraSpace;
+    vec2 apertureSample = texture2D(apertureSamplesTexture, getSequenceUV(sequenceID, Globals.sampleIndex)).xy;
+    // Sample is compressed to be between 0-1.
+    apertureSample = ((apertureSample * 2.0) - 1.0) * apertureRadius;
+    vec3 origin = vec3(apertureSample, 0.0);
     vec3 dir = focalPoint - origin;
 
     createRay();
-		rl_OutRay.origin		   = (viewMatrix * vec4(origin, 1.0)).xyz;
-		rl_OutRay.direction		   = (viewMatrix * vec4(dir, 0.0)).xyz; // OpenRL auto-normalizes the direction for emitted rays.
-		rl_OutRay.defaultPrimitive = EnvironmentLight.lightPrimitive;
-		rl_OutRay.weight           = vec3(1.0);
-		rl_OutRay.sequenceID       = sequenceID;
-	emitRay();
+        rl_OutRay.origin		   = (viewMatrix * vec4(origin, 1.0)).xyz;
+        rl_OutRay.direction		   = (viewMatrix * vec4(dir, 0.0)).xyz; // OpenRL auto-normalizes the direction for emitted rays.
+        rl_OutRay.defaultPrimitive = EnvironmentLight.lightPrimitive;
+        rl_OutRay.weight           = vec3(1.0);
+        rl_OutRay.sequenceID       = sequenceID;
+    emitRay();
 }
 
 

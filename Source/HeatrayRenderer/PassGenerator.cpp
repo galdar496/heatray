@@ -24,74 +24,74 @@ PassGenerator::~PassGenerator()
 void PassGenerator::init(const RLint renderWidth, const RLint renderHeight)
 {
     // Fire up the render thread and push an init job to it to get going.
-	auto runJob = [this](Job& job) {
-		switch (job.type) {
-			case JobType::kInit:
-			{
-				WindowSize size = std::any_cast<WindowSize>(job.params);
-				if (!runInitJob(size.width, size.height)) {
-					return true; // End the thread.
-				}
-				break;
-			}
-			case JobType::kResize:
-			{
-				WindowSize size = std::any_cast<WindowSize>(job.params);
-				runResizeJob(size.width, size.height);
-				break;
-			}
-			case JobType::kRenderPass:
-			{
-				RenderOptions options = std::any_cast<RenderOptions>(job.params);
-				runRenderFrameJob(options);
-				break;
-			}
-			case JobType::kLoadScene:
-			{
-				bool clearOldScene = std::any_cast<bool>(job.params);
-				runLoadSceneJob(clearOldScene);
-				break;
-			}
-			case JobType::kDestroy:
-			{
-				runDestroyJob();
-				return true; // End the thread.
-				break;
-			}
-			case JobType::kGeneralTask:
-			{
-				OpenRLTask task = std::any_cast<OpenRLTask>(job.params);
-				task();
-				break;
-			}
+    auto runJob = [this](Job& job) {
+        switch (job.type) {
+            case JobType::kInit:
+            {
+                WindowSize size = std::any_cast<WindowSize>(job.params);
+                if (!runInitJob(size.width, size.height)) {
+                    return true; // End the thread.
+                }
+                break;
+            }
+            case JobType::kResize:
+            {
+                WindowSize size = std::any_cast<WindowSize>(job.params);
+                runResizeJob(size.width, size.height);
+                break;
+            }
+            case JobType::kRenderPass:
+            {
+                RenderOptions options = std::any_cast<RenderOptions>(job.params);
+                runRenderFrameJob(options);
+                break;
+            }
+            case JobType::kLoadScene:
+            {
+                bool clearOldScene = std::any_cast<bool>(job.params);
+                runLoadSceneJob(clearOldScene);
+                break;
+            }
+            case JobType::kDestroy:
+            {
+                runDestroyJob();
+                return true; // End the thread.
+                break;
+            }
+            case JobType::kGeneralTask:
+            {
+                OpenRLTask task = std::any_cast<OpenRLTask>(job.params);
+                task();
+                break;
+            }
 
-			default:
-				assert(0 && "Invalid job type");
-				break;
-		}
+            default:
+                assert(0 && "Invalid job type");
+                break;
+        }
 
-		return false;
-	};
-	m_jobProcessor.init(std::move(runJob));
+        return false;
+    };
+    m_jobProcessor.init(std::move(runJob));
 
     WindowSize size(renderWidth, renderHeight);
     Job job(JobType::kInit, std::make_any<WindowSize>(size));
-	m_jobProcessor.addTask(std::move(job));
+    m_jobProcessor.addTask(std::move(job));
 }
 
 void PassGenerator::destroy()
 {
     Job job(JobType::kDestroy, std::make_any<void*>(nullptr));
-	m_jobProcessor.addTask(std::move(job));
+    m_jobProcessor.addTask(std::move(job));
 
-	m_jobProcessor.deinit();
+    m_jobProcessor.deinit();
 }
 
 void PassGenerator::resize(RLint newWidth, RLint newHeight)
 {
     WindowSize size(newWidth, newHeight);
     Job job(JobType::kResize, std::make_any<WindowSize>(size));
-	m_jobProcessor.addTask(std::move(job));
+    m_jobProcessor.addTask(std::move(job));
 }
 
 void PassGenerator::renderPass(const RenderOptions& newOptions, PassCompleteCallback callback)
@@ -100,7 +100,7 @@ void PassGenerator::renderPass(const RenderOptions& newOptions, PassCompleteCall
 
     RenderOptions options = newOptions;
     Job job(JobType::kRenderPass, std::make_any<RenderOptions>(options));
-	m_jobProcessor.addTask(std::move(job));
+    m_jobProcessor.addTask(std::move(job));
 }
 
 void PassGenerator::loadScene(LoadSceneCallback callback, bool clearOldScene)
@@ -108,13 +108,13 @@ void PassGenerator::loadScene(LoadSceneCallback callback, bool clearOldScene)
     m_loadSceneCallback = callback;
 
     Job job(JobType::kLoadScene, std::make_any<bool>(clearOldScene));
-	m_jobProcessor.addTask(std::move(job));
+    m_jobProcessor.addTask(std::move(job));
 }
 
 void PassGenerator::runOpenRLTask(OpenRLTask task)
 {
-	Job job(JobType::kGeneralTask, std::make_any<OpenRLTask>(task));
-	m_jobProcessor.addTask(std::move(job));
+    Job job(JobType::kGeneralTask, std::make_any<OpenRLTask>(task));
+    m_jobProcessor.addTask(std::move(job));
 }
 
 bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight)
@@ -130,7 +130,7 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
 
     // Setup the buffers to render into.
     {
-		m_fbo = openrl::Framebuffer::create();
+        m_fbo = openrl::Framebuffer::create();
 
         openrl::Texture::Descriptor desc;
         desc.dataType = RL_FLOAT;
@@ -155,14 +155,14 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
         m_resultPixels.create(bufferSize);
     }
 
-	// Initialize scene lighting.
-	{
-		m_sceneLighting = std::shared_ptr<SceneLighting>(new SceneLighting);
-		m_environmentLight = m_sceneLighting->addEnvironmentLight();
+    // Initialize scene lighting.
+    {
+        m_sceneLighting = std::shared_ptr<SceneLighting>(new SceneLighting);
+        m_environmentLight = m_sceneLighting->addEnvironmentLight();
 
-		// TMP HACK!!!
-		//m_sceneLighting->addDirectionalLight();
-	}
+        // TMP HACK!!!
+        //m_sceneLighting->addDirectionalLight();
+    }
 
     {
         // Setup global data buffer for all shaders.
@@ -172,18 +172,18 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
 
     // Load the perspective camera frame shader for generating primary rays.
     {
-		std::stringstream defines;
-		ShaderLightingDefines::appendLightingShaderDefines(defines);
+        std::stringstream defines;
+        ShaderLightingDefines::appendLightingShaderDefines(defines);
 
         std::vector<std::string> shaderSource;
-		shaderSource.push_back(defines.str());
-		util::loadShaderSourceFile("perspective.rlsl", shaderSource);
-		std::shared_ptr<openrl::Shader> frameShader = openrl::Shader::createFromMultipleStrings(shaderSource, openrl::Shader::ShaderType::kFrame, "Perspective Frame Shader");
+        shaderSource.push_back(defines.str());
+        util::loadShaderSourceFile("perspective.rlsl", shaderSource);
+        std::shared_ptr<openrl::Shader> frameShader = openrl::Shader::createFromMultipleStrings(shaderSource, openrl::Shader::ShaderType::kFrame, "Perspective Frame Shader");
         if (!frameShader) {
             return false;
         }
 
-		m_frameProgram = openrl::Program::create();
+        m_frameProgram = openrl::Program::create();
         m_frameProgram->attach(frameShader);
         if (!m_frameProgram->link("Perspecive Frame Shader")) {
             return false;
@@ -194,38 +194,38 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
         m_frameProgram->bind();
         m_frameProgram->setUniformBlock(m_frameProgram->getUniformBlockIndex("RandomSequences"), m_randomSequences->buffer());
         m_frameProgram->setUniformBlock(m_frameProgram->getUniformBlockIndex("Globals"), m_globalData->buffer());
-		m_sceneLighting->bindLightingBuffersToProgram(m_frameProgram);
+        m_sceneLighting->bindLightingBuffersToProgram(m_frameProgram);
     }
 
-	// Generate the block pixel offsets for interactive rendering.
-	{
-		std::vector<glm::vec3> coords;
-		for (int row = 0; row < RenderOptions::kInteractiveBlockSize.x; ++row) {
-			for (int col = 0; col < RenderOptions::kInteractiveBlockSize.y; ++col) {
-				coords.push_back(glm::vec3(row, col, 0.0f));
-			}
-		}
+    // Generate the block pixel offsets for interactive rendering.
+    {
+        std::vector<glm::vec3> coords;
+        for (int row = 0; row < RenderOptions::kInteractiveBlockSize.x; ++row) {
+            for (int col = 0; col < RenderOptions::kInteractiveBlockSize.y; ++col) {
+                coords.push_back(glm::vec3(row, col, 0.0f));
+            }
+        }
 
-		// Shuffle the points so that there is some inherit randomness to make the visualization less regular.
-		std::random_device randomDevice;
-		std::mt19937 generator(randomDevice());
-		std::shuffle(coords.begin(), coords.end(), generator);
+        // Shuffle the points so that there is some inherit randomness to make the visualization less regular.
+        std::random_device randomDevice;
+        std::mt19937 generator(randomDevice());
+        std::shuffle(coords.begin(), coords.end(), generator);
 
-		openrl::Texture::Sampler sampler;
-		sampler.wrapS = RL_REPEAT;
-		sampler.wrapT = RL_REPEAT;
-		sampler.minFilter = RL_NEAREST;
-		sampler.magFilter = RL_NEAREST;
+        openrl::Texture::Sampler sampler;
+        sampler.wrapS = RL_REPEAT;
+        sampler.wrapT = RL_REPEAT;
+        sampler.minFilter = RL_NEAREST;
+        sampler.magFilter = RL_NEAREST;
 
-		openrl::Texture::Descriptor desc;
-		desc.dataType = RL_FLOAT;
-		desc.format = RL_RGB;
-		desc.internalFormat = RL_RGB;
-		desc.width = RenderOptions::kInteractiveBlockSize.x;
-		desc.height = RenderOptions::kInteractiveBlockSize.y;
+        openrl::Texture::Descriptor desc;
+        desc.dataType = RL_FLOAT;
+        desc.format = RL_RGB;
+        desc.internalFormat = RL_RGB;
+        desc.width = RenderOptions::kInteractiveBlockSize.x;
+        desc.height = RenderOptions::kInteractiveBlockSize.y;
 
-		m_interactiveBlockCoordsTexture = openrl::Texture::create(coords.data(), desc, sampler, false);
-	}
+        m_interactiveBlockCoordsTexture = openrl::Texture::create(coords.data(), desc, sampler, false);
+    }
 
     return true;
 }
@@ -289,16 +289,16 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
     m_frameProgram->set2iv(m_frameProgram->getUniformLocation("currentBlockPixelSample"), &m_currentBlockPixelSample.x);
     m_frameProgram->set1i(m_frameProgram->getUniformLocation("interactiveMode"), m_renderOptions.enableInteractiveMode ? 1 : 0);
     m_frameProgram->setTexture(m_frameProgram->getUniformLocation("apertureSamplesTexture"), m_apertureSamplesTexture);
-	m_frameProgram->setTexture(m_frameProgram->getUniformLocation("interactiveBlockSamplesTexture"), m_interactiveBlockCoordsTexture);
+    m_frameProgram->setTexture(m_frameProgram->getUniformLocation("interactiveBlockSamplesTexture"), m_interactiveBlockCoordsTexture);
 
-	// In interactive mode, we now move to the next pixel sample within a block of pixels.
+    // In interactive mode, we now move to the next pixel sample within a block of pixels.
     if (m_renderOptions.enableInteractiveMode) {
-		m_currentBlockPixelSample.x += 1;
+        m_currentBlockPixelSample.x += 1;
         if (m_currentBlockPixelSample.x == m_renderOptions.kInteractiveBlockSize.x) {
-			m_currentBlockPixelSample.x = 0;
-			m_currentBlockPixelSample.y += 1;
+            m_currentBlockPixelSample.x = 0;
+            m_currentBlockPixelSample.y += 1;
             if (m_currentBlockPixelSample.y == m_renderOptions.kInteractiveBlockSize.y) {
-				m_currentBlockPixelSample = glm::vec2(0, 0);
+                m_currentBlockPixelSample = glm::vec2(0, 0);
                 ++m_currentSampleIndex;
             }
         }
@@ -319,13 +319,13 @@ void PassGenerator::runLoadSceneJob(bool clearOldScene)
 {
     assert(m_loadSceneCallback);
 
-	if (clearOldScene) {
-		for (auto& mesh : m_sceneData) {
-			mesh.destroy();
-		}
-		m_sceneData.clear();
-	}
-	
+    if (clearOldScene) {
+        for (auto& mesh : m_sceneData) {
+            mesh.destroy();
+        }
+        m_sceneData.clear();
+    }
+    
     m_loadSceneCallback(m_sceneData, [this](const std::shared_ptr<openrl::Program> program)
         {
             RLint sequenceIndex = program->getUniformBlockIndex("RandomSequences");
@@ -338,7 +338,7 @@ void PassGenerator::runLoadSceneJob(bool clearOldScene)
                 program->setUniformBlock(globalsIndex, m_globalData->buffer());
             }
 
-			m_sceneLighting->bindLightingBuffersToProgram(program);
+            m_sceneLighting->bindLightingBuffersToProgram(program);
         });
 }
 
@@ -349,15 +349,15 @@ void PassGenerator::runDestroyJob()
     m_globalData.reset();
     m_randomSequences.reset();
     m_randomSequenceTexture.reset();
-	m_apertureSamplesTexture.reset();
-	m_environmentLight.reset();
-	m_sceneData.clear();
-	m_frameProgram.reset();
-	m_sceneLighting.reset();
-	m_interactiveBlockCoordsTexture.reset();
+    m_apertureSamplesTexture.reset();
+    m_environmentLight.reset();
+    m_sceneData.clear();
+    m_frameProgram.reset();
+    m_sceneLighting.reset();
+    m_interactiveBlockCoordsTexture.reset();
 
-	m_resultPixels.unmapPixelData();
-	m_resultPixels.destroy();
+    m_resultPixels.unmapPixelData();
+    m_resultPixels.destroy();
 
     OpenRLDestroyContext(m_rlContext);
 }
@@ -365,15 +365,15 @@ void PassGenerator::runDestroyJob()
 void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
 {
     m_currentSampleIndex = 0;
-	m_currentBlockPixelSample = glm::ivec2(0, 0);
+    m_currentBlockPixelSample = glm::ivec2(0, 0);
     rlClear(RL_COLOR_BUFFER_BIT);
 
     // Walk over the render options and switch things out iff something has changed.
     if ((m_renderOptions.environment.map != newOptions.environment.map) ||
-		(m_renderOptions.environment.exposureCompensation != newOptions.environment.exposureCompensation) ||
-		(m_renderOptions.environment.thetaRotation != newOptions.environment.thetaRotation)) {
+        (m_renderOptions.environment.exposureCompensation != newOptions.environment.exposureCompensation) ||
+        (m_renderOptions.environment.thetaRotation != newOptions.environment.thetaRotation)) {
 
-		changeEnvironment(newOptions.environment);
+        changeEnvironment(newOptions.environment);
     }
 
     if (m_renderOptions.sampleMode != newOptions.sampleMode ||
@@ -391,114 +391,114 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
         m_globalData->unbind();
     }
 
-	if (m_renderOptions.debugVisMode != newOptions.debugVisMode) {
-		m_globalData->bind();
-		GlobalData* globalData = m_globalData->mapBuffer<GlobalData>();
-		// Reset all params.
-		globalData->enableDebugVisualizer = 0;
-		globalData->showGeometricNormals = 0;
-		globalData->showUVs = 0;
-		globalData->showTangents = 0;
-		globalData->showBitangents = 0;
-		globalData->showNormalmap = 0;
-		globalData->showFinalNormals = 0;
-		globalData->showBaseColor = 0;
-		globalData->showRoughness = 0;
-		globalData->showMetallic = 0;
-		globalData->showEmissive = 0;
-		globalData->showClearcoat = 0;
-		globalData->showClearcoatRoughness = 0;
-		globalData->showClearcoatNormalmap = 0;
-		switch (newOptions.debugVisMode) {
-			case RenderOptions::DebugVisualizationMode::kNone:
-				globalData->enableDebugVisualizer = 0;
-				break;
-			case RenderOptions::DebugVisualizationMode::kGeometricNormals:
-				globalData->enableDebugVisualizer = 1;
-				globalData->showGeometricNormals = 1;
-				break;
-			case RenderOptions::DebugVisualizationMode::kUVs:
-				globalData->enableDebugVisualizer = 1;
-				globalData->showUVs = 1;
-				break;
-			case RenderOptions::DebugVisualizationMode::kTangents:
-				globalData->enableDebugVisualizer = 1;
-				globalData->showTangents = 1;
-				break;
-			case RenderOptions::DebugVisualizationMode::kBitangents:
-				globalData->enableDebugVisualizer = 1;
-				globalData->showBitangents = 1;
-				break;
-			case RenderOptions::DebugVisualizationMode::kNormalmap:
-				globalData->enableDebugVisualizer = 1;
-				globalData->showNormalmap = 1;
-				break;
-			case RenderOptions::DebugVisualizationMode::kFinalNormals:
-				globalData->enableDebugVisualizer = 1;
-				globalData->showFinalNormals = 1;
-				break;
-			case RenderOptions::DebugVisualizationMode::kBaseColor:
-				globalData->enableDebugVisualizer = 1;
-				globalData->showBaseColor = 1;
-				break;
-			case RenderOptions::DebugVisualizationMode::kRoughness:
-				globalData->enableDebugVisualizer = 1;
-				globalData->showRoughness = 1;
-				break;
-			case RenderOptions::DebugVisualizationMode::kMetallic:
-				globalData->enableDebugVisualizer = 1;
-				globalData->showMetallic = 1;
-				break;
-			case RenderOptions::DebugVisualizationMode::kEmissive:
-				globalData->enableDebugVisualizer = 1;
-				globalData->showEmissive = 1;
-				break;
-			case RenderOptions::DebugVisualizationMode::kClearcoat:
-				globalData->enableDebugVisualizer = 1;
-				globalData->showClearcoat = 1;
-				break;
-			case RenderOptions::DebugVisualizationMode::kClearcoatRoughness:
-				globalData->enableDebugVisualizer = 1;
-				globalData->showClearcoatRoughness = 1;
-				break;
-			case RenderOptions::DebugVisualizationMode::kClearcoatNormalmap:
-				globalData->enableDebugVisualizer = 1;
-				globalData->showClearcoatNormalmap = 1;
-				break;
-			default:
-				break;
-		}
-		m_globalData->unmapBuffer();
-		m_globalData->unbind();
-	}
+    if (m_renderOptions.debugVisMode != newOptions.debugVisMode) {
+        m_globalData->bind();
+        GlobalData* globalData = m_globalData->mapBuffer<GlobalData>();
+        // Reset all params.
+        globalData->enableDebugVisualizer = 0;
+        globalData->showGeometricNormals = 0;
+        globalData->showUVs = 0;
+        globalData->showTangents = 0;
+        globalData->showBitangents = 0;
+        globalData->showNormalmap = 0;
+        globalData->showFinalNormals = 0;
+        globalData->showBaseColor = 0;
+        globalData->showRoughness = 0;
+        globalData->showMetallic = 0;
+        globalData->showEmissive = 0;
+        globalData->showClearcoat = 0;
+        globalData->showClearcoatRoughness = 0;
+        globalData->showClearcoatNormalmap = 0;
+        switch (newOptions.debugVisMode) {
+            case RenderOptions::DebugVisualizationMode::kNone:
+                globalData->enableDebugVisualizer = 0;
+                break;
+            case RenderOptions::DebugVisualizationMode::kGeometricNormals:
+                globalData->enableDebugVisualizer = 1;
+                globalData->showGeometricNormals = 1;
+                break;
+            case RenderOptions::DebugVisualizationMode::kUVs:
+                globalData->enableDebugVisualizer = 1;
+                globalData->showUVs = 1;
+                break;
+            case RenderOptions::DebugVisualizationMode::kTangents:
+                globalData->enableDebugVisualizer = 1;
+                globalData->showTangents = 1;
+                break;
+            case RenderOptions::DebugVisualizationMode::kBitangents:
+                globalData->enableDebugVisualizer = 1;
+                globalData->showBitangents = 1;
+                break;
+            case RenderOptions::DebugVisualizationMode::kNormalmap:
+                globalData->enableDebugVisualizer = 1;
+                globalData->showNormalmap = 1;
+                break;
+            case RenderOptions::DebugVisualizationMode::kFinalNormals:
+                globalData->enableDebugVisualizer = 1;
+                globalData->showFinalNormals = 1;
+                break;
+            case RenderOptions::DebugVisualizationMode::kBaseColor:
+                globalData->enableDebugVisualizer = 1;
+                globalData->showBaseColor = 1;
+                break;
+            case RenderOptions::DebugVisualizationMode::kRoughness:
+                globalData->enableDebugVisualizer = 1;
+                globalData->showRoughness = 1;
+                break;
+            case RenderOptions::DebugVisualizationMode::kMetallic:
+                globalData->enableDebugVisualizer = 1;
+                globalData->showMetallic = 1;
+                break;
+            case RenderOptions::DebugVisualizationMode::kEmissive:
+                globalData->enableDebugVisualizer = 1;
+                globalData->showEmissive = 1;
+                break;
+            case RenderOptions::DebugVisualizationMode::kClearcoat:
+                globalData->enableDebugVisualizer = 1;
+                globalData->showClearcoat = 1;
+                break;
+            case RenderOptions::DebugVisualizationMode::kClearcoatRoughness:
+                globalData->enableDebugVisualizer = 1;
+                globalData->showClearcoatRoughness = 1;
+                break;
+            case RenderOptions::DebugVisualizationMode::kClearcoatNormalmap:
+                globalData->enableDebugVisualizer = 1;
+                globalData->showClearcoatNormalmap = 1;
+                break;
+            default:
+                break;
+        }
+        m_globalData->unmapBuffer();
+        m_globalData->unbind();
+    }
 
     // Finally get all of the new render options.
-	m_renderOptions = newOptions;
+    m_renderOptions = newOptions;
     m_renderOptions.resetInternalState = false;
 }
 
 void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
 {
-	if (!m_environmentLight) {
-		m_environmentLight = m_sceneLighting->addEnvironmentLight();
-	}
+    if (!m_environmentLight) {
+        m_environmentLight = m_sceneLighting->addEnvironmentLight();
+    }
 
-	m_environmentLight->rotate(newEnv.thetaRotation);
-	m_environmentLight->setExposure(newEnv.exposureCompensation);
+    m_environmentLight->rotate(newEnv.thetaRotation);
+    m_environmentLight->setExposure(newEnv.exposureCompensation);
 
-	if (newEnv.map == "white furnace test") {
-		m_environmentLight->enableWhiteFurnaceTest();
-	}
-	else if (newEnv.map == "<none>") {
-		m_sceneLighting->removeEnvironmentLight();
-		m_environmentLight = nullptr;
-	} else {
-		m_environmentLight->changeImageSource(newEnv.map.c_str(), newEnv.builtInMap);
-	}
+    if (newEnv.map == "white furnace test") {
+        m_environmentLight->enableWhiteFurnaceTest();
+    }
+    else if (newEnv.map == "<none>") {
+        m_sceneLighting->removeEnvironmentLight();
+        m_environmentLight = nullptr;
+    } else {
+        m_environmentLight->changeImageSource(newEnv.map.c_str(), newEnv.builtInMap);
+    }
 
-	if (m_environmentLight) {
-		m_sceneLighting->updateLight(m_environmentLight);
-	}
+    if (m_environmentLight) {
+        m_sceneLighting->updateLight(m_environmentLight);
+    }
 }
 
 void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptions::SampleMode sampleMode, RenderOptions::BokehShape bokehShape)
@@ -515,9 +515,9 @@ void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptio
         m_randomSequenceTexture.reset();
     }
     else {
-		// This is the first time this function is being called.
+        // This is the first time this function is being called.
         SequenceBlockData dummyData;
-		m_randomSequences = openrl::Buffer::create(RL_UNIFORM_BLOCK_BUFFER, &dummyData, sizeof(SequenceBlockData), "Random sequences uniform block");
+        m_randomSequences = openrl::Buffer::create(RL_UNIFORM_BLOCK_BUFFER, &dummyData, sizeof(SequenceBlockData), "Random sequences uniform block");
     }
 
     // Note that each sequence is a 1D texture of values. Since OpenRL doesn't support 1D textures,
@@ -548,10 +548,10 @@ void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptio
             case RenderOptions::SampleMode::kBlueNoise:
                 util::blueNoise(&values[iSequence * sampleCount], sampleCount, iSequence);
                 break;
-			case RenderOptions::SampleMode::kSobol:
-				util::sobol(&values[iSequence * sampleCount], sampleCount, iSequence);
-				break;
-			default:
+            case RenderOptions::SampleMode::kSobol:
+                util::sobol(&values[iSequence * sampleCount], sampleCount, iSequence);
+                break;
+            default:
                 assert("Unknown sample mode specified");
         }
     }

@@ -36,20 +36,20 @@ public:
 
     void destroy();
 
-	bool valid() const { return m_indexBuffers.size() > 0; }
+    bool valid() const { return m_indexBuffers.size() > 0; }
 
-	const std::vector<std::shared_ptr<Material>>& materials() const { return m_materials;  }
+    const std::vector<std::shared_ptr<Material>>& materials() const { return m_materials;  }
 
 private:
     std::vector<std::shared_ptr<openrl::Buffer>> m_vertexBuffers;
     std::vector<std::shared_ptr<openrl::Buffer>> m_indexBuffers;
 
     struct Submesh {
-		std::shared_ptr<openrl::Primitive> primitive = nullptr;
-		size_t elementCount = 0;
-		size_t offset = 0;
-		RLenum mode = 0;
-		std::shared_ptr<Material> material = nullptr;
+        std::shared_ptr<openrl::Primitive> primitive = nullptr;
+        size_t elementCount = 0;
+        size_t offset = 0;
+        RLenum mode = 0;
+        std::shared_ptr<Material> material = nullptr;
     };
 
     std::vector<Submesh> m_submeshes;

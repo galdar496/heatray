@@ -28,7 +28,7 @@ public:
     /// @param size Size to create the buffer (in bytes).
     inline void create(RLint size)
     {
-		m_buffer = openrl::Buffer::create(RL_PIXEL_PACK_BUFFER, nullptr, size, "Pixel data");
+        m_buffer = openrl::Buffer::create(RL_PIXEL_PACK_BUFFER, nullptr, size, "Pixel data");
         m_size = size;
     }
 

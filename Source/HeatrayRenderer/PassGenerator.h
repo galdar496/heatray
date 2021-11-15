@@ -52,33 +52,33 @@ public:
 
         bool resetInternalState = true; 
         uint32_t maxRenderPasses = 32;
-		uint32_t maxRayDepth = 10;
+        uint32_t maxRayDepth = 10;
 
-		std::string scene;
+        std::string scene;
 
-		struct Environment {
-			std::string map;
-			bool builtInMap = true;
-			float exposureCompensation = 0.0f;
-			float thetaRotation = 0.0f; // Extra rotation to apply to the environment map.
-		} environment;
+        struct Environment {
+            std::string map;
+            bool builtInMap = true;
+            float exposureCompensation = 0.0f;
+            float thetaRotation = 0.0f; // Extra rotation to apply to the environment map.
+        } environment;
 
         struct Camera {
-			static constexpr size_t NUM_FSTOPS = 12;
-			static constexpr float fstopOptions[NUM_FSTOPS] = {
-				std::numeric_limits<float>::max(), 32.0f, 22.0f, 16.0f, 11.0f, 8.0f, 5.6f, 4.0f, 2.8f, 2.0f, 1.4f, 1.0f
-			};
+            static constexpr size_t NUM_FSTOPS = 12;
+            static constexpr float fstopOptions[NUM_FSTOPS] = {
+                std::numeric_limits<float>::max(), 32.0f, 22.0f, 16.0f, 11.0f, 8.0f, 5.6f, 4.0f, 2.8f, 2.0f, 1.4f, 1.0f
+            };
 
             float aspectRatio    = -1.0f;  ///< Width / height.
             float focusDistance  = 1.0f;   ///< In meters.
             float focalLength    = 50.0f;  ///< In millimeters.
             float apertureRadius = 0.0f;   ///< In meters (should not be set manually!).
-			float fstop			 = fstopOptions[1];
+            float fstop			 = fstopOptions[1];
             glm::mat4 viewMatrix = glm::mat4(1.0f);
 
-			void setApertureRadius() {
-				apertureRadius = (focalLength / fstop) / 1000.0f; // Value is in meters.
-			}
+            void setApertureRadius() {
+                apertureRadius = (focalLength / fstop) / 1000.0f; // Value is in meters.
+            }
         } camera;
 
         enum class SampleMode {
@@ -86,13 +86,13 @@ public:
             kHalton,     ///< Perform sampling using a Halton sequence.
             kHammersley, ///< Perform sampling using a Hammersley sequence.
             kBlueNoise,
-			kSobol
+            kSobol
         };
 
         SampleMode sampleMode = SampleMode::kSobol;
 
         enum class BokehShape {
-			kCircular,
+            kCircular,
             kPentagon,
             kHexagon,
             kOctagon
@@ -100,24 +100,24 @@ public:
 
         BokehShape bokehShape = BokehShape::kCircular;
 
-		enum class DebugVisualizationMode {
-			kNone,
-			kGeometricNormals,
-			kUVs,
-			kTangents,
-			kBitangents,
-			kNormalmap,
-			kFinalNormals,
-			kBaseColor,
-			kRoughness,
-			kMetallic,
-			kEmissive,
-			kClearcoat,
-			kClearcoatRoughness,
-			kClearcoatNormalmap
-		};
+        enum class DebugVisualizationMode {
+            kNone,
+            kGeometricNormals,
+            kUVs,
+            kTangents,
+            kBitangents,
+            kNormalmap,
+            kFinalNormals,
+            kBaseColor,
+            kRoughness,
+            kMetallic,
+            kEmissive,
+            kClearcoat,
+            kClearcoatRoughness,
+            kClearcoatNormalmap
+        };
 
-		DebugVisualizationMode debugVisMode = DebugVisualizationMode::kNone;
+        DebugVisualizationMode debugVisMode = DebugVisualizationMode::kNone;
     };
     
     ///
@@ -139,18 +139,18 @@ public:
 
 
     using LoadSceneCallback = std::function<void(std::vector<RLMesh> &sceneData, RLMesh::SetupSystemBindingsCallback systemSetupCallback)>;
-	void loadScene(LoadSceneCallback callback, bool clearOldScene = true);
+    void loadScene(LoadSceneCallback callback, bool clearOldScene = true);
 
-	///
-	/// Run a general OpenRL task. This can be useful for things that need to happen on the OpenRL thread
-	/// but don't need a dedicated job.
-	///
-	using OpenRLTask = std::function<void()>;
-	void runOpenRLTask(OpenRLTask task);
+    ///
+    /// Run a general OpenRL task. This can be useful for things that need to happen on the OpenRL thread
+    /// but don't need a dedicated job.
+    ///
+    using OpenRLTask = std::function<void()>;
+    void runOpenRLTask(OpenRLTask task);
 
     static constexpr RLint kNumRandomSequences = 16;
 
-	const std::vector<RLMesh>& sceneData() const { return m_sceneData;  }
+    const std::vector<RLMesh>& sceneData() const { return m_sceneData;  }
     
 private:
     
@@ -173,14 +173,14 @@ private:
     OpenRLContext m_rlContext = nullptr;
 
     std::shared_ptr<openrl::Framebuffer> m_fbo = nullptr;          ///< Framebuffer object used for rendering to.
-	std::shared_ptr <openrl::Texture>    m_fboTexture = nullptr;   ///< Color buffer attached to the main framebuffer object.
+    std::shared_ptr <openrl::Texture>    m_fboTexture = nullptr;   ///< Color buffer attached to the main framebuffer object.
 
-	std::shared_ptr <openrl::Program> m_frameProgram = nullptr; ///< Current frame program used for generating primary rays.
+    std::shared_ptr <openrl::Program> m_frameProgram = nullptr; ///< Current frame program used for generating primary rays.
 
     openrl::PixelPackBuffer m_resultPixels;
 
-	std::shared_ptr<EnvironmentLight> m_environmentLight = nullptr;
-	std::shared_ptr<SceneLighting> m_sceneLighting = nullptr;
+    std::shared_ptr<EnvironmentLight> m_environmentLight = nullptr;
+    std::shared_ptr<SceneLighting> m_sceneLighting = nullptr;
 
     PassCompleteCallback m_passCompleteCallback;
     LoadSceneCallback m_loadSceneCallback;
@@ -192,7 +192,7 @@ private:
         kRenderPass,
         kLoadScene,
         kDestroy,
-		kGeneralTask
+        kGeneralTask
     };
 
     struct Job {
@@ -208,41 +208,41 @@ private:
         RLint height = -1;
     };
 
-	util::AsyncTaskQueue<Job> m_jobProcessor; ///< Used to process all jobs on the render thread.
+    util::AsyncTaskQueue<Job> m_jobProcessor; ///< Used to process all jobs on the render thread.
 
     RenderOptions m_renderOptions;
 
     glm::ivec2 m_currentBlockPixelSample = glm::ivec2(0, 0);
 
-	std::shared_ptr<openrl::Buffer>  m_randomSequences = nullptr;
-	std::shared_ptr<openrl::Texture> m_randomSequenceTexture = nullptr; ///< Series of random sequences stored in a 2D texture. Each row of the texture is a different sequence.
-	std::shared_ptr<openrl::Texture> m_apertureSamplesTexture = nullptr; ///< Randomly generated values to use while sampling the aperture for depth of field.
+    std::shared_ptr<openrl::Buffer>  m_randomSequences = nullptr;
+    std::shared_ptr<openrl::Texture> m_randomSequenceTexture = nullptr; ///< Series of random sequences stored in a 2D texture. Each row of the texture is a different sequence.
+    std::shared_ptr<openrl::Texture> m_apertureSamplesTexture = nullptr; ///< Randomly generated values to use while sampling the aperture for depth of field.
 
     struct GlobalData {
         int maxRayDepth = 5;
         int sampleIndex = 0;
 
-		// Debugging.
-		int enableDebugVisualizer = 0;
-		int showGeometricNormals = 0;
-		int showUVs = 0;
-		int showTangents = 0;
-		int showBitangents = 0;
-		int showNormalmap = 0;
-		int showFinalNormals = 0;
-		int showBaseColor = 0;
-		int showRoughness = 0;
-		int showMetallic = 0;
-		int showEmissive = 0;
-		int showClearcoat = 0;
-		int showClearcoatRoughness = 0;
-		int showClearcoatNormalmap = 0;
+        // Debugging.
+        int enableDebugVisualizer = 0;
+        int showGeometricNormals = 0;
+        int showUVs = 0;
+        int showTangents = 0;
+        int showBitangents = 0;
+        int showNormalmap = 0;
+        int showFinalNormals = 0;
+        int showBaseColor = 0;
+        int showRoughness = 0;
+        int showMetallic = 0;
+        int showEmissive = 0;
+        int showClearcoat = 0;
+        int showClearcoatRoughness = 0;
+        int showClearcoatNormalmap = 0;
     };
-	std::shared_ptr<openrl::Buffer> m_globalData = nullptr;
+    std::shared_ptr<openrl::Buffer> m_globalData = nullptr;
 
-	std::vector<RLMesh> m_sceneData;
+    std::vector<RLMesh> m_sceneData;
 
-	// 2D pixel coordinates used when determine which pixel within a block
-	// should sample when in interactive mode.
-	std::shared_ptr<openrl::Texture> m_interactiveBlockCoordsTexture = nullptr;
+    // 2D pixel coordinates used when determine which pixel within a block
+    // should sample when in interactive mode.
+    std::shared_ptr<openrl::Texture> m_interactiveBlockCoordsTexture = nullptr;
 };

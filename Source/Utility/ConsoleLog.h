@@ -14,18 +14,18 @@ namespace util {
  
 class ConsoleLog final : public Log {
 public:
-	virtual ~ConsoleLog() = default;
+    virtual ~ConsoleLog() = default;
 
-	static void install() {
-		ConsoleLog* log = new ConsoleLog();
-		std::shared_ptr<ConsoleLog> newLog(log);
-		Log::setInstance(newLog);
-	}
+    static void install() {
+        ConsoleLog* log = new ConsoleLog();
+        std::shared_ptr<ConsoleLog> newLog(log);
+        Log::setInstance(newLog);
+    }
 
-	void addNewItem(const std::string& item, Log::Type type) override;
+    void addNewItem(const std::string& item, Log::Type type) override;
 
 private:
-	ConsoleLog() = default;
+    ConsoleLog() = default;
 };
 
 }  // namespace util.

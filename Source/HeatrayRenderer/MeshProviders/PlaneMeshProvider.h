@@ -31,10 +31,10 @@ public:
     size_t GetVertexBufferCount() override { return 3; }
     size_t GetVertexBufferSize(size_t bufferIndex) override
     {
-		// Positions/normals/UVs.
+        // Positions/normals/UVs.
         constexpr size_t componentCounts[3] = { 3, 3, 2 };
 
-		// Plane is made up of 4 vertices.
+        // Plane is made up of 4 vertices.
         return 4 * componentCounts[bufferIndex] * sizeof(float);
     }
     void FillVertexBuffer(size_t bufferIndex, uint8_t* buffer) override
@@ -42,14 +42,14 @@ public:
         assert(buffer);
         float* floatPtr = reinterpret_cast<float*>(buffer);
         switch (bufferIndex) {
-			case kPositions: // Positions.
+            case kPositions: // Positions.
             {
                 glm::vec3 scale(m_width * 0.5f, 0.0f, m_length * 0.5f);
                 glm::vec3 vertices[4] = { glm::vec3(-1.0f, 0.0f,  1.0f) * scale,
                                           glm::vec3( 1.0f, 0.0f,  1.0f) * scale,
                                           glm::vec3( 1.0f, 0.0f, -1.0f) * scale,
                                           glm::vec3(-1.0f, 0.0f, -1.0f) * scale 
-										};
+                                        };
 
                 
                 memcpy(floatPtr, &vertices[0].x, GetVertexBufferSize(0));
@@ -61,7 +61,7 @@ public:
                                          glm::vec3(0.0f, 1.0f, 0.0f),
                                          glm::vec3(0.0f, 1.0f, 0.0f),
                                          glm::vec3(0.0f, 1.0f, 0.0f)
-									   };
+                                       };
                 memcpy(floatPtr, &normals[0].x, GetVertexBufferSize(1));
                 break;
             }
@@ -71,7 +71,7 @@ public:
                                      glm::vec2( 1.0f, -1.0f),
                                      glm::vec2( 1.0f,  1.0f),
                                      glm::vec2(-1.0f,  1.0f)
-								   };
+                                   };
                 memcpy(floatPtr, &uvs[0].x, GetVertexBufferSize(2));
                 break;
             }
@@ -88,7 +88,7 @@ public:
     void FillIndexBuffer(size_t bufferIndex, uint8_t* buffer) override
     {
         assert(buffer);
-		// All buffers use the same layout.
+        // All buffers use the same layout.
         int indices[4] = { 0, 1, 3, 2 };
         int* intPtr = reinterpret_cast<int*>(buffer);
         memcpy(intPtr, indices, GetIndexBufferSize(bufferIndex));

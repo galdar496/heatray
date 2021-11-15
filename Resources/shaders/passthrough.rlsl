@@ -10,5 +10,5 @@ attribute vec3 positionAttribute;
 
 void main()
 {
-	rl_Position = vec4(positionAttribute, 1.0);
+    rl_Position = vec4(positionAttribute, 1.0);
 }

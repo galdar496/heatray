@@ -27,12 +27,12 @@ if (WIN32)
   )
   add_custom_command(TARGET Heatray POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-	  "${PROJECT_SOURCE_DIR}/3rdParty/glew/glew32.dll"
-	  "${PROJECT_SOURCE_DIR}/3rdParty/GLFW/glfw3.dll"
-	  "${PROJECT_SOURCE_DIR}/3rdParty/OpenRL/OpenRL.dll"
-	  "${PROJECT_SOURCE_DIR}/3rdParty/OpenRL/OpenRL_pthread.dll"
-	  "${PROJECT_SOURCE_DIR}/3rdParty/OpenRL/CausticGLUT.dll"
-	  "${PROJECT_SOURCE_DIR}/3rdParty/FreeImage/FreeImage.dll"
+      "${PROJECT_SOURCE_DIR}/3rdParty/glew/glew32.dll"
+      "${PROJECT_SOURCE_DIR}/3rdParty/GLFW/glfw3.dll"
+      "${PROJECT_SOURCE_DIR}/3rdParty/OpenRL/OpenRL.dll"
+      "${PROJECT_SOURCE_DIR}/3rdParty/OpenRL/OpenRL_pthread.dll"
+      "${PROJECT_SOURCE_DIR}/3rdParty/OpenRL/CausticGLUT.dll"
+      "${PROJECT_SOURCE_DIR}/3rdParty/FreeImage/FreeImage.dll"
       ${CMAKE_CURRENT_BINARY_DIR}
   )
 endif()

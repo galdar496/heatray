@@ -25,39 +25,39 @@ class Texture;
 class EnvironmentLight
 {
 public:
-	explicit EnvironmentLight(std::shared_ptr<openrl::Buffer> lightBuffer);
-	~EnvironmentLight() = default;
+    explicit EnvironmentLight(std::shared_ptr<openrl::Buffer> lightBuffer);
+    ~EnvironmentLight() = default;
 
-	///
-	/// Alter the source of the environment light. Any primitive bindings
-	/// etc will still be valid after this function executes.
-	///
-	void changeImageSource(const char* path, bool builtInMap);
+    ///
+    /// Alter the source of the environment light. Any primitive bindings
+    /// etc will still be valid after this function executes.
+    ///
+    void changeImageSource(const char* path, bool builtInMap);
 
-	///
-	/// Switches the internal image data to be a constant bright grey
-	/// in order to enable a white furnace test for BRDF testing.
-	///
-	void enableWhiteFurnaceTest();
+    ///
+    /// Switches the internal image data to be a constant bright grey
+    /// in order to enable a white furnace test for BRDF testing.
+    ///
+    void enableWhiteFurnaceTest();
 
-	void rotate(const float theta_radians);
-	void setExposure(const float exposureCompensation);
+    void rotate(const float theta_radians);
+    void setExposure(const float exposureCompensation);
 
-	///
-	/// Copy to the light buffer that represents the environment light
-	/// in a scene.
-	///
-	void copyToLightBuffer(EnvironmentLightBuffer* buffer);
+    ///
+    /// Copy to the light buffer that represents the environment light
+    /// in a scene.
+    ///
+    void copyToLightBuffer(EnvironmentLightBuffer* buffer);
 
-	std::shared_ptr<openrl::Program> program() const { return m_program; }
-	std::shared_ptr<openrl::Primitive> primitive() const { return m_primitive; }
+    std::shared_ptr<openrl::Program> program() const { return m_program; }
+    std::shared_ptr<openrl::Primitive> primitive() const { return m_primitive; }
 private:
-	std::shared_ptr<openrl::Primitive> m_primitive = nullptr;
-	std::shared_ptr<openrl::Texture> m_texture = nullptr;
-	std::shared_ptr<openrl::Program> m_program = nullptr;
+    std::shared_ptr<openrl::Primitive> m_primitive = nullptr;
+    std::shared_ptr<openrl::Texture> m_texture = nullptr;
+    std::shared_ptr<openrl::Program> m_program = nullptr;
 
-	float m_exposureCompensation = 0.0f;
-	float m_thetaRotation = 0.0f;
+    float m_exposureCompensation = 0.0f;
+    float m_thetaRotation = 0.0f;
 
-	std::string m_textureSourcePath;
+    std::string m_textureSourcePath;
 };

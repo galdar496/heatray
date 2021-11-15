@@ -169,8 +169,8 @@ public:
     }
 
 private:
-	int uSlices = 0;
-	int vSlices = 0;
+    int uSlices = 0;
+    int vSlices = 0;
     float radius = 0.0f;
-	size_t vertexCount = 0;
+    size_t vertexCount = 0;
 };

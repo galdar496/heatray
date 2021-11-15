@@ -35,7 +35,7 @@ public:
     {
         m_totalPasses = m_renderOptions.maxRenderPasses * (m_renderOptions.enableInteractiveMode ? (m_renderOptions.kInteractiveBlockSize.x * m_renderOptions.kInteractiveBlockSize.y) : 1);
     }
-	~HeatrayRenderer() = default;
+    ~HeatrayRenderer() = default;
 
     struct WindowParams
     {
@@ -47,11 +47,11 @@ public:
     void destroy();
     void resize(const GLint newWidth, const GLint newHeight);
     void changeScene(std::string const & sceneName, bool moveCamera);
-	void changeEnvironment(std::string const& envMapPath);
+    void changeEnvironment(std::string const& envMapPath);
     void render();
-	void adjustCamera(const float phi_delta, const float theta_delta, const float distance_delta);
+    void adjustCamera(const float phi_delta, const float theta_delta, const float distance_delta);
 
-	static constexpr size_t UI_WINDOW_WIDTH = 500;
+    static constexpr size_t UI_WINDOW_WIDTH = 500;
 
 private:
     // This class is NOT copyable (move is ok).
@@ -64,87 +64,87 @@ private:
     void resetRenderer();
     void saveScreenshot();
 
-	void writeSessionFile(const std::string& filename);
-	void readSessionFile(const std::string& filename);
+    void writeSessionFile(const std::string& filename);
+    void readSessionFile(const std::string& filename);
 
-	struct PostProcessingParams {
-		bool tonemapping_enabled = false;
-		float exposure = 0.0f;
-		float brightness = 0.0f;
-		float contrast = 0.0f;
-		float hue = 1.0f;
-		float saturation = 1.0f;
-		float vibrance = 0.0f;
-		float red = 1.0f;
-		float green = 1.0f;
-		float blue = 1.0f;
-	} m_post_processing_params;
+    struct PostProcessingParams {
+        bool tonemapping_enabled = false;
+        float exposure = 0.0f;
+        float brightness = 0.0f;
+        float contrast = 0.0f;
+        float hue = 1.0f;
+        float saturation = 1.0f;
+        float vibrance = 0.0f;
+        float red = 1.0f;
+        float green = 1.0f;
+        float blue = 1.0f;
+    } m_post_processing_params;
 
     /// Object which handles final display of the raytraced pixels via a custom fragment shader.
     struct DisplayProgram
     {
         GLuint program = 0;
         GLuint fragShader = 0;
-		GLuint vertexShader = 0;
+        GLuint vertexShader = 0;
 
-		GLuint vbo = 0;
-		GLuint vao = 0;
+        GLuint vbo = 0;
+        GLuint vao = 0;
 
         GLint displayTextureLocation = -1;
         GLint tonemappingEnabledLocation = -1;
         GLint cameraExposureLocation = -1;
-		GLint brightnessLocation = -1;
-		GLint contrastLocation = -1;
-		GLint hueLocation = -1;
-		GLint saturationLocation = -1;
-		GLint vibranceLocation = -1;
-		GLint redLocation = -1;
-		GLint greenLocation = -1;
-		GLint blueLocation = -1;
-		GLint xStartLocation = -1;
+        GLint brightnessLocation = -1;
+        GLint contrastLocation = -1;
+        GLint hueLocation = -1;
+        GLint saturationLocation = -1;
+        GLint vibranceLocation = -1;
+        GLint redLocation = -1;
+        GLint greenLocation = -1;
+        GLint blueLocation = -1;
+        GLint xStartLocation = -1;
 
         void init()
         {
-			GLint success = 0;
-			{
-				fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-				std::string shaderSource;
-				util::readTextFile("Resources/Shaders/displayGL.frag", shaderSource);
-				const char* source = shaderSource.c_str();
-				glShaderSource(fragShader, 1, &source, nullptr);
-				glCompileShader(fragShader);
-				glGetShaderiv(fragShader, GL_COMPILE_STATUS, &success);
-				if (success != GL_TRUE) {
-					GLsizei log_length = 0;
-					GLchar  log[1024];
-					glGetShaderInfoLog(fragShader, sizeof(log), &log_length, log);
-					LOG_ERROR("Unable to compile display frag shader: \n\t%s", log);
-				}
-				assert(success == GL_TRUE);
-			}
+            GLint success = 0;
+            {
+                fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+                std::string shaderSource;
+                util::readTextFile("Resources/Shaders/displayGL.frag", shaderSource);
+                const char* source = shaderSource.c_str();
+                glShaderSource(fragShader, 1, &source, nullptr);
+                glCompileShader(fragShader);
+                glGetShaderiv(fragShader, GL_COMPILE_STATUS, &success);
+                if (success != GL_TRUE) {
+                    GLsizei log_length = 0;
+                    GLchar  log[1024];
+                    glGetShaderInfoLog(fragShader, sizeof(log), &log_length, log);
+                    LOG_ERROR("Unable to compile display frag shader: \n\t%s", log);
+                }
+                assert(success == GL_TRUE);
+            }
 
-			{
-				vertexShader = glCreateShader(GL_VERTEX_SHADER);
-				std::string shaderSource;
-				util::readTextFile("Resources/Shaders/displayGL.vert", shaderSource);
-				const char* source = shaderSource.c_str();
-				glShaderSource(vertexShader, 1, &source, nullptr);
-				glCompileShader(vertexShader);
-				success = 0;
-				glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-				if (success != GL_TRUE) {
-					GLsizei log_length = 0;
-					GLchar  log[1024];
-					glGetShaderInfoLog(vertexShader, sizeof(log), &log_length, log);
-					LOG_ERROR("Unable to compile display vertex shader: \n\t%s", log);
-				}
-				assert(success == GL_TRUE);
-			}
+            {
+                vertexShader = glCreateShader(GL_VERTEX_SHADER);
+                std::string shaderSource;
+                util::readTextFile("Resources/Shaders/displayGL.vert", shaderSource);
+                const char* source = shaderSource.c_str();
+                glShaderSource(vertexShader, 1, &source, nullptr);
+                glCompileShader(vertexShader);
+                success = 0;
+                glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+                if (success != GL_TRUE) {
+                    GLsizei log_length = 0;
+                    GLchar  log[1024];
+                    glGetShaderInfoLog(vertexShader, sizeof(log), &log_length, log);
+                    LOG_ERROR("Unable to compile display vertex shader: \n\t%s", log);
+                }
+                assert(success == GL_TRUE);
+            }
 
             // Create the display program.
             program = glCreateProgram();
             glAttachShader(program, fragShader);
-			glAttachShader(program, vertexShader);
+            glAttachShader(program, vertexShader);
             glLinkProgram(program);
             glGetProgramiv(program, GL_LINK_STATUS, &success);
             assert(success == GL_TRUE);
@@ -153,65 +153,65 @@ private:
             displayTextureLocation = glGetUniformLocation(program, "raytracedTexture");
             tonemappingEnabledLocation = glGetUniformLocation(program, "tonemappingEnabled");
             cameraExposureLocation = glGetUniformLocation(program, "cameraExposure");
-			brightnessLocation = glGetUniformLocation(program, "brightness");
-			contrastLocation = glGetUniformLocation(program, "contrast");
-			hueLocation = glGetUniformLocation(program, "hue");
-			saturationLocation = glGetUniformLocation(program, "saturation");
-			vibranceLocation = glGetUniformLocation(program, "vibrance");
-			redLocation = glGetUniformLocation(program, "red");
-			greenLocation = glGetUniformLocation(program, "green");
-			blueLocation = glGetUniformLocation(program, "blue");
-			xStartLocation = glGetUniformLocation(program, "xStart");
+            brightnessLocation = glGetUniformLocation(program, "brightness");
+            contrastLocation = glGetUniformLocation(program, "contrast");
+            hueLocation = glGetUniformLocation(program, "hue");
+            saturationLocation = glGetUniformLocation(program, "saturation");
+            vibranceLocation = glGetUniformLocation(program, "vibrance");
+            redLocation = glGetUniformLocation(program, "red");
+            greenLocation = glGetUniformLocation(program, "green");
+            blueLocation = glGetUniformLocation(program, "blue");
+            xStartLocation = glGetUniformLocation(program, "xStart");
 
-			// Create the display VBO.
-			{
-				// NOTE: we create a empty VBO because the vertices are figured out in-shader.
-				glGenVertexArrays(1, &vao);
-				glBindVertexArray(vao);
+            // Create the display VBO.
+            {
+                // NOTE: we create a empty VBO because the vertices are figured out in-shader.
+                glGenVertexArrays(1, &vao);
+                glBindVertexArray(vao);
 
-				glGenBuffers(1, &vbo);
-				glBindBuffer(GL_ARRAY_BUFFER, vbo);
-				glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 4, nullptr, GL_STATIC_DRAW);
+                glGenBuffers(1, &vbo);
+                glBindBuffer(GL_ARRAY_BUFFER, vbo);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 4, nullptr, GL_STATIC_DRAW);
 
-				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 0, 0);
+                glEnableVertexAttribArray(0);
+                glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 0, 0);
 
-				glBindVertexArray(0);
-			}
+                glBindVertexArray(0);
+            }
         }
 
         /// @param texture Location of the texture to use for the shader.
-		void bind(GLint texture, const PostProcessingParams& post_params, size_t windowWidth) const
+        void bind(GLint texture, const PostProcessingParams& post_params, size_t windowWidth) const
         {
             glUseProgram(program);
 
-			// Vertex
-			{
-				// Shift the screen quad to account for the UI.
-				float start = ((float(UI_WINDOW_WIDTH) / float(windowWidth)) * 2.0f) - 1.0f;
-				glUniform1f(xStartLocation, start);
-			}
+            // Vertex
+            {
+                // Shift the screen quad to account for the UI.
+                float start = ((float(UI_WINDOW_WIDTH) / float(windowWidth)) * 2.0f) - 1.0f;
+                glUniform1f(xStartLocation, start);
+            }
 
-			// Fragment
-			{
-				glUniform1i(displayTextureLocation, texture);
-				glUniform1i(tonemappingEnabledLocation, post_params.tonemapping_enabled ? 1 : 0);
-				glUniform1f(cameraExposureLocation, std::powf(2.0, post_params.exposure));
-				glUniform1f(brightnessLocation, post_params.brightness);
-				glUniform1f(hueLocation, post_params.hue);
-				glUniform1f(saturationLocation, post_params.saturation);
-				glUniform1f(vibranceLocation, post_params.vibrance);
-				glUniform1f(redLocation, post_params.red);
-				glUniform1f(greenLocation, post_params.green);
-				glUniform1f(blueLocation, post_params.blue);
+            // Fragment
+            {
+                glUniform1i(displayTextureLocation, texture);
+                glUniform1i(tonemappingEnabledLocation, post_params.tonemapping_enabled ? 1 : 0);
+                glUniform1f(cameraExposureLocation, std::powf(2.0, post_params.exposure));
+                glUniform1f(brightnessLocation, post_params.brightness);
+                glUniform1f(hueLocation, post_params.hue);
+                glUniform1f(saturationLocation, post_params.saturation);
+                glUniform1f(vibranceLocation, post_params.vibrance);
+                glUniform1f(redLocation, post_params.red);
+                glUniform1f(greenLocation, post_params.green);
+                glUniform1f(blueLocation, post_params.blue);
 
-				{
-					// Contrast needs to be properly remapped before being used by the shader.
-					float integer_contrast = post_params.contrast * 255.0f;
-					float contrast = (259.0f * (integer_contrast + 255.0f)) / (255.0f * (259.0f - integer_contrast));
-					glUniform1f(contrastLocation, contrast);
-				}
-			}
+                {
+                    // Contrast needs to be properly remapped before being used by the shader.
+                    float integer_contrast = post_params.contrast * 255.0f;
+                    float contrast = (259.0f * (integer_contrast + 255.0f)) / (255.0f * (259.0f - integer_contrast));
+                    glUniform1f(contrastLocation, contrast);
+                }
+            }
         }
 
         void unbind() const
@@ -219,16 +219,16 @@ private:
             glUseProgram(0);
         }
 
-		void draw(GLint texture, const PostProcessingParams& post_params, size_t windowWidth) const
-		{
-			bind(texture, post_params, windowWidth);
+        void draw(GLint texture, const PostProcessingParams& post_params, size_t windowWidth) const
+        {
+            bind(texture, post_params, windowWidth);
 
-			glBindVertexArray(vao);
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-			glBindVertexArray(0);
-	
-			unbind();
-		}
+            glBindVertexArray(vao);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            glBindVertexArray(0);
+    
+            unbind();
+        }
     };
 
     PassGenerator m_renderer; ///< Generator of pathtraced frames.
@@ -239,7 +239,7 @@ private:
     DisplayProgram m_displayProgram; ///< Used to display the final pixels to the screen.
 
     WindowParams m_windowParams; ///< Current size of the display window.
-	WindowParams m_renderWindowParams; ///< Current size of the rendering window.
+    WindowParams m_renderWindowParams; ///< Current size of the rendering window.
 
     std::atomic<bool> m_shouldCopyPixels = false;   ///< If true, a new frame is available from the FrameGenerator. 
     std::atomic<const float*> m_pathracedPixels = nullptr;  ///< Result of the pathtracer.
@@ -263,42 +263,42 @@ private:
     bool m_visualizeSequenceData = false;
     std::vector<glm::vec3> m_sequenceVisualizationData;
 
-	enum class SceneUnits {
-		kMeters, // Heatray default.
-		kCentimeters
-	};
-	SceneUnits m_scene_units = SceneUnits::kMeters;
+    enum class SceneUnits {
+        kMeters, // Heatray default.
+        kCentimeters
+    };
+    SceneUnits m_scene_units = SceneUnits::kMeters;
 
     bool m_swapYZ = false;
 
     float m_currentPassTime = 0.0f;
     float m_totalRenderTime = 0.0f;
 
-	std::string m_screenshotPath;
+    std::string m_screenshotPath;
     bool m_hdrScreenshot = false;
     bool m_shouldSaveScreenshot = false;
 
-	util::AABB m_sceneAABB;
+    util::AABB m_sceneAABB;
 
-	struct GroundPlane {
-		void reset() {
-			if (mesh.valid()) {
-				material.reset();
-				mesh.destroy();
-			}
-		}
+    struct GroundPlane {
+        void reset() {
+            if (mesh.valid()) {
+                material.reset();
+                mesh.destroy();
+            }
+        }
 
-		RLMesh mesh;
-		std::shared_ptr<Material> material = nullptr;
-	} m_groundPlane;
+        RLMesh mesh;
+        std::shared_ptr<Material> material = nullptr;
+    } m_groundPlane;
 
-	bool m_cameraUpdated = false;
-	float m_distanceScale = 1.0f;
+    bool m_cameraUpdated = false;
+    float m_distanceScale = 1.0f;
 
-	struct EditableMaterialScene {
-		std::shared_ptr<Material> material = nullptr;
-		bool active = false;
-	} m_editableMaterialScene;
+    struct EditableMaterialScene {
+        std::shared_ptr<Material> material = nullptr;
+        bool active = false;
+    } m_editableMaterialScene;
 
-	void renderMaterialEditor(std::shared_ptr<Material> material);
+    void renderMaterialEditor(std::shared_ptr<Material> material);
 };

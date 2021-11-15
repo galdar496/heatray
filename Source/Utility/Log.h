@@ -19,30 +19,30 @@ namespace util {
  
 class Log {
 public:
-	virtual ~Log() = default;
+    virtual ~Log() = default;
 
-	static std::shared_ptr<Log> instance() { return m_instance;  }
+    static std::shared_ptr<Log> instance() { return m_instance;  }
 
-	enum class Type {
-		kInfo,
-		kError,
+    enum class Type {
+        kInfo,
+        kError,
 
-		kCount
-	};
-	void log(Type type, const char* format, ...) {
-		va_list args;
+        kCount
+    };
+    void log(Type type, const char* format, ...) {
+        va_list args;
         va_start(args, format);
         std::string formattedString = util::createStringWithFormat(format, args);
         va_end(args);
 
-		m_instance->addNewItem(formattedString, type);
-	}
+        m_instance->addNewItem(formattedString, type);
+    }
 protected:
-	Log() = default;
-	static void setInstance(std::shared_ptr<Log> instance) { m_instance = instance;  }
-	virtual void addNewItem(const std::string& item, Type type) = 0;
+    Log() = default;
+    static void setInstance(std::shared_ptr<Log> instance) { m_instance = instance;  }
+    virtual void addNewItem(const std::string& item, Type type) = 0;
 private:
-	static std::shared_ptr<Log> m_instance;
+    static std::shared_ptr<Log> m_instance;
 };
 
 }  // namespace util.

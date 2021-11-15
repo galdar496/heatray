@@ -14,7 +14,7 @@ std::vector<std::string> OpenFileDialog(const std::string& extension)
     ofn.lpstrFile = path;
     path[0] = '\0';
     ofn.nMaxFile = sizeof(path) / sizeof(path[0]);
-	ofn.lpstrFilter = "*.*\0\0";// ("*." + extension).c_str();
+    ofn.lpstrFilter = "*.*\0\0";// ("*." + extension).c_str();
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT;
 
     if (GetOpenFileNameA(&ofn)) {
@@ -28,24 +28,24 @@ std::vector<std::string> OpenFileDialog(const std::string& extension)
 
 std::vector<std::string> SaveFileDialog(const std::string &extension)
 {
-	char path[512];
+    char path[512];
 
-	OPENFILENAMEA ofn;
-	ZeroMemory(&ofn, sizeof(ofn));
-	ofn.lStructSize = sizeof(ofn);
-	ofn.lpstrFile = path;
-	path[0] = '\0';
-	ofn.nMaxFile = sizeof(path) / sizeof(path[0]);
-	ofn.lpstrFilter = ("*." + extension).c_str();
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
+    OPENFILENAMEA ofn;
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.lpstrFile = path;
+    path[0] = '\0';
+    ofn.nMaxFile = sizeof(path) / sizeof(path[0]);
+    ofn.lpstrFilter = ("*." + extension).c_str();
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
 
-	if (GetSaveFileNameA(&ofn)) {
-		std::vector<std::string> retVal;
-		retVal.push_back(path + std::string(".") + extension);
-		return retVal;
-	}
+    if (GetSaveFileNameA(&ofn)) {
+        std::vector<std::string> retVal;
+        retVal.push_back(path + std::string(".") + extension);
+        return retVal;
+    }
 
-	return std::vector<std::string>();
+    return std::vector<std::string>();
 }
 
 } // namespace util

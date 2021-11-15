@@ -18,9 +18,9 @@
 class AssimpLogToCoutStream : public Assimp::LogStream
 {
 public:
-	AssimpLogToCoutStream() {}
-	virtual ~AssimpLogToCoutStream() {}
-	virtual void write(const char* message) { LOG_INFO("Assimp: %s", message); }
+    AssimpLogToCoutStream() {}
+    virtual ~AssimpLogToCoutStream() {}
+    virtual void write(const char* message) { LOG_INFO("Assimp: %s", message); }
 };
 
 AssimpMeshProvider::AssimpMeshProvider(std::string filename, bool convert_to_meters, bool swapYZ)
@@ -41,29 +41,29 @@ void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node,
                                         transform.a2, transform.b2, transform.c2, transform.d2,
                                         transform.a3, transform.b3, transform.c3, transform.d3,
                                         transform.a4, transform.b4, transform.c4, transform.d4);
-		if (convert_to_meters) {
-			// Centimeters to meters.
-			(*submeshTransform)[3][0] *= 0.01f;
-			(*submeshTransform)[3][1] *= 0.01f;
-			(*submeshTransform)[3][2] *= 0.01f;
-		}
+        if (convert_to_meters) {
+            // Centimeters to meters.
+            (*submeshTransform)[3][0] *= 0.01f;
+            (*submeshTransform)[3][1] *= 0.01f;
+            (*submeshTransform)[3][2] *= 0.01f;
+        }
 
-		// Determine the transformed AABB for this node in order to calculate the final scene AABB.
-		{
-			aiAABB node_aabb = scene->mMeshes[node->mMeshes[ii]]->mAABB;
-			glm::vec4 aabb_min = glm::vec4(node_aabb.mMin.x, node_aabb.mMin.y, node_aabb.mMin.z, 1.0f);
-			glm::vec4 aabb_max = glm::vec4(node_aabb.mMax.x, node_aabb.mMax.y, node_aabb.mMax.z, 1.0f);
+        // Determine the transformed AABB for this node in order to calculate the final scene AABB.
+        {
+            aiAABB node_aabb = scene->mMeshes[node->mMeshes[ii]]->mAABB;
+            glm::vec4 aabb_min = glm::vec4(node_aabb.mMin.x, node_aabb.mMin.y, node_aabb.mMin.z, 1.0f);
+            glm::vec4 aabb_max = glm::vec4(node_aabb.mMax.x, node_aabb.mMax.y, node_aabb.mMax.z, 1.0f);
 
-			// HACK! Sometimes there is a scale applied to the transform matrix. If we're doing a conversion to
-			// meters just ignore this for now.
-			glm::mat4x4 transform = *submeshTransform;
-			if (convert_to_meters) {
-				transform = glm::scale(glm::vec3(0.01f)) * transform;
-			}
+            // HACK! Sometimes there is a scale applied to the transform matrix. If we're doing a conversion to
+            // meters just ignore this for now.
+            glm::mat4x4 transform = *submeshTransform;
+            if (convert_to_meters) {
+                transform = glm::scale(glm::vec3(0.01f)) * transform;
+            }
 
-			m_sceneAABB.expand(transform * aabb_min);
-			m_sceneAABB.expand(transform * aabb_max);
-		}
+            m_sceneAABB.expand(transform * aabb_min);
+            m_sceneAABB.expand(transform * aabb_max);
+        }
     }
     
     for (unsigned int ii = 0; ii < node->mNumChildren; ++ii) {
@@ -76,7 +76,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
     Submesh submesh;
 
     if (mesh->HasPositions()) {
-		LOG_INFO("Positions: %u", mesh->mNumVertices);
+        LOG_INFO("Positions: %u", mesh->mNumVertices);
         VertexAttribute & attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
         attribute.usage = VertexAttributeUsage_Position;
         attribute.buffer = m_vertexBuffers.size();
@@ -94,9 +94,9 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
             if (m_swapYZ) {
                 position = glm::vec3(position.x, position.z, -position.y);
             }
-			if (convert_to_meters) {
-				position *= 0.01f; // Centimeters to meters.
-			}
+            if (convert_to_meters) {
+                position *= 0.01f; // Centimeters to meters.
+            }
             vertexBuffer.push_back(position.x);
             vertexBuffer.push_back(position.y);
             vertexBuffer.push_back(position.z);
@@ -105,7 +105,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
         ++submesh.vertexAttributeCount;
     }
     if (mesh->HasNormals()) {
-		LOG_INFO("Normals: %u", mesh->mNumVertices);
+        LOG_INFO("Normals: %u", mesh->mNumVertices);
         VertexAttribute & attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
         attribute.usage = VertexAttributeUsage_Normal;
         attribute.buffer = m_vertexBuffers.size();
@@ -131,7 +131,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
         ++submesh.vertexAttributeCount;
     }
     if (mesh->HasTextureCoords(0)) {
-		LOG_INFO("UVs: %u", mesh->mNumVertices);
+        LOG_INFO("UVs: %u", mesh->mNumVertices);
         size_t positionsByteCount = mesh->mNumVertices * mesh->mNumUVComponents[0] * sizeof(float);
 
         VertexAttribute & attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
@@ -154,65 +154,65 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
 
         ++submesh.vertexAttributeCount;
     }
-	if (mesh->HasTangentsAndBitangents()) {
-		LOG_INFO("Tangents/Bitangents: %u", mesh->mNumVertices);
-		// Tangents.
-		{
-			VertexAttribute& attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
-			attribute.usage = VertexAttributeUsage_Tangents;
-			attribute.buffer = m_vertexBuffers.size();
-			attribute.componentCount = 3;
-			attribute.size = sizeof(float);
-			attribute.offset = 0;
-			attribute.stride = 3 * sizeof(float);
+    if (mesh->HasTangentsAndBitangents()) {
+        LOG_INFO("Tangents/Bitangents: %u", mesh->mNumVertices);
+        // Tangents.
+        {
+            VertexAttribute& attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
+            attribute.usage = VertexAttributeUsage_Tangents;
+            attribute.buffer = m_vertexBuffers.size();
+            attribute.componentCount = 3;
+            attribute.size = sizeof(float);
+            attribute.offset = 0;
+            attribute.stride = 3 * sizeof(float);
 
-			m_vertexBuffers.push_back(std::vector<float>());
-			std::vector<float>& vertexBuffer = m_vertexBuffers.back();
-			vertexBuffer.reserve(mesh->mNumVertices * 3);
+            m_vertexBuffers.push_back(std::vector<float>());
+            std::vector<float>& vertexBuffer = m_vertexBuffers.back();
+            vertexBuffer.reserve(mesh->mNumVertices * 3);
 
-			for (uint32_t iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex) {
-				glm::vec3 tangent(mesh->mTangents[iVertex].x, mesh->mTangents[iVertex].y, mesh->mTangents[iVertex].z);
-				if (m_swapYZ) {
-					tangent = glm::vec3(tangent.x, tangent.z, -tangent.y);
-				}
-				vertexBuffer.push_back(tangent.x);
-				vertexBuffer.push_back(tangent.y);
-				vertexBuffer.push_back(tangent.z);
-			}
+            for (uint32_t iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex) {
+                glm::vec3 tangent(mesh->mTangents[iVertex].x, mesh->mTangents[iVertex].y, mesh->mTangents[iVertex].z);
+                if (m_swapYZ) {
+                    tangent = glm::vec3(tangent.x, tangent.z, -tangent.y);
+                }
+                vertexBuffer.push_back(tangent.x);
+                vertexBuffer.push_back(tangent.y);
+                vertexBuffer.push_back(tangent.z);
+            }
 
-			++submesh.vertexAttributeCount;
-		}
+            ++submesh.vertexAttributeCount;
+        }
 
-		// Bitangents.
-		{
-			VertexAttribute& attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
-			attribute.usage = VertexAttributeUsage_Bitangents;
-			attribute.buffer = m_vertexBuffers.size();
-			attribute.componentCount = 3;
-			attribute.size = sizeof(float);
-			attribute.offset = 0;
-			attribute.stride = 3 * sizeof(float);
+        // Bitangents.
+        {
+            VertexAttribute& attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
+            attribute.usage = VertexAttributeUsage_Bitangents;
+            attribute.buffer = m_vertexBuffers.size();
+            attribute.componentCount = 3;
+            attribute.size = sizeof(float);
+            attribute.offset = 0;
+            attribute.stride = 3 * sizeof(float);
 
-			m_vertexBuffers.push_back(std::vector<float>());
-			std::vector<float>& vertexBuffer = m_vertexBuffers.back();
-			vertexBuffer.reserve(mesh->mNumVertices * 3);
+            m_vertexBuffers.push_back(std::vector<float>());
+            std::vector<float>& vertexBuffer = m_vertexBuffers.back();
+            vertexBuffer.reserve(mesh->mNumVertices * 3);
 
-			for (uint32_t iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex) {
-				// Assimp often gives garbage bitangents, so we calculate our own here.
-				glm::vec3 normal(mesh->mNormals[iVertex].x, mesh->mNormals[iVertex].y, mesh->mNormals[iVertex].z);
-				glm::vec3 tangent(mesh->mTangents[iVertex].x, mesh->mTangents[iVertex].y, mesh->mTangents[iVertex].z);
-				glm::vec3 bitangent = glm::cross(normal, tangent);
-				if (m_swapYZ) {
-					bitangent = glm::vec3(bitangent.x, bitangent.z, -bitangent.y);
-				}
-				vertexBuffer.push_back(bitangent.x);
-				vertexBuffer.push_back(bitangent.y);
-				vertexBuffer.push_back(bitangent.z);
-			}
+            for (uint32_t iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex) {
+                // Assimp often gives garbage bitangents, so we calculate our own here.
+                glm::vec3 normal(mesh->mNormals[iVertex].x, mesh->mNormals[iVertex].y, mesh->mNormals[iVertex].z);
+                glm::vec3 tangent(mesh->mTangents[iVertex].x, mesh->mTangents[iVertex].y, mesh->mTangents[iVertex].z);
+                glm::vec3 bitangent = glm::cross(normal, tangent);
+                if (m_swapYZ) {
+                    bitangent = glm::vec3(bitangent.x, bitangent.z, -bitangent.y);
+                }
+                vertexBuffer.push_back(bitangent.x);
+                vertexBuffer.push_back(bitangent.y);
+                vertexBuffer.push_back(bitangent.z);
+            }
 
-			++submesh.vertexAttributeCount;
-		}
-	}
+            ++submesh.vertexAttributeCount;
+        }
+    }
 
     size_t indexCount = 0;
     for (unsigned int ff = 0; ff < mesh->mNumFaces; ++ff) {
@@ -223,7 +223,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
     std::vector<int> & indexBuffer = m_indexBuffers.back();
     indexBuffer.reserve(indexCount);
 
-	LOG_INFO("Building vertex indices...");
+    LOG_INFO("Building vertex indices...");
     for (unsigned int iFace = 0; iFace < mesh->mNumFaces; ++iFace) {
         auto & face = mesh->mFaces[iFace];
 
@@ -233,7 +233,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
             indexBuffer.push_back(face.mIndices[iSubFace]);
         }
     }
-	LOG_INFO("\tDONE");
+    LOG_INFO("\tDONE");
 
     submesh.drawMode = DrawMode::Triangles;
     submesh.elementCount = indexCount;
@@ -245,73 +245,73 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
 
 void AssimpMeshProvider::ProcessGlassMaterial(aiMaterial const* material)
 {
-	std::string name = material->GetName().C_Str();
-	std::shared_ptr<GlassMaterial> glassMaterial = std::make_shared<GlassMaterial>(name);
-	GlassMaterial::Parameters& params = glassMaterial->parameters();
+    std::string name = material->GetName().C_Str();
+    std::shared_ptr<GlassMaterial> glassMaterial = std::make_shared<GlassMaterial>(name);
+    GlassMaterial::Parameters& params = glassMaterial->parameters();
     params.baseColor = { 1.0f, 1.0f, 1.0f };
     params.density = 0.05f;
     params.ior = 1.33f;
     params.roughness = 0.0f;
 
     material->Get(AI_MATKEY_ROUGHNESS_FACTOR, params.roughness);
-	material->Get(AI_MATKEY_REFRACTI, params.ior);
+    material->Get(AI_MATKEY_REFRACTI, params.ior);
 
     aiColor3D color;
-	if (material->Get(AI_MATKEY_BASE_COLOR, color) == aiReturn_SUCCESS) {
-		params.baseColor = glm::vec3(color.r, color.g, color.b);
-	}
+    if (material->Get(AI_MATKEY_BASE_COLOR, color) == aiReturn_SUCCESS) {
+        params.baseColor = glm::vec3(color.r, color.g, color.b);
+    }
 
-	// Textures.
-	{
-		auto filePath = std::filesystem::path(m_filename);
-		auto fileParent = filePath.parent_path();
+    // Textures.
+    {
+        auto filePath = std::filesystem::path(m_filename);
+        auto fileParent = filePath.parent_path();
 
-		aiString assimpPath;
-		if (material->GetTexture(AI_MATKEY_BASE_COLOR_TEXTURE, &assimpPath) == aiReturn_SUCCESS) {
-			auto texturePath = (fileParent / assimpPath.C_Str()).string();
-			params.baseColorTexture = util::loadTexture(texturePath.c_str(), true, true);
-		}
-		else if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
-			material->GetTexture(aiTextureType_DIFFUSE, 0, &assimpPath);
-			auto texturePath = (fileParent / assimpPath.C_Str()).string();
-			params.baseColorTexture = util::loadTexture(texturePath.c_str(), true, true);
-		}
+        aiString assimpPath;
+        if (material->GetTexture(AI_MATKEY_BASE_COLOR_TEXTURE, &assimpPath) == aiReturn_SUCCESS) {
+            auto texturePath = (fileParent / assimpPath.C_Str()).string();
+            params.baseColorTexture = util::loadTexture(texturePath.c_str(), true, true);
+        }
+        else if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
+            material->GetTexture(aiTextureType_DIFFUSE, 0, &assimpPath);
+            auto texturePath = (fileParent / assimpPath.C_Str()).string();
+            params.baseColorTexture = util::loadTexture(texturePath.c_str(), true, true);
+        }
 
-		if (material->GetTextureCount(aiTextureType_NORMALS) > 0) {
-			aiString normalTexturePath;
-			material->GetTexture(aiTextureType_NORMALS, 0, &normalTexturePath);
-			auto texturePath = (fileParent / normalTexturePath.C_Str()).string();
-			params.normalmap = util::loadTexture(texturePath.c_str(), true, false);
-		}
+        if (material->GetTextureCount(aiTextureType_NORMALS) > 0) {
+            aiString normalTexturePath;
+            material->GetTexture(aiTextureType_NORMALS, 0, &normalTexturePath);
+            auto texturePath = (fileParent / normalTexturePath.C_Str()).string();
+            params.normalmap = util::loadTexture(texturePath.c_str(), true, false);
+        }
 
-		if (material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &assimpPath) == aiReturn_SUCCESS) {
-			auto texturePath = (fileParent / assimpPath.C_Str()).string();
-			params.metallicRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
-		}
-	}
+        if (material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &assimpPath) == aiReturn_SUCCESS) {
+            auto texturePath = (fileParent / assimpPath.C_Str()).string();
+            params.metallicRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
+        }
+    }
 
     m_materials.push_back(glassMaterial);
 }
 
 void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
 {
-	// Check to see if we should be processing this material as glass.
-	{
-		aiString mode;
-		float transmissionFactor = 0.0f;
-		material->Get(AI_MATKEY_GLTF_ALPHAMODE, mode);
-		material->Get(AI_MATKEY_TRANSMISSION_FACTOR, transmissionFactor);
-		if ((strcmp(mode.C_Str(), "BLEND") == 0) ||
-			(transmissionFactor != 0.0f)) {
-			// This is a transparent material.
-			ProcessGlassMaterial(material);
-			return;
-		}
-	}
+    // Check to see if we should be processing this material as glass.
+    {
+        aiString mode;
+        float transmissionFactor = 0.0f;
+        material->Get(AI_MATKEY_GLTF_ALPHAMODE, mode);
+        material->Get(AI_MATKEY_TRANSMISSION_FACTOR, transmissionFactor);
+        if ((strcmp(mode.C_Str(), "BLEND") == 0) ||
+            (transmissionFactor != 0.0f)) {
+            // This is a transparent material.
+            ProcessGlassMaterial(material);
+            return;
+        }
+    }
 
-	std::string name = material->GetName().C_Str();
-	std::shared_ptr<PhysicallyBasedMaterial> pbrMaterial = std::make_shared<PhysicallyBasedMaterial>(name);
-	PhysicallyBasedMaterial::Parameters& params = pbrMaterial->parameters();
+    std::string name = material->GetName().C_Str();
+    std::shared_ptr<PhysicallyBasedMaterial> pbrMaterial = std::make_shared<PhysicallyBasedMaterial>(name);
+    PhysicallyBasedMaterial::Parameters& params = pbrMaterial->parameters();
 
     params.metallic = 0.0f;
     params.roughness = 1.0f;
@@ -325,15 +325,15 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
 
     material->Get(AI_MATKEY_METALLIC_FACTOR, params.metallic);
     material->Get(AI_MATKEY_ROUGHNESS_FACTOR, params.roughness);
-	material->Get(AI_MATKEY_CLEARCOAT_FACTOR, params.clearCoat);
-	material->Get(AI_MATKEY_CLEARCOAT_ROUGHNESS_FACTOR, params.clearCoatRoughness);
+    material->Get(AI_MATKEY_CLEARCOAT_FACTOR, params.clearCoat);
+    material->Get(AI_MATKEY_CLEARCOAT_ROUGHNESS_FACTOR, params.clearCoatRoughness);
 
-	{
-		float ior = 0.0f;
-		if (material->Get(AI_MATKEY_REFRACTI, ior) == aiReturn_SUCCESS) {
-			params.specularF0 = std::powf((1.0f - ior) / (1.0f + ior), 2.0f);
-		}
-	}
+    {
+        float ior = 0.0f;
+        if (material->Get(AI_MATKEY_REFRACTI, ior) == aiReturn_SUCCESS) {
+            params.specularF0 = std::powf((1.0f - ior) / (1.0f + ior), 2.0f);
+        }
+    }
 
     auto filePath = std::filesystem::path(m_filename);
     auto fileParent = filePath.parent_path();
@@ -347,35 +347,35 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
         auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
         params.baseColorTexture = util::loadTexture(texturePath.c_str(), true, true);
     }
-	if (material->GetTextureCount(aiTextureType_EMISSIVE) > 0) {
-		aiString emissiveTexturePath;
-		material->GetTexture(aiTextureType_EMISSIVE, 0, &emissiveTexturePath);
-		auto texturePath = (fileParent / emissiveTexturePath.C_Str()).string();
-		params.emissiveTexture = util::loadTexture(texturePath.c_str(), true, true);
-	}
+    if (material->GetTextureCount(aiTextureType_EMISSIVE) > 0) {
+        aiString emissiveTexturePath;
+        material->GetTexture(aiTextureType_EMISSIVE, 0, &emissiveTexturePath);
+        auto texturePath = (fileParent / emissiveTexturePath.C_Str()).string();
+        params.emissiveTexture = util::loadTexture(texturePath.c_str(), true, true);
+    }
     aiString fileRoughnessMetallicTexture;
     if (material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &fileRoughnessMetallicTexture) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileRoughnessMetallicTexture.C_Str()).string();
         params.metallicRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
     }
-	if (material->GetTextureCount(aiTextureType_NORMALS) > 0) {
-		aiString normalTexturePath;
-		material->GetTexture(aiTextureType_NORMALS, 0, &normalTexturePath);
-		auto texturePath = (fileParent / normalTexturePath.C_Str()).string();
-		params.normalmap = util::loadTexture(texturePath.c_str(), true, false);
-	}
-	if (material->GetTexture(AI_MATKEY_CLEARCOAT_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
-		auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-		params.clearCoatTexture = util::loadTexture(texturePath.c_str(), true, false);
-	}
-	if (material->GetTexture(AI_MATKEY_CLEARCOAT_ROUGHNESS_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
-		auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-		params.clearCoatRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
-	}
-	if (material->GetTexture(AI_MATKEY_CLEARCOAT_NORMAL_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
-		auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-		params.clearCoatNormalmap = util::loadTexture(texturePath.c_str(), true, false);
-	}
+    if (material->GetTextureCount(aiTextureType_NORMALS) > 0) {
+        aiString normalTexturePath;
+        material->GetTexture(aiTextureType_NORMALS, 0, &normalTexturePath);
+        auto texturePath = (fileParent / normalTexturePath.C_Str()).string();
+        params.normalmap = util::loadTexture(texturePath.c_str(), true, false);
+    }
+    if (material->GetTexture(AI_MATKEY_CLEARCOAT_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
+        auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
+        params.clearCoatTexture = util::loadTexture(texturePath.c_str(), true, false);
+    }
+    if (material->GetTexture(AI_MATKEY_CLEARCOAT_ROUGHNESS_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
+        auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
+        params.clearCoatRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
+    }
+    if (material->GetTexture(AI_MATKEY_CLEARCOAT_NORMAL_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
+        auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
+        params.clearCoatNormalmap = util::loadTexture(texturePath.c_str(), true, false);
+    }
 
     m_materials.push_back(pbrMaterial);
 }
@@ -399,28 +399,28 @@ void AssimpMeshProvider::LoadModel(std::string const & filename, bool convert_to
     aiProcess_GenUVCoords           |
     aiProcess_OptimizeMeshes        |
     aiProcess_CalcTangentSpace      |
-	aiProcess_GenBoundingBoxes;
+    aiProcess_GenBoundingBoxes;
 
     const aiScene * scene = importer.ReadFile(filename.c_str(), postProcessFlags);
-	LOG_INFO("Scene imported by assimp!");
+    LOG_INFO("Scene imported by assimp!");
 
     if (scene) {
         for (unsigned int ii = 0; ii < scene->mNumMeshes; ++ii) {
             aiMesh const * mesh = scene->mMeshes[ii];
-			LOG_INFO("Processing mesh %s", mesh->mName.C_Str());
+            LOG_INFO("Processing mesh %s", mesh->mName.C_Str());
             ProcessMesh(mesh, convert_to_meters);
         }
 
         for (unsigned int ii = 0; ii < scene->mNumMaterials; ++ii) {
             aiMaterial const * material = scene->mMaterials[ii];
-			LOG_INFO("Processing material %s", material->GetName().C_Str());
+            LOG_INFO("Processing material %s", material->GetName().C_Str());
             ProcessMaterial(material);
         }
 
         aiMatrix4x4 identity;
-		LOG_INFO("Processing scene transforms...");
+        LOG_INFO("Processing scene transforms...");
         ProcessNode(scene, scene->mRootNode, identity, 0, convert_to_meters);
-		LOG_INFO("\tDONE");
+        LOG_INFO("\tDONE");
     } else {
         printf("Error:  No scene found in asset.\n");
     }

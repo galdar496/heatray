@@ -7,22 +7,22 @@
 //
 
 uniformblock Globals {
-	int maxRayDepth;
-	int sampleIndex; // Ranges from 0 - max pass count.
+    int maxRayDepth;
+    int sampleIndex; // Ranges from 0 - max pass count.
 
-	// Debugging.
-	int enableVisualizer;
-	int showGeometricNormals;
-	int showUVs;
-	int showTangents;
-	int showBitangents;
-	int showNormalmap;
-	int showFinalNormals;
-	int showBaseColor;
-	int showRoughness;
-	int showMetallic;
-	int showEmissive;
-	int showClearcoat;
-	int showClearcoatRoughness;
-	int showClearcoatNormalmap;
+    // Debugging.
+    int enableVisualizer;
+    int showGeometricNormals;
+    int showUVs;
+    int showTangents;
+    int showBitangents;
+    int showNormalmap;
+    int showFinalNormals;
+    int showBaseColor;
+    int showRoughness;
+    int showMetallic;
+    int showEmissive;
+    int showClearcoat;
+    int showClearcoatRoughness;
+    int showClearcoatNormalmap;
 };

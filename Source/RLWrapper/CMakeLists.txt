@@ -4,12 +4,12 @@
 # command from add_library.
 add_library(RLWrapper INTERFACE)
 target_sources(RLWrapper INTERFACE
-	Shader.h
-	Error.h
-	Buffer.h
-	Program.h
-	Texture.h
-	Framebuffer.h
-	PixelPackBuffer.h
-	Primitive.h
+    Shader.h
+    Error.h
+    Buffer.h
+    Program.h
+    Texture.h
+    Framebuffer.h
+    PixelPackBuffer.h
+    Primitive.h
 )

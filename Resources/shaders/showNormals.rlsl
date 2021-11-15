@@ -4,5 +4,5 @@ varying vec3 normal;
 
 void main()
 {
-	accumulate(.5 + .5 * normal);
+    accumulate(.5 + .5 * normal);
 }

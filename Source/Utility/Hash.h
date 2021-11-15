@@ -30,9 +30,9 @@ constexpr uint64_t FNV1a(T const & t)
 template <class T>
 size_t hashCombine(size_t hash, const T& v)
 {
-	std::hash<T> hasher;
-	hash ^= hasher(v) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-	return hash;
+    std::hash<T> hasher;
+    hash ^= hasher(v) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+    return hash;
 }
 
 } // namespace util.

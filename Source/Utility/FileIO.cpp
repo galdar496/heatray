@@ -11,7 +11,7 @@ bool readTextFile(const char* filename, std::string& content)
     std::ifstream fin;
     fin.open(filename);
     if (!fin) {
-		LOG_ERROR("Unable to open file %s", filename);
+        LOG_ERROR("Unable to open file %s", filename);
         return false;
     }
 

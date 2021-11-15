@@ -9,14 +9,14 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>
 {
     m_materials = std::move(materials);
 
-	// Build the materials.
-	for (auto& material : m_materials) {
-		material->build();
-	}
+    // Build the materials.
+    for (auto& material : m_materials) {
+        material->build();
+    }
 
     size_t vertexBufferCount = meshProvider->GetVertexBufferCount();
     for (size_t ii = 0; ii < vertexBufferCount; ++ii) {
-		std::shared_ptr<openrl::Buffer> buffer = openrl::Buffer::create(RL_ARRAY_BUFFER, nullptr, meshProvider->GetVertexBufferSize(ii), "Vertex Buffer");
+        std::shared_ptr<openrl::Buffer> buffer = openrl::Buffer::create(RL_ARRAY_BUFFER, nullptr, meshProvider->GetVertexBufferSize(ii), "Vertex Buffer");
         buffer->bind();
         uint8_t * mapping = buffer->mapBuffer<uint8_t>(RL_READ_WRITE);
         meshProvider->FillVertexBuffer(ii, mapping);
@@ -26,7 +26,7 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>
 
     size_t indexBufferCount = meshProvider->GetIndexBufferCount();
     for (size_t ii = 0; ii < indexBufferCount; ++ii) {
-		std::shared_ptr<openrl::Buffer> buffer = openrl::Buffer::create(RL_ELEMENT_ARRAY_BUFFER, nullptr, meshProvider->GetIndexBufferSize(ii), "Index Buffer");
+        std::shared_ptr<openrl::Buffer> buffer = openrl::Buffer::create(RL_ELEMENT_ARRAY_BUFFER, nullptr, meshProvider->GetIndexBufferSize(ii), "Index Buffer");
         buffer->bind();
         uint8_t * mapping = buffer->mapBuffer<uint8_t>(RL_READ_WRITE);
         meshProvider->FillIndexBuffer(ii, mapping);
@@ -49,7 +49,7 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>
 
         std::shared_ptr<Material> material = rlSubmesh.material;
 
-		rlSubmesh.primitive = openrl::Primitive::create();
+        rlSubmesh.primitive = openrl::Primitive::create();
         rlSubmesh.primitive->attachProgram(material->program());
         rlSubmesh.primitive->bind();
 
@@ -83,9 +83,9 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>
                 case VertexAttributeUsage_Tangents:
                     attributeLocation = material->program()->getAttributeLocation("tangentAttribute");
                     break;
-				case VertexAttributeUsage_Bitangents:
-					attributeLocation = material->program()->getAttributeLocation("bitangentAttribute");
-					break;
+                case VertexAttributeUsage_Bitangents:
+                    attributeLocation = material->program()->getAttributeLocation("bitangentAttribute");
+                    break;
                 default:
                     printf("Unknown vertex attribute usage %d\n", attribute.usage);
             }
@@ -119,8 +119,8 @@ void RLMesh::destroy()
 {
     m_vertexBuffers.clear();
     m_vertexBuffers.clear();
-	m_indexBuffers.clear();
+    m_indexBuffers.clear();
     m_submeshes.clear();
-	m_materials.clear();
+    m_materials.clear();
 }
 

@@ -27,18 +27,18 @@ namespace openrl {
 class Program
 {
 public:
-	~Program() {
-		if (m_program != RL_NULL_PROGRAM) {
-			RLFunc(rlDeleteProgram(m_program));
-			m_program = RL_NULL_PROGRAM;
-		}
-	}
+    ~Program() {
+        if (m_program != RL_NULL_PROGRAM) {
+            RLFunc(rlDeleteProgram(m_program));
+            m_program = RL_NULL_PROGRAM;
+        }
+    }
     Program(const Program& other) = default;
     Program& operator=(const Program& other) = default;
-	
-	static std::shared_ptr<Program> create() {
-		return std::shared_ptr<Program>(new Program);
-	}
+    
+    static std::shared_ptr<Program> create() {
+        return std::shared_ptr<Program>(new Program);
+    }
 
     ///
     /// Attach the specified shader. The shader must already be valid.
@@ -51,7 +51,7 @@ public:
     {
         assert(shader->valid());
         RLFunc(rlAttachShader(m_program, shader->shader()));
-		m_attachedShaders[static_cast<uint8_t>(shader->type())] = shader;
+        m_attachedShaders[static_cast<uint8_t>(shader->type())] = shader;
     }
 
     ///
@@ -66,7 +66,7 @@ public:
         if (!valid()) {
             const char* log = nullptr;
             RLFunc(rlGetProgramString(m_program, RL_LINK_LOG, &log));
-			LOG_ERROR("Linking for program %s failed: \n\t%s", name, log);
+            LOG_ERROR("Linking for program %s failed: \n\t%s", name, log);
             return false;
         }
 
@@ -220,13 +220,13 @@ public:
     }
 
 private:
-	Program() {
-		m_program = RLFunc(rlCreateProgram());
-	}
+    Program() {
+        m_program = RLFunc(rlCreateProgram());
+    }
 
     RLprogram m_program = RL_NULL_PROGRAM; ///< RL program object.
 
-	std::shared_ptr<Shader> m_attachedShaders[static_cast<uint8_t>(Shader::ShaderType::kCount)];
+    std::shared_ptr<Shader> m_attachedShaders[static_cast<uint8_t>(Shader::ShaderType::kCount)];
 };
 
 } // namespace openrl.

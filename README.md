@@ -22,14 +22,14 @@ Heatray is a C++ path tracer utilizing [OpenRL](https://en.wikipedia.org/wiki/Op
 * Next-event estimation
 * Environment lighting
 * Depth of field
-	* Configurable Bokeh shapes
+    * Configurable Bokeh shapes
 * ACES filmic tonemapping + color processing pipeline
 * Interactive UI via [imgui](https://github.com/ocornut/imgui)
 * Materials:
     * Physically-based
-	   * Roughness/Metallic
-	   * Clearcoat
-	   * Multiscattering
+       * Roughness/Metallic
+       * Clearcoat
+       * Multiscattering
     * Glass
 ## Theory
 Checkout [this link](http://galdar496.github.io/heatray/) to get an overview of the mathematics behind Heatray.

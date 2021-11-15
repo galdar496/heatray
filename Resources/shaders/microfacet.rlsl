@@ -16,147 +16,147 @@
 // Note that this is not the alpha roughness, but the material roughness.
 vec3 computeMultiscattering(sampler2D multiscatterLUT, vec3 Cspec, float NdotI, float roughness)
 {
-	// https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf
-	float msLUTvalue = texture2D(multiscatterLUT, vec2(NdotI, roughness)).r;
-	vec3 f_ms = 1.0 + Cspec * msLUTvalue;
-	return f_ms;
+    // https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf
+    float msLUTvalue = texture2D(multiscatterLUT, vec2(NdotI, roughness)).r;
+    vec3 f_ms = 1.0 + Cspec * msLUTvalue;
+    return f_ms;
 }
 
 void sampleDiffuseLight(vec3 N, vec3 lightDir,
-						vec3 Cdiff, vec3 Cspec, float roughnessAlpha,
-						float sampleProbability, primitive lightPrimitive)
+                        vec3 Cdiff, vec3 Cspec, float roughnessAlpha,
+                        float sampleProbability, primitive lightPrimitive)
 {
-	float NdotO = dot(N, lightDir);
-	if (NdotO > 0.0) {
-		NdotO = saturate(NdotO);
+    float NdotO = dot(N, lightDir);
+    if (NdotO > 0.0) {
+        NdotO = saturate(NdotO);
 
-		// Use lambert for the BRDF.
-		vec3 diffuse = (Cdiff / kPI) * NdotO;
+        // Use lambert for the BRDF.
+        vec3 diffuse = (Cdiff / kPI) * NdotO;
 
-		vec3 reflectance = diffuse;
-		reflectance /= sampleProbability;
+        vec3 reflectance = diffuse;
+        reflectance /= sampleProbability;
 
-		reflectance *= rl_InRay.weight;
-		if (dot(reflectance, reflectance) > 1e-5) {
-			createRay();
-				rl_OutRay.direction = lightDir;
-				rl_OutRay.weight = reflectance;
-				rl_OutRay.occlusionTest = true;
-				rl_OutRay.defaultPrimitive = lightPrimitive;
-			emitRay();
-		}
-	}
+        reflectance *= rl_InRay.weight;
+        if (dot(reflectance, reflectance) > 1e-5) {
+            createRay();
+                rl_OutRay.direction = lightDir;
+                rl_OutRay.weight = reflectance;
+                rl_OutRay.occlusionTest = true;
+                rl_OutRay.defaultPrimitive = lightPrimitive;
+            emitRay();
+        }
+    }
 }
 
 void sampleSpecularLight(vec3 N, vec3 I, float NdotI, vec3 lightDir,  
-						 vec3 Cspec, float roughnessAlpha,
-						 float sampleProbability, primitive lightPrimitive,
-						 sampler2D multiscatterLUT, float roughness)
+                         vec3 Cspec, float roughnessAlpha,
+                         float sampleProbability, primitive lightPrimitive,
+                         sampler2D multiscatterLUT, float roughness)
 {
-	float NdotO = dot(N, lightDir);
-	if (NdotO > 0.0) {
-		NdotO = saturate(NdotO);
-		vec3 H = normalize(I + lightDir);
-		float NdotH = saturate(dot(N, H));
-		float IdotH = saturate(dot(I, H));
+    float NdotO = dot(N, lightDir);
+    if (NdotO > 0.0) {
+        NdotO = saturate(NdotO);
+        vec3 H = normalize(I + lightDir);
+        float NdotH = saturate(dot(N, H));
+        float IdotH = saturate(dot(I, H));
 
-		// Microfacet BRDF: (DFG) / (4*NdotL*NdotV)
+        // Microfacet BRDF: (DFG) / (4*NdotL*NdotV)
 
-		float D = D_GGX(NdotH, roughnessAlpha);
-		vec3 F = F_Schlick(Cspec, IdotH);
-		float G = G2_Smith_GGX(NdotO, NdotI, roughnessAlpha);
-		
-		// Note that the NdotO cancels out here.
-		vec3 specular = (D * F * G) / (4.0 * NdotI);
+        float D = D_GGX(NdotH, roughnessAlpha);
+        vec3 F = F_Schlick(Cspec, IdotH);
+        float G = G2_Smith_GGX(NdotO, NdotI, roughnessAlpha);
+        
+        // Note that the NdotO cancels out here.
+        vec3 specular = (D * F * G) / (4.0 * NdotI);
 
-		// Account for multiscattering.
-		specular *= computeMultiscattering(multiscatterLUT, Cspec, NdotI, roughness);
+        // Account for multiscattering.
+        specular *= computeMultiscattering(multiscatterLUT, Cspec, NdotI, roughness);
 
-		vec3 reflectance = specular;
-		reflectance /= sampleProbability;
-		reflectance *= rl_InRay.weight;
+        vec3 reflectance = specular;
+        reflectance /= sampleProbability;
+        reflectance *= rl_InRay.weight;
 
-		if (dot(reflectance, reflectance) > 1e-5) {
-			createRay();
-				rl_OutRay.direction = lightDir;
-				rl_OutRay.weight = reflectance;
-				rl_OutRay.occlusionTest = true;
-				rl_OutRay.defaultPrimitive = lightPrimitive;
-			emitRay();
-		}
-	}
+        if (dot(reflectance, reflectance) > 1e-5) {
+            createRay();
+                rl_OutRay.direction = lightDir;
+                rl_OutRay.weight = reflectance;
+                rl_OutRay.occlusionTest = true;
+                rl_OutRay.defaultPrimitive = lightPrimitive;
+            emitRay();
+        }
+    }
 }
 
 void sampleDiffuse(vec3 N, vec3 I, float NdotI, mat3 frame, vec2 rand, 
-				   vec3 Cdiff, vec3 Cspec, float roughnessAlpha,
-				   float sampleProbability, bool isDirectLightingSample, primitive rayMissPrimitive)
+                   vec3 Cdiff, vec3 Cspec, float roughnessAlpha,
+                   float sampleProbability, bool isDirectLightingSample, primitive rayMissPrimitive)
 {
-	// Get a random direction on the cosine lobe.
-	vec3 dir = cosineWeightedSample(rand.x, rand.y);
-	vec3 O = frame * dir;
-	
-	float NdotO = dot(N, O);
-	if (NdotO > 0.0) {
-		NdotO = saturate(NdotO);
-		// Note that the PDF of cosine-weighted sampling is cos(theta)/pi but cancels out.
-		vec3 diffuse = Cdiff;
+    // Get a random direction on the cosine lobe.
+    vec3 dir = cosineWeightedSample(rand.x, rand.y);
+    vec3 O = frame * dir;
+    
+    float NdotO = dot(N, O);
+    if (NdotO > 0.0) {
+        NdotO = saturate(NdotO);
+        // Note that the PDF of cosine-weighted sampling is cos(theta)/pi but cancels out.
+        vec3 diffuse = Cdiff;
 
-		vec3 reflectance = diffuse;
-		reflectance /= sampleProbability;
+        vec3 reflectance = diffuse;
+        reflectance /= sampleProbability;
 
-		reflectance *= rl_InRay.weight;
-		if (dot(reflectance, reflectance) > 1e-5) {
-			createRay();
-				rl_OutRay.direction = O;
-				rl_OutRay.weight = reflectance;
-				rl_OutRay.occlusionTest = isDirectLightingSample;
-				rl_OutRay.defaultPrimitive = rayMissPrimitive;
-			emitRay();
-		}
-	}
+        reflectance *= rl_InRay.weight;
+        if (dot(reflectance, reflectance) > 1e-5) {
+            createRay();
+                rl_OutRay.direction = O;
+                rl_OutRay.weight = reflectance;
+                rl_OutRay.occlusionTest = isDirectLightingSample;
+                rl_OutRay.defaultPrimitive = rayMissPrimitive;
+            emitRay();
+        }
+    }
 }
 
 void sampleSpecular(vec3 N, vec3 I, float NdotI, mat3 frame, vec2 rand, 
-				    vec3 Cspec, float roughnessAlpha,
-				    float sampleProbability, bool isDirectLightingSample, primitive rayMissPrimitive,
-					sampler2D multiscatterLUT, float roughness)
+                    vec3 Cspec, float roughnessAlpha,
+                    float sampleProbability, bool isDirectLightingSample, primitive rayMissPrimitive,
+                    sampler2D multiscatterLUT, float roughness)
 {
-	// Note that sampleVisibleGGX() is returning a microfacet normal. 
-	// We still need to reflect about that normal to get our final sample direction.
-	vec3 localSpaceI = transpose(frame) * I;
-	vec3 H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, roughnessAlpha);
-	float IdotH = saturate(dot(I, H));
-	vec3 O = normalize(2.0 * IdotH * H - I);
+    // Note that sampleVisibleGGX() is returning a microfacet normal. 
+    // We still need to reflect about that normal to get our final sample direction.
+    vec3 localSpaceI = transpose(frame) * I;
+    vec3 H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, roughnessAlpha);
+    float IdotH = saturate(dot(I, H));
+    vec3 O = normalize(2.0 * IdotH * H - I);
 
-	float NdotO = dot(N, O);
-	if (NdotO > 0.0) {
-		NdotO = saturate(NdotO);
+    float NdotO = dot(N, O);
+    if (NdotO > 0.0) {
+        NdotO = saturate(NdotO);
 
-		// PDF is actually (G1 * D * NdotI) / NdotH. However we're optimizing out most of the terms here from the 
-		// standard microfacet BRDF to arrive at:
-		//	(F * G2) / G1
-		// See http://jcgt.org/published/0007/04/01/paper.pdf for more information.
+        // PDF is actually (G1 * D * NdotI) / NdotH. However we're optimizing out most of the terms here from the 
+        // standard microfacet BRDF to arrive at:
+        //	(F * G2) / G1
+        // See http://jcgt.org/published/0007/04/01/paper.pdf for more information.
 
-		vec3 F = F_Schlick(Cspec, IdotH);
-		float G2 = G2_Smith_GGX(NdotI, NdotO, roughnessAlpha);
-		float G1 = G1_Smith_GGX(NdotI, roughnessAlpha);
+        vec3 F = F_Schlick(Cspec, IdotH);
+        float G2 = G2_Smith_GGX(NdotI, NdotO, roughnessAlpha);
+        float G1 = G1_Smith_GGX(NdotI, roughnessAlpha);
 
-		vec3 specular = (F * G2) / greaterThanZero(G1);
+        vec3 specular = (F * G2) / greaterThanZero(G1);
 
-		// Account for multiscattering.
-		specular *= computeMultiscattering(multiscatterLUT, Cspec, NdotI, roughness);
+        // Account for multiscattering.
+        specular *= computeMultiscattering(multiscatterLUT, Cspec, NdotI, roughness);
 
-		vec3 reflectance = specular;
-		reflectance /= sampleProbability;
-		reflectance *= rl_InRay.weight;
+        vec3 reflectance = specular;
+        reflectance /= sampleProbability;
+        reflectance *= rl_InRay.weight;
 
-		if (dot(reflectance, reflectance) > 1e-5) {
-			createRay();
-				rl_OutRay.direction = O;
-				rl_OutRay.weight = reflectance;
-				rl_OutRay.occlusionTest = isDirectLightingSample;
-				rl_OutRay.defaultPrimitive = rayMissPrimitive;
-			emitRay();
-		}
-	}
+        if (dot(reflectance, reflectance) > 1e-5) {
+            createRay();
+                rl_OutRay.direction = O;
+                rl_OutRay.weight = reflectance;
+                rl_OutRay.occlusionTest = isDirectLightingSample;
+                rl_OutRay.defaultPrimitive = rayMissPrimitive;
+            emitRay();
+        }
+    }
 }
