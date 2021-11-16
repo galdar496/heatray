@@ -6,6 +6,8 @@
 //
 //
 
+#include "utility.rlsl"
+
 uniformblock EnvironmentLight {
     sampler2D texture; // 2D lat/long map defining environment colors.
     float exposureCompensation; // Exposure adjustment to the environment light.
@@ -20,3 +22,65 @@ uniformblock DirectionalLights {
     vec3 colors[MAX_NUM_DIRECTIONAL_LIGHTS];
     primitive primitives[MAX_NUM_DIRECTIONAL_LIGHTS];
 };
+
+void computeLightSample(vec3 N, float lightProbability, out vec3 sampleDirection, out primitive samplePrimitive, out float sampleProbability, out bool foundLight)
+{
+    foundLight = false;
+
+    // Establish the probabilities for each light.
+    float probabilitySum = 0.0;
+
+    // Directional lights.
+    float directional[MAX_NUM_DIRECTIONAL_LIGHTS];
+    {
+        for (int iLight = 0; iLight < MAX_NUM_DIRECTIONAL_LIGHTS; ++iLight) {
+            if (iLight < DirectionalLights.numberOfLights) { // Lighting buffer is tightly packed.
+                // Determine a probability for this light based on its angle to the shading surface as well
+                // as its intensity. This should weight more samples towards more "important" lights.
+                directional[iLight] = saturate(dot(N, DirectionalLights.directions[iLight])) * luminosity(DirectionalLights.colors[iLight]);
+                probabilitySum += directional[iLight];
+            }
+        }
+    }
+
+    // Environment light.
+    float environment = 0.0;
+    {
+        if (EnvironmentLight.lightPrimitive != rl_NullPrimitive) {
+            environment = 1.0;
+            probabilitySum += environment;
+        }
+    }
+
+    // Normalize the probabilities.
+    float probabiltyNormalization = 1.0 / greaterThanZero(probabilitySum);
+    
+    environment *= probabiltyNormalization;
+    for (int iLight = 0; iLight < MAX_NUM_DIRECTIONAL_LIGHTS; ++iLight) {
+        directional[iLight] *= probabiltyNormalization;
+    }
+
+    // Now - determine which light to actually sample.
+    float currentProbability = 0.0;
+
+    // Directional lights.
+    {
+        for (int iLight = 0; iLight < MAX_NUM_DIRECTIONAL_LIGHTS; ++iLight) {
+            if (iLight < DirectionalLights.numberOfLights) {
+                currentProbability += directional[iLight];
+                if (directional[iLight] > 0.0) {
+                    if (lightProbability <= currentProbability) {
+                        // We've found our light.
+                        sampleDirection = DirectionalLights.directions[iLight];
+                        samplePrimitive = DirectionalLights.primitives[iLight];
+                        sampleProbability = directional[iLight];
+                        foundLight = true;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    sampleProbability = environment;
+}

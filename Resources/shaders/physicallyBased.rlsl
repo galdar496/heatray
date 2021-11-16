@@ -181,34 +181,45 @@ void main()
         clearCoatFrame = orthonormalFrame(clearCoatN);
     }
 
-    // First sample the environment light.
+    // First perform direct lighting.
     {
         vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
 
-        // Determine if we sample diffuse or specular.
+        // Determine if we sample diffuse, specular, or clearcoat.
         // For direct lighting, we always use the next sequence for this probability.
         vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
         if (probability.x <= diffuseProbability) {
-            sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, roughnessAlpha,
-                          diffuseProbability, true, EnvironmentLight.lightPrimitive);
+            directDiffuseSample(N, 
+                                Cdiff,
+                                diffuseProbability,
+                                probability.y,
+                                rand,
+                                frame);
         } else if (probability.x <= (diffuseProbability + clearCoatProbability)) {
-            sampleSpecular(clearCoatN, V, clearCoatNdotV, clearCoatFrame, rand, vec3(clearCoatScale), clearCoatRoughnenessAlpha,
-                           clearCoatProbability, true, EnvironmentLight.lightPrimitive, Material.multiscatterLUT, roughness);
+            directSpecularSample(clearCoatN, 
+                                 V, 
+                                 clearCoatNdotV,
+                                 vec3(clearCoatScale),
+                                 clearCoatRoughnenessAlpha,
+                                 Material.multiscatterLUT,
+                                 clearCoatRoughness,
+                                 clearCoatProbability,
+                                 probability.y,
+                                 rand,
+                                 frame);
         } else {
-            sampleSpecular(N, V, NdotV, frame, rand, Cspec, roughnessAlpha,
-                           specularProbability, true, EnvironmentLight.lightPrimitive, Material.multiscatterLUT, roughness);
+            directSpecularSample(N, 
+                                 V, 
+                                 NdotV,
+                                 Cspec,
+                                 roughnessAlpha,
+                                 Material.multiscatterLUT,
+                                 roughness,
+                                 specularProbability,
+                                 probability.y,
+                                 rand,
+                                 frame);
         }
-
-        /*if (probability.x <= diffuseProbability) {
-            sampleDiffuseLight(N, DirectionalLights.directions[0], Cdiff, Cspec, roughnessAlpha,
-                          diffuseProbability, DirectionalLights.primitives[0]);
-        } else if (probability.x <= (diffuseProbability + clearCoatProbability)) {
-            sampleSpecularLight(clearCoatN, V, clearCoatNdotV, DirectionalLights.directions[0], vec3(clearCoatScale), clearCoatRoughnenessAlpha,
-                           clearCoatProbability, DirectionalLights.primitives[0], Material.multiscatterLUT, roughness);
-        } else {
-            sampleSpecularLight(N, V, NdotV, DirectionalLights.directions[0], Cspec, roughnessAlpha,
-                           specularProbability, DirectionalLights.primitives[0], Material.multiscatterLUT, roughness);
-        }*/
     }
 
     // Now sample the indirect lighting.
@@ -231,14 +242,39 @@ void main()
         // Determine if we sample diffuse or specular. We use 4 sequences away to determine this probability.
         vec2 probability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 4, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
         if (probability.x <= diffuseProbability) {
-            sampleDiffuse(N, V, NdotV, frame, rand, Cdiff, Cspec, roughnessAlpha,
-                          diffuseProbability, false, rl_NullPrimitive);
+            indirectDiffuseSample(N, 
+                                  Cdiff,
+                                  diffuseProbability,
+                                  1.0,
+                                  rand,
+                                  frame,
+                                  rl_NullPrimitive);
         } else if (probability.x <= (diffuseProbability + clearCoatProbability)) {
-            sampleSpecular(clearCoatN, V, clearCoatNdotV, clearCoatFrame, rand, vec3(clearCoatScale), clearCoatRoughnenessAlpha,
-                           clearCoatProbability, false, rl_NullPrimitive, Material.multiscatterLUT, roughness);
+            indirectSpecularSample(clearCoatN,
+                                   V,
+                                   clearCoatNdotV,
+                                   vec3(clearCoatScale),
+                                   clearCoatRoughnenessAlpha,
+                                   Material.multiscatterLUT,
+                                   clearCoatRoughness,
+                                   clearCoatProbability,
+                                   1.0,
+                                   rand,
+                                   frame,
+                                   rl_NullPrimitive);
         } else {
-            sampleSpecular(N, V, NdotV, frame, rand, Cspec, roughnessAlpha,
-                           specularProbability, false, rl_NullPrimitive, Material.multiscatterLUT, roughness);
+            indirectSpecularSample(N,
+                                   V,
+                                   NdotV,
+                                   Cspec,
+                                   roughnessAlpha,
+                                   Material.multiscatterLUT,
+                                   roughness,
+                                   specularProbability,
+                                   1.0,
+                                   rand,
+                                   frame,
+                                   rl_NullPrimitive);
         }
     }
 }

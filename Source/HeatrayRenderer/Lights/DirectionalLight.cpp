@@ -12,6 +12,9 @@
 #include <cstring>
 #include <sstream>
 
+static constexpr float WATTS_TO_LUMENS = 683.0f;
+static constexpr float LUMENS_TO_WATS = 1.0f / 683.0f;
+
 DirectionalLight::DirectionalLight(size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer)
 : m_lightIndex(lightIndex)
 {
@@ -29,10 +32,12 @@ DirectionalLight::DirectionalLight(size_t lightIndex, std::shared_ptr<openrl::Bu
     // Initialize the uniforms to a default state.
     setUniforms();
 
-    setOrientation(0.0f, glm::half_pi<float>());
-    m_color = glm::vec3(1.0f);
-    // We specify a default intensity of 683 * π.
-    m_intensity = 683.0f * glm::pi<float>();
+    m_params.color = glm::vec3(1.0f);
+    m_params.intensity = WATTS_TO_LUMENS * glm::pi<float>(); // We specify a default intensity of 1 watt * π.
+    m_params.orientation.phi = 0.0f;
+    m_params.orientation.theta = glm::half_pi<float>();
+
+    calculateOrientation();
 }
 
 void DirectionalLight::copyToLightBuffer(DirectionalLightsBuffer* buffer)
@@ -40,22 +45,25 @@ void DirectionalLight::copyToLightBuffer(DirectionalLightsBuffer* buffer)
     assert(buffer);
     
     buffer->directions[m_lightIndex] = m_direction * -1.0f;
-    buffer->colors[m_lightIndex] = m_color * (m_intensity / 683.0f);
+    buffer->colors[m_lightIndex] = m_params.color * (m_params.intensity * LUMENS_TO_WATS);
     buffer->primitives[m_lightIndex] = m_primitive->primitive();
 }
 
-void DirectionalLight::setOrientation(const float phi_radians, const float theta_radians)
+void DirectionalLight::setParams(const Params &params)
 {
-    m_orientation.phi = phi_radians;
-    m_orientation.theta = theta_radians;
+    m_params = params;
+    calculateOrientation();
+}
 
+void DirectionalLight::calculateOrientation()
+{
     // Calculate the directional vector.
     {
         constexpr glm::vec3 right = glm::vec3(1.0f, 0.0f, 0.0f);
         constexpr glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 
-        glm::quat rotTheta = glm::angleAxis(m_orientation.theta, right);
-        glm::quat rotPhi = glm::angleAxis(m_orientation.phi, up);
+        glm::quat rotTheta = glm::angleAxis(m_params.orientation.theta, right);
+        glm::quat rotPhi = glm::angleAxis(m_params.orientation.phi, up);
         glm::quat orientation = rotTheta * rotPhi;
 
         const glm::mat4 viewMatrix = glm::mat4_cast(glm::inverse(orientation));

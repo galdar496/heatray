@@ -144,6 +144,9 @@ public:
     using LoadSceneCallback = std::function<void(std::vector<RLMesh> &sceneData, RLMesh::SetupSystemBindingsCallback systemSetupCallback)>;
     void loadScene(LoadSceneCallback callback, bool clearOldScene = true);
 
+    using LightingCallback = std::function<void(std::shared_ptr<SceneLighting> lighting)>;
+    void changeLighting(LightingCallback callback);
+
     ///
     /// Run a general OpenRL task. This can be useful for things that need to happen on the OpenRL thread
     /// but don't need a dedicated job.
@@ -194,6 +197,7 @@ private:
         kResize,
         kRenderPass,
         kLoadScene,
+        kChangeLighting,
         kDestroy,
         kGeneralTask
     };

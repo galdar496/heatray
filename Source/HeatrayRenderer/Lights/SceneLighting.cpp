@@ -102,10 +102,11 @@ std::shared_ptr<DirectionalLight> SceneLighting::addDirectionalLight()
         bindLightingBuffersToProgram(light->program());
         light->primitive()->unbind();
 
+        ++m_directional.count;
+
         // Update the lighting buffer.
         updateLight(light);
 
-        ++m_directional.count;
         return light;
     }
 
@@ -118,6 +119,7 @@ void SceneLighting::updateLight(std::shared_ptr<DirectionalLight> light)
     m_directional.buffer->bind();
     DirectionalLightsBuffer* directionalLights = m_directional.buffer->mapBuffer<DirectionalLightsBuffer>();
     light->copyToLightBuffer(directionalLights);
+    directionalLights->numberOfLights = m_directional.count;
     m_directional.buffer->unmapBuffer();
     m_directional.buffer->unbind();
 }

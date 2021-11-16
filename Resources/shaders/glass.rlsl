@@ -39,29 +39,80 @@ void setup()
     rl_OutputRayCount[0] = 2; // One for direct lighting, one for indirect lighting.
 }
 
-void specularSample(vec3 N, vec3 H, vec3 I, vec3 O, vec3 weight, bool isDirectLightSample, primitive rayMissPrimitive, vec3 baseColor)
+void indirectSpecularGlassSample(vec3 N, vec3 I, float NdotI, vec3 weight, vec3 baseColor, float roughnessAlpha, float optionalLightSampleProbability, vec2 rand, mat3 frame, primitive rayMissPrimitive)
 {
-    float NdotO = saturate(dot(N, O));
+    // Note that sampleVisibleGGX() is returning a microfacet normal. 
+    // We still need to reflect about that normal to get our final sample direction.
+    vec3 localSpaceI = transpose(frame) * I;
+    vec3 H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, roughnessAlpha);
+    float IdotH = saturate(dot(I, H));
+    vec3 O = normalize(2.0 * IdotH * H - I);
 
+    float NdotO = dot(N, O);
     if (NdotO > 0.0) {
-        float NdotI = saturate(dot(N, I));
-        float HdotI = saturate(dot(H, I));
+        NdotO = saturate(NdotO);
         float NdotH = saturate(dot(N, H));
 
         // The PDF of our sample function is (D * NdotH) / (4 * VdotH).
         float G = G2_Smith_GGX(NdotO, NdotI, Material.roughnessAlpha);
 
-        vec3 reflectance = baseColor * ((G * HdotI) / (NdotH * NdotI));
+        vec3 reflectance = baseColor * ((G * IdotH) / (NdotH * NdotI));
         reflectance *= weight;
+        reflectance /= optionalLightSampleProbability;
 
         if (dot(reflectance, reflectance) > 1e-5) {
             createRay();
-                rl_OutRay.direction = O;
-                rl_OutRay.weight = reflectance; 
-                rl_OutRay.occlusionTest = isDirectLightSample;
-                rl_OutRay.defaultPrimitive = rayMissPrimitive;
+                rl_OutRay.direction         = O;
+                rl_OutRay.weight            = reflectance;
+                rl_OutRay.occlusionTest     = (rayMissPrimitive == rl_NullPrimitive) ? false : true;
+                rl_OutRay.defaultPrimitive  = rayMissPrimitive;
             emitRay();
         }
+    }
+}
+
+void directSpecularGlassSample(vec3 N, vec3 I, float NdotI, vec3 weight, vec3 baseColor, float roughnessAlpha, float lightProbability, vec2 rand, mat3 frame)
+{
+    // First we determine which light we are sampling via the light probability.
+    vec3 lightDir;
+    primitive lightPrimitive;
+    float lightSampleProbability;
+    bool foundLight = false;
+    computeLightSample(N, lightProbability, lightDir, lightPrimitive, lightSampleProbability, foundLight);
+
+    if (foundLight) {
+        float NdotO = dot(N, lightDir);
+        if (NdotO > 0.0) {
+            NdotO = saturate(NdotO);
+            vec3 H = normalize(I + lightDir);
+            float NdotH = saturate(dot(N, H));
+            float IdotH = saturate(dot(I, H));
+
+            // Microfacet BRDF: (DFG) / (4*NdotL*NdotV)
+            // However, F is cancelled out as it's part of the probability for determining
+            // if we transmit or reflect.
+
+            float D = D_GGX(NdotH, roughnessAlpha);
+            float G = G2_Smith_GGX(NdotO, NdotI, roughnessAlpha);
+        
+            // Note that the NdotO cancels out here.
+            float specular = (D * G) / (4.0 * NdotI);
+
+            vec3 reflectance = specular * baseColor;
+            reflectance *= weight;
+            reflectance /= lightSampleProbability;
+
+            if (dot(reflectance, reflectance) > 1e-5) {
+                createRay();
+                    rl_OutRay.direction         = lightDir;
+                    rl_OutRay.weight            = reflectance;
+                    rl_OutRay.occlusionTest     = true;
+                    rl_OutRay.defaultPrimitive  = lightPrimitive;
+                emitRay();
+            }
+        }
+    } else if (lightSampleProbability > 0.0) {
+        indirectSpecularGlassSample(N, I, NdotI, weight, baseColor, roughnessAlpha, lightSampleProbability, rand, frame, EnvironmentLight.lightPrimitive);
     }
 }
 
@@ -154,11 +205,12 @@ void main()
     vec2 refractProbability = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 1, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
     float F = F_Fresnel(eta, HdotI);
 
+    float NdotI = saturate(dot(N, I));
+
     // Note that since the Fresnel term is used to determine how to sample it ends up getting cancelled out of the following math.
     if (refractProbability.y < (1.0 - F)) {
         vec3 O = normalize(refract(-I, H, eta));
 
-        float NdotI = saturate(dot(N, I));
         // Note that these are purposely not clamped as the BSDF considers the entire sphere as opposed to a hemisphere.
         float NdotO = abs(dot(N, O));
 
@@ -182,11 +234,7 @@ void main()
         // Do reflection. Use the unique microfacets for the direct and indirect lighting.
         {
             rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
-            H = frame * sampleGGX(rand.x, rand.y, roughnessAlpha);
-
-            HdotI = dot(H, I);
-            vec3 O = normalize(2.0 * HdotI * H - I);
-            specularSample(N, H, I, O, weight, true, EnvironmentLight.lightPrimitive, baseColor);
+            directSpecularGlassSample(N, I, NdotI, weight, baseColor, roughnessAlpha, refractProbability.x, rand, frame);
         }
         if (rl_InRay.depth < Globals.maxRayDepth) {
             // Perform Russian Roulette.
@@ -198,15 +246,11 @@ void main()
                     return; // This ray has been terminated.
                 }
 
-                rl_InRay.weight /= probability;
+                weight /= probability;
             }
 
             rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 4, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
-            H = frame * sampleVisibleGGX(localSpaceI, rand.x, rand.y, roughnessAlpha);
-
-            HdotI = dot(H, I);
-            vec3 O = normalize(2.0 * HdotI * H - I);
-            specularSample(N, H, I, O, weight, false, rl_NullPrimitive, baseColor);
+            indirectSpecularGlassSample(N, I, NdotI, weight, baseColor, roughnessAlpha, 1.0, rand, frame, rl_NullPrimitive);
         }
     }
 }

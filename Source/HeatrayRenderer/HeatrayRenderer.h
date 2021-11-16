@@ -301,6 +301,9 @@ private:
     } m_editableMaterialScene;
 
     void renderMaterialEditor(std::shared_ptr<Material> material);
+    void renderKeyLightEditor();
 
     bool m_debugPassChanged = false;
+
+    std::shared_ptr<DirectionalLight> m_keyLight = nullptr;
 };

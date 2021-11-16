@@ -26,6 +26,17 @@ public:
     explicit DirectionalLight(size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer);
     ~DirectionalLight() = default;
 
+    struct Params {
+        glm::vec3 color;
+        float intensity = 1.0f;
+
+        // Orientation controls for the directional light.
+        struct Orientation {
+            float phi = 0.0f; // In radians [0 - 2π]
+            float theta = 0.0f; // In radians [-π/2 - π/2]
+        } orientation;
+    };
+
     ///
     /// Copy to the light buffer that represents all directional lights
     /// in a scene. It is assumed that this light will copy into the 
@@ -33,31 +44,22 @@ public:
     ///
     void copyToLightBuffer(DirectionalLightsBuffer* buffer);
 
-    void setDirection(const glm::vec3& direction) { m_direction = direction; }
-    void setColor(const glm::vec3& color) { m_color = color; }
-    void setIntensity(const float intensity) { m_intensity = intensity;  }
-
-    void setOrientation(const float phi_radians, const float theta_radians);
-
+    Params params() const { return m_params; }
+    void setParams(const Params &other);
+    
     std::shared_ptr<openrl::Program> program() const { return m_program; }
     std::shared_ptr<openrl::Primitive> primitive() const { return m_primitive; }
 private:
+    void calculateOrientation();
     void setUniforms() const;
 
     std::shared_ptr<openrl::Primitive> m_primitive = nullptr;
     std::shared_ptr<openrl::Program> m_program = nullptr;
 
+    Params m_params;
     glm::vec3 m_direction;
-    glm::vec3 m_color;
-    float m_intensity = 1.0f;
 
     // This represents the index of this light within the global buffer
     // of all directional lights.
-    const size_t m_lightIndex = 0;
-
-    // Orientation controls for the directional light.
-    struct Orientation {
-        float phi = 0.0f; // In radians [0 - 2π]
-        float theta = 0.0f; // In radians [-π/2 - π/2]
-    } m_orientation;
+    const size_t m_lightIndex = 0;  
 };

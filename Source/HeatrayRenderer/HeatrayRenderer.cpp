@@ -79,6 +79,7 @@ void HeatrayRenderer::destroy()
     m_renderer.runOpenRLTask([this]() {
         m_editableMaterialScene.material.reset();
         m_groundPlane.reset();
+        m_keyLight.reset();
     });
     m_renderer.destroy();
 
@@ -836,6 +837,35 @@ void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
     }
 }
 
+void HeatrayRenderer::renderKeyLightEditor()
+{
+    bool lightChanged = false;
+
+    DirectionalLight::Params params = m_keyLight->params();
+
+    if (ImGui::SliderFloat3("Color", params.color.data.data, 0.0f, 1.0f)) {
+        lightChanged = true;
+    }
+    if (ImGui::SliderFloat("Intensity (Lumens)", &params.intensity, 0.0f, 10000.0f)) {
+        lightChanged = true;
+    }
+    if (ImGui::SliderAngle("Theta", &params.orientation.theta, -90.0f, 90.0f)) {
+        lightChanged = true;
+    }
+    if (ImGui::SliderAngle("Phi", &params.orientation.phi, 0.0f, 360.0f)) {
+        lightChanged = true;
+    }
+
+    if (lightChanged) {
+        m_keyLight->setParams(params);
+
+        m_renderer.changeLighting([this](std::shared_ptr<SceneLighting> lighting) {
+            lighting->updateLight(m_keyLight);
+            resetRenderer();
+        });
+    }
+}
+
 bool HeatrayRenderer::renderUI()
 {
     bool shouldResetRenderer = m_justResized;
@@ -1068,6 +1098,26 @@ bool HeatrayRenderer::renderUI()
         if (m_groundPlane.material) {
             ImGui::Text("Ground Material");
             renderMaterialEditor(m_groundPlane.material);
+        }
+
+        // Extra lighting.
+        {
+            if (ImGui::Button(m_keyLight ? "Remove Key Light" : "Add Key Light")) {
+                m_renderer.changeLighting([this](std::shared_ptr<SceneLighting> lighting) {
+                    if (m_keyLight) {
+                        m_keyLight.reset();
+                    } else {
+                        m_keyLight = lighting->addDirectionalLight();                        
+                    }
+
+                    resetRenderer();
+                });
+            }
+
+            if (m_keyLight) {
+                ImGui::Text("Key Light");
+                renderKeyLightEditor();
+            }
         }
 
         // Debug visualizations.

@@ -52,6 +52,12 @@ void PassGenerator::init(const RLint renderWidth, const RLint renderHeight)
                 runLoadSceneJob(clearOldScene);
                 break;
             }
+            case JobType::kChangeLighting:
+            {
+                LightingCallback callback = std::any_cast<LightingCallback>(job.params);
+                callback(m_sceneLighting);
+                break;
+            }
             case JobType::kDestroy:
             {
                 runDestroyJob();
@@ -111,6 +117,12 @@ void PassGenerator::loadScene(LoadSceneCallback callback, bool clearOldScene)
     m_jobProcessor.addTask(std::move(job));
 }
 
+void PassGenerator::changeLighting(LightingCallback callback)
+{
+    Job job(JobType::kChangeLighting, std::make_any<LightingCallback>(callback));
+    m_jobProcessor.addTask(std::move(job));
+}
+
 void PassGenerator::runOpenRLTask(OpenRLTask task)
 {
     Job job(JobType::kGeneralTask, std::make_any<OpenRLTask>(task));
@@ -159,9 +171,6 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
     {
         m_sceneLighting = std::shared_ptr<SceneLighting>(new SceneLighting);
         m_environmentLight = m_sceneLighting->addEnvironmentLight();
-
-        // TMP HACK!!!
-        //m_sceneLighting->addDirectionalLight();
     }
 
     {
@@ -380,9 +389,11 @@ void PassGenerator::runDestroyJob()
     m_environmentLight.reset();
     m_sceneData.clear();
     m_frameProgram.reset();
-    m_sceneLighting.reset();
     m_interactiveBlockCoordsTexture.reset();
     m_sequenceOffsetsTexture.reset();
+
+    m_sceneLighting->clear();
+    m_sceneLighting.reset();
 
     m_resultPixels.unmapPixelData();
     m_resultPixels.destroy();
