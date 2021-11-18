@@ -1,6 +1,8 @@
 #include "SceneLighting.h"
 
-#include "ShaderLightingDefines.h"
+#include "EnvironmentLight.h"
+#include "DirectionalLight.h"
+#include "PointLight.h"
 
 #include <RLWrapper/Program.h>
 #include <Utility/Log.h>
@@ -9,6 +11,7 @@ SceneLighting::SceneLighting()
 {
     m_environment.buffer = openrl::Buffer::create(RL_ARRAY_BUFFER, nullptr, sizeof(EnvironmentLightBuffer), "Environment Light Buffer");
     m_directional.buffer = openrl::Buffer::create(RL_ARRAY_BUFFER, nullptr, sizeof(DirectionalLightsBuffer), "Directional Lights Buffer");
+    m_point.buffer = openrl::Buffer::create(RL_ARRAY_BUFFER, nullptr, sizeof(PointLightsBuffer), "Point Lights Buffer");
 
     // Sets all lighting buffers to good defaults.
     clear();
@@ -33,6 +36,21 @@ void SceneLighting::clear()
 
         m_directional.count = 0;
     }
+
+    // Point Lights.
+    {
+        for (size_t iLight = 0; iLight < ShaderLightingDefines::MAX_NUM_POINT_LIGHTS; ++iLight) {
+            m_point.lights[iLight].reset();
+        }
+
+        m_point.buffer->bind();
+        PointLightsBuffer* pointLights = m_point.buffer->mapBuffer<PointLightsBuffer>();
+        pointLights->numberOfLights = 0;
+        m_point.buffer->unmapBuffer();
+        m_point.buffer->unbind();
+
+        m_point.count = 0;
+    }
 }
 
 void SceneLighting::bindLightingBuffersToProgram(std::shared_ptr<openrl::Program> program)
@@ -50,6 +68,14 @@ void SceneLighting::bindLightingBuffersToProgram(std::shared_ptr<openrl::Program
         RLint blockIndex = program->getUniformBlockIndex("DirectionalLights");
         if (blockIndex != -1) {
             program->setUniformBlock(blockIndex, m_directional.buffer->buffer());
+        }
+    }
+
+    // Point lights.
+    {
+        RLint blockIndex = program->getUniformBlockIndex("PointLights");
+        if (blockIndex != -1) {
+            program->setUniformBlock(blockIndex, m_point.buffer->buffer());
         }
     }
 }
@@ -122,4 +148,39 @@ void SceneLighting::updateLight(std::shared_ptr<DirectionalLight> light)
     directionalLights->numberOfLights = m_directional.count;
     m_directional.buffer->unmapBuffer();
     m_directional.buffer->unbind();
+}
+
+std::shared_ptr<PointLight> SceneLighting::addPointLight()
+{
+    if (m_point.count < ShaderLightingDefines::MAX_NUM_POINT_LIGHTS) {
+        size_t lightIndex = m_point.count;
+
+        std::shared_ptr<PointLight> light = std::shared_ptr<PointLight>(new PointLight(lightIndex, m_point.buffer));
+        m_point.lights[lightIndex] = light;
+
+        light->primitive()->bind();
+        light->program()->bind();
+        bindLightingBuffersToProgram(light->program());
+        light->primitive()->unbind();
+
+        ++m_point.count;
+
+        // Update the lighting buffer.
+        updateLight(light);
+
+        return light;
+    }
+
+    LOG_ERROR("Attempting to add too many Point Lights!");
+    return nullptr;
+}
+
+void SceneLighting::updateLight(std::shared_ptr<PointLight> light)
+{
+    m_point.buffer->bind();
+    PointLightsBuffer* pointLights = m_point.buffer->mapBuffer<PointLightsBuffer>();
+    light->copyToLightBuffer(pointLights);
+    pointLights->numberOfLights = m_point.count;
+    m_point.buffer->unmapBuffer();
+    m_point.buffer->unbind();
 }

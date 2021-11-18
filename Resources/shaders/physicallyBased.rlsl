@@ -7,7 +7,6 @@
 //
 
 #include "globalData.rlsl"
-#include "lighting.rlsl"
 #include "microfacet.rlsl"
 #include "sequence.rlsl"
 

@@ -82,7 +82,7 @@ public:
 
     static std::shared_ptr<Shader> createFromMultipleStrings(const std::vector<std::string>& shaderSource, const ShaderType type, const char* name)
     {
-        constexpr static size_t MAX_NUM_SHADER_STRINGS = 10;
+        constexpr static size_t MAX_NUM_SHADER_STRINGS = 20;
         assert(shaderSource.size() < MAX_NUM_SHADER_STRINGS);
 
         if (shaderSource.size()) {

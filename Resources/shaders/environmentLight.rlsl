@@ -6,7 +6,7 @@
 //
 //
 
-#include "lighting.rlsl"
+#include "lightDefines.rlsl"
 #include "rayAttributes.rlsl"
 #include "utility.rlsl"
 

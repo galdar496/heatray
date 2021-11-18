@@ -8,7 +8,7 @@
 
 #include "brdfs.rlsl"
 #include "globalData.rlsl"
-#include "lighting.rlsl"
+#include "lightSampling.rlsl"
 #include "rayAttributes.rlsl"
 #include "sequence.rlsl"
 #include "utility.rlsl"
@@ -56,10 +56,11 @@ void directDiffuseSample(vec3 N, vec3 Cdiff, float sampleProbability, float ligh
     vec3 lightDir;
     primitive lightPrimitive;
     float lightSampleProbability;
-    bool foundLight = false;
-    computeLightSample(N, lightProbability, lightDir, lightPrimitive, lightSampleProbability, foundLight);
+    float lightMaxDistance;
+    int lightType;
+    computeLightSample(N, lightProbability, lightDir, lightPrimitive, lightSampleProbability, lightMaxDistance, lightType);
 
-    if (foundLight) {
+    if (lightType != LIGHT_TYPE_ENVIRONMENT) {
         // We found a direct light.
         float NdotO = dot(N, lightDir);
         if (NdotO > 0.0) {
@@ -79,6 +80,9 @@ void directDiffuseSample(vec3 N, vec3 Cdiff, float sampleProbability, float ligh
                     rl_OutRay.weight            = reflectance;
                     rl_OutRay.occlusionTest     = true;
                     rl_OutRay.defaultPrimitive  = lightPrimitive;
+                    if (lightType == LIGHT_TYPE_POINT) {
+                        rl_OutRay.maxT = lightMaxDistance;
+                    }
                 emitRay();
             }
         }
@@ -159,10 +163,11 @@ void directSpecularSample(vec3 N,
     vec3 lightDir;
     primitive lightPrimitive;
     float lightSampleProbability;
-    bool foundLight = false;
-    computeLightSample(N, lightProbability, lightDir, lightPrimitive, lightSampleProbability, foundLight);
+    float lightMaxDistance;
+    int lightType;
+    computeLightSample(N, lightProbability, lightDir, lightPrimitive, lightSampleProbability, lightMaxDistance, lightType);
 
-    if (foundLight) {
+    if (lightType != LIGHT_TYPE_ENVIRONMENT) {
         float NdotO = dot(N, lightDir);
         if (NdotO > 0.0) {
             NdotO = saturate(NdotO);
@@ -193,6 +198,9 @@ void directSpecularSample(vec3 N,
                     rl_OutRay.weight            = reflectance;
                     rl_OutRay.occlusionTest     = true;
                     rl_OutRay.defaultPrimitive  = lightPrimitive;
+                    if (lightType == LIGHT_TYPE_POINT) {
+                        rl_OutRay.maxT = lightMaxDistance;
+                    }
                 emitRay();
             }
         }

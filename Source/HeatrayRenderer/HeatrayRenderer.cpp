@@ -1,5 +1,7 @@
 #include "HeatrayRenderer.h"
 
+#include "Lights/DirectionalLight.h"
+
 #include "Materials/GlassMaterial.h"
 #include "Materials/MultiScatterUtil.h"
 #include "Materials/PhysicallyBasedMaterial.h"
@@ -846,7 +848,7 @@ void HeatrayRenderer::renderKeyLightEditor()
     if (ImGui::SliderFloat3("Color", params.color.data.data, 0.0f, 1.0f)) {
         lightChanged = true;
     }
-    if (ImGui::SliderFloat("Intensity (Lumens)", &params.intensity, 0.0f, 10000.0f)) {
+    if (ImGui::SliderFloat("Intensity (Lumens)", &params.intensity, 0.0f, 100000.0f)) {
         lightChanged = true;
     }
     if (ImGui::SliderAngle("Theta", &params.orientation.theta, -90.0f, 90.0f)) {
@@ -1107,7 +1109,7 @@ bool HeatrayRenderer::renderUI()
                     if (m_keyLight) {
                         m_keyLight.reset();
                     } else {
-                        m_keyLight = lighting->addDirectionalLight();                        
+                        m_keyLight = lighting->addDirectionalLight();
                     }
 
                     resetRenderer();

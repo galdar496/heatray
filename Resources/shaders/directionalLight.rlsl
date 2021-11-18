@@ -7,7 +7,7 @@
 //
 
 #include "rayAttributes.rlsl"
-#include "lighting.rlsl"
+#include "lightDefines.rlsl"
 
 uniform int lightIndex; // Index of this light in the directional light buffers.
 

@@ -45,6 +45,7 @@ void DirectionalLight::copyToLightBuffer(DirectionalLightsBuffer* buffer)
     assert(buffer);
     
     buffer->directions[m_lightIndex] = m_direction * -1.0f;
+    // We convert from photometric to radiometric units for the shader.
     buffer->colors[m_lightIndex] = m_params.color * (m_params.intensity * LUMENS_TO_WATS);
     buffer->primitives[m_lightIndex] = m_primitive->primitive();
 }

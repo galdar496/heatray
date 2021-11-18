@@ -1,0 +1,36 @@
+//
+//  lightDefines.rlsl
+//  Heatray
+//
+//  Definitions of all supported light types in Heatray.
+//
+//
+
+#include "utility.rlsl"
+
+int LIGHT_TYPE_DIRECTIONAL = 1;
+int LIGHT_TYPE_POINT       = 2;
+int LIGHT_TYPE_ENVIRONMENT = 3;
+
+uniformblock EnvironmentLight {
+    sampler2D texture; // 2D lat/long map defining environment colors.
+    float exposureCompensation; // Exposure adjustment to the environment light.
+    float thetaRotation; // Extra rotation to apply to the environment;
+    primitive lightPrimitive;
+};
+
+uniformblock DirectionalLights {
+    int numberOfLights;
+    
+    vec3 directions[MAX_NUM_DIRECTIONAL_LIGHTS];
+    vec3 colors[MAX_NUM_DIRECTIONAL_LIGHTS];
+    primitive primitives[MAX_NUM_DIRECTIONAL_LIGHTS];
+};
+
+uniformblock PointLights {
+    int numberOfLights;
+    
+    vec3 positions[MAX_NUM_POINT_LIGHTS];
+    vec3 colors[MAX_NUM_POINT_LIGHTS];
+    primitive primitives[MAX_NUM_POINT_LIGHTS];
+};

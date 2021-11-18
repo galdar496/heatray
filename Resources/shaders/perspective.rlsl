@@ -9,7 +9,7 @@
 #include "rayAttributes.rlsl"
 
 #include "globalData.rlsl"
-#include "lighting.rlsl"
+#include "lightDefines.rlsl"
 #include "sequence.rlsl"
 #include "utility.rlsl"
 

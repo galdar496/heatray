@@ -1,0 +1,28 @@
+//
+//  pointLight.rlsl
+//  Heatray
+//
+//  Handle implementation of a point light source.
+//
+//
+
+#include "rayAttributes.rlsl"
+#include "lightDefines.rlsl"
+
+uniform int lightIndex; // Index of this light in the point light buffers.
+
+void setup()
+{
+    rl_OutputRayCount[0] = 0; // No rays are fired from this shader.
+}
+
+void main()
+{
+    // Perform a square falloff for the light intensity.
+    float attenuation = 1.0 / square(rl_IntersectionT);
+
+    // Lookup the color for this particular light.
+    vec3 result = rl_InRay.weight * PointLights.colors[lightIndex] * attenuation;
+
+    accumulate(result); 
+}

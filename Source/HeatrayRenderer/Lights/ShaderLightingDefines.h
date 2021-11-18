@@ -16,10 +16,12 @@
 
 struct ShaderLightingDefines {
     static constexpr size_t MAX_NUM_DIRECTIONAL_LIGHTS = 5;
+    static constexpr size_t MAX_NUM_POINT_LIGHTS = 5;
 
     static void appendLightingShaderDefines(std::stringstream& stream)
     {
         stream << "#define MAX_NUM_DIRECTIONAL_LIGHTS " << MAX_NUM_DIRECTIONAL_LIGHTS << std::endl;
+        stream << "#define MAX_NUM_POINT_LIGHTS " << MAX_NUM_POINT_LIGHTS << std::endl;
     }
 };
 
@@ -36,4 +38,12 @@ struct DirectionalLightsBuffer {
     glm::vec3 directions[ShaderLightingDefines::MAX_NUM_DIRECTIONAL_LIGHTS]; // Direction TO the light.
     glm::vec3 colors[ShaderLightingDefines::MAX_NUM_DIRECTIONAL_LIGHTS]; // In Radiometric units.
     RLprimitive primitives[ShaderLightingDefines::MAX_NUM_DIRECTIONAL_LIGHTS] = { RL_NULL_PRIMITIVE };
+};
+
+struct PointLightsBuffer {
+    int numberOfLights = 0;
+
+    glm::vec3 positions[ShaderLightingDefines::MAX_NUM_POINT_LIGHTS]; // World-space positions of the lights.
+    glm::vec3 colors[ShaderLightingDefines::MAX_NUM_POINT_LIGHTS]; // In Radiometric units.
+    RLprimitive primitives[ShaderLightingDefines::MAX_NUM_POINT_LIGHTS] = { RL_NULL_PRIMITIVE };
 };

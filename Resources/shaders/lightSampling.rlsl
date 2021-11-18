@@ -1,0 +1,117 @@
+//
+//  lightSampling.rlsl
+//  Heatray
+//
+//  Utilities to handle sampling various light types.
+//
+//
+
+#include "lightDefines.rlsl"
+
+void computeLightSample(vec3 N, 
+                        float lightProbability, 
+                        out vec3 sampleDirection, 
+                        out primitive samplePrimitive, 
+                        out float sampleProbability, 
+                        out float maxLightDistance, 
+                        out int lightType)
+{
+    // Establish the probabilities for each light.
+    float probabilitySum = 0.0;
+
+    // Directional lights.
+    float directional[MAX_NUM_DIRECTIONAL_LIGHTS];
+    {
+        for (int iLight = 0; iLight < MAX_NUM_DIRECTIONAL_LIGHTS; ++iLight) {
+            if (iLight < DirectionalLights.numberOfLights) { // Lighting buffer is tightly packed.
+                // Determine a probability for this light based on its angle to the shading surface as well
+                // as its intensity. This should weight more samples towards more "important" lights.
+                directional[iLight] = saturate(dot(N, DirectionalLights.directions[iLight])) * luminosity(DirectionalLights.colors[iLight]);
+                probabilitySum += directional[iLight];
+            }
+        }
+    }
+
+    // Point lights.
+    float point[MAX_NUM_POINT_LIGHTS];
+    vec3 pointLightDirections[MAX_NUM_POINT_LIGHTS];
+    {
+        for (int iLight = 0; iLight < MAX_NUM_POINT_LIGHTS; ++iLight) {
+            if (iLight < PointLights.numberOfLights) { // Lighting buffer is tightly packed.
+                // Determine a probability for this light based on its angle to the shading surface as well
+                // as its intensity. This should weight more samples towards more "important" lights.
+                pointLightDirections[iLight] = normalize(PointLights.positions[iLight] - rl_IntersectionPoint);
+                point[iLight] = saturate(dot(N, pointLightDirections[iLight])) * luminosity(PointLights.colors[iLight]);
+                probabilitySum += point[iLight];
+            }
+        }
+    }
+
+    // Environment light.
+    float environment = 0.0;
+    {
+        if (EnvironmentLight.lightPrimitive != rl_NullPrimitive) {
+            // TODO: Add IBL importance sampling. Right now this is just a hack
+            // to ensure that the IBL has a high chance of being sampled.
+            environment = 5.0;
+            probabilitySum += environment;
+        }
+    }
+
+    // Normalize the probabilities.
+    float probabiltyNormalization = 1.0 / greaterThanZero(probabilitySum);
+    
+    environment *= probabiltyNormalization;
+    for (int iLight = 0; iLight < MAX_NUM_DIRECTIONAL_LIGHTS; ++iLight) {
+        directional[iLight] *= probabiltyNormalization;
+    }
+    for (int iLight = 0; iLight < MAX_NUM_POINT_LIGHTS; ++iLight) {
+        point[iLight] *= probabiltyNormalization;
+    }
+
+    // Now - determine which light to actually sample.
+    float currentProbability = 0.0;
+
+    // Directional lights.
+    {
+        for (int iLight = 0; iLight < MAX_NUM_DIRECTIONAL_LIGHTS; ++iLight) {
+            if (iLight < DirectionalLights.numberOfLights) {
+                currentProbability += directional[iLight];
+                if (directional[iLight] > 0.0) {
+                    if (lightProbability <= currentProbability) {
+                        // We've found our light.
+                        sampleDirection = DirectionalLights.directions[iLight];
+                        samplePrimitive = DirectionalLights.primitives[iLight];
+                        sampleProbability = directional[iLight];
+                        lightType = LIGHT_TYPE_DIRECTIONAL;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    // Point lights.
+    {
+        for (int iLight = 0; iLight < MAX_NUM_POINT_LIGHTS; ++iLight) {
+            if (iLight < PointLights.numberOfLights) {
+                currentProbability += point[iLight];
+                if (point[iLight] > 0.0) {
+                    if (lightProbability <= currentProbability) {
+                        // We've found our light.
+                        sampleDirection = pointLightDirections[iLight];
+                        samplePrimitive = PointLights.primitives[iLight];
+                        sampleProbability = point[iLight];
+                        maxLightDistance = length(PointLights.positions[iLight] - rl_IntersectionPoint);
+                        lightType = LIGHT_TYPE_POINT;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    // If we've made it this far, then assume the environment light should be sampled.
+    lightType = LIGHT_TYPE_ENVIRONMENT;
+    sampleProbability = environment;
+}
