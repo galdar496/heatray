@@ -356,7 +356,7 @@ void HeatrayRenderer::render()
     {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_displayTexture);
-        m_displayProgram.draw(0, m_post_processing_params, float(m_windowParams.width));
+        m_displayProgram.draw(0, m_post_processing_params, size_t(m_windowParams.width));
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
@@ -508,66 +508,66 @@ void HeatrayRenderer::writeSessionFile(const std::string& filename)
     // RenderOptions.
     {
         // General.
-        session.setVariableValue(Session::kInteractiveMode, m_renderOptions.enableInteractiveMode);
-        session.setVariableValue(Session::kMaxRenderPasses, m_renderOptions.maxRenderPasses);
-        session.setVariableValue(Session::kMaxRayDepth, m_renderOptions.maxRayDepth);
-        session.setVariableValue(Session::kScene, m_renderOptions.scene);
-        session.setVariableValue(Session::kSampleMode, static_cast<uint32_t>(m_renderOptions.sampleMode));
-        session.setVariableValue(Session::kBokehShape, static_cast<uint32_t>(m_renderOptions.bokehShape));
+        session.setVariableValue(Session::SessionVariable::kInteractiveMode, m_renderOptions.enableInteractiveMode);
+        session.setVariableValue(Session::SessionVariable::kMaxRenderPasses, m_renderOptions.maxRenderPasses);
+        session.setVariableValue(Session::SessionVariable::kMaxRayDepth, m_renderOptions.maxRayDepth);
+        session.setVariableValue(Session::SessionVariable::kScene, m_renderOptions.scene);
+        session.setVariableValue(Session::SessionVariable::kSampleMode, static_cast<uint32_t>(m_renderOptions.sampleMode));
+        session.setVariableValue(Session::SessionVariable::kBokehShape, static_cast<uint32_t>(m_renderOptions.bokehShape));
 
         // Environment.
         {
-            session.setVariableValue(Session::kEnvironmentMap, m_renderOptions.environment.map);
-            session.setVariableValue(Session::kEnvironmentBuiltIn, m_renderOptions.environment.builtInMap);
-            session.setVariableValue(Session::kEnvironmentExposureCompensation, m_renderOptions.environment.exposureCompensation);
-            session.setVariableValue(Session::kEnvironmentThetaRotation, m_renderOptions.environment.thetaRotation);
+            session.setVariableValue(Session::SessionVariable::kEnvironmentMap, m_renderOptions.environment.map);
+            session.setVariableValue(Session::SessionVariable::kEnvironmentBuiltIn, m_renderOptions.environment.builtInMap);
+            session.setVariableValue(Session::SessionVariable::kEnvironmentExposureCompensation, m_renderOptions.environment.exposureCompensation);
+            session.setVariableValue(Session::SessionVariable::kEnvironmentThetaRotation, m_renderOptions.environment.thetaRotation);
         }
 
         // Camera.
         {
-            session.setVariableValue(Session::kCameraAspectRatio, m_renderOptions.camera.aspectRatio);
-            session.setVariableValue(Session::kCameraFocusDistance, m_renderOptions.camera.focusDistance);
-            session.setVariableValue(Session::kCameraFocalLength, m_renderOptions.camera.focalLength);
-            session.setVariableValue(Session::kCameraApertureRadius, m_renderOptions.camera.apertureRadius);
-            session.setVariableValue(Session::kCameraFStop, m_renderOptions.camera.fstop);
+            session.setVariableValue(Session::SessionVariable::kCameraAspectRatio, m_renderOptions.camera.aspectRatio);
+            session.setVariableValue(Session::SessionVariable::kCameraFocusDistance, m_renderOptions.camera.focusDistance);
+            session.setVariableValue(Session::SessionVariable::kCameraFocalLength, m_renderOptions.camera.focalLength);
+            session.setVariableValue(Session::SessionVariable::kCameraApertureRadius, m_renderOptions.camera.apertureRadius);
+            session.setVariableValue(Session::SessionVariable::kCameraFStop, m_renderOptions.camera.fstop);
         }
     }
 
     // Camera.
     {
-        session.setVariableValue(Session::kOrbitDistance, m_camera.orbitCamera.distance);
-        session.setVariableValue(Session::kOrbitPhi, m_camera.orbitCamera.phi);
-        session.setVariableValue(Session::kOrbitTheta, m_camera.orbitCamera.theta);
-        session.setVariableValue(Session::kOrbitTargetX, m_camera.orbitCamera.target.x);
-        session.setVariableValue(Session::kOrbitTargetY, m_camera.orbitCamera.target.y);
-        session.setVariableValue(Session::kOrbitTargetZ, m_camera.orbitCamera.target.z);
-        session.setVariableValue(Session::kOrbitMaxDistance, m_camera.orbitCamera.max_distance);
+        session.setVariableValue(Session::SessionVariable::kOrbitDistance, m_camera.orbitCamera.distance);
+        session.setVariableValue(Session::SessionVariable::kOrbitPhi, m_camera.orbitCamera.phi);
+        session.setVariableValue(Session::SessionVariable::kOrbitTheta, m_camera.orbitCamera.theta);
+        session.setVariableValue(Session::SessionVariable::kOrbitTargetX, m_camera.orbitCamera.target.x);
+        session.setVariableValue(Session::SessionVariable::kOrbitTargetY, m_camera.orbitCamera.target.y);
+        session.setVariableValue(Session::SessionVariable::kOrbitTargetZ, m_camera.orbitCamera.target.z);
+        session.setVariableValue(Session::SessionVariable::kOrbitMaxDistance, m_camera.orbitCamera.max_distance);
     }
 
     // Scene.
     {
-        session.setVariableValue(Session::kUnits, static_cast<uint32_t>(m_scene_units));
-        session.setVariableValue(Session::kSwapYZ, m_swapYZ);
-        session.setVariableValue(Session::kAABB_MinX, m_sceneAABB.min.x);
-        session.setVariableValue(Session::kAABB_MinY, m_sceneAABB.min.y);
-        session.setVariableValue(Session::kAABB_MinZ, m_sceneAABB.min.z);
-        session.setVariableValue(Session::kAABB_MaxX, m_sceneAABB.max.x);
-        session.setVariableValue(Session::kAABB_MaxY, m_sceneAABB.max.y);
-        session.setVariableValue(Session::kAABB_MaxZ, m_sceneAABB.max.z);
+        session.setVariableValue(Session::SessionVariable::kUnits, static_cast<uint32_t>(m_scene_units));
+        session.setVariableValue(Session::SessionVariable::kSwapYZ, m_swapYZ);
+        session.setVariableValue(Session::SessionVariable::kAABB_MinX, m_sceneAABB.min.x);
+        session.setVariableValue(Session::SessionVariable::kAABB_MinY, m_sceneAABB.min.y);
+        session.setVariableValue(Session::SessionVariable::kAABB_MinZ, m_sceneAABB.min.z);
+        session.setVariableValue(Session::SessionVariable::kAABB_MaxX, m_sceneAABB.max.x);
+        session.setVariableValue(Session::SessionVariable::kAABB_MaxY, m_sceneAABB.max.y);
+        session.setVariableValue(Session::SessionVariable::kAABB_MaxZ, m_sceneAABB.max.z);
     }
 
     // Post processing.
     {
-        session.setVariableValue(Session::kTonemapEnable, m_post_processing_params.tonemapping_enabled);
-        session.setVariableValue(Session::kExposure, m_post_processing_params.exposure);
-        session.setVariableValue(Session::kBrightness, m_post_processing_params.brightness);
-        session.setVariableValue(Session::kContrast, m_post_processing_params.contrast);
-        session.setVariableValue(Session::kHue, m_post_processing_params.hue);
-        session.setVariableValue(Session::kSaturation, m_post_processing_params.saturation);
-        session.setVariableValue(Session::kVibrance, m_post_processing_params.vibrance);
-        session.setVariableValue(Session::kRed, m_post_processing_params.red);
-        session.setVariableValue(Session::kGreen, m_post_processing_params.green);
-        session.setVariableValue(Session::kBlue, m_post_processing_params.blue);
+        session.setVariableValue(Session::SessionVariable::kTonemapEnable, m_post_processing_params.tonemapping_enabled);
+        session.setVariableValue(Session::SessionVariable::kExposure, m_post_processing_params.exposure);
+        session.setVariableValue(Session::SessionVariable::kBrightness, m_post_processing_params.brightness);
+        session.setVariableValue(Session::SessionVariable::kContrast, m_post_processing_params.contrast);
+        session.setVariableValue(Session::SessionVariable::kHue, m_post_processing_params.hue);
+        session.setVariableValue(Session::SessionVariable::kSaturation, m_post_processing_params.saturation);
+        session.setVariableValue(Session::SessionVariable::kVibrance, m_post_processing_params.vibrance);
+        session.setVariableValue(Session::SessionVariable::kRed, m_post_processing_params.red);
+        session.setVariableValue(Session::SessionVariable::kGreen, m_post_processing_params.green);
+        session.setVariableValue(Session::SessionVariable::kBlue, m_post_processing_params.blue);
     }
 
     session.writeSessionFile(filename);
@@ -580,71 +580,71 @@ void HeatrayRenderer::readSessionFile(const std::string& filename)
         // RenderOptions.
         {
             // General.
-            session.getVariableValue(Session::kInteractiveMode, m_renderOptions.enableInteractiveMode);
-            session.getVariableValue(Session::kMaxRenderPasses, m_renderOptions.maxRenderPasses);
-            session.getVariableValue(Session::kMaxRayDepth, m_renderOptions.maxRayDepth);
-            session.getVariableValue(Session::kScene, m_renderOptions.scene);
+            session.getVariableValue(Session::SessionVariable::kInteractiveMode, m_renderOptions.enableInteractiveMode);
+            session.getVariableValue(Session::SessionVariable::kMaxRenderPasses, m_renderOptions.maxRenderPasses);
+            session.getVariableValue(Session::SessionVariable::kMaxRayDepth, m_renderOptions.maxRayDepth);
+            session.getVariableValue(Session::SessionVariable::kScene, m_renderOptions.scene);
             uint32_t tmp = 0;
-            session.getVariableValue(Session::kSampleMode, tmp);
+            session.getVariableValue(Session::SessionVariable::kSampleMode, tmp);
             m_renderOptions.sampleMode = static_cast<PassGenerator::RenderOptions::SampleMode>(tmp);
-            session.getVariableValue(Session::kBokehShape, tmp);
+            session.getVariableValue(Session::SessionVariable::kBokehShape, tmp);
             m_renderOptions.bokehShape = static_cast<PassGenerator::RenderOptions::BokehShape>(tmp);
 
             // Environment.
             {
-                session.getVariableValue(Session::kEnvironmentMap, m_renderOptions.environment.map);
-                session.getVariableValue(Session::kEnvironmentBuiltIn, m_renderOptions.environment.builtInMap);
-                session.getVariableValue(Session::kEnvironmentExposureCompensation, m_renderOptions.environment.exposureCompensation);
-                session.getVariableValue(Session::kEnvironmentThetaRotation, m_renderOptions.environment.thetaRotation);
+                session.getVariableValue(Session::SessionVariable::kEnvironmentMap, m_renderOptions.environment.map);
+                session.getVariableValue(Session::SessionVariable::kEnvironmentBuiltIn, m_renderOptions.environment.builtInMap);
+                session.getVariableValue(Session::SessionVariable::kEnvironmentExposureCompensation, m_renderOptions.environment.exposureCompensation);
+                session.getVariableValue(Session::SessionVariable::kEnvironmentThetaRotation, m_renderOptions.environment.thetaRotation);
             }
 
             // Camera.
             {
-                session.getVariableValue(Session::kCameraAspectRatio, m_renderOptions.camera.aspectRatio);
-                session.getVariableValue(Session::kCameraFocusDistance, m_renderOptions.camera.focusDistance);
-                session.getVariableValue(Session::kCameraFocalLength, m_renderOptions.camera.focalLength);
-                session.getVariableValue(Session::kCameraApertureRadius, m_renderOptions.camera.apertureRadius);
-                session.getVariableValue(Session::kCameraFStop, m_renderOptions.camera.fstop);
+                session.getVariableValue(Session::SessionVariable::kCameraAspectRatio, m_renderOptions.camera.aspectRatio);
+                session.getVariableValue(Session::SessionVariable::kCameraFocusDistance, m_renderOptions.camera.focusDistance);
+                session.getVariableValue(Session::SessionVariable::kCameraFocalLength, m_renderOptions.camera.focalLength);
+                session.getVariableValue(Session::SessionVariable::kCameraApertureRadius, m_renderOptions.camera.apertureRadius);
+                session.getVariableValue(Session::SessionVariable::kCameraFStop, m_renderOptions.camera.fstop);
             }
         }
 
         // Camera.
         {
-            session.getVariableValue(Session::kOrbitDistance, m_camera.orbitCamera.distance);
-            session.getVariableValue(Session::kOrbitPhi, m_camera.orbitCamera.phi);
-            session.getVariableValue(Session::kOrbitTheta, m_camera.orbitCamera.theta);
-            session.getVariableValue(Session::kOrbitTargetX, m_camera.orbitCamera.target.x);
-            session.getVariableValue(Session::kOrbitTargetY, m_camera.orbitCamera.target.y);
-            session.getVariableValue(Session::kOrbitTargetZ, m_camera.orbitCamera.target.z);
-            session.getVariableValue(Session::kOrbitMaxDistance, m_camera.orbitCamera.max_distance);
+            session.getVariableValue(Session::SessionVariable::kOrbitDistance, m_camera.orbitCamera.distance);
+            session.getVariableValue(Session::SessionVariable::kOrbitPhi, m_camera.orbitCamera.phi);
+            session.getVariableValue(Session::SessionVariable::kOrbitTheta, m_camera.orbitCamera.theta);
+            session.getVariableValue(Session::SessionVariable::kOrbitTargetX, m_camera.orbitCamera.target.x);
+            session.getVariableValue(Session::SessionVariable::kOrbitTargetY, m_camera.orbitCamera.target.y);
+            session.getVariableValue(Session::SessionVariable::kOrbitTargetZ, m_camera.orbitCamera.target.z);
+            session.getVariableValue(Session::SessionVariable::kOrbitMaxDistance, m_camera.orbitCamera.max_distance);
         }
 
         // Scene.
         {
             uint32_t tmp = 0;
-            session.getVariableValue(Session::kUnits, tmp);
+            session.getVariableValue(Session::SessionVariable::kUnits, tmp);
             m_scene_units = static_cast<SceneUnits>(tmp);
-            session.getVariableValue(Session::kSwapYZ, m_swapYZ);
-            session.getVariableValue(Session::kAABB_MinX, m_sceneAABB.min.x);
-            session.getVariableValue(Session::kAABB_MinY, m_sceneAABB.min.y);
-            session.getVariableValue(Session::kAABB_MinZ, m_sceneAABB.min.z);
-            session.getVariableValue(Session::kAABB_MaxX, m_sceneAABB.max.x);
-            session.getVariableValue(Session::kAABB_MaxY, m_sceneAABB.max.y);
-            session.getVariableValue(Session::kAABB_MaxZ, m_sceneAABB.max.z);
+            session.getVariableValue(Session::SessionVariable::kSwapYZ, m_swapYZ);
+            session.getVariableValue(Session::SessionVariable::kAABB_MinX, m_sceneAABB.min.x);
+            session.getVariableValue(Session::SessionVariable::kAABB_MinY, m_sceneAABB.min.y);
+            session.getVariableValue(Session::SessionVariable::kAABB_MinZ, m_sceneAABB.min.z);
+            session.getVariableValue(Session::SessionVariable::kAABB_MaxX, m_sceneAABB.max.x);
+            session.getVariableValue(Session::SessionVariable::kAABB_MaxY, m_sceneAABB.max.y);
+            session.getVariableValue(Session::SessionVariable::kAABB_MaxZ, m_sceneAABB.max.z);
         }
 
         // Post processing.
         {
-            session.getVariableValue(Session::kTonemapEnable, m_post_processing_params.tonemapping_enabled);
-            session.getVariableValue(Session::kExposure, m_post_processing_params.exposure);
-            session.getVariableValue(Session::kBrightness, m_post_processing_params.brightness);
-            session.getVariableValue(Session::kContrast, m_post_processing_params.contrast);
-            session.getVariableValue(Session::kHue, m_post_processing_params.hue);
-            session.getVariableValue(Session::kSaturation, m_post_processing_params.saturation);
-            session.getVariableValue(Session::kVibrance, m_post_processing_params.vibrance);
-            session.getVariableValue(Session::kRed, m_post_processing_params.red);
-            session.getVariableValue(Session::kGreen, m_post_processing_params.green);
-            session.getVariableValue(Session::kBlue, m_post_processing_params.blue);
+            session.getVariableValue(Session::SessionVariable::kTonemapEnable, m_post_processing_params.tonemapping_enabled);
+            session.getVariableValue(Session::SessionVariable::kExposure, m_post_processing_params.exposure);
+            session.getVariableValue(Session::SessionVariable::kBrightness, m_post_processing_params.brightness);
+            session.getVariableValue(Session::SessionVariable::kContrast, m_post_processing_params.contrast);
+            session.getVariableValue(Session::SessionVariable::kHue, m_post_processing_params.hue);
+            session.getVariableValue(Session::SessionVariable::kSaturation, m_post_processing_params.saturation);
+            session.getVariableValue(Session::SessionVariable::kVibrance, m_post_processing_params.vibrance);
+            session.getVariableValue(Session::SessionVariable::kRed, m_post_processing_params.red);
+            session.getVariableValue(Session::SessionVariable::kGreen, m_post_processing_params.green);
+            session.getVariableValue(Session::SessionVariable::kBlue, m_post_processing_params.blue);
         }
 
         // Now actually process the parameters. NOTE: we do not allow the camera to be reset because we want to use
@@ -1264,7 +1264,7 @@ bool HeatrayRenderer::renderUI()
             }
 
             if (m_renderOptions.debugPassRendering) {
-                if (ImGui::SliderInt("Pass", &m_renderOptions.debugPassIndex, 0, m_totalPasses)) {
+                if (ImGui::SliderInt("Pass", &m_renderOptions.debugPassIndex, 0, (int)m_totalPasses)) {
                     shouldResetRenderer = true;
                     m_debugPassChanged = true;
                 }

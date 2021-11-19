@@ -24,7 +24,7 @@ glm::vec3 CartesianFromSpherical(glm::vec3 const & spherical)
 class SphereMeshProvider : public MeshProvider
 {
 public:
-    explicit SphereMeshProvider(int uSlices, int vSlices, float radius) : MeshProvider(), uSlices(uSlices), vSlices(vSlices), radius(radius)
+    explicit SphereMeshProvider(size_t uSlices, size_t vSlices, float radius) : MeshProvider(), uSlices(uSlices), vSlices(vSlices), radius(radius)
     {
         vertexCount = (uSlices + 1) * (vSlices + 2);
     }
@@ -45,11 +45,11 @@ public:
     void FillVertexBuffer(size_t bufferIndex, uint8_t *buffer) override
     {
         float *floatPtr = (float *)buffer;
-        int vSteps = vSlices + 2;
-        for (int ii = 0; ii < uSlices + 1; ++ii) {
+        size_t vSteps = vSlices + 2;
+        for (size_t ii = 0; ii < uSlices + 1; ++ii) {
             float u = (float)ii / (float)uSlices;
             // Add 2 to vSlices so we account for the poles
-            for (int jj = 0; jj < vSteps; ++jj) {
+            for (size_t jj = 0; jj < vSteps; ++jj) {
                 // Add 1 to vSlices for our range for the poles
                 float v = (float)jj / (float)(vSlices + 1);
 
@@ -86,9 +86,9 @@ public:
     {
         int *indexPtr = (int *)buffer;
 
-        int vSteps = vSlices + 2;
-        for (int ii = 0; ii < uSlices; ++ii) {
-            for (int jj = 0; jj < vSteps - 1; ++jj) {
+        size_t vSteps = vSlices + 2;
+        for (int ii = 0; ii < (int)uSlices; ++ii) {
+            for (int jj = 0; jj < (int)vSteps - 1; ++jj) {
                 // If jj is adjacent to first pole, make a triangles
                 if (jj == 0) {
                     // first pole, make a triangle
@@ -169,8 +169,8 @@ public:
     }
 
 private:
-    int uSlices = 0;
-    int vSlices = 0;
+    size_t uSlices = 0;
+    size_t vSlices = 0;
     float radius = 0.0f;
     size_t vertexCount = 0;
 };

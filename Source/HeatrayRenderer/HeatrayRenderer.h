@@ -237,7 +237,7 @@ private:
 
     std::atomic<bool> m_shouldCopyPixels = false;   ///< If true, a new frame is available from the FrameGenerator. 
     std::atomic<const float*> m_pathracedPixels = nullptr;  ///< Result of the pathtracer.
-    glm::ivec2 m_pixelDimensions; ///< width,height of the pathtraced pixel data.
+    glm::ivec2 m_pixelDimensions = glm::ivec2(0); ///< width,height of the pathtraced pixel data.
     bool m_justResized = false; ///< If true, the renderer has just processed a resize event.
     bool m_renderingFrame = false; ///< If true, the pathtracer is currently rendering a frame.
     bool m_resetRequested = true; ///< If true, a reset of the renderer has been requested.
@@ -249,7 +249,7 @@ private:
 
     struct Camera
     {
-        FlyCamera flyCamera;
+        //FlyCamera flyCamera;
         OrbitCamera orbitCamera;
     };
 

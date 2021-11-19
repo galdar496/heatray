@@ -22,10 +22,10 @@ struct ShaderParams {
     RLtexture clearCoatTexture = RL_NULL_TEXTURE;
     RLtexture clearCoatRoughnessTexture = RL_NULL_TEXTURE;
     RLtexture clearCoatNormalmap = RL_NULL_TEXTURE;
-    RLtexture multiscatterLUT;
+    RLtexture multiscatterLUT = RL_NULL_TEXTURE;
 
-    glm::vec3 baseColor;
-    glm::vec3 emissiveColor;
+    glm::vec3 baseColor = glm::vec3(1.0f);
+    glm::vec3 emissiveColor = glm::vec3(0.0f);
     float metallic = 0.0f;
     float roughness = 0.0f;
     float specularF0 = 0.0f;
@@ -96,7 +96,7 @@ void PhysicallyBasedMaterial::build()
         shaderPrefix << "#define HAS_TEXTURES\n";
     }
 
-    LOG_INFO("Building shader: %s with flags: %s", m_shader, shaderPrefix.str().c_str());
+    LOG_INFO("Building shader: %s with flags:\n%s", m_shader, shaderPrefix.str().c_str());
     m_program = util::buildProgram(m_vertexShader, m_shader, "PhysicallyBased", shaderPrefix.str());
 
     // NOTE: the association of the program and the uniform block needs to happen in the calling code.

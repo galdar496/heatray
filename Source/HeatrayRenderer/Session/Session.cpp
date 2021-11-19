@@ -72,7 +72,7 @@ Session::Session()
         // Read the session variables from the X macro.
 
 #define X(variableGroup, variableName, type, defaultValue) \
-        g_sessionVariableMap[#variableGroup].push_back(&(g_sessionVariables[k##variableName]));
+        g_sessionVariableMap[#variableGroup].push_back(&(g_sessionVariables[static_cast<size_t>(SessionVariable::k##variableName)]));
 
         HEATRAY_SESSION_VARIABLES
 
@@ -222,50 +222,50 @@ bool Session::writeSessionFile(const std::string& filename) const
 
 void Session::getVariableValue(const SessionVariable& variable, int& value) const
 {
-    value = g_sessionVariables[variable].value.i;
+    value = g_sessionVariables[static_cast<size_t>(variable)].value.i;
 }
 
 void Session::getVariableValue(const SessionVariable& variable, uint32_t& value) const
 {
-    value = g_sessionVariables[variable].value.u;
+    value = g_sessionVariables[static_cast<size_t>(variable)].value.u;
 }
 
 void Session::getVariableValue(const SessionVariable& variable, bool& value) const
 {
-    value = g_sessionVariables[variable].value.b;
+    value = g_sessionVariables[static_cast<size_t>(variable)].value.b;
 }
 
 void Session::getVariableValue(const SessionVariable& variable, float& value) const
 {
-    value = g_sessionVariables[variable].value.f;
+    value = g_sessionVariables[static_cast<size_t>(variable)].value.f;
 }
 
 void Session::getVariableValue(const SessionVariable& variable, std::string& value) const
 {
-    value = std::string(g_sessionVariables[variable].value.c);
+    value = std::string(g_sessionVariables[static_cast<size_t>(variable)].value.c);
 }
 
 void Session::setVariableValue(const SessionVariable& variable, int value) const
 {
-    g_sessionVariables[variable].value.i = value;
+    g_sessionVariables[static_cast<size_t>(variable)].value.i = value;
 }
 
 void Session::setVariableValue(const SessionVariable& variable, uint32_t value) const
 {
-    g_sessionVariables[variable].value.u = value;
+    g_sessionVariables[static_cast<size_t>(variable)].value.u = value;
 }
 
 void Session::setVariableValue(const SessionVariable& variable, bool value) const
 {
-    g_sessionVariables[variable].value.b = value;
+    g_sessionVariables[static_cast<size_t>(variable)].value.b = value;
 }
 
 void Session::setVariableValue(const SessionVariable& variable, float value) const
 {
-    g_sessionVariables[variable].value.f = value;
+    g_sessionVariables[static_cast<size_t>(variable)].value.f = value;
 }
 
 void Session::setVariableValue(const SessionVariable& variable, const std::string& value) const
 {
-    strcpy(g_sessionVariables[variable].value.c, value.c_str());
+    strcpy(g_sessionVariables[static_cast<size_t>(variable)].value.c, value.c_str());
 }

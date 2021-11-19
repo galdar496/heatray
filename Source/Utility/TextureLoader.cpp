@@ -12,7 +12,7 @@
 
 namespace util {
 
-    std::shared_ptr<openrl::Texture> loadTexture(const char* path, bool generateMips, bool convertToLinear)
+std::shared_ptr<openrl::Texture> loadTexture(const char* path, bool generateMips, bool convertToLinear)
 {
     LOG_INFO("Loading texture %s", path);
     openrl::Texture::Sampler sampler;

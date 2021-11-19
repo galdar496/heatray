@@ -38,6 +38,6 @@ struct OrbitCamera
         const glm::mat4 translation = glm::translate(glm::mat4(1), target + glm::vec3(0, 0, distance));
         const glm::mat4 viewMatrix = glm::mat4_cast(glm::inverse(orientation)) * translation;
 
-        return std::move(viewMatrix);
+        return viewMatrix;
     }
 };

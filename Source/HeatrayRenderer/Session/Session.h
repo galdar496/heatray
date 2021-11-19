@@ -73,7 +73,7 @@ class Session
 public:
 
     // All session variables present in the system.
-    enum SessionVariable
+    enum class SessionVariable : size_t
     {
 #define X(variableGroup, variableName, type, defaultValue) k##variableName,
 

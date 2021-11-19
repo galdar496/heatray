@@ -94,7 +94,7 @@ void generateMultiScatterTexture()
     // gets reflected among the microsurfaces for varying roughness values and view directions.
     // These results will be placed in a LUT that can be efficiently queried at runtime.
 
-    static constexpr size_t IMAGE_DIMENSIONS = 128.0f;
+    static constexpr size_t IMAGE_DIMENSIONS = 128;
     static constexpr size_t SAMPLE_COUNT = 4096;
 
     // Generate our random sequence data to use for importance sampling.
@@ -108,12 +108,12 @@ void generateMultiScatterTexture()
     size_t resultIndex = 0;
     // row: alpha, col: NdotV
     for (float row = 0.0f; row < IMAGE_DIMENSIONS; ++row) {
-        const float roughness = glm::saturate<float, glm::defaultp>((row + 0.5f) / IMAGE_DIMENSIONS);
+        const float roughness = glm::saturate<float, glm::defaultp>((row + 0.5f) / float(IMAGE_DIMENSIONS));
 
         // We use the perceptural roughness as defined by Disney (roughness^2).
         const float alpha = roughness * roughness;
         for (float col = 0.0f; col < IMAGE_DIMENSIONS; ++col) {
-            const float NdotV = glm::saturate<float, glm::defaultp>((col + 0.5f) / IMAGE_DIMENSIONS);
+            const float NdotV = glm::saturate<float, glm::defaultp>((col + 0.5f) / float(IMAGE_DIMENSIONS));
             float value = generateValue(NdotV, alpha, SAMPLE_COUNT, randomSequence);
             value = ((1.0f - value) / value); // Value is stored like this to avoid shader operations later.
 

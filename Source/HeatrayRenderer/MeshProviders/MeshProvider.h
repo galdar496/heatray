@@ -37,7 +37,7 @@ enum VertexAttributeUsage {
 };
 
 struct VertexAttribute {
-    VertexAttributeUsage usage;
+    VertexAttributeUsage usage = VertexAttributeUsage_Position;
     int buffer = -1;
     int componentCount = 0;
     int size = 0;
@@ -56,7 +56,7 @@ public:
         size_t elementCount = 0;
         DrawMode drawMode = DrawMode::Triangles;
         int materialIndex = -1;
-        glm::mat4 localTransform;
+        glm::mat4 localTransform = glm::mat4(1.0f);
     };
 
     virtual ~MeshProvider() {}

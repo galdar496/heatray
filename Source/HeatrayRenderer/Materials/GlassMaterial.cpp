@@ -18,7 +18,8 @@ struct ShaderParams
     RLtexture baseColorTexture = RL_NULL_TEXTURE;
     RLtexture normalmap = RL_NULL_TEXTURE;
     RLtexture metallicRoughnessTexture = RL_NULL_TEXTURE; // B: metallic, G: roughness
-    glm::vec3 baseColor;
+
+    glm::vec3 baseColor = glm::vec3(1.0f);
     float roughness = 0.0f;
     float roughnessAlpha = 0.0f; ///< GGX alpha value (roughness^2).
     float ior = 1.0f;
@@ -69,7 +70,7 @@ void GlassMaterial::build()
         shaderPrefix << "#define HAS_TEXTURES\n";
     }
 
-    LOG_INFO("Building shader: %s with flags: %s", m_shader, shaderPrefix.str().c_str());
+    LOG_INFO("Building shader: %s with flags:\n%s", m_shader, shaderPrefix.str().c_str());
     m_program = util::buildProgram(m_vertexShader, m_shader, "Glass", shaderPrefix.str());
 
     // NOTE: the association of the program and the uniform block needs to happen in the calling code.

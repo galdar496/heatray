@@ -207,7 +207,7 @@ inline void halton(glm::vec3* results, const unsigned int count, int sequenceInd
     owenScrambleSequence(results, count, sequenceIndex, generator);
 }
 
-inline void sobol(glm::vec3* results, const unsigned int count, int sequenceIndex)
+inline void sobol(glm::vec3* results, const uint32_t count, uint32_t sequenceIndex)
 {
     assert(results);
 

@@ -56,12 +56,12 @@ private:
     struct Directional {
         std::shared_ptr<DirectionalLight> lights[ShaderLightingDefines::MAX_NUM_DIRECTIONAL_LIGHTS] = { nullptr };
         std::shared_ptr<openrl::Buffer> buffer = nullptr;
-        size_t count = 0;
+        int count = 0;
     } m_directional;
 
     struct Point {
         std::shared_ptr<PointLight> lights[ShaderLightingDefines::MAX_NUM_POINT_LIGHTS] = { nullptr };
         std::shared_ptr<openrl::Buffer> buffer = nullptr;
-        size_t count = 0;
+        int count = 0;
     } m_point;
 };

@@ -260,7 +260,7 @@ void PassGenerator::runResizeJob(const RLint newRenderWidth, const RLint newRend
         {
             std::vector<glm::vec3> randomValues;
             randomValues.resize(newRenderWidth * newRenderHeight);
-            util::sobol(randomValues.data(), randomValues.size(), 0);
+            util::sobol(randomValues.data(), (uint32_t)randomValues.size(), 0);
 
             openrl::Texture::Descriptor desc;
             desc.dataType       = RL_FLOAT;

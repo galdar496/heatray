@@ -23,7 +23,7 @@ enum BufferTypes {
 };
 
 public:
-    explicit PlaneMeshProvider(int width, int length) : MeshProvider(), m_width(width), m_length(length)
+    explicit PlaneMeshProvider(size_t width, size_t length) : MeshProvider(), m_width(width), m_length(length)
     {
     }
     virtual ~PlaneMeshProvider() {}
@@ -137,6 +137,6 @@ public:
     }
 
 private:
-    int m_width = 0;  ///< X
-    int m_length = 0; ///< Z
+    size_t m_width = 0;  ///< X
+    size_t m_length = 0; ///< Z
 };
