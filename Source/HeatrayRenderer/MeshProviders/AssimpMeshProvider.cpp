@@ -79,7 +79,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
         LOG_INFO("Positions: %u", mesh->mNumVertices);
         VertexAttribute & attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
         attribute.usage = VertexAttributeUsage_Position;
-        attribute.buffer = m_vertexBuffers.size();
+        attribute.buffer = (int)m_vertexBuffers.size();
         attribute.componentCount = 3;
         attribute.size = sizeof(float);
         attribute.offset = 0;
@@ -108,7 +108,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
         LOG_INFO("Normals: %u", mesh->mNumVertices);
         VertexAttribute & attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
         attribute.usage = VertexAttributeUsage_Normal;
-        attribute.buffer = m_vertexBuffers.size();
+        attribute.buffer = (int)m_vertexBuffers.size();
         attribute.componentCount = 3;
         attribute.size = sizeof(float);
         attribute.offset = 0;
@@ -136,7 +136,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
 
         VertexAttribute & attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
         attribute.usage = VertexAttributeUsage_TexCoord;
-        attribute.buffer = m_vertexBuffers.size();
+        attribute.buffer = (int)m_vertexBuffers.size();
         attribute.componentCount = mesh->mNumUVComponents[0];
         attribute.size = sizeof(float);
         attribute.offset = 0;
@@ -160,7 +160,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
         {
             VertexAttribute& attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
             attribute.usage = VertexAttributeUsage_Tangents;
-            attribute.buffer = m_vertexBuffers.size();
+            attribute.buffer = (int)m_vertexBuffers.size();
             attribute.componentCount = 3;
             attribute.size = sizeof(float);
             attribute.offset = 0;
@@ -187,7 +187,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
         {
             VertexAttribute& attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
             attribute.usage = VertexAttributeUsage_Bitangents;
-            attribute.buffer = m_vertexBuffers.size();
+            attribute.buffer = (int)m_vertexBuffers.size();
             attribute.componentCount = 3;
             attribute.size = sizeof(float);
             attribute.offset = 0;
@@ -341,43 +341,71 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
     auto filePath = std::filesystem::path(m_filename);
     auto fileParent = filePath.parent_path();
 
+    struct TextureTask {
+        std::future<util::LoadedTexture> future;
+        std::shared_ptr<openrl::Texture> *texture = nullptr;
+    };
+    std::vector<TextureTask> textureTasks;
+
     aiString fileTexturePath;
     if (material->GetTexture(AI_MATKEY_BASE_COLOR_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-        params.baseColorTexture = util::loadTexture(texturePath.c_str(), true, true);
+        textureTasks.emplace_back();
+        textureTasks.back().future = util::loadTextureAsync(texturePath.c_str(), true, true);
+        textureTasks.back().texture = &params.baseColorTexture;
     } else if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
         material->GetTexture(aiTextureType_DIFFUSE, 0, &fileTexturePath);
         auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-        params.baseColorTexture = util::loadTexture(texturePath.c_str(), true, true);
+        textureTasks.emplace_back();
+        textureTasks.back().future = util::loadTextureAsync(texturePath.c_str(), true, true);
+        textureTasks.back().texture = &params.baseColorTexture;
     }
     if (material->GetTextureCount(aiTextureType_EMISSIVE) > 0) {
         aiString emissiveTexturePath;
         material->GetTexture(aiTextureType_EMISSIVE, 0, &emissiveTexturePath);
         auto texturePath = (fileParent / emissiveTexturePath.C_Str()).string();
-        params.emissiveTexture = util::loadTexture(texturePath.c_str(), true, true);
+        textureTasks.emplace_back();
+        textureTasks.back().future = util::loadTextureAsync(texturePath.c_str(), true, true);
+        textureTasks.back().texture = &params.emissiveTexture;
     }
     aiString fileRoughnessMetallicTexture;
     if (material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &fileRoughnessMetallicTexture) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileRoughnessMetallicTexture.C_Str()).string();
-        params.metallicRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
+        textureTasks.emplace_back();
+        textureTasks.back().future = util::loadTextureAsync(texturePath.c_str(), true, false);
+        textureTasks.back().texture = &params.metallicRoughnessTexture;
     }
     if (material->GetTextureCount(aiTextureType_NORMALS) > 0) {
         aiString normalTexturePath;
         material->GetTexture(aiTextureType_NORMALS, 0, &normalTexturePath);
         auto texturePath = (fileParent / normalTexturePath.C_Str()).string();
-        params.normalmap = util::loadTexture(texturePath.c_str(), true, false);
+        textureTasks.emplace_back();
+        textureTasks.back().future = util::loadTextureAsync(texturePath.c_str(), true, false);
+        textureTasks.back().texture = &params.normalmap;
     }
     if (material->GetTexture(AI_MATKEY_CLEARCOAT_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-        params.clearCoatTexture = util::loadTexture(texturePath.c_str(), true, false);
+        textureTasks.emplace_back();
+        textureTasks.back().future = util::loadTextureAsync(texturePath.c_str(), true, false);
+        textureTasks.back().texture = &params.clearCoatTexture;
     }
     if (material->GetTexture(AI_MATKEY_CLEARCOAT_ROUGHNESS_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-        params.clearCoatRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
+        textureTasks.emplace_back();
+        textureTasks.back().future = util::loadTextureAsync(texturePath.c_str(), true, false);
+        textureTasks.back().texture = &params.clearCoatRoughnessTexture;
     }
     if (material->GetTexture(AI_MATKEY_CLEARCOAT_NORMAL_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-        params.clearCoatNormalmap = util::loadTexture(texturePath.c_str(), true, false);
+        textureTasks.emplace_back();
+        textureTasks.back().future = util::loadTextureAsync(texturePath.c_str(), true, false);
+        textureTasks.back().texture = &params.clearCoatNormalmap;
+    }
+
+    // Wait for each task and upload the texture data to OpenRL.
+    for (auto &task : textureTasks) {
+        util::LoadedTexture loadedTexture = task.future.get();
+        *task.texture = openrl::Texture::create(loadedTexture.pixels.get(), loadedTexture.desc, loadedTexture.sampler, true);
     }
 
     m_materials.push_back(pbrMaterial);

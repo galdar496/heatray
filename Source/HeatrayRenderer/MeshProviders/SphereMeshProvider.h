@@ -86,9 +86,9 @@ public:
     {
         int *indexPtr = (int *)buffer;
 
-        size_t vSteps = vSlices + 2;
+        int vSteps = (int)vSlices + 2;
         for (int ii = 0; ii < (int)uSlices; ++ii) {
-            for (int jj = 0; jj < (int)vSteps - 1; ++jj) {
+            for (int jj = 0; jj < vSteps - 1; ++jj) {
                 // If jj is adjacent to first pole, make a triangles
                 if (jj == 0) {
                     // first pole, make a triangle

@@ -12,18 +12,15 @@
 
 namespace util {
 
-std::shared_ptr<openrl::Texture> loadTexture(const char* path, bool generateMips, bool convertToLinear)
+void loadTextureInternal(LoadedTexture& loadedTexture, const char *path, bool generateMips, bool convertToLinear)
 {
     LOG_INFO("Loading texture %s", path);
-    openrl::Texture::Sampler sampler;
     if (!generateMips) { // default sampler state is with mipmapping enabled.
-        sampler.magFilter = RL_LINEAR;
-        sampler.minFilter = RL_LINEAR;
-        sampler.wrapS = RL_CLAMP_TO_EDGE;
-        sampler.wrapT = RL_CLAMP_TO_EDGE;
+        loadedTexture.sampler.magFilter = RL_LINEAR;
+        loadedTexture.sampler.minFilter = RL_LINEAR;
+        loadedTexture.sampler.wrapS = RL_CLAMP_TO_EDGE;
+        loadedTexture.sampler.wrapT = RL_CLAMP_TO_EDGE;
     }
-
-    std::shared_ptr<openrl::Texture> texture = nullptr;
 
     if ((std::filesystem::path(path).extension() == ".exr") ||
         (std::filesystem::path(path).extension() == ".tiff")) {
@@ -34,7 +31,7 @@ std::shared_ptr<openrl::Texture> loadTexture(const char* path, bool generateMips
         FIBITMAP* imageData = FreeImage_Load(format, path);
         if (!imageData) {
             LOG_ERROR("Unable to load image %s", path);
-            return nullptr;
+            return;
         }
 
         FREE_IMAGE_TYPE type = FreeImage_GetImageType(imageData);
@@ -56,35 +53,35 @@ std::shared_ptr<openrl::Texture> loadTexture(const char* path, bool generateMips
                 textureFormat   = RL_LUMINANCE;
                 break;
             default:
-                assert(0 && "Unimplemented texture type");;
+            assert(0 && "Unimplemented texture type");;
         }
 
-        openrl::Texture::Descriptor desc;
-        desc.dataType       = textureDataType;
-        desc.format         = textureFormat;
-        desc.internalFormat = textureFormat;
-        desc.width          = FreeImage_GetWidth(imageData);
-        desc.height         = FreeImage_GetHeight(imageData);
+        loadedTexture.desc.dataType = textureDataType;
+        loadedTexture.desc.format = textureFormat;
+        loadedTexture.desc.internalFormat = textureFormat;
+        loadedTexture.desc.width = FreeImage_GetWidth(imageData);
+        loadedTexture.desc.height = FreeImage_GetHeight(imageData);
 
-        texture = openrl::Texture::create(FreeImage_GetBits(imageData), desc, sampler, generateMips);
-        FreeImage_Unload(imageData);
+        loadedTexture.pixels = std::shared_ptr<uint8_t>(FreeImage_GetBits(imageData), [imageData](void *address) {
+            FreeImage_Unload(imageData);
+        });
     } else {
         int width, height, channelCount;
         stbi_set_flip_vertically_on_load(true);
 
-        unsigned char * pixels;
+        unsigned char* pixels;
         bool isHDR = stbi_is_hdr(path);
         if (isHDR) {
-            pixels = (unsigned char *)stbi_loadf(path, &width, &height, &channelCount, 0);
+            pixels = (unsigned char*)stbi_loadf(path, &width, &height, &channelCount, 0);
             if (!pixels) {
                 LOG_ERROR("Unable to load texture %s", path);
-                return texture;
+                return;
             }
         } else {
             pixels = stbi_load(path, &width, &height, &channelCount, 0);
             if (!pixels) {
                 LOG_ERROR("Unable to load texture %s", path);
-                return texture;
+                return;
             }
 
             if (convertToLinear) {
@@ -104,8 +101,7 @@ std::shared_ptr<openrl::Texture> loadTexture(const char* path, bool generateMips
                             // Actual sRGB->linear convertion.
                             if (channelData <= 0.04045f) {
                                 channelData /= 12.92f;
-                            }
-                            else {
+                            } else {
                                 channelData = std::powf((channelData + SRGB_ALPHA) / (1.0f + SRGB_ALPHA), 2.4f);
                             }
 
@@ -118,27 +114,47 @@ std::shared_ptr<openrl::Texture> loadTexture(const char* path, bool generateMips
             }
         }
 
-        openrl::Texture::Descriptor desc;
-        desc.width = width;
-        desc.height = height;
+        loadedTexture.desc.width = width;
+        loadedTexture.desc.height = height;
         switch (channelCount) {
             case 1:
-                desc.format = RL_LUMINANCE; break;
+                loadedTexture.desc.format = RL_LUMINANCE; break;
             case 3:
-                desc.format = RL_RGB; break;
+                loadedTexture.desc.format = RL_RGB; break;
             case 4:
-                desc.format = RL_RGBA; break;
+                loadedTexture.desc.format = RL_RGBA; break;
             default:
                 assert(0 && "Unsupported channel count");;
         }
-        desc.internalFormat = desc.format;
-        desc.dataType = isHDR ? RL_FLOAT : RL_UNSIGNED_BYTE;
+        loadedTexture.desc.internalFormat = loadedTexture.desc.format;
+        loadedTexture.desc.dataType = isHDR ? RL_FLOAT : RL_UNSIGNED_BYTE;
 
-        texture = openrl::Texture::create(pixels, desc, sampler, generateMips);
-        free(pixels);
+        loadedTexture.pixels = std::shared_ptr<uint8_t>(pixels);
     }
-    
-    assert(texture->valid());
+}
+
+std::future<LoadedTexture> loadTextureAsync(const char *path, bool generateMips, bool convertToLinear)
+{
+    std::shared_ptr<uint8_t> pixels = nullptr;
+    std::string filepath = std::string(path);
+    return std::async([pixels, filepath, generateMips, convertToLinear]() {
+        LoadedTexture loadedTexture;
+        loadTextureInternal(loadedTexture, filepath.c_str(), generateMips, convertToLinear);
+        return loadedTexture;
+    });
+}
+
+std::shared_ptr<openrl::Texture> loadTexture(const char* path, bool generateMips, bool convertToLinear)
+{
+    LoadedTexture loadedTexture;
+    loadTextureInternal(loadedTexture, path, generateMips, convertToLinear);
+    std::shared_ptr<openrl::Texture> texture = nullptr;
+
+    if (loadedTexture.pixels) {
+        texture = openrl::Texture::create(loadedTexture.pixels.get(), loadedTexture.desc, loadedTexture.sampler, generateMips);
+        assert(texture->valid());
+    }
+
     return texture;
 }
 
