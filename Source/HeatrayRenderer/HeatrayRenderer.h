@@ -71,7 +71,7 @@ private:
         bool tonemapping_enabled = false;
         float exposure = 0.0f;
         float brightness = 0.0f;
-        float contrast = 0.0f;
+        float contrast = 1.0f;
         float hue = 1.0f;
         float saturation = 1.0f;
         float vibrance = 0.0f;
@@ -198,19 +198,13 @@ private:
                 glUniform1i(tonemappingEnabledLocation, post_params.tonemapping_enabled ? 1 : 0);
                 glUniform1f(cameraExposureLocation, std::powf(2.0, post_params.exposure));
                 glUniform1f(brightnessLocation, post_params.brightness);
+                glUniform1f(contrastLocation, post_params.contrast);
                 glUniform1f(hueLocation, post_params.hue);
                 glUniform1f(saturationLocation, post_params.saturation);
                 glUniform1f(vibranceLocation, post_params.vibrance);
                 glUniform1f(redLocation, post_params.red);
                 glUniform1f(greenLocation, post_params.green);
                 glUniform1f(blueLocation, post_params.blue);
-
-                {
-                    // Contrast needs to be properly remapped before being used by the shader.
-                    float integer_contrast = post_params.contrast * 255.0f;
-                    float contrast = (259.0f * (integer_contrast + 255.0f)) / (255.0f * (259.0f - integer_contrast));
-                    glUniform1f(contrastLocation, contrast);
-                }
             }
         }
 
