@@ -56,6 +56,12 @@ void DirectionalLight::setParams(const Params &params)
     calculateOrientation();
 }
 
+void DirectionalLight::updateLightIndex(const size_t newLightIndex)
+{
+    m_lightIndex = newLightIndex;
+    setUniforms();
+}
+
 void DirectionalLight::calculateOrientation()
 {
     // Calculate the directional vector.

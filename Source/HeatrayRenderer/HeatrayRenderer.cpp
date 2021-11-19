@@ -1107,6 +1107,7 @@ bool HeatrayRenderer::renderUI()
             if (ImGui::Button(m_keyLight ? "Remove Key Light" : "Add Key Light")) {
                 m_renderer.changeLighting([this](std::shared_ptr<SceneLighting> lighting) {
                     if (m_keyLight) {
+                        lighting->removeLight(m_keyLight);
                         m_keyLight.reset();
                     } else {
                         m_keyLight = lighting->addDirectionalLight();

@@ -37,9 +37,11 @@ public:
 
     std::shared_ptr<DirectionalLight> addDirectionalLight();
     void updateLight(std::shared_ptr<DirectionalLight> light);
+    void removeLight(std::shared_ptr<DirectionalLight> light);
 
     std::shared_ptr<PointLight> addPointLight();
     void updateLight(std::shared_ptr<PointLight> light);
+    void removeLight(std::shared_ptr<PointLight> light);
 
     std::shared_ptr<EnvironmentLight> addEnvironmentLight();
     void removeEnvironmentLight();

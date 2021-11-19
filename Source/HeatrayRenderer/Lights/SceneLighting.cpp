@@ -150,6 +150,40 @@ void SceneLighting::updateLight(std::shared_ptr<DirectionalLight> light)
     m_directional.buffer->unbind();
 }
 
+void SceneLighting::removeLight(std::shared_ptr<DirectionalLight> light)
+{
+    // Find this light in our list of directional lights.
+    size_t index = 0;
+    for (; index < m_directional.count; ++index) {
+        if (m_directional.lights[index] == light) {
+            break;
+        }
+    }
+    assert(index < m_directional.count);
+
+    // If this is the last light in the list, just get rid of it.
+    // Otherwise, swap this light with the last light in the list
+    // in order to keep the light list compact.
+    size_t finalIndex = m_directional.count - 1;
+    if (index != finalIndex) {
+        std::swap(m_directional.lights[index], m_directional.lights[finalIndex]);
+        m_directional.lights[index]->updateLightIndex(index);
+    }
+
+    // Finally, remove the light.
+    m_directional.lights[finalIndex].reset();
+    --m_directional.count;
+
+    {
+        m_directional.buffer->bind();
+        DirectionalLightsBuffer* directionalLights = m_directional.buffer->mapBuffer<DirectionalLightsBuffer>();
+        directionalLights->primitives[finalIndex] = RL_NULL_PRIMITIVE;
+        directionalLights->numberOfLights = m_directional.count;
+        m_directional.buffer->unmapBuffer();
+        m_directional.buffer->unbind();
+    }
+}
+
 std::shared_ptr<PointLight> SceneLighting::addPointLight()
 {
     if (m_point.count < ShaderLightingDefines::MAX_NUM_POINT_LIGHTS) {
@@ -183,4 +217,38 @@ void SceneLighting::updateLight(std::shared_ptr<PointLight> light)
     pointLights->numberOfLights = m_point.count;
     m_point.buffer->unmapBuffer();
     m_point.buffer->unbind();
+}
+
+void SceneLighting::removeLight(std::shared_ptr<PointLight> light)
+{
+    // Find this light in our list of point lights.
+    size_t index = 0;
+    for (; index < m_point.count; ++index) {
+        if (m_point.lights[index] == light) {
+            break;
+        }
+    }
+    assert(index < m_point.count);
+
+    // If this is the last light in the list, just get rid of it.
+    // Otherwise, swap this light with the last light in the list
+    // in order to keep the light list compact.
+    size_t finalIndex = m_point.count - 1;
+    if (index != finalIndex) {
+        std::swap(m_point.lights[index], m_point.lights[finalIndex]);
+        m_point.lights[index]->updateLightIndex(index);
+    }
+
+    // Finally, remove the light.
+    m_point.lights[finalIndex].reset();
+    --m_point.count;
+
+    {
+        m_point.buffer->bind();
+        PointLightsBuffer* pointLights = m_point.buffer->mapBuffer<PointLightsBuffer>();
+        pointLights->primitives[finalIndex] = RL_NULL_PRIMITIVE;
+        pointLights->numberOfLights = m_point.count;
+        m_point.buffer->unmapBuffer();
+        m_point.buffer->unbind();
+    }
 }

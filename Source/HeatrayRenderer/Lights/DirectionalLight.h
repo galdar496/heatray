@@ -49,6 +49,8 @@ public:
     
     std::shared_ptr<openrl::Program> program() const { return m_program; }
     std::shared_ptr<openrl::Primitive> primitive() const { return m_primitive; }
+
+    void updateLightIndex(const size_t newLightIndex);
 private:
     void calculateOrientation();
     void setUniforms() const;
@@ -61,5 +63,5 @@ private:
 
     // This represents the index of this light within the global buffer
     // of all directional lights.
-    const size_t m_lightIndex = 0;  
+    size_t m_lightIndex = 0;  
 };

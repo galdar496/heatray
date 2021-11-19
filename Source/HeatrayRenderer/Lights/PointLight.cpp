@@ -34,7 +34,7 @@ PointLight::PointLight(size_t lightIndex, std::shared_ptr<openrl::Buffer> lightB
 
     m_params.color = glm::vec3(1.0f);
     m_params.intensity = WATTS_TO_LUMENS * (4.0f * (glm::pi<float>() * glm::pi<float>())); // We specify a default intensity of 1 watt * 4π^2.
-    m_params.position = glm::vec3(0.0f, 2.0f, 0.0f);
+    m_params.position = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
 void PointLight::copyToLightBuffer(PointLightsBuffer* buffer)
@@ -45,6 +45,12 @@ void PointLight::copyToLightBuffer(PointLightsBuffer* buffer)
     // We convert from photometric to radiometric units for the shader.
     buffer->colors[m_lightIndex] = m_params.color * (m_params.intensity / (4.0f * glm::pi<float>())) * LUMENS_TO_WATS;
     buffer->primitives[m_lightIndex] = m_primitive->primitive();
+}
+
+void PointLight::updateLightIndex(const size_t newLightIndex)
+{
+    m_lightIndex = newLightIndex;
+    setUniforms();
 }
 
 void PointLight::setUniforms() const
