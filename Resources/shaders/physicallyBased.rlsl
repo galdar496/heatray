@@ -206,7 +206,7 @@ void main()
                                  probability.y,
                                  rand,
                                  frame);
-        } else {
+        } else if (probability.x <= (diffuseProbability + clearCoatProbability + specularProbability)) {
             directSpecularSample(N, 
                                  V, 
                                  NdotV,
@@ -228,7 +228,7 @@ void main()
             // For Russian Roulette, we always use 2 sequences away for random numbers.
             vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
             float probability = max(rl_InRay.weight.x, max(rl_InRay.weight.y, rl_InRay.weight.z));
-            if (rand.x > probability) {
+            if (rand.x >= probability) {
                 return; // This ray has been terminated.
             }
 
@@ -261,7 +261,7 @@ void main()
                                    rand,
                                    frame,
                                    rl_NullPrimitive);
-        } else {
+        } else if (probability.x <= (diffuseProbability + clearCoatProbability + specularProbability)) {
             indirectSpecularSample(N,
                                    V,
                                    NdotV,

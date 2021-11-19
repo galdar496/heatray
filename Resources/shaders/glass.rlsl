@@ -247,7 +247,7 @@ void main()
                 // For Russian Roulette, we always use 3 sequences away for random numbers.
                 vec2 rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 3, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
                 float probability = max(weight.x, max(weight.y, weight.z));
-                if (rand.x > probability) {
+                if (rand.x >= probability) {
                     return; // This ray has been terminated.
                 }
 
