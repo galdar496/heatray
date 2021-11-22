@@ -504,6 +504,10 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
                 globalData->enableDebugVisualizer = 1;
                 globalData->showClearcoatNormalmap = 1;
                 break;
+            case RenderOptions::DebugVisualizationMode::kShader:
+                globalData->enableDebugVisualizer = 1;
+                globalData->showShader = 1;
+                break;
             default:
                 break;
         }

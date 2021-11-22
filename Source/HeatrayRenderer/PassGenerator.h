@@ -114,7 +114,8 @@ public:
             kEmissive,
             kClearcoat,
             kClearcoatRoughness,
-            kClearcoatNormalmap
+            kClearcoatNormalmap,
+            kShader
         };
 
         DebugVisualizationMode debugVisMode = DebugVisualizationMode::kNone;
@@ -245,6 +246,7 @@ private:
         int showClearcoat = 0;
         int showClearcoatRoughness = 0;
         int showClearcoatNormalmap = 0;
+        int showShader = 0;
     };
     std::shared_ptr<openrl::Buffer> m_globalData = nullptr;
 

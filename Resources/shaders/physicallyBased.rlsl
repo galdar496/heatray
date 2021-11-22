@@ -142,6 +142,8 @@ void main()
             accumulate(vec4(clearCoat, clearCoat, clearCoat, 1.0));
         } else if (Globals.showClearcoatRoughness == 1) {
             accumulate(vec4(clearCoatRoughness, clearCoatRoughness, clearCoatRoughness, 1.0));
+        } else if (Globals.showShader == 1) {
+            accumulate(vec4(1.0, 0.0, 0.0, 1.0));
         }
 #if defined(HAS_CLEARCOAT_NORMALMAP)
         else if (Globals.showClearcoatNormalmap == 1) {

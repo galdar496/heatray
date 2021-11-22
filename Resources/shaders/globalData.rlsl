@@ -25,4 +25,5 @@ uniformblock Globals {
     int showClearcoat;
     int showClearcoatRoughness;
     int showClearcoatNormalmap;
+    int showShader;
 };

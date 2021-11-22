@@ -924,7 +924,7 @@ bool HeatrayRenderer::renderUI()
                 }
                 ImGui::EndCombo();
             }
-            if (ImGui::SliderInt("Max ray depth", (int*)(&m_renderOptions.maxRayDepth), 1, 15)) {
+            if (ImGui::SliderInt("Max ray depth", (int*)(&m_renderOptions.maxRayDepth), 1, 30)) {
                 shouldResetRenderer = true;
             }
             if (ImGui::Checkbox("Enable interactive mode", &m_renderOptions.enableInteractiveMode)) {
@@ -1130,7 +1130,7 @@ bool HeatrayRenderer::renderUI()
         // Debug visualizations.
         {
             static const char* options[] = { "None", "Geometric Normals", "UVs", "Tangnents", "Bitangents", "Normalmap", "Final Normals",
-                                             "Base color", "Roughness", "Meallic", "Emissive", "Clearcoat", "Clearcoat roughness", "Clearcoat normalmap" };
+                                             "Base color", "Roughness", "Meallic", "Emissive", "Clearcoat", "Clearcoat roughness", "Clearcoat normalmap", "Shader" };
             constexpr PassGenerator::RenderOptions::DebugVisualizationMode realOptions[] = {
                 PassGenerator::RenderOptions::DebugVisualizationMode::kNone,
                 PassGenerator::RenderOptions::DebugVisualizationMode::kGeometricNormals,
@@ -1145,7 +1145,8 @@ bool HeatrayRenderer::renderUI()
                 PassGenerator::RenderOptions::DebugVisualizationMode::kEmissive,
                 PassGenerator::RenderOptions::DebugVisualizationMode::kClearcoat,
                 PassGenerator::RenderOptions::DebugVisualizationMode::kClearcoatRoughness,
-                PassGenerator::RenderOptions::DebugVisualizationMode::kClearcoatNormalmap
+                PassGenerator::RenderOptions::DebugVisualizationMode::kClearcoatNormalmap,
+                PassGenerator::RenderOptions::DebugVisualizationMode::kShader
             };
 
             static unsigned int currentSelection = 0;

@@ -177,6 +177,8 @@ void main()
             accumulate(vec4(roughness, roughness, roughness, 1.0));
         } else if (Globals.showFinalNormals == 1) {
             accumulate(vec4((N + 1.0) * 0.5, 1.0));
+        } else if (Globals.showShader == 1) {
+            accumulate(vec4(0.0, 1.0, 0.0, 1.0));
         }
 #if defined(HAS_TEXTURES)
         else if (Globals.showUVs == 1) {

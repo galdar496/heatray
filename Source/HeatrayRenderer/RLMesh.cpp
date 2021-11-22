@@ -65,6 +65,12 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>
         int worldFromEntityLocation = material->program()->getUniformLocation("worldFromEntity");
 
         glm::mat4 finalTransform = submesh.localTransform * transform;
+        float determinant = glm::determinant(finalTransform);
+        if (determinant < 0.0) {
+            rlFrontFace(RL_CW);
+        } else {
+            rlFrontFace(RL_CCW);
+        }
         material->program()->setMatrix4fv(worldFromEntityLocation, &(finalTransform[0][0]));
 
         for (int jj = 0; jj < submesh.vertexAttributeCount; ++jj) {
