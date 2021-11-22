@@ -851,12 +851,16 @@ void HeatrayRenderer::renderKeyLightEditor()
     if (ImGui::SliderFloat("Intensity (Lumens)", &params.intensity, 0.0f, 100000.0f)) {
         lightChanged = true;
     }
+    ImGui::PushID("LightTheta");
     if (ImGui::SliderAngle("Theta", &params.orientation.theta, -90.0f, 90.0f)) {
         lightChanged = true;
     }
+    ImGui::PopID();
+    ImGui::PushID("LightPhi");
     if (ImGui::SliderAngle("Phi", &params.orientation.phi, 0.0f, 360.0f)) {
         lightChanged = true;
     }
+    ImGui::PopID();
 
     if (lightChanged) {
         m_keyLight->setParams(params);
@@ -1163,8 +1167,12 @@ bool HeatrayRenderer::renderUI()
     }
     if (ImGui::CollapsingHeader("Camera options")) {
         ImGui::Text("Orbital Camera");
+        ImGui::PushID("CameraPhi");
         bool changed = ImGui::SliderAngle("Phi", &(m_camera.orbitCamera.phi), 0.0f, 360.0f);
+        ImGui::PopID();
+        ImGui::PushID("CameraTheta");
         changed |= ImGui::SliderAngle("Theta", &(m_camera.orbitCamera.theta), -90.0f, 90.0f);
+        ImGui::PopID();
         changed |= ImGui::SliderFloat("Distance", &(m_camera.orbitCamera.distance), 0.0f, m_camera.orbitCamera.max_distance);
         changed |= ImGui::InputFloat3("Target", m_camera.orbitCamera.target.data.data, "%f", ImGuiInputTextFlags_CharsDecimal);
         if (changed) {
