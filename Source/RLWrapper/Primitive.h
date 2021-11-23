@@ -29,10 +29,14 @@ public:
     Primitive(const Primitive& other) = default;
     Primitive& operator=(const Primitive& other) = default;
 
+    //-------------------------------------------------------------------------
+    // Create the internal OpenRL objects for a primitive and return a shared_ptr.
     static std::shared_ptr<Primitive> create() {
         return std::shared_ptr<Primitive>(new Primitive);
     }
 
+    //-------------------------------------------------------------------------
+    // Attach a valid program to this primitive.
     inline void attachProgram(std::shared_ptr<Program> program)
     {
         assert(program->valid());
@@ -43,6 +47,8 @@ public:
         m_attachedProgram = program;
     }
 
+    //-------------------------------------------------------------------------
+    // Various getters and setters for a primitive.
     inline void bind() const { RLFunc(rlBindPrimitive(RL_PRIMITIVE, m_primitive)); }
     inline void unbind() const { RLFunc(rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE)); }
     inline const RLprimitive primitive() const { return m_primitive; }

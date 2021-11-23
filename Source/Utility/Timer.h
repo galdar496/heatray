@@ -27,9 +27,8 @@ public:
         }
     }
 
-    ///
-    /// Start the timer. The timer must be stopped in order to be started.
-    ///
+    //-------------------------------------------------------------------------
+    // Start the timer. The timer must be stopped in order to be started.
     inline void start()
     {
         if (m_stopped) {
@@ -38,12 +37,9 @@ public:
         }
     }
 
-    ///
-    /// Stop the timer.
-    ///
-    /// @return The time in seconds between the last call to start() and this
-    /// call to stop() is returned.
-    ///
+    //-------------------------------------------------------------------------
+    // Stop the timer. Returns the time in seconds between the last call to 
+    // start() and this call to stop().
     inline float stop()
     {
         m_dt = getElapsedTime();
@@ -51,33 +47,26 @@ public:
         return m_dt;
     }
 
-    ///
-    /// Restart the timer from the current time point.
-    ///
+    //-------------------------------------------------------------------------
+    // Restart the time from the current time point.
     inline void restart()
     {
         stop();
         start();
     }
 
-    ///
-    /// Get the time from the last call to start() or dt() and call start() again. This is
-    /// just a convenience function.
-    ///
-    /// @param Time since the timer has been started (or the last call to dt()).
-    ///
+    //-------------------------------------------------------------------------
+    // Get the time from the last call to start() or dt() and call start() again.
+    // This is just a convenience function.
     inline float dt()
     {
         restart();
         return m_dt;
     }
 
-    ///
-    /// Get the time that has elapsed since the last call to start(). After this call finished,
-    /// the timer will NOT be stopped.
-    ///
-    /// @return Time since the lst call to start().
-    ///
+    //-------------------------------------------------------------------------
+    // Get the time that has elapsed since the last call to start(). After this
+    // call finished, the timer will NOT be stopped.
     inline float getElapsedTime() const
     {
         if (!m_stopped) {
@@ -90,9 +79,9 @@ public:
 
 protected:
 
-    Clock::time_point m_startTime;  ///< Time recorded with a call to start().
-    float m_dt = 0.0f;              ///< Time between a call to start() and stop() in seconds.
-    bool  m_stopped = true;         ///< If true, the timer is currently stopped.
+    Clock::time_point m_startTime;  // Time recorded with a call to start().
+    float m_dt = 0.0f;              // Time between a call to start() and stop() in seconds.
+    bool  m_stopped = true;         // If true, the timer is currently stopped.
 
     };
 

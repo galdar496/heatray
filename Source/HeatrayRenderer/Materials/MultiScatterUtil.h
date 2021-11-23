@@ -13,6 +13,13 @@
 
 #include <string>
 
+//-------------------------------------------------------------------------
+// Generates the multiscatter texture to use within shaders. This process
+// can take quite some time so should be done offline.
 void generateMultiScatterTexture();
 
+//-------------------------------------------------------------------------
+// Load the multiscatter texture. Repeated calls to this function will get
+// the same shared pointer instead of reloading the multiscatter texture
+// continuously.
 std::shared_ptr<openrl::Texture> loadMultiscatterTexture();

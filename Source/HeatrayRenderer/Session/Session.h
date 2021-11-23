@@ -7,9 +7,8 @@
 
 #pragma once
 
-///
-/// Define session variables to read from an XML session file.
-///
+//-------------------------------------------------------------------------
+// Define session variables to read from an XML session file.
 
 #include <string>
 #include <assert.h>
@@ -72,6 +71,7 @@ class Session
 {
 public:
 
+    //-------------------------------------------------------------------------
     // All session variables present in the system.
     enum class SessionVariable : size_t
     {
@@ -86,49 +86,35 @@ public:
     Session();
     ~Session();
 
-    ///
-    /// Read the session file and populate the list of session variables.
-    /// 
-    /// @param filename Path to the session XML file which contains the session variables.
-    ///
-    /// @return If true, the file was successfully parsed.
-    ///
+    //-------------------------------------------------------------------------
+    // Read the session file and populate the list of session variables. Returns
+    // true if the file was successfully parsed.
     bool parseSessionFile(const std::string& filename);
 
-    ///
-    /// Write a new XML session file to disk using the current values of the session variables.
-    ///
-    /// @param filename Path to save the new session file to.
-    ///
-    /// @return If true, the new session file was successfully written.
-    ///
+    //-------------------------------------------------------------------------
+    // Write a new XML session file to disk using the current values of the 
+    // session variables. Returns true if the new session file was succesfully
+    // written.
     bool writeSessionFile(const std::string& filename) const;
-
-    ///
-    /// Get the value of a specific session variable. If parseSessionFile() has not
-    /// been called before making a call to these functions then only the variable
-    /// default values will be returned.
-    ///
-    /// @param variable The specific variable that is being requested.
-    /// @param value The value of the variable to be passed back to the calling function (OUT).
-    ///
+ 
+    //-------------------------------------------------------------------------
+    // Get the value of a specific session variable. If parseSessionFile() has 
+    // not been called before making a call to these functions then only the 
+    // variable default values will be returned.
     void getVariableValue(const SessionVariable& variable, int& value) const;
     void getVariableValue(const SessionVariable& variable, uint32_t& value) const;
     void getVariableValue(const SessionVariable& variable, bool& value) const;
     void getVariableValue(const SessionVariable& variable, float& value) const;
     void getVariableValue(const SessionVariable& variable, std::string& value) const;
 
-    ///
-    /// Set the value of a specific session variable. This can be used to manually override
-    /// session variable values (usually in the case of writing the session file to disk).
-    ///
-    /// @param variable The specific variable that is begin set.
-    /// @param value The value of the variable to override with.
-    ///
-    void setVariableValue(const SessionVariable& variable, int value) const;
-    void setVariableValue(const SessionVariable& variable, uint32_t value) const;
-    void setVariableValue(const SessionVariable& variable, bool value) const;
-    void setVariableValue(const SessionVariable& variable, float value) const;
+    //-------------------------------------------------------------------------
+    // Set the value of a specific session variable. This can be used to 
+    // manually override session variable values (usually in the case of writing 
+    // the session file to disk).
+    void setVariableValue(const SessionVariable& variable, const int value) const;
+    void setVariableValue(const SessionVariable& variable, const uint32_t value) const;
+    void setVariableValue(const SessionVariable& variable, const bool value) const;
+    void setVariableValue(const SessionVariable& variable, const float value) const;
     void setVariableValue(const SessionVariable& variable, const std::string& value) const;
 
 private:

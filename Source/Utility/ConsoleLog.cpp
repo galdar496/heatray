@@ -4,7 +4,7 @@
 
 namespace util {
 
-void ConsoleLog::addNewItem(const std::string& item, Log::Type type)
+void ConsoleLog::addNewItem(const std::string& item, const Log::Type type)
 {
     switch (type) {
         case Log::Type::kInfo:

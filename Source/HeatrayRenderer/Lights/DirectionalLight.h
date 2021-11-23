@@ -26,8 +26,10 @@ public:
     explicit DirectionalLight(size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer);
     ~DirectionalLight() = default;
 
+    //-------------------------------------------------------------------------
+    // Parameters used to define and control a directional light.
     struct Params {
-        glm::vec3 color;
+        glm::vec3 color = glm::vec3(1.0f);
         float intensity = 1.0f;
 
         // Orientation controls for the directional light.
@@ -37,11 +39,10 @@ public:
         } orientation;
     };
 
-    ///
-    /// Copy to the light buffer that represents all directional lights
-    /// in a scene. It is assumed that this light will copy into the 
-    /// right part of the buffer.
-    ///
+    //-------------------------------------------------------------------------
+    // Copy to the light buffer that represents all directional lights
+    // in a scene. It is assumed that this light will copy into the 
+    // right part of the buffer.
     void copyToLightBuffer(DirectionalLightsBuffer* buffer);
 
     Params params() const { return m_params; }
@@ -50,6 +51,10 @@ public:
     std::shared_ptr<openrl::Program> program() const { return m_program; }
     std::shared_ptr<openrl::Primitive> primitive() const { return m_primitive; }
 
+    //-------------------------------------------------------------------------
+    // Update the light index for this directional light. This can happen when
+    // lights are deleted and the lighting buffer needs to reshuffle lights to
+    // keep the buffer tightly packed.
     void updateLightIndex(const size_t newLightIndex);
 private:
     void calculateOrientation();
@@ -59,7 +64,7 @@ private:
     std::shared_ptr<openrl::Program> m_program = nullptr;
 
     Params m_params;
-    glm::vec3 m_direction;
+    glm::vec3 m_direction = glm::vec3(0.0, 1.0, 0.0);
 
     // This represents the index of this light within the global buffer
     // of all directional lights.

@@ -82,7 +82,7 @@ inline uint32_t nestedUniformScramble(uint32_t x, uint32_t seed)
 using SequenceGenerator = std::function<glm::vec2(uint32_t sampleIndex, uint32_t arrayIndex)>;
 
 // Adapted from http://www.jcgt.org/published/0009/04/01/paper.pdf
-inline void owenScrambleSequence(glm::vec3* results, uint32_t count, uint32_t sequenceIndex, SequenceGenerator generator)
+inline void owenScrambleSequence(glm::vec3* results, const uint32_t count, const uint32_t sequenceIndex, const SequenceGenerator generator)
 {
     enum Dimension {
         ZERO = 0,
@@ -107,6 +107,9 @@ inline void owenScrambleSequence(glm::vec3* results, uint32_t count, uint32_t se
     }
 }
 
+//-------------------------------------------------------------------------
+// Generate a bunch of random floats between 'min' and 'max' using a uniform 
+// distribtion.
 template<class T>
 inline void uniformRandomFloats(T* results, const size_t count, unsigned int seed, float min, float max)
 {
@@ -126,7 +129,9 @@ inline void uniformRandomFloats(T* results, const size_t count, unsigned int see
     }
 }
 
-inline void hammersley(glm::vec3* results, const unsigned int count, int sequenceIndex)
+//-------------------------------------------------------------------------
+// Generate a low-discrepancy sequence using Hammersley.
+inline void hammersley(glm::vec3* results, const unsigned int count, const int sequenceIndex)
 {
     assert(results);
     auto radicalInverse = [](uint32_t bits) {
@@ -148,7 +153,9 @@ inline void hammersley(glm::vec3* results, const unsigned int count, int sequenc
     owenScrambleSequence(results, count, sequenceIndex, generator);
 }
 
-inline void blueNoise(glm::vec3* results, const unsigned int count, int sequenceIndex)
+//-------------------------------------------------------------------------
+// Generate a low-discrepancy sequence using Blue Noise.
+inline void blueNoise(glm::vec3* results, const unsigned int count, const int sequenceIndex)
 {
     LowDiscrepancyBlueNoiseGenerator generator(sequenceIndex);
     generator.GeneratePoints(count);
@@ -157,7 +164,9 @@ inline void blueNoise(glm::vec3* results, const unsigned int count, int sequence
     }
 }
 
-inline void halton(glm::vec3* results, const unsigned int count, int sequenceIndex)
+//-------------------------------------------------------------------------
+// Generate a low-discrepancy sequence using Halton.
+inline void halton(glm::vec3* results, const unsigned int count, const int sequenceIndex)
 {
     assert(results);
     glm::ivec2 coprimes[] = {
@@ -207,7 +216,9 @@ inline void halton(glm::vec3* results, const unsigned int count, int sequenceInd
     owenScrambleSequence(results, count, sequenceIndex, generator);
 }
 
-inline void sobol(glm::vec3* results, const uint32_t count, uint32_t sequenceIndex)
+//-------------------------------------------------------------------------
+// Generate a low-discrepancy sequence using Sobol.
+inline void sobol(glm::vec3* results, const uint32_t count, const uint32_t sequenceIndex)
 {
     assert(results);
 
@@ -251,9 +262,10 @@ inline void sobol(glm::vec3* results, const uint32_t count, uint32_t sequenceInd
 
     owenScrambleSequence(results, count, sequenceIndex, generator);
 }
-
+ 
+//-------------------------------------------------------------------------
 // Generates Sobol values on a disk such that the center is (0,0).
-inline void radialSobol(glm::vec3* results, const unsigned int count, const unsigned int sequenceIndex)
+inline void radialSobol(glm::vec3* results, const uint32_t count, const uint32_t sequenceIndex)
 {
     assert(results);
     sobol(results, count, sequenceIndex);
@@ -276,14 +288,16 @@ inline void radialSobol(glm::vec3* results, const unsigned int count, const unsi
     }
 }
 
-inline void randomPolygonal(glm::vec3* results, const unsigned int numEdges, const unsigned int count, const unsigned int seed)
+//-------------------------------------------------------------------------
+// Generates random values on an arbitrary circular polygon (e.g. a pentagram).
+inline void randomPolygonal(glm::vec3* results, const uint32_t numEdges, const uint32_t count, const uint32_t seed)
 {
     std::vector<glm::vec2> vertices;
     vertices.resize(numEdges + 1); // Include the center.
 
     // Generate the vertices that make up this polygon.
     float stepSize = glm::two_pi<float>() / numEdges;
-    for (unsigned int iIndex = 0; iIndex < numEdges; ++iIndex) {
+    for (uint32_t iIndex = 0; iIndex < numEdges; ++iIndex) {
         float theta = stepSize * float(iIndex);
         glm::vec2 vertex(std::cosf(theta), std::sinf(theta));
         vertices[iIndex] = vertex;
@@ -298,7 +312,7 @@ inline void randomPolygonal(glm::vec3* results, const unsigned int numEdges, con
     std::vector<Triangle> triangles;
     triangles.resize(numEdges);
 
-    for (unsigned int iIndex = 0; iIndex < numEdges; ++iIndex) {
+    for (uint32_t iIndex = 0; iIndex < numEdges; ++iIndex) {
         Triangle tri;
         tri.vertices[0] = vertices[numEdges]; // Center.
         tri.vertices[1] = vertices[iIndex];
@@ -314,12 +328,13 @@ inline void randomPolygonal(glm::vec3* results, const unsigned int numEdges, con
     std::uniform_real_distribution<float> floatDistribution(0.0f, 1.0f); // For selecting the point within a triangle.
     std::uniform_int_distribution<int> intDistribution(0, numEdges - 1); // For selecting between the triangles.
 
-    for (unsigned int iIndex = 0; iIndex < count; ++iIndex) {
+    for (uint32_t iIndex = 0; iIndex < count; ++iIndex) {
         // First choose the triangle.
         int triangleIndex = intDistribution(generator);
 
         // Generate a random baycentric coordinate within the triangle using rejection sampling.
-        float alpha, beta;
+        float alpha = 0.0f;
+        float beta = 0.0f;
         do {
             alpha = floatDistribution(generator);
             beta = floatDistribution(generator);

@@ -39,18 +39,41 @@ public:
 
     struct WindowParams
     {
-        GLint width    = -1;
-        GLint height   = -1;
+        GLint width    = -1; // In pixels.
+        GLint height   = -1; // In pixels.
     };
 
+    //-------------------------------------------------------------------------
+    // Initialize Heatray for use given a specific window width and height
+    // (in pixels).
     bool init(const GLint renderWidth, const GLint renderHeight);
-    void destroy();
-    void resize(const GLint newWidth, const GLint newHeight);
-    void changeScene(std::string const & sceneName, bool moveCamera);
-    void changeEnvironment(std::string const& envMapPath);
-    void render();
-    void adjustCamera(const float phi_delta, const float theta_delta, const float distance_delta);
 
+    //-------------------------------------------------------------------------
+    // Tear down Heatray and delete all resources.
+    void destroy();
+
+    //-------------------------------------------------------------------------
+    // Resize the rendering window and any associated window-sized data.
+    void resize(const GLint newWidth, const GLint newHeight);
+
+    //-------------------------------------------------------------------------
+    // Load a new scene from disk. If 'moveCamera' is true, the camera will be
+    // moved to a new location based on the size of the new scene.
+    void changeScene(std::string const &sceneName, bool moveCamera);
+
+    //-------------------------------------------------------------------------
+    // Load a new environment map to use for image-based lighting.
+    void changeEnvironment(std::string const& envMapPath);
+
+    //-------------------------------------------------------------------------
+    // Render a frame.
+    void render();
+
+    //-------------------------------------------------------------------------
+    // Move the orbital camera. Useful for mouse-style controls.
+    void adjustCamera(const float phiDelta, const float thetaDelta, const float distanceDelta);
+
+    // Fixed pixel width of the ImGui UI.
     static constexpr size_t UI_WINDOW_WIDTH = 500;
 
 private:
@@ -80,7 +103,7 @@ private:
         float blue = 1.0f;
     } m_post_processing_params;
 
-    /// Object which handles final display of the raytraced pixels via a custom fragment shader.
+    // Object which handles final display of the raytraced pixels via a custom fragment shader.
     struct DisplayProgram
     {
         GLuint program = 0;
@@ -180,7 +203,6 @@ private:
             }
         }
 
-        /// @param texture Location of the texture to use for the shader.
         void bind(GLint texture, const PostProcessingParams& post_params, size_t windowWidth) const
         {
             glUseProgram(program);
@@ -225,22 +247,22 @@ private:
         }
     };
 
-    PassGenerator m_renderer; ///< Generator of pathtraced frames.
+    PassGenerator m_renderer; // Generator of pathtraced frames.
 
-    GLuint m_displayPixelBuffer = 0;  ///< PBO to use to put the pixels on the GPU.
-    GLuint m_displayTexture     = 0;  ///< Texture which contains the final result for display.
+    GLuint m_displayPixelBuffer = 0;  // PBO to use to put the pixels on the GPU.
+    GLuint m_displayTexture     = 0;  // Texture which contains the final result for display.
 
-    DisplayProgram m_displayProgram; ///< Used to display the final pixels to the screen.
+    DisplayProgram m_displayProgram; // Used to display the final pixels to the screen.
 
-    WindowParams m_windowParams; ///< Current size of the display window.
-    WindowParams m_renderWindowParams; ///< Current size of the rendering window.
+    WindowParams m_windowParams; // Current size of the display window.
+    WindowParams m_renderWindowParams; // Current size of the rendering window.
 
-    std::atomic<bool> m_shouldCopyPixels = false;   ///< If true, a new frame is available from the FrameGenerator. 
-    std::atomic<const float*> m_pathracedPixels = nullptr;  ///< Result of the pathtracer.
-    glm::ivec2 m_pixelDimensions = glm::ivec2(0); ///< width,height of the pathtraced pixel data.
-    bool m_justResized = false; ///< If true, the renderer has just processed a resize event.
-    bool m_renderingFrame = false; ///< If true, the pathtracer is currently rendering a frame.
-    bool m_resetRequested = true; ///< If true, a reset of the renderer has been requested.
+    std::atomic<bool> m_shouldCopyPixels = false;   // If true, a new frame is available from the FrameGenerator. 
+    std::atomic<const float*> m_pathracedPixels = nullptr;  // Result of the pathtracer.
+    glm::ivec2 m_pixelDimensions = glm::ivec2(0); // width,height of the pathtraced pixel data.
+    bool m_justResized = false; // If true, the renderer has just processed a resize event.
+    bool m_renderingFrame = false; // If true, the pathtracer is currently rendering a frame.
+    bool m_resetRequested = true; // If true, a reset of the renderer has been requested.
 
     PassGenerator::RenderOptions m_renderOptions;
 

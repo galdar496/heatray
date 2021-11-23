@@ -28,6 +28,8 @@ inline std::string createStringWithFormat(const char* format, va_list args) {
     return out;
 }
 
+//-------------------------------------------------------------------------
+// Create a string using printf-style syntax.
 inline std::string createStringWithFormat(const char *format, ...)
 {
     va_list args;

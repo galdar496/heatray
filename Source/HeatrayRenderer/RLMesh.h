@@ -31,7 +31,7 @@ public:
     RLMesh(MeshProvider * meshProvider, std::vector<std::shared_ptr<Material>> materials, SetupSystemBindingsCallback callback, glm::mat4 transform);
     ~RLMesh() = default;
 
-    // TODO:  Add accessors and stuff to mutate an RLMesh.  Right now it serves the
+    // TODO:  Add accessors and stuff to mutate a RLMesh.  Right now it serves the
     // purpose of making sure all the RL resources get cleaned up and not much else!
 
     void destroy();

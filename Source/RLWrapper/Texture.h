@@ -16,24 +16,25 @@
 
 namespace openrl {
 
-///
-/// Container for a single OpenRL texture object.
-///
+//
+// Container for a single OpenRL texture object.
+//
 
 class Texture
 {
 public:
     struct Descriptor
     {
-        ///< Number of color components.
+        // Internal format of a color component.
         RLint internalFormat = RL_RGBA;
 
-        ///< Format of a color component.
+        // Format of a color component.
         RLenum format = RL_RGBA;
 
-        ///< Data type stored per-channel.
+        // Data type stored per-channel.
         RLenum dataType = RL_FLOAT;
 
+        // All values in pixels.
         RLint width  = 0;
         RLint height = 0;
         RLint depth  = 0; // For 3D textures.
@@ -41,7 +42,7 @@ public:
 
     struct Sampler
     {
-        /// Determines how texture coordinates outside of [0..1] are handled.
+        // Determines how texture coordinates outside of [0..1] are handled.
         RLenum wrapS = RL_REPEAT;
         RLenum wrapT = RL_REPEAT;
         RLenum wrapR = RL_REPEAT; // For 3D textures.
@@ -62,16 +63,8 @@ public:
         }
     }
 
-    ///
-    /// Create a texture with passed-in data.
-    ///
-    /// @param data Data to pass to the texture once created.
-    /// @param desc Texture descriptor used to initialize the texture format etc.
-    /// @param sampler Sampler to apply to the texture.
-    /// @param generateMips If true, mipmaps will be generated after creating the texture.
-    ///
-    /// @return If non-null, the texture was successfully created.
-    ///
+    //-------------------------------------------------------------------------
+    // Creates a new texture with the passed in data pointer.
     static std::shared_ptr<Texture> create(const void* data, const Descriptor& desc, const Sampler& sampler, bool generateMips = true)
     {
         Texture* texture = new Texture(desc, sampler);
@@ -97,16 +90,8 @@ public:
         return std::shared_ptr<Texture>(texture);
     }
 
-    ///
-    /// Create a 3D texture with passed-in data.
-    ///
-    /// @param data Data to pass to the texture once created.
-    /// @param desc Texture descriptor used to initialize the texture format etc.
-    /// @param sampler Sampler to apply to the texture.
-    /// @param generateMips If true, mipmaps will be generated after creating the texture.
-    ///
-    /// @return If non-null, the texture was successfully created.
-    ///
+    //-------------------------------------------------------------------------
+    // Creates a new 3D texture with the passed in data-pointer.
     static std::shared_ptr<Texture> create3D(const void* data, const Descriptor& desc, const Sampler& sampler, bool generateMips = true)
     {
         Texture* texture = new Texture(desc, sampler);
@@ -133,12 +118,9 @@ public:
         return std::shared_ptr<Texture>(texture);
     }
 
-    ///
-    /// Resize the texture using the same descriptor/sampler as when this texture was created.
-    ///
-    /// @param newWidth New width to make the texture (in pixels).
-    /// @param newHeight New height to make the texture (in pixels).
-    ///
+    //-------------------------------------------------------------------------
+    // Resize the texture using the same descriptor/sampler as when this 
+    // texture was created. All parameters are in pixels.
     inline void resize(const RLint newWidth, const RLint newHeight)
     {
         assert(valid());
@@ -159,13 +141,9 @@ public:
         m_desc.height = newHeight;
     }
 
-    ///
-    /// Resize the texture using the same descriptor/sampler as when this texture was created.
-    ///
-    /// @param newWidth New width to make the texture (in pixels).
-    /// @param newHeight New height to make the texture (in pixels).
-    /// @param newDepth New depth to make the texture (in pixels). Only for 3D textures.
-    ///
+    //-------------------------------------------------------------------------
+    // Resize the texture using the same descriptor/sampler as when this 
+    // texture was created. All parameters are in pixels.
     inline void resize(const RLint newWidth, const RLint newHeight, const RLint newDepth)
     {
         assert(valid());
@@ -187,26 +165,16 @@ public:
         m_desc.height = newHeight;
     }
 
-    ///
-    /// Return the width of the texture in pixels.
-    ///
+    //-------------------------------------------------------------------------
+    // Various getters.
     inline const RLint width() const { return m_desc.width; }
-
-    ///
-    /// Return the height of the texture in pixels.
-    ///
     inline const RLint height() const { return m_desc.height; }
-
-    ///
-    /// Get the internal OpenRL texture object.
-    ///
     inline RLtexture texture() const { return m_texture; }
-
-    ///
-    /// Determine if the underlying texture object is valid (created) or not.
-    ///
     inline bool valid() const { return (m_texture != RL_NULL_TEXTURE); }
 
+    //-------------------------------------------------------------------------
+    // Gets a dummy texture that is just a single white pixel. Can be used in 
+    // cases where its convenient to have an empty texture.
     static std::shared_ptr<Texture> getDummyTexture()
     {
         static std::weak_ptr<Texture> dummyTexture;
@@ -215,7 +183,7 @@ public:
         if (!texture) {
             Texture::Descriptor desc;
             desc.width = desc.height = 1;
-            float whitePixel[4] = { 1.f, 1.f, 1.f, 1.f };
+            float whitePixel[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
             texture = Texture::create(whitePixel, desc, Texture::Sampler(), false);
             dummyTexture = texture;
         }
@@ -231,9 +199,6 @@ private:
         RLFunc(rlGenTextures(1, &m_texture));
     }
 
-    ///
-    /// Set texture sampling parameters through OpenRL API calls.
-    ///
     inline void applySampler(RLenum type = RL_TEXTURE_2D) const
     {
         RLFunc(rlTexParameteri(type, RL_TEXTURE_MIN_FILTER, m_sampler.minFilter));
@@ -246,9 +211,9 @@ private:
         }
     }
 
-    RLtexture   m_texture = RL_NULL_TEXTURE;  ///< OpenRL texture object itself.
-    Descriptor  m_desc;     ///< Descriptor used to create the texture.
-    Sampler     m_sampler;  ///< Sampler to use for this texture.
+    RLtexture   m_texture = RL_NULL_TEXTURE; // OpenRL texture object itself.
+    Descriptor  m_desc;     // Descriptor used to create the texture.
+    Sampler     m_sampler;  // Sampler to use for this texture.
 };
 
 } // namespace openrl

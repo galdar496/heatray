@@ -25,19 +25,24 @@ public:
     PixelPackBuffer& operator=(const PixelPackBuffer& other) = default;
     ~PixelPackBuffer() = default;
 
-    /// @param size Size to create the buffer (in bytes).
-    inline void create(RLint size)
+    //-------------------------------------------------------------------------
+    // Create the PBO's internal dat.
+    inline void create(RLint sizeInBytes)
     {
-        m_buffer = openrl::Buffer::create(RL_PIXEL_PACK_BUFFER, nullptr, size, "Pixel data");
-        m_size = size;
+        m_buffer = openrl::Buffer::create(RL_PIXEL_PACK_BUFFER, nullptr, sizeInBytes, "Pixel data");
+        m_sizeInBytes = sizeInBytes;
     }
 
+    //-------------------------------------------------------------------------
+    // Deallocate the internal OpenRL data for this PBO.
     inline void destroy() 
     {
         assert(!m_isMapped);
         m_buffer.reset(); 
     }
 
+    //-------------------------------------------------------------------------
+    // Supply the data source for this PBO.
     inline void setPixelData(const Texture& texture)
     {
         assert(!m_isMapped);
@@ -50,6 +55,8 @@ public:
         m_height = texture.height();
     }
 
+    //-------------------------------------------------------------------------
+    // Get a CPU pointer to the pixel data.
     inline const float* mapPixelData() const
     {
         assert(!m_isMapped);
@@ -59,6 +66,8 @@ public:
         return imagePixels;
     }
 
+    //-------------------------------------------------------------------------
+    // Invalidate the CPU pointer to the pixel data.
     inline void unmapPixelData() const
     {
         assert(m_isMapped);
@@ -67,7 +76,7 @@ public:
         m_buffer->unbind();
     }
 
-    inline RLint size() const { return m_size; }
+    inline RLint size() const { return m_sizeInBytes; }
     inline RLint width() const { return m_width; }
     inline RLint height() const { return m_height; }
 
@@ -78,9 +87,9 @@ public:
 private:
 
     std::shared_ptr<Buffer> m_buffer = nullptr;
-    RLint m_size = -1;   ///< Size of the buffe (in bytes).
-    RLint m_width = -1;  ///< Width of the buffer (in pixels).
-    RLint m_height = -1; ///< Height of the buffer (in pixels).
+    RLint m_sizeInBytes = -1;  // Size of the buffer.
+    RLint m_width = -1; // Width of the buffer (in pixels).
+    RLint m_height = -1; // Height of the buffer (in pixels).
     mutable bool m_isMapped = false;
 };
 

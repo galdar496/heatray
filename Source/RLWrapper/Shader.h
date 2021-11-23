@@ -19,15 +19,14 @@
 
 namespace openrl {
 
-///
-/// Class to contain an OpenRL shader. Handles shader loading and compilation.
-///
+//
+// Class to contain an OpenRL shader. Handles shader loading and compilation.
+//
 class Shader
 {
 public:
-    ///
-    /// Possible shader types.
-    ///
+    //-------------------------------------------------------------------------
+    // Possible shader types.
     enum class ShaderType : uint8_t
     {
         kVertex,
@@ -47,15 +46,8 @@ public:
     Shader(const Shader& other) = default;
     Shader& operator=(const Shader& other) = default;
 
-    ///
-    /// Create and compile a shader from a passed-in source string.
-    ///
-    /// @param shaderSource Source code for the shader.
-    /// @param type Type of the shader to compile as defined by the enum "ShaderType".
-    /// @param name Name to use for shader identification.
-    ///
-    /// @param If non-null, the shader was successfully created.
-    ///
+    //-------------------------------------------------------------------------
+    // Create and compile a shader from a passed-in source string.
     static std::shared_ptr<Shader> createFromString(const std::string& shaderSource, const ShaderType type, const char* name)
     {
         if (shaderSource.length()) {
@@ -80,6 +72,8 @@ public:
         return nullptr;
     }
 
+    //-------------------------------------------------------------------------
+    // Create and compile s ahder from multiple shader source strings.
     static std::shared_ptr<Shader> createFromMultipleStrings(const std::vector<std::string>& shaderSource, const ShaderType type, const char* name)
     {
         constexpr static size_t MAX_NUM_SHADER_STRINGS = 20;
@@ -112,17 +106,13 @@ public:
         return nullptr;
     }
 
-    ///
-    /// Get access to the internal RL shader object.
-    ///
+    //-------------------------------------------------------------------------
+    // Get access to the internal OpenRL shader object.
     inline RLshader shader() const { return m_shader; }
 
-    ///
-    /// Check the status of this shader.
-    ///
-    /// @return If true, this shader is considered to be valid and ready to be
-    ///         attached to a program.
-    ///
+    //-------------------------------------------------------------------------
+    // Determine if this shader is considered valid and ready to be used by
+    // OpenRL.
     inline bool valid() const
     {
         RLint success = 0;
@@ -153,9 +143,9 @@ private:
         m_shader = RLFunc(rlCreateShader(rlType));
     }
 
-    ///
-    /// Compile the shader for use. Returns true on a successful compile.
-    ///
+    //-------------------------------------------------------------------------
+    // Compile the shader for use. Returns true if the shader was successfully
+    // compiled.
     inline bool compile() const
     {
         RLFunc(rlCompileShader(m_shader));

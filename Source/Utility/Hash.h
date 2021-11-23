@@ -1,3 +1,11 @@
+//
+//  Hash.h
+//  Heatray
+//
+//  Convenience functions for dealing with hashing.
+//
+//
+
 #pragma once
 
 #include <cstring>   // for size_t
@@ -27,11 +35,14 @@ constexpr uint64_t FNV1a(T const & t)
     return FNV1a((char const *)&t, sizeof(T));
 }
 
+//-------------------------------------------------------------------------
+// Generate a new hash for 'newObject' and combine it with an existing hash.
 template <class T>
-size_t hashCombine(size_t hash, const T& v)
+size_t hashCombine(size_t existingHash, const T& newObject)
 {
     std::hash<T> hasher;
-    hash ^= hasher(v) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+    size_t hash = existingHash;
+    hash ^= hasher(newObject) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
     return hash;
 }
 

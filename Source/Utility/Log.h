@@ -29,6 +29,9 @@ public:
 
         kCount
     };
+
+    //-------------------------------------------------------------------------
+    // Log a message to the installed logger.
     void log(Type type, const char* format, ...) {
         va_list args;
         va_start(args, format);
@@ -40,12 +43,15 @@ public:
 protected:
     Log() = default;
     static void setInstance(std::shared_ptr<Log> instance) { m_instance = instance;  }
-    virtual void addNewItem(const std::string& item, Type type) = 0;
+    virtual void addNewItem(const std::string& item, const Type type) = 0;
 private:
     static std::shared_ptr<Log> m_instance;
 };
 
 }  // namespace util.
+
+//-------------------------------------------------------------------------
+// Logging macros to log specific types of messages.
 
 #define LOG_INFO(format, ...) \
   util::Log::instance()->log(util::Log::Type::kInfo, format, ##__VA_ARGS__ )

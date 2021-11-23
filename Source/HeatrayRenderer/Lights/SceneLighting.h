@@ -28,11 +28,13 @@ public:
     SceneLighting();
     ~SceneLighting() = default;
 
+    //-------------------------------------------------------------------------
+    // Get rid of all lights in the scene. Note that this function does not
+    // destroy any buffers etc, just clears them.
     void clear();
 
-    ///
-    /// Binds the internal lighting buffers to an OpenRL program.
-    ///
+    //-------------------------------------------------------------------------
+    // Binds the internal lighting buffers to an OpenRL program.
     void bindLightingBuffersToProgram(std::shared_ptr<openrl::Program> program);
 
     std::shared_ptr<DirectionalLight> addDirectionalLight();

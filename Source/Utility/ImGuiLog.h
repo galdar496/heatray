@@ -26,7 +26,7 @@ public:
         Log::setInstance(newLog);
     }
 
-    void addNewItem(const std::string &item, Log::Type type) override {
+    void addNewItem(const std::string &item, const Log::Type type) override {
         std::string new_item = (item + "\n");
         std::unique_lock<std::mutex> lock(m_mutex);
         m_textBuffer[static_cast<size_t>(type)].append(new_item.c_str());

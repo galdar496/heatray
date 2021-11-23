@@ -29,12 +29,21 @@ public:
     std::shared_ptr<openrl::Program> program() { return m_program; }
     std::shared_ptr<openrl::Buffer> uniformBlock() { return m_constants; }
     const std::string& name() const { return m_name; }
-
-    virtual void build() = 0;
-    virtual void rebuild() = 0;
-    virtual void modify() = 0;
-
     Type type() const { return m_type; }
+
+    //-------------------------------------------------------------------------
+    // Builds the OpenRL program along with any buffers etc that need to be
+    // populated.
+    virtual void build() = 0;
+
+    //-------------------------------------------------------------------------
+    // Completely destroys all internal data and rebuilds it from scratch, 
+    // including reloading any shader data.
+    virtual void rebuild() = 0;
+
+    //-------------------------------------------------------------------------
+    // Upload parameter changes to OpenRL.
+    virtual void modify() = 0;
 protected:
     static constexpr char const * m_vertexShader = "vertex.rlsl";
 

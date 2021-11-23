@@ -5,7 +5,6 @@
 #include "Materials/GlassMaterial.h"
 #include "Materials/MultiScatterUtil.h"
 #include "Materials/PhysicallyBasedMaterial.h"
-#include "Materials/ShowNormalsMaterial.h"
 #include "MeshProviders/AssimpMeshProvider.h"
 #include "MeshProviders/PlaneMeshProvider.h"
 #include "MeshProviders/SphereMeshProvider.h"
@@ -412,14 +411,14 @@ void HeatrayRenderer::render()
     m_justResized = false;
 }
 
-void HeatrayRenderer::adjustCamera(const float phi_delta, const float theta_delta, const float distance_delta)
+void HeatrayRenderer::adjustCamera(const float phiDelta, const float thetaDelta, const float distanceDelta)
 {
     if (m_renderOptions.enableInteractiveMode) {
         float SCALE = 0.5f;
 
-        m_camera.orbitCamera.phi += glm::radians(phi_delta) * SCALE;
-        m_camera.orbitCamera.theta += glm::radians(theta_delta) * SCALE;
-        m_camera.orbitCamera.distance += distance_delta * SCALE * m_distanceScale;
+        m_camera.orbitCamera.phi += glm::radians(phiDelta) * SCALE;
+        m_camera.orbitCamera.theta += glm::radians(thetaDelta) * SCALE;
+        m_camera.orbitCamera.distance += distanceDelta * SCALE * m_distanceScale;
 
         // Ensure that the camera parameters are valid.
         {

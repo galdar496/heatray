@@ -16,20 +16,16 @@
 
 #define checkRLErrors() openrl::checkError(__FILE__, __LINE__)
 
+//-------------------------------------------------------------------------
 // Error checking macro that does an error check immediately after the specified RL function.
 #define RLFunc(func) func; checkRLErrors()
 
 namespace openrl {
-
-///
-/// Check the current OpenRL state for errors.
-/// If an error is detected, the system will stop. It is recommended to use the macro
-/// CheckRLErrors() instead of this function directly.
-///
-/// @param filename Filename where the error check is being performed.
-/// @param lineNumber Line number where this error check is being performed.
-///
-///
+ 
+//-------------------------------------------------------------------------
+// Check the current OpenRL state for errors. If an error is detected, the 
+// system will stop. It is recommended to use the macro checkRLErrors() 
+// instead of this function directly.
 inline void checkError(const char* filename, int lineNumber)
 {
     RLenum errorID = rlGetError();

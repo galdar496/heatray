@@ -245,22 +245,22 @@ void Session::getVariableValue(const SessionVariable& variable, std::string& val
     value = std::string(g_sessionVariables[static_cast<size_t>(variable)].value.c);
 }
 
-void Session::setVariableValue(const SessionVariable& variable, int value) const
+void Session::setVariableValue(const SessionVariable& variable, const int value) const
 {
     g_sessionVariables[static_cast<size_t>(variable)].value.i = value;
 }
 
-void Session::setVariableValue(const SessionVariable& variable, uint32_t value) const
+void Session::setVariableValue(const SessionVariable& variable, const uint32_t value) const
 {
     g_sessionVariables[static_cast<size_t>(variable)].value.u = value;
 }
 
-void Session::setVariableValue(const SessionVariable& variable, bool value) const
+void Session::setVariableValue(const SessionVariable& variable, const bool value) const
 {
     g_sessionVariables[static_cast<size_t>(variable)].value.b = value;
 }
 
-void Session::setVariableValue(const SessionVariable& variable, float value) const
+void Session::setVariableValue(const SessionVariable& variable, const float value) const
 {
     g_sessionVariables[static_cast<size_t>(variable)].value.f = value;
 }

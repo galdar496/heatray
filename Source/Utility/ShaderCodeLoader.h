@@ -17,10 +17,14 @@
 
 namespace util {
 
-// Note that the result is a vector of strings to be sent to OpenRL for final compilation. All string concatenated
-// together make up the final shader.
+//-------------------------------------------------------------------------
+// Load a shader source file and resolve any "#include" statements. Each
+// source file will be placed in the resulting vector.
 bool loadShaderSourceFile(const char* filepath, std::vector<std::string> &finalSourceCode);
 
+//-------------------------------------------------------------------------
+// Convenience function to build a program directly given shader paths.
+// This function internally uses 'loadShaderSourceFile()'.
 std::shared_ptr<openrl::Program> buildProgram(const char *vertexShaderPath, const char *rayShaderPath, const char* name, std::string const & shaderPrefix = "");
 
 } // namespace util.

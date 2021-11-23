@@ -12,14 +12,9 @@
 
 namespace util {
  
-///
-/// Read a text file and return its contents in a string.
-///
-/// @param filename Filename to read the text data from.
-/// @param content String which will contain the read file contents.
-///
-/// @return If true, the file was successfully opened and read.
-///
+//-------------------------------------------------------------------------
+// Read a text file and return its contents in a string. Returns true if
+// the file was successfully read.
 bool readTextFile(const char* filename, std::string& content);
 
 }  // namespace util.

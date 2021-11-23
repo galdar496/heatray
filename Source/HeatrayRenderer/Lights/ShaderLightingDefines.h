@@ -13,11 +13,14 @@
 #include <glm/glm/glm.hpp>
 
 #include <sstream>
-
+ 
 struct ShaderLightingDefines {
     static constexpr size_t MAX_NUM_DIRECTIONAL_LIGHTS = 5;
     static constexpr size_t MAX_NUM_POINT_LIGHTS = 5;
 
+    //-------------------------------------------------------------------------
+    // Every compiled shader should call this function to get the proper defines
+    // for lighting.
     static void appendLightingShaderDefines(std::stringstream& stream)
     {
         stream << "#define MAX_NUM_DIRECTIONAL_LIGHTS " << MAX_NUM_DIRECTIONAL_LIGHTS << std::endl;

@@ -22,18 +22,25 @@ public:
     AsyncTaskQueue() {}
     ~AsyncTaskQueue() { deinit(); }
 
+    //-------------------------------------------------------------------------
+    // Initialize the async task queue and launch its internal thread. The
+    // supplied callback will be invoked on the new thread. If the callback
+    // returns true, that signals this task queue to shutdown its internal thread.
     using AsyncTaskFunction = std::function<bool(T& task)>;
-
-    void init(AsyncTaskFunction  function)
+    void init(AsyncTaskFunction function)
     {
-        m_async_task_function = function;
+        m_asyncTaskFunction = function;
 
-        m_thread_launched = true;
+        m_threadLaunched = true;
         m_stop = false;
-        m_thread_state = State::kIdle;
+        m_threadState = State::kIdle;
         m_thread = std::thread(&AsyncTaskQueue::threadFunc, this);
     }
 
+    //-------------------------------------------------------------------------
+    // Tear down the async task queue and its internal thread. Any queued jobs
+    // will still execute and this function will stall until they have finished
+    // processing.
     void deinit()
     {
         if (m_thread.joinable()) {
@@ -43,16 +50,18 @@ public:
                 std::unique_lock<std::mutex> lock(m_mutex);
                 m_stop = true;
             }
-            m_condition_variable.notify_one();
+            m_conditionVariable.notify_one();
             m_thread.join();
         }
 
-        m_thread_launched = false;
+        m_threadLaunched = false;
     }
 
+    //-------------------------------------------------------------------------
+    // Add a new task to the async queue. Tasks are processed in a FIFO ordering.
     void addTask(const T&& task)
     {
-        if (m_thread_launched == false) {
+        if (m_threadLaunched == false) {
             // Nothing to do.
             return;
         }
@@ -62,35 +71,38 @@ public:
             m_queue.push(task);
         }
 
-        m_condition_variable.notify_one();
+        m_conditionVariable.notify_one();
     }
 
+    //-------------------------------------------------------------------------
+    // Stall the calling thread until all tasks on the queue have finished
+    // processing.
     void finish()
     {
-        if (m_thread_launched == false) {
+        if (m_threadLaunched == false) {
             return; // Nothig to do.
         }
 
         // Wait for the internal thread to be idle before returning.
-        bool can_finish = false;
-        while (!can_finish) {
+        bool canFinish = false;
+        while (!canFinish) {
             {
                 std::unique_lock<std::mutex> lock(m_mutex);
-                can_finish = m_queue.empty();
+                canFinish = m_queue.empty();
             }
 
-            if (can_finish) {
+            if (canFinish) {
                 // Wait for the thread's state to become idle.
-                bool is_idle = false;
+                bool isIdle = false;
                 do {
                     {
                         std::unique_lock<std::mutex> lock(m_mutex);
-                        is_idle = (m_thread_state == State::kIdle);
+                        isIdle = (m_threadState == State::kIdle);
                     }
-                    if (is_idle == false) {
+                    if (isIdle == false) {
                         std::this_thread::yield();
                     }
-                } while (is_idle == false);
+                } while (isIdle == false);
             }
         }
     }
@@ -98,17 +110,21 @@ public:
 private:
     std::mutex              m_mutex;
     std::thread             m_thread;
-    std::condition_variable m_condition_variable;
+    std::condition_variable m_conditionVariable;
     std::queue<T>           m_queue;
     bool                    m_stop = false;
-    AsyncTaskFunction       m_async_task_function;
-    bool				    m_thread_launched = false;
+    AsyncTaskFunction       m_asyncTaskFunction;
+    bool				    m_threadLaunched = false;
 
+    //-------------------------------------------------------------------------
+    // Possible states for the task thread.
     enum class State {
-        kIdle,
-        kProcessing
-    } m_thread_state = State::kIdle;
+        kIdle, // The thread is waiting.
+        kProcessing // The thread is currently processing a task.
+    } m_threadState = State::kIdle;
 
+    //-------------------------------------------------------------------------
+    // Internal thread function that performs the actual tasks.
     void threadFunc()
     {
         bool stop = m_stop;
@@ -117,15 +133,15 @@ private:
             {
                 std::unique_lock<std::mutex> lock(m_mutex);
                 if (m_queue.empty()) {
-                    m_thread_state = State::kIdle;
-                    m_condition_variable.wait(lock, [this]() {
+                    m_threadState = State::kIdle;
+                    m_conditionVariable.wait(lock, [this]() {
                         return ((m_stop != false) || (m_queue.empty() == false));
                     });
                 }
 
                 tasks.swap(m_queue);
                 stop = m_stop;
-                m_thread_state = State::kProcessing;
+                m_threadState = State::kProcessing;
             }
 
             while (!tasks.empty()) {
@@ -133,11 +149,11 @@ private:
                 tasks.pop();
 
                 // Invoke the custom task function.
-                if (m_async_task_function(item)) {
+                if (m_asyncTaskFunction(item)) {
                     // Callback has requested that the thread be shutdown.
                     {
                         std::unique_lock<std::mutex> lock(m_mutex);
-                        m_thread_state = State::kIdle;
+                        m_threadState = State::kIdle;
                         m_stop = true;
                     }
                     return;
