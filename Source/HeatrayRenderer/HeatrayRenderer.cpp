@@ -1132,7 +1132,7 @@ bool HeatrayRenderer::renderUI()
         // Debug visualizations.
         {
             static const char* options[] = { "None", "Geometric Normals", "UVs", "Tangnents", "Bitangents", "Normalmap", "Final Normals",
-                                             "Base color", "Roughness", "Meallic", "Emissive", "Clearcoat", "Clearcoat roughness", "Clearcoat normalmap", "Shader" };
+                                             "Base color", "Roughness", "Metallic", "Emissive", "Clearcoat", "Clearcoat roughness", "Clearcoat normalmap", "Shader" };
             constexpr PassGenerator::RenderOptions::DebugVisualizationMode realOptions[] = {
                 PassGenerator::RenderOptions::DebugVisualizationMode::kNone,
                 PassGenerator::RenderOptions::DebugVisualizationMode::kGeometricNormals,
