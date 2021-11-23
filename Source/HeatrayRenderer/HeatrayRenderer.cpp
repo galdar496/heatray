@@ -11,8 +11,10 @@
 #include "MeshProviders/SphereMeshProvider.h"
 #include "Session/Session.h"
 
-#include "Utility/FileDialog.h"
-#include "Utility/ImGuiLog.h"
+#include <RLWrapper/PixelPackBuffer.h>
+
+#include <Utility/FileDialog.h>
+#include <Utility/ImGuiLog.h>
 #include <Utility/Random.h>
 #include <Utility/TextureLoader.h>
 
@@ -392,11 +394,11 @@ void HeatrayRenderer::render()
             m_shouldCopyPixels.store(false);
             // Tell the pathtracer to start generating a new frame.
             m_renderer.renderPass(m_renderOptions,
-                [this](const openrl::PixelPackBuffer& results, float passTime)
+                [this](std::shared_ptr<openrl::PixelPackBuffer> results, float passTime)
                 {
-                    const float* pixelData = results.mapPixelData();
+                    const float* pixelData = results->mapPixelData();
                     m_pathracedPixels.store(pixelData);
-                    m_pixelDimensions = glm::ivec2(results.width(), results.height());
+                    m_pixelDimensions = glm::ivec2(results->width(), results->height());
                     m_shouldCopyPixels.store(true);
                     m_renderingFrame = false;
                     m_currentPassTime = passTime;

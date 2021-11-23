@@ -6,6 +6,7 @@
 #include <RLWrapper/Buffer.h>
 #include <RLWrapper/Error.h>
 #include <RLWrapper/Framebuffer.h>
+#include <RLWrapper/PixelPackBuffer.h>
 #include <RLWrapper/Shader.h>
 #include <RLWrapper/Texture.h>
 #include <Utility/BlueNoise.h>
@@ -169,7 +170,7 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
         m_fbo->bind();
 
         RLint bufferSize = renderWidth * renderHeight * sizeof(float) * openrl::PixelPackBuffer::kNumChannels;
-        m_resultPixels.create(bufferSize);
+        m_resultPixels = openrl::PixelPackBuffer::create(bufferSize);
     }
 
     // Initialize scene lighting.
@@ -253,12 +254,12 @@ void PassGenerator::runResizeJob(const RLint newRenderWidth, const RLint newRend
     if (m_fboTexture && m_fboTexture->valid()) {
         m_fboTexture->resize(newRenderWidth, newRenderHeight);
 
-        if (m_resultPixels.mapped()) {
-            m_resultPixels.unmapPixelData();
+        if (m_resultPixels->mapped()) {
+            m_resultPixels->unmapPixelData();
         }
-        m_resultPixels.destroy();
+        m_resultPixels.reset();
         RLint bufferSize = newRenderWidth * newRenderHeight * sizeof(float) * openrl::PixelPackBuffer::kNumChannels;
-        m_resultPixels.create(bufferSize);
+        m_resultPixels = openrl::PixelPackBuffer::create(bufferSize);
 
         // Generate the random sequence used in the frame shader when generating primary rays
         // to determine which offset into the main sequence data is used.
@@ -296,8 +297,8 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
 
     // The callback invoked at the end of this function _may_ map the pixel data and not unmap it before 
     // kicking this class again. In this case, unmap the pixel data at this point.
-    if (m_resultPixels.mapped()) {
-        m_resultPixels.unmapPixelData();
+    if (m_resultPixels->mapped()) {
+        m_resultPixels->unmapPixelData();
     }
 
     if ((newOptions.enableInteractiveMode != m_renderOptions.enableInteractiveMode) || 
@@ -349,7 +350,7 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
     }
 
     RLFunc(rlRenderFrame());
-    m_resultPixels.setPixelData(*m_fboTexture);
+    m_resultPixels->setPixelData(*m_fboTexture);
 
     // Let the client know that a frame has been completed.
     float passTime = timer.stop();
@@ -400,8 +401,8 @@ void PassGenerator::runDestroyJob()
     m_sceneLighting->clear();
     m_sceneLighting.reset();
 
-    m_resultPixels.unmapPixelData();
-    m_resultPixels.destroy();
+    m_resultPixels->unmapPixelData();
+    m_resultPixels.reset();
 
     OpenRLDestroyContext(m_rlContext);
 }

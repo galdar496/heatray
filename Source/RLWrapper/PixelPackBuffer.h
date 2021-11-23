@@ -20,25 +20,18 @@ namespace openrl {
 class PixelPackBuffer
 {
 public:
-    PixelPackBuffer() = default;
     PixelPackBuffer(const PixelPackBuffer& other) = default;
     PixelPackBuffer& operator=(const PixelPackBuffer& other) = default;
-    ~PixelPackBuffer() = default;
-
-    //-------------------------------------------------------------------------
-    // Create the PBO's internal dat.
-    inline void create(RLint sizeInBytes)
-    {
-        m_buffer = openrl::Buffer::create(RL_PIXEL_PACK_BUFFER, nullptr, sizeInBytes, "Pixel data");
-        m_sizeInBytes = sizeInBytes;
+    ~PixelPackBuffer() {
+        assert(!m_isMapped);
+        m_buffer.reset();
     }
 
     //-------------------------------------------------------------------------
-    // Deallocate the internal OpenRL data for this PBO.
-    inline void destroy() 
+    // Create the PBO's internal data and return a shared_ptr.
+    static std::shared_ptr<PixelPackBuffer> create(RLint sizeInBytes) 
     {
-        assert(!m_isMapped);
-        m_buffer.reset(); 
+        return std::shared_ptr<PixelPackBuffer>(new PixelPackBuffer(sizeInBytes));
     }
 
     //-------------------------------------------------------------------------
@@ -85,6 +78,10 @@ public:
     static constexpr RLint kNumChannels = 4; ///< Currently only supports 4 channels of data (RGBA).
 
 private:
+    explicit PixelPackBuffer(RLint sizeInBytes) {
+        m_buffer = openrl::Buffer::create(RL_PIXEL_PACK_BUFFER, nullptr, sizeInBytes, "Pixel data");
+        m_sizeInBytes = sizeInBytes;
+    }
 
     std::shared_ptr<Buffer> m_buffer = nullptr;
     RLint m_sizeInBytes = -1;  // Size of the buffer.

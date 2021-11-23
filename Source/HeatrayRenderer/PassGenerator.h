@@ -10,7 +10,6 @@
 
 #include "RLMesh.h"
 
-#include <RLWrapper/PixelPackBuffer.h>
 #include <Utility/AsyncTaskQueue.h>
 
 #include <glm/glm/mat4x4.hpp>
@@ -25,6 +24,7 @@
 namespace openrl {
     class Buffer;
     class Framebuffer;
+    class PixelPackBuffer;
     class Program;
     class Texture;
 } // namespace openrl.
@@ -148,7 +148,7 @@ public:
     // via RenderOptions to this function then the renderer is reset prior to
     // rendering this pass. Upon completion the PassCompleteCallback will be
     // invoked.
-    using PassCompleteCallback = std::function<void(const openrl::PixelPackBuffer& resultPixels, float passTime)>;
+    using PassCompleteCallback = std::function<void(std::shared_ptr<openrl::PixelPackBuffer> resultPixels, float passTime)>;
     void renderPass(const RenderOptions& newOptions, PassCompleteCallback callback);
     
     //-------------------------------------------------------------------------
@@ -201,7 +201,7 @@ private:
 
     std::shared_ptr <openrl::Program> m_frameProgram = nullptr; // Current frame program used for generating primary rays.
 
-    openrl::PixelPackBuffer m_resultPixels; // Pixels from all previous passes since the last framebuffer clear.
+    std::shared_ptr<openrl::PixelPackBuffer> m_resultPixels = nullptr; // Pixels from all previous passes since the last framebuffer clear.
 
     std::shared_ptr<EnvironmentLight> m_environmentLight = nullptr;
     std::shared_ptr<SceneLighting> m_sceneLighting = nullptr;
