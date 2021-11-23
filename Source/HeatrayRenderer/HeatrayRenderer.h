@@ -28,6 +28,9 @@
 #include <atomic>
 #include <memory>
 
+// Forward declarations.
+class DirectionalLight;
+
 class HeatrayRenderer
 {
 public:

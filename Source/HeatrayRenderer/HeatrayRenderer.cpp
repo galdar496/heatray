@@ -1,6 +1,7 @@
 #include "HeatrayRenderer.h"
 
 #include "Lights/DirectionalLight.h"
+#include "Lights/SceneLighting.h"
 
 #include "Materials/GlassMaterial.h"
 #include "Materials/MultiScatterUtil.h"

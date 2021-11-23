@@ -10,14 +10,7 @@
 
 #include "RLMesh.h"
 
-#include "Lights/EnvironmentLight.h"
-#include "Lights/SceneLighting.h"
-
-#include <RLWrapper/Framebuffer.h>
 #include <RLWrapper/PixelPackBuffer.h>
-#include <RLWrapper/Primitive.h>
-#include <RLWrapper/Program.h>
-#include <RLWrapper/Texture.h>
 #include <Utility/AsyncTaskQueue.h>
 
 #include <glm/glm/mat4x4.hpp>
@@ -26,9 +19,17 @@
 #include <functional>
 #include <memory>
 #include <string>
-#include <queue>
-#include <thread>
 #include <vector>
+
+// Forward declarations.
+namespace openrl {
+    class Buffer;
+    class Framebuffer;
+    class Program;
+    class Texture;
+} // namespace openrl.
+class EnvironmentLight;
+class SceneLighting;
    
 class PassGenerator              
 {

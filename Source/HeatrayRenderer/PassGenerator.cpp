@@ -1,13 +1,18 @@
 #include "PassGenerator.h"
 
-#include <Utility/TextureLoader.h>
+#include "Lights/EnvironmentLight.h"
+#include "Lights/SceneLighting.h"
 
+#include <RLWrapper/Buffer.h>
 #include <RLWrapper/Error.h>
+#include <RLWrapper/Framebuffer.h>
 #include <RLWrapper/Shader.h>
+#include <RLWrapper/Texture.h>
 #include <Utility/BlueNoise.h>
 #include <Utility/FileIO.h>
 #include <Utility/Random.h>
 #include <Utility/ShaderCodeLoader.h>
+#include <Utility/TextureLoader.h>
 #include <Utility/Timer.h>
 
 #include <glm/glm/glm.hpp>
