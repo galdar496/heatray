@@ -70,7 +70,7 @@ void main()
 
     // Compute the origin and direction based on the focal length and aperture of the camera (dof).
     vec3 focalPoint = focusDistance * dirCameraSpace;
-    vec2 apertureSample = texture2D(apertureSamplesTexture, getSequenceUV(sequenceID, Globals.sampleIndex + sequenceIndex)).xy;
+    vec2 apertureSample = texture2D(apertureSamplesTexture, getSequenceUV(sequenceID, Globals.sampleIndex)).xy;
     // Sample is compressed to be between 0-1.
     apertureSample = ((apertureSample * 2.0) - 1.0) * apertureRadius;
     vec3 origin = vec3(apertureSample, 0.0);
