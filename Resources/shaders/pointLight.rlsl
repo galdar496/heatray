@@ -6,6 +6,7 @@
 //
 //
 
+#include "accumulator.rlsl"
 #include "rayAttributes.rlsl"
 #include "lightDefines.rlsl"
 
@@ -24,5 +25,5 @@ void main()
     // Lookup the color for this particular light.
     vec3 result = rl_InRay.weight * PointLights.colors[lightIndex] * attenuation;
 
-    accumulate(result); 
+    performAccumulate(result);
 }

@@ -9,6 +9,7 @@
 uniformblock Globals {
     int maxRayDepth;
     int sampleIndex; // Ranges from 0 - max pass count.
+    float maxChannelValue;
 
     // Debugging.
     int enableVisualizer;

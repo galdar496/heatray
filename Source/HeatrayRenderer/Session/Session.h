@@ -19,6 +19,7 @@
 #define HEATRAY_SESSION_VARIABLES \
     X(RenderOptions, InteractiveMode, kBool, false)					 \
     X(RenderOptions, MaxRenderPasses, kUInt, 32)					 \
+    X(RenderOptions, MaxChannelValue, kFloat, 1.0f)					 \
     X(RenderOptions, Scene, kString, "Multi-Material")				 \
     X(RenderOptions, MaxRayDepth, kUInt, 10)						 \
     X(RenderOptions, SampleMode, kUInt, 0)							 \

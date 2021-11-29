@@ -7,10 +7,12 @@
 
 #pragma once
 
+#include "Light.h"
 #include "ShaderLightingDefines.h"
 
 #include <RLWrapper/Buffer.h>
 
+#include <functional>
 #include <vector>
 
 // Forward declarations.
@@ -36,6 +38,11 @@ public:
     //-------------------------------------------------------------------------
     // Binds the internal lighting buffers to an OpenRL program.
     void bindLightingBuffersToProgram(std::shared_ptr<openrl::Program> program);
+
+    //-------------------------------------------------------------------------
+    // Install a callback that is always invoked whenever a new light is created.
+    using LightCreatedCallback = std::function<void(std::shared_ptr<Light> light)>;
+    void installLightCreatedCallback(LightCreatedCallback &&callback) { m_lightCreatedCallback = std::move(callback); }
 
     std::shared_ptr<DirectionalLight> addDirectionalLight();
     void updateLight(std::shared_ptr<DirectionalLight> light);
@@ -66,4 +73,6 @@ private:
         std::shared_ptr<openrl::Buffer> buffer = nullptr;
         int count = 0;
     } m_point;
+
+    LightCreatedCallback m_lightCreatedCallback;
 };

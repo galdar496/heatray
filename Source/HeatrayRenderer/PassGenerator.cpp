@@ -173,16 +173,25 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
         m_resultPixels = openrl::PixelPackBuffer::create(bufferSize);
     }
 
-    // Initialize scene lighting.
-    {
-        m_sceneLighting = std::shared_ptr<SceneLighting>(new SceneLighting);
-        m_environmentLight = m_sceneLighting->addEnvironmentLight();
-    }
-
     {
         // Setup global data buffer for all shaders.
         GlobalData data;
         m_globalData = openrl::Buffer::create(RL_ARRAY_BUFFER, &data, sizeof(GlobalData), "Global data buffer");
+    }
+
+    // Initialize scene lighting.
+    {
+        m_sceneLighting = std::shared_ptr<SceneLighting>(new SceneLighting);
+        m_sceneLighting->installLightCreatedCallback([this](std::shared_ptr<Light> light) {
+            // Bind the global data to this new light.
+            RLint globalsIndex = light->program()->getUniformBlockIndex("Globals");
+            if (globalsIndex != -1) {
+                light->primitive()->bind();
+                light->program()->setUniformBlock(globalsIndex, m_globalData->buffer());
+                light->primitive()->unbind();
+            }
+        });
+        m_environmentLight = m_sceneLighting->addEnvironmentLight();      
     }
 
     // Load the perspective camera frame shader for generating primary rays.
@@ -432,6 +441,14 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
         m_globalData->bind();
         GlobalData* globalData = m_globalData->mapBuffer<GlobalData>();
         globalData->maxRayDepth = newOptions.maxRayDepth;
+        m_globalData->unmapBuffer();
+        m_globalData->unbind();
+    }
+
+    if (m_renderOptions.maxChannelValue != newOptions.maxChannelValue) {
+        m_globalData->bind();
+        GlobalData* globalData = m_globalData->mapBuffer<GlobalData>();
+        globalData->maxChannelValue = newOptions.maxChannelValue;
         m_globalData->unmapBuffer();
         m_globalData->unbind();
     }

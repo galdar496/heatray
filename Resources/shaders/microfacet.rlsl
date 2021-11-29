@@ -60,7 +60,8 @@ void directDiffuseSample(vec3 N, vec3 Cdiff, float sampleProbability, float ligh
     int lightType;
     computeLightSample(N, lightProbability, lightDir, lightPrimitive, lightSampleProbability, lightMaxDistance, lightType);
 
-    if (lightType != LIGHT_TYPE_ENVIRONMENT) {
+    if ((lightType != LIGHT_TYPE_ENVIRONMENT) &&
+        (lightProbability > 0.0)) {
         // We found a direct light.
         float NdotO = dot(N, lightDir);
         if (NdotO > 0.0) {
@@ -167,7 +168,8 @@ void directSpecularSample(vec3 N,
     int lightType;
     computeLightSample(N, lightProbability, lightDir, lightPrimitive, lightSampleProbability, lightMaxDistance, lightType);
 
-    if (lightType != LIGHT_TYPE_ENVIRONMENT) {
+    if ((lightType != LIGHT_TYPE_ENVIRONMENT) &&
+        (lightProbability > 0.0)) {
         float NdotO = dot(N, lightDir);
         if (NdotO > 0.0) {
             NdotO = saturate(NdotO);

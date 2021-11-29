@@ -1,0 +1,15 @@
+//
+//  accumulator.rlsl
+//  Heatray
+//
+//  Accumulation into the final framebuffer.
+//
+//
+
+#include "globalData.rlsl"
+
+void performAccumulate(vec3 color)
+{
+    vec3 value = min(vec3(Globals.maxChannelValue), color);
+    accumulate(value);
+}

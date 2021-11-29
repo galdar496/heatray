@@ -513,6 +513,7 @@ void HeatrayRenderer::writeSessionFile(const std::string& filename)
         session.setVariableValue(Session::SessionVariable::kInteractiveMode, m_renderOptions.enableInteractiveMode);
         session.setVariableValue(Session::SessionVariable::kMaxRenderPasses, m_renderOptions.maxRenderPasses);
         session.setVariableValue(Session::SessionVariable::kMaxRayDepth, m_renderOptions.maxRayDepth);
+        session.setVariableValue(Session::SessionVariable::kMaxChannelValue, m_renderOptions.maxChannelValue);
         session.setVariableValue(Session::SessionVariable::kScene, m_renderOptions.scene);
         session.setVariableValue(Session::SessionVariable::kSampleMode, static_cast<uint32_t>(m_renderOptions.sampleMode));
         session.setVariableValue(Session::SessionVariable::kBokehShape, static_cast<uint32_t>(m_renderOptions.bokehShape));
@@ -585,6 +586,7 @@ void HeatrayRenderer::readSessionFile(const std::string& filename)
             session.getVariableValue(Session::SessionVariable::kInteractiveMode, m_renderOptions.enableInteractiveMode);
             session.getVariableValue(Session::SessionVariable::kMaxRenderPasses, m_renderOptions.maxRenderPasses);
             session.getVariableValue(Session::SessionVariable::kMaxRayDepth, m_renderOptions.maxRayDepth);
+            session.getVariableValue(Session::SessionVariable::kMaxChannelValue, m_renderOptions.maxChannelValue);
             session.getVariableValue(Session::SessionVariable::kScene, m_renderOptions.scene);
             uint32_t tmp = 0;
             session.getVariableValue(Session::SessionVariable::kSampleMode, tmp);
@@ -930,6 +932,9 @@ bool HeatrayRenderer::renderUI()
                 shouldResetRenderer = true;
             }
             if (ImGui::Checkbox("Enable interactive mode", &m_renderOptions.enableInteractiveMode)) {
+                shouldResetRenderer = true;
+            }
+            if (ImGui::SliderFloat("Max channel value", &(m_renderOptions.maxChannelValue), 0.0f, 10.0f)) {
                 shouldResetRenderer = true;
             }
         }

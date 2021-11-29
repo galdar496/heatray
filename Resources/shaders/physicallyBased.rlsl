@@ -6,6 +6,7 @@
 //
 //
 
+#include "accumulator.rlsl"
 #include "globalData.rlsl"
 #include "microfacet.rlsl"
 #include "sequence.rlsl"
@@ -104,7 +105,7 @@ void main()
 #if defined(HAS_EMISSIVE_TEXTURE)
     emissive = texture2D(Material.emissiveTexture, texCoord).rgb;
 #endif // defined(HAS_EMISSIVE_TEXTURE)
-    accumulate(rl_InRay.weight * emissive);
+    performAccumulate(rl_InRay.weight * emissive);
 
     // Handle debug visualizations (if applicable).
     if (Globals.enableVisualizer == 1) {

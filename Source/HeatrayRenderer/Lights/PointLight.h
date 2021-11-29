@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "Light.h"
 #include "ShaderLightingDefines.h"
 
 #include <RLWrapper/Buffer.h>
@@ -20,7 +21,7 @@ namespace openrl {
 class Program;
 } // namespace openrl.
 
-class PointLight
+class PointLight final : public Light
 {
 public:
     explicit PointLight(size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer);
@@ -41,10 +42,7 @@ public:
     void copyToLightBuffer(PointLightsBuffer* buffer);
 
     Params params() const { return m_params; }
-    void setParams(const Params &params) { m_params = params; }
-    
-    std::shared_ptr<openrl::Program> program() const { return m_program; }
-    std::shared_ptr<openrl::Primitive> primitive() const { return m_primitive; }
+    void setParams(const Params &params) { m_params = params; }    
 
     //-------------------------------------------------------------------------
     // Update the light index for this point light. This can happen when
@@ -53,9 +51,6 @@ public:
     void updateLightIndex(const size_t newLightIndex);
 private:
     void setUniforms() const;
-
-    std::shared_ptr<openrl::Primitive> m_primitive = nullptr;
-    std::shared_ptr<openrl::Program> m_program = nullptr;
 
     Params m_params;
 

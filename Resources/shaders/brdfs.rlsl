@@ -88,7 +88,7 @@ float G_Schlick(float NdotO, float NdotI, float roughnessAlpha)
 float G1_Smith_GGX(float NdotI, float roughnessAlpha)
 {
     float alpha2 = square(roughnessAlpha);
-    float denom = sqrt(alpha2 + (1.0 - alpha2) * square(NdotI)) + NdotI;
+    float denom = sqrt(alpha2 + (1.0 - alpha2) * greaterThanZero(square(NdotI))) + NdotI;
     return (2.0 * NdotI) / greaterThanZero(denom);
 }
 
@@ -100,7 +100,7 @@ float G2_Smith_GGX(float NdotO, float NdotI, float roughnessAlpha)
 // Version of Smith GGX G term that supports the entire sphere for sampling.
 float G2_Smith_GGX(float NdotO, float HdotO, float NdotI, float HdotI, float roughnessAlpha)
 {
-    float G1L = positiveCharacteristic(HdotO / NdotO) * G1_Smith_GGX(abs(NdotO), roughnessAlpha);
-    float G1V = positiveCharacteristic(HdotI / NdotI) * G1_Smith_GGX(abs(NdotI), roughnessAlpha);
+    float G1L = positiveCharacteristic(HdotO / greaterThanZero(NdotO)) * G1_Smith_GGX(abs(NdotO), roughnessAlpha);
+    float G1V = positiveCharacteristic(HdotI / greaterThanZero(NdotI)) * G1_Smith_GGX(abs(NdotI), roughnessAlpha);
     return G1L * G1V;
 }

@@ -13,7 +13,9 @@
 #include <Utility/AsyncTaskQueue.h>
 
 #include <glm/glm/mat4x4.hpp>
+#include <glm/glm/ext/scalar_constants.hpp>
 #include <OpenRL/OpenRL.h>
+
 #include <any>
 #include <functional>
 #include <memory>
@@ -55,6 +57,7 @@ public:
         bool resetInternalState = true; 
         uint32_t maxRenderPasses = 32;
         uint32_t maxRayDepth = 10; // How many bounces a ray can make before being terminated.
+        float maxChannelValue = glm::pi<float>();
 
         std::string scene; // Name of the scene.
 
@@ -253,6 +256,7 @@ private:
     struct GlobalData {
         int maxRayDepth = 5;
         int sampleIndex = 0;
+        float maxChannelValue = glm::pi<float>();
 
         // Debugging.
         int enableDebugVisualizer = 0;

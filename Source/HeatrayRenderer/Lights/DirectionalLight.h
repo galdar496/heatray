@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "Light.h"
 #include "ShaderLightingDefines.h"
 
 #include <RLWrapper/Buffer.h>
@@ -20,7 +21,7 @@ namespace openrl {
 class Program;
 } // namespace openrl.
 
-class DirectionalLight
+class DirectionalLight final : public Light
 {
 public:
     explicit DirectionalLight(size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer);
@@ -46,10 +47,7 @@ public:
     void copyToLightBuffer(DirectionalLightsBuffer* buffer);
 
     Params params() const { return m_params; }
-    void setParams(const Params &params);
-    
-    std::shared_ptr<openrl::Program> program() const { return m_program; }
-    std::shared_ptr<openrl::Primitive> primitive() const { return m_primitive; }
+    void setParams(const Params &params);   
 
     //-------------------------------------------------------------------------
     // Update the light index for this directional light. This can happen when
@@ -59,9 +57,6 @@ public:
 private:
     void calculateOrientation();
     void setUniforms() const;
-
-    std::shared_ptr<openrl::Primitive> m_primitive = nullptr;
-    std::shared_ptr<openrl::Program> m_program = nullptr;
 
     Params m_params;
     glm::vec3 m_direction = glm::vec3(0.0, 1.0, 0.0);

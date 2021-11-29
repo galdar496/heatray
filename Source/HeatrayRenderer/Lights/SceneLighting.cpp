@@ -91,6 +91,9 @@ std::shared_ptr<EnvironmentLight> SceneLighting::addEnvironmentLight()
 
     updateLight(m_environment.light);
 
+    if (m_lightCreatedCallback) {
+        m_lightCreatedCallback(m_environment.light);
+    }
     return m_environment.light;
 }
 
@@ -133,6 +136,9 @@ std::shared_ptr<DirectionalLight> SceneLighting::addDirectionalLight()
         // Update the lighting buffer.
         updateLight(light);
 
+        if (m_lightCreatedCallback) {
+            m_lightCreatedCallback(light);
+        }
         return light;
     }
 
@@ -202,6 +208,9 @@ std::shared_ptr<PointLight> SceneLighting::addPointLight()
         // Update the lighting buffer.
         updateLight(light);
 
+        if (m_lightCreatedCallback) {
+            m_lightCreatedCallback(light);
+        }
         return light;
     }
 

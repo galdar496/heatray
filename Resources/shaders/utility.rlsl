@@ -152,7 +152,7 @@ mat3 transpose(mat3 m)
 
 float greaterThanZero(float f)
 {
-    return max(0.01, f);
+    return max(1e-5, f);
 }
 
 float positiveCharacteristic(float x)
