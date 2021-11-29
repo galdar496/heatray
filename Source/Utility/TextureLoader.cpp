@@ -124,7 +124,11 @@ void loadTextureInternal(LoadedTexture& loadedTexture, const char *path, bool ge
             case 4:
                 loadedTexture.desc.format = RL_RGBA; break;
             default:
-                assert(0 && "Unsupported channel count");;
+            {
+                LOG_WARNING("Texture \"%s\" has an unsupported channel count: %d -- skipping.", path, channelCount);
+                loadedTexture.pixels = nullptr;
+                return;
+            }
         }
         loadedTexture.desc.internalFormat = loadedTexture.desc.format;
         loadedTexture.desc.dataType = isHDR ? RL_FLOAT : RL_UNSIGNED_BYTE;

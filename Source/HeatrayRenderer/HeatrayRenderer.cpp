@@ -1303,6 +1303,12 @@ bool HeatrayRenderer::renderUI()
             ImGui::Separator();
         }
         {
+            ImGui::Text("Warnings");
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.8f, 0.5f, 1.0f));
+            ImGui::TextUnformatted(std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->textBuffer(util::Log::Type::kWarning).begin());
+            ImGui::PopStyleColor();
+        }
+        {
             ImGui::Text("Errors");
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.5f, 0.5f, 1.0f));
             ImGui::TextUnformatted(std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->textBuffer(util::Log::Type::kError).begin());

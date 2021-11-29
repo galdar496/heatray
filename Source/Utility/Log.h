@@ -25,6 +25,7 @@ public:
 
     enum class Type {
         kInfo,
+        kWarning,
         kError,
 
         kCount
@@ -55,6 +56,9 @@ private:
 
 #define LOG_INFO(format, ...) \
   util::Log::instance()->log(util::Log::Type::kInfo, format, ##__VA_ARGS__ )
+
+#define LOG_WARNING(format, ...) \
+  util::Log::instance()->log(util::Log::Type::kWarning, format, ##__VA_ARGS__ )
 
 #define LOG_ERROR(format, ...) \
   util::Log::instance()->log(util::Log::Type::kError, format, ##__VA_ARGS__ )

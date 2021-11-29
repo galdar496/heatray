@@ -26,7 +26,14 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>
 
     size_t indexBufferCount = meshProvider->GetIndexBufferCount();
     for (size_t ii = 0; ii < indexBufferCount; ++ii) {
-        std::shared_ptr<openrl::Buffer> buffer = openrl::Buffer::create(RL_ELEMENT_ARRAY_BUFFER, nullptr, meshProvider->GetIndexBufferSize(ii), "Index Buffer");
+        size_t numIndices = meshProvider->GetIndexBufferSize(ii);
+        if (numIndices == 0) {
+            LOG_WARNING("Found a 0-sized index buffer - skipping.");
+            m_indexBuffers.push_back(nullptr);
+            continue;
+        }
+
+        std::shared_ptr<openrl::Buffer> buffer = openrl::Buffer::create(RL_ELEMENT_ARRAY_BUFFER, nullptr, numIndices, "Index Buffer");
         buffer->bind();
         uint8_t * mapping = buffer->mapBuffer<uint8_t>(RL_READ_WRITE);
         meshProvider->FillIndexBuffer(ii, mapping);
@@ -75,7 +82,7 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>
 
         for (int jj = 0; jj < submesh.vertexAttributeCount; ++jj) {
             auto & attribute = submesh.vertexAttributes[jj];
-            int attributeLocation;
+            int attributeLocation = -1;
             switch (attribute.usage) {
                 case VertexAttributeUsage_Position:
                     attributeLocation = material->program()->getAttributeLocation("positionAttribute");
@@ -93,7 +100,7 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>
                     attributeLocation = material->program()->getAttributeLocation("bitangentAttribute");
                     break;
                 default:
-                    printf("Unknown vertex attribute usage %d\n", attribute.usage);
+                    LOG_ERROR("Unknown vertex attribute usage %d\n", attribute.usage);
             }
             if (attributeLocation != -1) {
                 m_vertexBuffers[attribute.buffer]->setAsVertexAttribute(attributeLocation, attribute.componentCount, RL_FLOAT, attribute.stride, attribute.offset);
@@ -108,16 +115,18 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>
                 rlSubmesh.mode = RL_TRIANGLE_STRIP;
                 break;
             default:
-                printf("Unsupported draw mode!\n");
+                LOG_ERROR("Unsupported draw mode!\n");
                 break;
         }
 
         rlSubmesh.elementCount = submesh.elementCount;
         rlSubmesh.offset = submesh.indexOffset;
         
-        m_indexBuffers[submesh.indexBuffer]->bind();
-        RLFunc(rlDrawElements(rlSubmesh.mode, rlSubmesh.elementCount, RL_UNSIGNED_INT, rlSubmesh.offset));
-        rlSubmesh.primitive->unbind();
+        if (m_indexBuffers[submesh.indexBuffer]) {
+            m_indexBuffers[submesh.indexBuffer]->bind();
+            RLFunc(rlDrawElements(rlSubmesh.mode, rlSubmesh.elementCount, RL_UNSIGNED_INT, rlSubmesh.offset));
+            rlSubmesh.primitive->unbind();
+        }
     }
 }
 

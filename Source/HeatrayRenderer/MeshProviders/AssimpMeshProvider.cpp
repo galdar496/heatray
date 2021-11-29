@@ -281,7 +281,9 @@ void AssimpMeshProvider::ProcessGlassMaterial(aiMaterial const* material)
         auto checkTextureTasks = [&textureTasks]() {
             if (textureTasks[kLoading].texture) {
                 util::LoadedTexture loadedTexture = textureTasks[kLoading].future.get();
-                *(textureTasks[kLoading].texture) = openrl::Texture::create(loadedTexture.pixels.get(), loadedTexture.desc, loadedTexture.sampler, true);
+                if (loadedTexture.pixels) {
+                    *(textureTasks[kLoading].texture) = openrl::Texture::create(loadedTexture.pixels.get(), loadedTexture.desc, loadedTexture.sampler, true);
+                }
                 textureTasks[kLoading].texture = nullptr;
             }
         };
@@ -389,7 +391,9 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
     auto checkTextureTasks = [&textureTasks]() {
         if (textureTasks[kLoading].texture) {
             util::LoadedTexture loadedTexture = textureTasks[kLoading].future.get();
-            *(textureTasks[kLoading].texture) = openrl::Texture::create(loadedTexture.pixels.get(), loadedTexture.desc, loadedTexture.sampler, true);
+            if (loadedTexture.pixels) {
+                *(textureTasks[kLoading].texture) = openrl::Texture::create(loadedTexture.pixels.get(), loadedTexture.desc, loadedTexture.sampler, true);
+            }
             textureTasks[kLoading].texture = nullptr;
         }
     };
@@ -503,6 +507,6 @@ void AssimpMeshProvider::LoadModel(std::string const & filename, bool convert_to
         ProcessNode(scene, scene->mRootNode, identity, 0, convert_to_meters);
         LOG_INFO("\tDONE");
     } else {
-        printf("Error:  No scene found in asset.\n");
+        LOG_ERROR("Error: No scene found in asset.\n");
     }
 }

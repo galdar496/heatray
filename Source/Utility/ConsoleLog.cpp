@@ -10,6 +10,8 @@ void ConsoleLog::addNewItem(const std::string& item, const Log::Type type)
         case Log::Type::kInfo:
             std::cout << "INFO: " << item << std::endl;
             break;
+        case Log::Type::kWarning:
+            std::cout << "WARNING: " << item << std::endl;
         case Log::Type::kError:
             std::cout << "ERROR: " << item << std::endl;
             break;
