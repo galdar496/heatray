@@ -129,7 +129,9 @@ void loadTextureInternal(LoadedTexture& loadedTexture, const char *path, bool ge
         loadedTexture.desc.internalFormat = loadedTexture.desc.format;
         loadedTexture.desc.dataType = isHDR ? RL_FLOAT : RL_UNSIGNED_BYTE;
 
-        loadedTexture.pixels = std::shared_ptr<uint8_t>(pixels);
+        loadedTexture.pixels = std::shared_ptr<uint8_t>(pixels, [](void *address) {
+            free(address);
+        });
     }
 }
 

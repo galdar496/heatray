@@ -266,28 +266,61 @@ void AssimpMeshProvider::ProcessGlassMaterial(aiMaterial const* material)
         auto filePath = std::filesystem::path(m_filename);
         auto fileParent = filePath.parent_path();
 
+        // We overlap the loading of texture data off disk with the generation of
+        // mipmaps from the most recently loaded texture.
+        struct TextureTask {
+            std::future<util::LoadedTexture> future;
+            std::shared_ptr<openrl::Texture>* texture = nullptr;
+        };
+
+        TextureTask textureTasks[2];
+        enum TaskID {
+            kStaging = 0, // Texture task has been launched.
+            kLoading      // Texture is loading or possibly fully loaded.
+        };
+        auto checkTextureTasks = [&textureTasks]() {
+            if (textureTasks[kLoading].texture) {
+                util::LoadedTexture loadedTexture = textureTasks[kLoading].future.get();
+                *(textureTasks[kLoading].texture) = openrl::Texture::create(loadedTexture.pixels.get(), loadedTexture.desc, loadedTexture.sampler, true);
+                textureTasks[kLoading].texture = nullptr;
+            }
+        };
+
         aiString assimpPath;
         if (material->GetTexture(AI_MATKEY_BASE_COLOR_TEXTURE, &assimpPath) == aiReturn_SUCCESS) {
             auto texturePath = (fileParent / assimpPath.C_Str()).string();
-            params.baseColorTexture = util::loadTexture(texturePath.c_str(), true, true);
+            textureTasks[kStaging].future = util::loadTextureAsync(texturePath.c_str(), true, true);
+            textureTasks[kStaging].texture = &params.baseColorTexture;
+            std::swap(textureTasks[kStaging], textureTasks[kLoading]);
         }
         else if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
             material->GetTexture(aiTextureType_DIFFUSE, 0, &assimpPath);
             auto texturePath = (fileParent / assimpPath.C_Str()).string();
-            params.baseColorTexture = util::loadTexture(texturePath.c_str(), true, true);
+            textureTasks[kStaging].future = util::loadTextureAsync(texturePath.c_str(), true, true);
+            textureTasks[kStaging].texture = &params.baseColorTexture;
+            std::swap(textureTasks[kStaging], textureTasks[kLoading]);
         }
 
         if (material->GetTextureCount(aiTextureType_NORMALS) > 0) {
             aiString normalTexturePath;
             material->GetTexture(aiTextureType_NORMALS, 0, &normalTexturePath);
             auto texturePath = (fileParent / normalTexturePath.C_Str()).string();
-            params.normalmap = util::loadTexture(texturePath.c_str(), true, false);
+            textureTasks[kStaging].future = util::loadTextureAsync(texturePath.c_str(), true, false);
+            textureTasks[kStaging].texture = &params.normalmap;
+            checkTextureTasks();
+            std::swap(textureTasks[kStaging], textureTasks[kLoading]);
         }
 
         if (material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &assimpPath) == aiReturn_SUCCESS) {
             auto texturePath = (fileParent / assimpPath.C_Str()).string();
-            params.metallicRoughnessTexture = util::loadTexture(texturePath.c_str(), true, false);
+            textureTasks[kStaging].future = util::loadTextureAsync(texturePath.c_str(), true, false);
+            textureTasks[kStaging].texture = &params.metallicRoughnessTexture;
+            checkTextureTasks();
+            std::swap(textureTasks[kStaging], textureTasks[kLoading]);
         }
+
+        // Ensure the final loaded texture gets uploaded to OpenRL.
+        checkTextureTasks();
     }
 
     m_materials.push_back(glassMaterial);
@@ -341,72 +374,89 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
     auto filePath = std::filesystem::path(m_filename);
     auto fileParent = filePath.parent_path();
 
+    // We overlap the loading of texture data off disk with the generation of
+    // mipmaps from the most recently loaded texture.
     struct TextureTask {
         std::future<util::LoadedTexture> future;
         std::shared_ptr<openrl::Texture> *texture = nullptr;
     };
-    std::vector<TextureTask> textureTasks;
+
+    TextureTask textureTasks[2];
+    enum TaskID { 
+        kStaging = 0, // Texture task has been launched.
+        kLoading      // Texture is loading or possibly fully loaded.
+    };
+    auto checkTextureTasks = [&textureTasks]() {
+        if (textureTasks[kLoading].texture) {
+            util::LoadedTexture loadedTexture = textureTasks[kLoading].future.get();
+            *(textureTasks[kLoading].texture) = openrl::Texture::create(loadedTexture.pixels.get(), loadedTexture.desc, loadedTexture.sampler, true);
+            textureTasks[kLoading].texture = nullptr;
+        }
+    };
 
     aiString fileTexturePath;
     if (material->GetTexture(AI_MATKEY_BASE_COLOR_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-        textureTasks.emplace_back();
-        textureTasks.back().future = util::loadTextureAsync(texturePath.c_str(), true, true);
-        textureTasks.back().texture = &params.baseColorTexture;
+        textureTasks[kStaging].future = util::loadTextureAsync(texturePath.c_str(), true, true);
+        textureTasks[kStaging].texture = &params.baseColorTexture;
+        std::swap(textureTasks[kStaging], textureTasks[kLoading]);
     } else if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
         material->GetTexture(aiTextureType_DIFFUSE, 0, &fileTexturePath);
         auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-        textureTasks.emplace_back();
-        textureTasks.back().future = util::loadTextureAsync(texturePath.c_str(), true, true);
-        textureTasks.back().texture = &params.baseColorTexture;
+        textureTasks[kStaging].future = util::loadTextureAsync(texturePath.c_str(), true, true);
+        textureTasks[kStaging].texture = &params.baseColorTexture;
+        std::swap(textureTasks[kStaging], textureTasks[kLoading]);
     }
     if (material->GetTextureCount(aiTextureType_EMISSIVE) > 0) {
         aiString emissiveTexturePath;
         material->GetTexture(aiTextureType_EMISSIVE, 0, &emissiveTexturePath);
         auto texturePath = (fileParent / emissiveTexturePath.C_Str()).string();
-        textureTasks.emplace_back();
-        textureTasks.back().future = util::loadTextureAsync(texturePath.c_str(), true, true);
-        textureTasks.back().texture = &params.emissiveTexture;
+        textureTasks[kStaging].future = util::loadTextureAsync(texturePath.c_str(), true, true);
+        textureTasks[kStaging].texture = &params.emissiveTexture;
+        checkTextureTasks();
+        std::swap(textureTasks[kStaging], textureTasks[kLoading]);
     }
     aiString fileRoughnessMetallicTexture;
     if (material->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE, &fileRoughnessMetallicTexture) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileRoughnessMetallicTexture.C_Str()).string();
-        textureTasks.emplace_back();
-        textureTasks.back().future = util::loadTextureAsync(texturePath.c_str(), true, false);
-        textureTasks.back().texture = &params.metallicRoughnessTexture;
+        textureTasks[kStaging].future = util::loadTextureAsync(texturePath.c_str(), true, false);
+        textureTasks[kStaging].texture = &params.metallicRoughnessTexture;
+        checkTextureTasks();
+        std::swap(textureTasks[kStaging], textureTasks[kLoading]);
     }
     if (material->GetTextureCount(aiTextureType_NORMALS) > 0) {
         aiString normalTexturePath;
         material->GetTexture(aiTextureType_NORMALS, 0, &normalTexturePath);
         auto texturePath = (fileParent / normalTexturePath.C_Str()).string();
-        textureTasks.emplace_back();
-        textureTasks.back().future = util::loadTextureAsync(texturePath.c_str(), true, false);
-        textureTasks.back().texture = &params.normalmap;
+        textureTasks[kStaging].future = util::loadTextureAsync(texturePath.c_str(), true, false);
+        textureTasks[kStaging].texture = &params.normalmap;
+        checkTextureTasks();
+        std::swap(textureTasks[kStaging], textureTasks[kLoading]);
     }
     if (material->GetTexture(AI_MATKEY_CLEARCOAT_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-        textureTasks.emplace_back();
-        textureTasks.back().future = util::loadTextureAsync(texturePath.c_str(), true, false);
-        textureTasks.back().texture = &params.clearCoatTexture;
+        textureTasks[kStaging].future = util::loadTextureAsync(texturePath.c_str(), true, false);
+        textureTasks[kStaging].texture = &params.clearCoatTexture;
+        checkTextureTasks();
+        std::swap(textureTasks[kStaging], textureTasks[kLoading]);
     }
     if (material->GetTexture(AI_MATKEY_CLEARCOAT_ROUGHNESS_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-        textureTasks.emplace_back();
-        textureTasks.back().future = util::loadTextureAsync(texturePath.c_str(), true, false);
-        textureTasks.back().texture = &params.clearCoatRoughnessTexture;
+        textureTasks[kStaging].future = util::loadTextureAsync(texturePath.c_str(), true, false);
+        textureTasks[kStaging].texture = &params.clearCoatRoughnessTexture;
+        checkTextureTasks();
+        std::swap(textureTasks[kStaging], textureTasks[kLoading]);
     }
     if (material->GetTexture(AI_MATKEY_CLEARCOAT_NORMAL_TEXTURE, &fileTexturePath) == aiReturn_SUCCESS) {
         auto texturePath = (fileParent / fileTexturePath.C_Str()).string();
-        textureTasks.emplace_back();
-        textureTasks.back().future = util::loadTextureAsync(texturePath.c_str(), true, false);
-        textureTasks.back().texture = &params.clearCoatNormalmap;
+        textureTasks[kStaging].future = util::loadTextureAsync(texturePath.c_str(), true, false);
+        textureTasks[kStaging].texture = &params.clearCoatNormalmap;
+        checkTextureTasks();
+        std::swap(textureTasks[kStaging], textureTasks[kLoading]);
     }
 
-    // Wait for each task and upload the texture data to OpenRL.
-    for (auto &task : textureTasks) {
-        util::LoadedTexture loadedTexture = task.future.get();
-        *task.texture = openrl::Texture::create(loadedTexture.pixels.get(), loadedTexture.desc, loadedTexture.sampler, true);
-    }
+    // Ensure the final loaded texture gets uploaded to OpenRL.
+    checkTextureTasks();
 
     m_materials.push_back(pbrMaterial);
 }
