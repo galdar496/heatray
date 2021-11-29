@@ -6,11 +6,19 @@
 
 #include <assert.h>
 #include <set>
+#include <vector>
+#include <unordered_map>
 
 namespace util {
 
 using HashTable = std::set<std::string>; // key = shader name.
 constexpr char const * kShaderDir = "Resources/shaders/";
+
+namespace {
+// We keep track of all full shaders read by these utility functions. If we're asked to load
+// the same shader twice, the second time will just used the cached version.
+std::unordered_map<std::string, std::vector<std::string>> shaderCache;
+} // empty namespace.
 
 // This function recursively adds the shader code all together. For each file it reads, it searches for "#include" and then
 // calls itself with the new filename etc etc. Note that it just looks for "#include" directly, this means that if there is an include
@@ -53,9 +61,26 @@ bool loadShaderSourceFileRecursive(const std::string &filename, std::vector<std:
 
 bool loadShaderSourceFile(const char* filepath, std::vector<std::string>& finalSourceCode)
 {
+    // Check our cache first.
+    {
+        auto iter = shaderCache.find(filepath);
+        if (iter != shaderCache.end()) {
+            for (std::string &code : iter->second) {
+                finalSourceCode.push_back(code);
+            }
+            return true;
+        }
+    }
+
     HashTable filesRead;
     std::string fullPath = std::string(kShaderDir) + std::string(filepath);
-    return loadShaderSourceFileRecursive(fullPath, finalSourceCode, filesRead);
+    bool result = loadShaderSourceFileRecursive(fullPath, finalSourceCode, filesRead);
+    if (result) {
+        // Update the shader cache.
+        shaderCache[filepath] = finalSourceCode;
+    }
+
+    return result;
 }
 
 std::shared_ptr<openrl::Program> buildProgram(const char* vertexShaderPath, const char* rayShaderPath, const char *name, std::string const & shaderPrefix)
