@@ -276,6 +276,7 @@ private:
     {
         //FlyCamera flyCamera;
         OrbitCamera orbitCamera;
+        bool locked = false;
     };
 
     Camera m_camera;

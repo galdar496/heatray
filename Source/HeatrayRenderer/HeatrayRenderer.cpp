@@ -416,7 +416,7 @@ void HeatrayRenderer::render()
 
 void HeatrayRenderer::adjustCamera(const float phiDelta, const float thetaDelta, const float distanceDelta)
 {
-    if (m_renderOptions.enableInteractiveMode) {
+    if (!m_camera.locked) {
         float SCALE = 0.5f;
 
         m_camera.orbitCamera.phi += glm::radians(phiDelta) * SCALE;
@@ -1169,71 +1169,74 @@ bool HeatrayRenderer::renderUI()
         }
     }
     if (ImGui::CollapsingHeader("Camera options")) {
-        ImGui::Text("Orbital Camera");
-        ImGui::PushID("CameraPhi");
-        bool changed = ImGui::SliderAngle("Phi", &(m_camera.orbitCamera.phi), 0.0f, 360.0f);
-        ImGui::PopID();
-        ImGui::PushID("CameraTheta");
-        changed |= ImGui::SliderAngle("Theta", &(m_camera.orbitCamera.theta), -90.0f, 90.0f);
-        ImGui::PopID();
-        changed |= ImGui::SliderFloat("Distance", &(m_camera.orbitCamera.distance), 0.0f, m_camera.orbitCamera.max_distance);
-        changed |= ImGui::InputFloat3("Target", m_camera.orbitCamera.target.data.data, "%f", ImGuiInputTextFlags_CharsDecimal);
-        if (changed) {
-            shouldResetRenderer = true;
-        }
-
-        ImGui::Text("Lens Properties");
-        if (ImGui::SliderFloat("Focus distance(m)", &m_renderOptions.camera.focusDistance, 0.0f, m_camera.orbitCamera.max_distance)) {
-            shouldResetRenderer = true;
-        }
-        if (ImGui::SliderFloat("Focal length(mm)", &m_renderOptions.camera.focalLength, 10.0f, 200.0f)) {
-            m_renderOptions.camera.setApertureRadius();
-            shouldResetRenderer = true;
-        }
-        {
-            static unsigned int currentSelection = 1;
-            static const char* options[PassGenerator::RenderOptions::Camera::NUM_FSTOPS] = {
-                "<disabled>", "f32", "f22", "f16", "f11", "f8", "f5.6", "f4", "f2.8", "f2", "f1.4", "f1"
-            };
-            if (ImGui::BeginCombo("f-Stop", options[currentSelection])) {
-                for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
-                    bool isSelected = currentSelection == iOption;
-                    if (ImGui::Selectable(options[iOption], false)) {
-                        currentSelection = iOption;
-                        m_renderOptions.camera.fstop = PassGenerator::RenderOptions::Camera::fstopOptions[currentSelection];
-                        m_renderOptions.camera.setApertureRadius();
-                        shouldResetRenderer = true;
-                    }
-                    if (isSelected) {
-                        ImGui::SetItemDefaultFocus();
-                    }
-                }
-                ImGui::EndCombo();
+        ImGui::Checkbox("Lock camera", &(m_camera.locked));
+        if (!m_camera.locked) {
+            ImGui::Text("Orbital Camera");
+            ImGui::PushID("CameraPhi");
+            bool changed = ImGui::SliderAngle("Phi", &(m_camera.orbitCamera.phi), 0.0f, 360.0f);
+            ImGui::PopID();
+            ImGui::PushID("CameraTheta");
+            changed |= ImGui::SliderAngle("Theta", &(m_camera.orbitCamera.theta), -90.0f, 90.0f);
+            ImGui::PopID();
+            changed |= ImGui::SliderFloat("Distance", &(m_camera.orbitCamera.distance), 0.0f, m_camera.orbitCamera.max_distance);
+            changed |= ImGui::InputFloat3("Target", m_camera.orbitCamera.target.data.data, "%f", ImGuiInputTextFlags_CharsDecimal);
+            if (changed) {
+                shouldResetRenderer = true;
             }
-        }
-        {
-            static const char* options[] = { "Circular", "Pentagon", "Hexagon", "Octagon" };
-            constexpr PassGenerator::RenderOptions::BokehShape realOptions[] = {
-                PassGenerator::RenderOptions::BokehShape::kCircular,
-                PassGenerator::RenderOptions::BokehShape::kPentagon,
-                PassGenerator::RenderOptions::BokehShape::kHexagon,
-                PassGenerator::RenderOptions::BokehShape::kOctagon
-            };
 
-            static unsigned int currentSelection = 0;
-            if (ImGui::BeginCombo("Bokeh shape", options[currentSelection])) {
-                for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
-                    bool isSelected = currentSelection == iOption;
-                    if (ImGui::Selectable(options[iOption], false)) {
-                        currentSelection = iOption;
-                        m_renderOptions.bokehShape = realOptions[iOption];
-                        shouldResetRenderer = true;
+            ImGui::Text("Lens Properties");
+            if (ImGui::SliderFloat("Focus distance(m)", &m_renderOptions.camera.focusDistance, 0.0f, m_camera.orbitCamera.max_distance)) {
+                shouldResetRenderer = true;
+            }
+            if (ImGui::SliderFloat("Focal length(mm)", &m_renderOptions.camera.focalLength, 10.0f, 200.0f)) {
+                m_renderOptions.camera.setApertureRadius();
+                shouldResetRenderer = true;
+            }
+            {
+                static unsigned int currentSelection = 1;
+                static const char* options[PassGenerator::RenderOptions::Camera::NUM_FSTOPS] = {
+                    "<disabled>", "f32", "f22", "f16", "f11", "f8", "f5.6", "f4", "f2.8", "f2", "f1.4", "f1"
+                };
+                if (ImGui::BeginCombo("f-Stop", options[currentSelection])) {
+                    for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
+                        bool isSelected = currentSelection == iOption;
+                        if (ImGui::Selectable(options[iOption], false)) {
+                            currentSelection = iOption;
+                            m_renderOptions.camera.fstop = PassGenerator::RenderOptions::Camera::fstopOptions[currentSelection];
+                            m_renderOptions.camera.setApertureRadius();
+                            shouldResetRenderer = true;
+                        }
+                        if (isSelected) {
+                            ImGui::SetItemDefaultFocus();
+                        }
                     }
-                    if (isSelected) {
-                        ImGui::SetItemDefaultFocus();
-                    }
+                    ImGui::EndCombo();
                 }
-                ImGui::EndCombo();
+            }
+            {
+                static const char* options[] = { "Circular", "Pentagon", "Hexagon", "Octagon" };
+                constexpr PassGenerator::RenderOptions::BokehShape realOptions[] = {
+                    PassGenerator::RenderOptions::BokehShape::kCircular,
+                    PassGenerator::RenderOptions::BokehShape::kPentagon,
+                    PassGenerator::RenderOptions::BokehShape::kHexagon,
+                    PassGenerator::RenderOptions::BokehShape::kOctagon
+                };
+
+                static unsigned int currentSelection = 0;
+                if (ImGui::BeginCombo("Bokeh shape", options[currentSelection])) {
+                    for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
+                        bool isSelected = currentSelection == iOption;
+                        if (ImGui::Selectable(options[iOption], false)) {
+                            currentSelection = iOption;
+                            m_renderOptions.bokehShape = realOptions[iOption];
+                            shouldResetRenderer = true;
+                        }
+                        if (isSelected) {
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
             }
         }
     }
