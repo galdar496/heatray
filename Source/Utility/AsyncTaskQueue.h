@@ -8,10 +8,11 @@
 
 #pragma once
 
+#include <condition_variable>
+#include <functional>
+#include <mutex>
 #include <thread>
 #include <queue>
-#include <mutex>
-#include <condition_variable>
 
 namespace util {
  

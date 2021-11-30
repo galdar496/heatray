@@ -1,7 +1,7 @@
 #include "PassGenerator.h"
 
 #include "Lights/EnvironmentLight.h"
-#include "Lights/SceneLighting.h"
+#include "Scene/Scene.h"
 
 #include <RLWrapper/Buffer.h>
 #include <RLWrapper/Error.h>
@@ -61,7 +61,7 @@ void PassGenerator::init(const RLint renderWidth, const RLint renderHeight)
             case JobType::kChangeLighting:
             {
                 LightingCallback callback = std::any_cast<LightingCallback>(job.params);
-                callback(m_sceneLighting);
+                callback(m_scene->lighting());
                 break;
             }
             case JobType::kDestroy:
@@ -179,10 +179,23 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
         m_globalData = openrl::Buffer::create(RL_ARRAY_BUFFER, &data, sizeof(GlobalData), "Global data buffer");
     }
 
-    // Initialize scene lighting.
+    // Initialize scene data and lighting.
     {
-        m_sceneLighting = std::shared_ptr<SceneLighting>(new SceneLighting);
-        m_sceneLighting->installLightCreatedCallback([this](std::shared_ptr<Light> light) {
+        m_scene = Scene::create();
+        m_scene->installNewProgramCreatedCallback([this](const std::shared_ptr<openrl::Program> program)
+        {
+            RLint sequenceIndex = program->getUniformBlockIndex("RandomSequences");
+            if (sequenceIndex != -1) {
+                program->setUniformBlock(sequenceIndex, m_randomSequences->buffer());
+            }
+
+            RLint globalsIndex = program->getUniformBlockIndex("Globals");
+            if (globalsIndex != -1) {
+                program->setUniformBlock(globalsIndex, m_globalData->buffer());
+            }
+        });
+
+        m_scene->lighting()->installLightCreatedCallback([this](std::shared_ptr<Light> light) {
             // Bind the global data to this new light.
             RLint globalsIndex = light->program()->getUniformBlockIndex("Globals");
             if (globalsIndex != -1) {
@@ -191,7 +204,7 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
                 light->primitive()->unbind();
             }
         });
-        m_environmentLight = m_sceneLighting->addEnvironmentLight();      
+        m_environmentLight = m_scene->lighting()->addEnvironmentLight();
     }
 
     // Load the perspective camera frame shader for generating primary rays.
@@ -218,7 +231,7 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
         m_frameProgram->bind();
         m_frameProgram->setUniformBlock(m_frameProgram->getUniformBlockIndex("RandomSequences"), m_randomSequences->buffer());
         m_frameProgram->setUniformBlock(m_frameProgram->getUniformBlockIndex("Globals"), m_globalData->buffer());
-        m_sceneLighting->bindLightingBuffersToProgram(m_frameProgram);
+        m_scene->lighting()->bindLightingBuffersToProgram(m_frameProgram);
     }
 
     // Generate the block pixel offsets for interactive rendering.
@@ -371,26 +384,10 @@ void PassGenerator::runLoadSceneJob(bool clearOldScene)
     assert(m_loadSceneCallback);
 
     if (clearOldScene) {
-        for (auto& mesh : m_sceneData) {
-            mesh.destroy();
-        }
-        m_sceneData.clear();
+        m_scene->clearMeshesAndMaterials();
     }
     
-    m_loadSceneCallback(m_sceneData, [this](const std::shared_ptr<openrl::Program> program)
-        {
-            RLint sequenceIndex = program->getUniformBlockIndex("RandomSequences");
-            if (sequenceIndex != -1) {
-                program->setUniformBlock(sequenceIndex, m_randomSequences->buffer());
-            }
-
-            RLint globalsIndex = program->getUniformBlockIndex("Globals");
-            if (globalsIndex != -1) {
-                program->setUniformBlock(globalsIndex, m_globalData->buffer());
-            }
-
-            m_sceneLighting->bindLightingBuffersToProgram(program);
-        });
+    m_loadSceneCallback(m_scene);
 }
 
 void PassGenerator::runDestroyJob()
@@ -402,13 +399,11 @@ void PassGenerator::runDestroyJob()
     m_randomSequenceTexture.reset();
     m_apertureSamplesTexture.reset();
     m_environmentLight.reset();
-    m_sceneData.clear();
     m_frameProgram.reset();
     m_interactiveBlockCoordsTexture.reset();
     m_sequenceOffsetsTexture.reset();
 
-    m_sceneLighting->clear();
-    m_sceneLighting.reset();
+    m_scene.reset();
 
     m_resultPixels->unmapPixelData();
     m_resultPixels.reset();
@@ -550,7 +545,7 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
 void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
 {
     if (!m_environmentLight) {
-        m_environmentLight = m_sceneLighting->addEnvironmentLight();
+        m_environmentLight = m_scene->lighting()->addEnvironmentLight();
     }
 
     m_environmentLight->rotate(newEnv.thetaRotation);
@@ -560,14 +555,14 @@ void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
         m_environmentLight->enableWhiteFurnaceTest();
     }
     else if (newEnv.map == "<none>") {
-        m_sceneLighting->removeEnvironmentLight();
+        m_scene->lighting()->removeEnvironmentLight();
         m_environmentLight = nullptr;
     } else {
         m_environmentLight->changeImageSource(newEnv.map.c_str(), newEnv.builtInMap);
     }
 
     if (m_environmentLight) {
-        m_sceneLighting->updateLight(m_environmentLight);
+        m_scene->lighting()->updateLight(m_environmentLight);
     }
 }
 

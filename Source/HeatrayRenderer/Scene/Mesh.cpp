@@ -1,11 +1,20 @@
-#include "RLMesh.h"
-#include "Materials/Material.h"
+#include "Mesh.h"
 
+#include "MeshProvider.h"
+
+#include <HeatrayRenderer/Materials/Material.h>
+
+#include <RLWrapper/Buffer.h>
+#include <RLWrapper/Primitive.h>
+#include <RLWrapper/Program.h>
 
 #include <glm/glm/glm.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp>
 
-RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>> materials, SetupSystemBindingsCallback callback, glm::mat4 transform)
+Mesh::Mesh(MeshProvider* meshProvider,
+               std::vector<std::shared_ptr<Material>> &materials,
+               std::function<void(const std::shared_ptr<openrl::Program>)> &materialCreatedCallback, 
+               const glm::mat4 &transform)
 {
     m_materials = std::move(materials);
 
@@ -44,7 +53,7 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>
     m_submeshes.resize(meshProvider->GetSubmeshCount());
     for (int ii = 0; ii < meshProvider->GetSubmeshCount(); ++ii) {
         MeshProvider::Submesh submesh = meshProvider->GetSubmesh(ii);
-        RLMesh::Submesh & rlSubmesh = m_submeshes[ii];
+        Mesh::Submesh & rlSubmesh = m_submeshes[ii];
 
         // If submesh material index is set, use it to look up the material
         if (submesh.materialIndex != -1) {
@@ -62,12 +71,12 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>
 
         // If this material has a uniform block, bind it here.
         RLint uniformBlockIndex = material->program()->getUniformBlockIndex("Material"); // Yeah - this is saying all shader's should use the name "Material" for their uniform blocks.
-        if (uniformBlockIndex != -1)  {
+        if (uniformBlockIndex != -1) {
             material->program()->setUniformBlock(uniformBlockIndex, material->uniformBlock()->buffer());
         }
 
         // Let the system setup any required data for this primitive.
-        callback(material->program()); 
+        materialCreatedCallback(material->program());
 
         int worldFromEntityLocation = material->program()->getUniformLocation("worldFromEntity");
 
@@ -130,7 +139,7 @@ RLMesh::RLMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>
     }
 }
 
-void RLMesh::destroy()
+void Mesh::destroy()
 {
     m_vertexBuffers.clear();
     m_vertexBuffers.clear();

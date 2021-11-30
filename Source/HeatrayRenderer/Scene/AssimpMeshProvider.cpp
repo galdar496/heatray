@@ -24,10 +24,10 @@ public:
     virtual void write(const char* message) { LOG_INFO("Assimp: %s", message); }
 };
 
-AssimpMeshProvider::AssimpMeshProvider(std::string filename, bool convert_to_meters, bool swapYZ)
+AssimpMeshProvider::AssimpMeshProvider(std::string filename, bool convertToMeters, bool swapYZ)
 : m_filename(std::move(filename)), m_swapYZ(swapYZ)
 {
-    LoadModel(m_filename, convert_to_meters);
+    LoadModel(m_filename, convertToMeters);
 }
 
 void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node, const aiMatrix4x4 & parentTransform, int level, bool convertToMeters)
@@ -466,7 +466,7 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
     m_materials.push_back(pbrMaterial);
 }
 
-void AssimpMeshProvider::LoadModel(std::string const & filename, bool convert_to_meters)
+void AssimpMeshProvider::LoadModel(std::string const & filename, bool convertToMeters)
 {
     static bool assimpLoggerInitialized = false;
 
@@ -494,7 +494,7 @@ void AssimpMeshProvider::LoadModel(std::string const & filename, bool convert_to
         for (unsigned int ii = 0; ii < scene->mNumMeshes; ++ii) {
             aiMesh const * mesh = scene->mMeshes[ii];
             LOG_INFO("Processing mesh %s", mesh->mName.C_Str());
-            ProcessMesh(mesh, convert_to_meters);
+            ProcessMesh(mesh, convertToMeters);
         }
 
         for (unsigned int ii = 0; ii < scene->mNumMaterials; ++ii) {
@@ -505,7 +505,7 @@ void AssimpMeshProvider::LoadModel(std::string const & filename, bool convert_to
 
         aiMatrix4x4 identity;
         LOG_INFO("Processing scene transforms...");
-        ProcessNode(scene, scene->mRootNode, identity, 0, convert_to_meters);
+        ProcessNode(scene, scene->mRootNode, identity, 0, convertToMeters);
         LOG_INFO("\tDONE");
     } else {
         LOG_ERROR("Error: No scene found in asset.\n");

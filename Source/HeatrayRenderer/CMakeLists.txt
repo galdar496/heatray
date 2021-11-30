@@ -5,13 +5,13 @@ add_library(HeatrayRenderer STATIC
     PassGenerator.cpp
     HeatrayRenderer.h
     HeatrayRenderer.cpp
-    RLMesh.h
-    RLMesh.cpp
 )
 
 target_link_libraries(HeatrayRenderer
-    Scene
     FileDialog
+    Lights
+    Materials
+    Scene
 )
 
 add_subdirectory(Lights)

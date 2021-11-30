@@ -19,8 +19,8 @@
 #include "FlyCamera.h"
 #include "OrbitCamera.h"
 #include "PassGenerator.h"
-#include "RLMesh.h"
 #include "Materials/Material.h"
+#include "Scene/Scene.h"
 
 #include <Utility/FileIO.h>
 #include <Utility/AABB.h>
@@ -287,7 +287,7 @@ private:
         kMeters, // Heatray default.
         kCentimeters
     };
-    SceneUnits m_scene_units = SceneUnits::kMeters;
+    SceneUnits m_sceneUnits = SceneUnits::kMeters;
 
     bool m_swapYZ = false;
 
@@ -301,14 +301,7 @@ private:
     util::AABB m_sceneAABB;
 
     struct GroundPlane {
-        void reset() {
-            if (mesh.valid()) {
-                material.reset();
-                mesh.destroy();
-            }
-        }
-
-        RLMesh mesh;
+        size_t meshIndex = 0;
         std::shared_ptr<Material> material = nullptr;
     } m_groundPlane;
 

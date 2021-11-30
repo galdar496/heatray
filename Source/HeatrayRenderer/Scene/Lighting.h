@@ -1,5 +1,5 @@
 ﻿//
-//  SceneLighting.h
+//  Lighting.h
 //  Heatray
 //
 //  Utilities for defining the light buffers for a scene.
@@ -7,10 +7,8 @@
 
 #pragma once
 
-#include "Light.h"
-#include "ShaderLightingDefines.h"
-
-#include <RLWrapper/Buffer.h>
+#include <HeatrayRenderer/Lights/Light.h>
+#include <HeatrayRenderer/Lights/ShaderLightingDefines.h>
 
 #include <functional>
 #include <vector>
@@ -24,11 +22,11 @@ class Buffer;
 class Program;
 } // namespace openrl.
 
-class SceneLighting
+class Lighting
 {
 public:
-    SceneLighting();
-    ~SceneLighting() = default;
+    Lighting();
+    ~Lighting() = default;
 
     //-------------------------------------------------------------------------
     // Get rid of all lights in the scene. Note that this function does not
@@ -37,7 +35,7 @@ public:
 
     //-------------------------------------------------------------------------
     // Binds the internal lighting buffers to an OpenRL program.
-    void bindLightingBuffersToProgram(std::shared_ptr<openrl::Program> program);
+    void bindLightingBuffersToProgram(const std::shared_ptr<openrl::Program> program);
 
     //-------------------------------------------------------------------------
     // Install a callback that is always invoked whenever a new light is created.

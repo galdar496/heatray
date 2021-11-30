@@ -1,13 +1,14 @@
-#include "SceneLighting.h"
+#include "Lighting.h"
 
-#include "EnvironmentLight.h"
-#include "DirectionalLight.h"
-#include "PointLight.h"
+#include <HeatrayRenderer/Lights/EnvironmentLight.h>
+#include <HeatrayRenderer/Lights/DirectionalLight.h>
+#include <HeatrayRenderer/Lights/PointLight.h>
 
+#include <RLWrapper/Buffer.h>
 #include <RLWrapper/Program.h>
 #include <Utility/Log.h>
 
-SceneLighting::SceneLighting()
+Lighting::Lighting()
 {
     m_environment.buffer = openrl::Buffer::create(RL_ARRAY_BUFFER, nullptr, sizeof(EnvironmentLightBuffer), "Environment Light Buffer");
     m_directional.buffer = openrl::Buffer::create(RL_ARRAY_BUFFER, nullptr, sizeof(DirectionalLightsBuffer), "Directional Lights Buffer");
@@ -17,7 +18,7 @@ SceneLighting::SceneLighting()
     clear();
 }
 
-void SceneLighting::clear()
+void Lighting::clear()
 {
     // Environment Light.
     removeEnvironmentLight();
@@ -53,7 +54,7 @@ void SceneLighting::clear()
     }
 }
 
-void SceneLighting::bindLightingBuffersToProgram(std::shared_ptr<openrl::Program> program)
+void Lighting::bindLightingBuffersToProgram(const std::shared_ptr<openrl::Program> program)
 {
     // Environment Light.
     {
@@ -80,7 +81,7 @@ void SceneLighting::bindLightingBuffersToProgram(std::shared_ptr<openrl::Program
     }
 }
 
-std::shared_ptr<EnvironmentLight> SceneLighting::addEnvironmentLight()
+std::shared_ptr<EnvironmentLight> Lighting::addEnvironmentLight()
 {
     m_environment.light = std::shared_ptr<EnvironmentLight>(new EnvironmentLight(m_environment.buffer));
 
@@ -97,7 +98,7 @@ std::shared_ptr<EnvironmentLight> SceneLighting::addEnvironmentLight()
     return m_environment.light;
 }
 
-void SceneLighting::removeEnvironmentLight()
+void Lighting::removeEnvironmentLight()
 {
     m_environment.light.reset();
 
@@ -109,7 +110,7 @@ void SceneLighting::removeEnvironmentLight()
     m_environment.buffer->unbind();
 }
 
-void SceneLighting::updateLight(std::shared_ptr<EnvironmentLight> light)
+void Lighting::updateLight(std::shared_ptr<EnvironmentLight> light)
 {
     m_environment.buffer->bind();
     EnvironmentLightBuffer* environmentLight = m_environment.buffer->mapBuffer<EnvironmentLightBuffer>();
@@ -118,7 +119,7 @@ void SceneLighting::updateLight(std::shared_ptr<EnvironmentLight> light)
     m_environment.buffer->unbind();
 }
 
-std::shared_ptr<DirectionalLight> SceneLighting::addDirectionalLight()
+std::shared_ptr<DirectionalLight> Lighting::addDirectionalLight()
 {
     if (m_directional.count < ShaderLightingDefines::MAX_NUM_DIRECTIONAL_LIGHTS) {
         size_t lightIndex = m_directional.count;
@@ -146,7 +147,7 @@ std::shared_ptr<DirectionalLight> SceneLighting::addDirectionalLight()
     return nullptr;
 }
 
-void SceneLighting::updateLight(std::shared_ptr<DirectionalLight> light)
+void Lighting::updateLight(std::shared_ptr<DirectionalLight> light)
 {
     m_directional.buffer->bind();
     DirectionalLightsBuffer* directionalLights = m_directional.buffer->mapBuffer<DirectionalLightsBuffer>();
@@ -156,7 +157,7 @@ void SceneLighting::updateLight(std::shared_ptr<DirectionalLight> light)
     m_directional.buffer->unbind();
 }
 
-void SceneLighting::removeLight(std::shared_ptr<DirectionalLight> light)
+void Lighting::removeLight(std::shared_ptr<DirectionalLight> light)
 {
     // Find this light in our list of directional lights.
     size_t index = 0;
@@ -190,7 +191,7 @@ void SceneLighting::removeLight(std::shared_ptr<DirectionalLight> light)
     }
 }
 
-std::shared_ptr<PointLight> SceneLighting::addPointLight()
+std::shared_ptr<PointLight> Lighting::addPointLight()
 {
     if (m_point.count < ShaderLightingDefines::MAX_NUM_POINT_LIGHTS) {
         size_t lightIndex = m_point.count;
@@ -218,7 +219,7 @@ std::shared_ptr<PointLight> SceneLighting::addPointLight()
     return nullptr;
 }
 
-void SceneLighting::updateLight(std::shared_ptr<PointLight> light)
+void Lighting::updateLight(std::shared_ptr<PointLight> light)
 {
     m_point.buffer->bind();
     PointLightsBuffer* pointLights = m_point.buffer->mapBuffer<PointLightsBuffer>();
@@ -228,7 +229,7 @@ void SceneLighting::updateLight(std::shared_ptr<PointLight> light)
     m_point.buffer->unbind();
 }
 
-void SceneLighting::removeLight(std::shared_ptr<PointLight> light)
+void Lighting::removeLight(std::shared_ptr<PointLight> light)
 {
     // Find this light in our list of point lights.
     size_t index = 0;

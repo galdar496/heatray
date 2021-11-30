@@ -1,12 +1,10 @@
-target_sources(HeatrayRenderer PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/DirectionalLight.h
-    ${CMAKE_CURRENT_LIST_DIR}/DirectionalLight.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/EnvironmentLight.h
-    ${CMAKE_CURRENT_LIST_DIR}/EnvironmentLight.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/Light.h
-    ${CMAKE_CURRENT_LIST_DIR}/PointLight.h
-    ${CMAKE_CURRENT_LIST_DIR}/PointLight.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/SceneLighting.h
-    ${CMAKE_CURRENT_LIST_DIR}/SceneLighting.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/ShaderLightingDefines.h
+add_library(Lights STATIC
+    DirectionalLight.h
+    DirectionalLight.cpp
+    EnvironmentLight.h
+    EnvironmentLight.cpp
+    Light.h
+    PointLight.h
+    PointLight.cpp
+    ShaderLightingDefines.h
 )

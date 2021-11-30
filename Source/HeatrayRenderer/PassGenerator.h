@@ -8,8 +8,6 @@
 
 #pragma once
 
-#include "RLMesh.h"
-
 #include <Utility/AsyncTaskQueue.h>
 
 #include <glm/glm/mat4x4.hpp>
@@ -31,7 +29,8 @@ namespace openrl {
     class Texture;
 } // namespace openrl.
 class EnvironmentLight;
-class SceneLighting;
+class Lighting;
+class Scene;
    
 class PassGenerator              
 {
@@ -162,12 +161,12 @@ public:
     // Load new scene data via a user-supplied callback. If 'clearOldScene' is 
     // true then all internal scene data will be cleared prior to invoking the
     // user callback.
-    using LoadSceneCallback = std::function<void(std::vector<RLMesh> &sceneData, RLMesh::SetupSystemBindingsCallback systemSetupCallback)>;
+    using LoadSceneCallback = std::function<void(std::shared_ptr<Scene> scene)>;
     void loadScene(LoadSceneCallback callback, bool clearOldScene = true);
 
     //-------------------------------------------------------------------------
     // Change the scene lighting via a user-supplied callback.
-    using LightingCallback = std::function<void(std::shared_ptr<SceneLighting> lighting)>;
+    using LightingCallback = std::function<void(std::shared_ptr<Lighting> lighting)>;
     void changeLighting(LightingCallback callback);
 
     //-------------------------------------------------------------------------
@@ -176,7 +175,7 @@ public:
     using OpenRLTask = std::function<void()>;
     void runOpenRLTask(OpenRLTask task);
 
-    const std::vector<RLMesh>& sceneData() const { return m_sceneData;  }
+    std::shared_ptr<Scene> scene() const { return m_scene; }
 
     static constexpr RLint kNumRandomSequences = 16;    
 private:
@@ -207,7 +206,6 @@ private:
     std::shared_ptr<openrl::PixelPackBuffer> m_resultPixels = nullptr; // Pixels from all previous passes since the last framebuffer clear.
 
     std::shared_ptr<EnvironmentLight> m_environmentLight = nullptr;
-    std::shared_ptr<SceneLighting> m_sceneLighting = nullptr;
 
     PassCompleteCallback m_passCompleteCallback;
     LoadSceneCallback m_loadSceneCallback;
@@ -277,7 +275,7 @@ private:
     };
     std::shared_ptr<openrl::Buffer> m_globalData = nullptr;
 
-    std::vector<RLMesh> m_sceneData; // All loaded scene mesh data.
+    std::shared_ptr<Scene> m_scene = nullptr; // All loaded scene data.
 
     // 2D pixel coordinates used when determine which pixel within a block
     // should sample when in interactive mode.

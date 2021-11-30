@@ -2,8 +2,8 @@
 
 #include "MeshProvider.h"
 
-#include "HeatrayRenderer/Materials/Material.h"
-#include "Utility/AABB.h"
+#include <HeatrayRenderer/Materials/Material.h>
+#include <Utility/AABB.h>
 
 #include "assimp/DefaultLogger.hpp"
 #include "assimp/Importer.hpp"
@@ -19,7 +19,7 @@
 class AssimpMeshProvider : public MeshProvider
 {
 public:
-    explicit AssimpMeshProvider(std::string filename, bool convert_to_meters, bool swapYZ = false);
+    explicit AssimpMeshProvider(std::string filename, bool convertToMeters, bool swapYZ = false);
     virtual ~AssimpMeshProvider() = default;
 
     size_t GetVertexBufferCount() override
@@ -62,7 +62,7 @@ public:
         return m_submeshes[submeshIndex];
     }
 
-    std::vector<std::shared_ptr<Material>> const & GetMaterials()
+    std::vector<std::shared_ptr<Material>> & GetMaterials()
     {
         return m_materials;
     }
@@ -70,7 +70,7 @@ public:
     const util::AABB& sceneAABB() const { return m_sceneAABB; }
 
 private:
-    void LoadModel(std::string const & filename, bool convert_to_meters);
+    void LoadModel(std::string const & filename, bool convertToMeters);
     void ProcessMesh(aiMesh const * mesh, bool convert_to_meters);
     void ProcessGlassMaterial(aiMaterial const* material);
     void ProcessMaterial(aiMaterial const * material);
