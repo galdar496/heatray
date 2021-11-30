@@ -6,9 +6,9 @@
 #include "Materials/GlassMaterial.h"
 #include "Materials/MultiScatterUtil.h"
 #include "Materials/PhysicallyBasedMaterial.h"
-#include "MeshProviders/AssimpMeshProvider.h"
-#include "MeshProviders/PlaneMeshProvider.h"
-#include "MeshProviders/SphereMeshProvider.h"
+#include "Scene/AssimpMeshProvider.h"
+#include "Scene/PlaneMeshProvider.h"
+#include "Scene/SphereMeshProvider.h"
 #include "Session/Session.h"
 
 #include <RLWrapper/PixelPackBuffer.h>

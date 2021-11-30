@@ -10,7 +10,7 @@
 #pragma once
 
 #include "Materials/Material.h"
-#include "MeshProviders/MeshProvider.h"
+#include "Scene/MeshProvider.h"
 
 #include "RLWrapper/Buffer.h"
 #include "RLWrapper/Primitive.h"

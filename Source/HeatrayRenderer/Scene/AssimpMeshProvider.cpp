@@ -1,6 +1,7 @@
+#include "AssimpMeshProvider.h"
+
 #include "HeatrayRenderer/Materials/GlassMaterial.h"
 #include "HeatrayRenderer/Materials/PhysicallyBasedMaterial.h"
-#include "HeatrayRenderer/MeshProviders/AssimpMeshProvider.h"
 #include "Utility/AABB.h"
 #include "Utility/Log.h"
 #include "Utility/TextureLoader.h"
@@ -29,7 +30,7 @@ AssimpMeshProvider::AssimpMeshProvider(std::string filename, bool convert_to_met
     LoadModel(m_filename, convert_to_meters);
 }
 
-void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node, const aiMatrix4x4 & parentTransform, int level, bool convert_to_meters)
+void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node, const aiMatrix4x4 & parentTransform, int level, bool convertToMeters)
 {
     aiMatrix4x4 transform = parentTransform * node->mTransformation;
 
@@ -41,7 +42,7 @@ void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node,
                                         transform.a2, transform.b2, transform.c2, transform.d2,
                                         transform.a3, transform.b3, transform.c3, transform.d3,
                                         transform.a4, transform.b4, transform.c4, transform.d4);
-        if (convert_to_meters) {
+        if (convertToMeters) {
             // Centimeters to meters.
             (*submeshTransform)[3][0] *= 0.01f;
             (*submeshTransform)[3][1] *= 0.01f;
@@ -57,7 +58,7 @@ void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node,
             // HACK! Sometimes there is a scale applied to the transform matrix. If we're doing a conversion to
             // meters just ignore this for now.
             glm::mat4x4 transform = *submeshTransform;
-            if (convert_to_meters) {
+            if (convertToMeters) {
                 transform = glm::scale(glm::vec3(0.01f)) * transform;
             }
 
@@ -67,7 +68,7 @@ void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node,
     }
     
     for (unsigned int ii = 0; ii < node->mNumChildren; ++ii) {
-        ProcessNode(scene, node->mChildren[ii], transform, level + 1, convert_to_meters);
+        ProcessNode(scene, node->mChildren[ii], transform, level + 1, convertToMeters);
     }
 }
 

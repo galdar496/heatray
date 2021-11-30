@@ -10,11 +10,11 @@ add_library(HeatrayRenderer STATIC
 )
 
 target_link_libraries(HeatrayRenderer
-    MeshProviders
+    Scene
     FileDialog
 )
 
 add_subdirectory(Lights)
 add_subdirectory(Materials)
-add_subdirectory(MeshProviders)
+add_subdirectory(Scene)
 add_subdirectory(Session)

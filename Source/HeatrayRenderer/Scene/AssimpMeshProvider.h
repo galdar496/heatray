@@ -1,15 +1,15 @@
 #pragma once
 
+#include "MeshProvider.h"
+
+#include "HeatrayRenderer/Materials/Material.h"
+#include "Utility/AABB.h"
+
 #include "assimp/DefaultLogger.hpp"
 #include "assimp/Importer.hpp"
 #include "assimp/Logger.hpp"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
-
-#include "HeatrayRenderer/Materials/Material.h"
-#include "HeatrayRenderer/MeshProviders/MeshProvider.h"
-#include "Utility/AABB.h"
-
 #include "glm/glm/glm.hpp"
 
 #include <memory>
@@ -74,7 +74,7 @@ private:
     void ProcessMesh(aiMesh const * mesh, bool convert_to_meters);
     void ProcessGlassMaterial(aiMaterial const* material);
     void ProcessMaterial(aiMaterial const * material);
-    void ProcessNode(aiScene const * scene, const aiNode * node, const aiMatrix4x4 & parentTransform, int level, bool convert_to_meters);
+    void ProcessNode(aiScene const * scene, const aiNode * node, const aiMatrix4x4 & parentTransform, int level, bool convertToMeters);
 
     std::string m_filename;
 
