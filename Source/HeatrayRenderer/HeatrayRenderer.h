@@ -303,6 +303,7 @@ private:
     struct GroundPlane {
         size_t meshIndex = 0;
         std::shared_ptr<Material> material = nullptr;
+        bool exists = false;
     } m_groundPlane;
 
     bool m_cameraUpdated = false;
@@ -318,5 +319,8 @@ private:
 
     bool m_debugPassChanged = false;
 
-    std::shared_ptr<DirectionalLight> m_keyLight = nullptr;
+    struct KeyLight {;
+        std::shared_ptr<DirectionalLight> light = nullptr;
+        bool exists = false;
+    } m_keyLight;
 };

@@ -83,7 +83,7 @@ void HeatrayRenderer::destroy()
     m_renderer.runOpenRLTask([this]() {
         m_editableMaterialScene.material.reset();
         m_groundPlane.material.reset();
-        m_keyLight.reset();
+        m_keyLight.light.reset();
     });
     m_renderer.destroy();
 
@@ -1146,11 +1146,12 @@ bool HeatrayRenderer::renderUI()
             }
         }
 
-        if (ImGui::Button(m_groundPlane.material ? "Remove Ground Plane" : "Add Ground Plane")) {
+        if (ImGui::Button(m_groundPlane.exists ? "Remove Ground Plane" : "Add Ground Plane")) {
+            m_groundPlane.exists = !m_groundPlane.exists;
             m_renderer.loadScene([this](std::shared_ptr<Scene> scene) {
                 if (m_groundPlane.material) {
-                    m_groundPlane.material.reset();
                     scene->removeMesh(m_groundPlane.meshIndex);
+                    m_groundPlane.material.reset();
                 } else {
                     size_t planeSize = std::max(size_t(1), size_t(m_sceneAABB.radius())) * 5;
                     PlaneMeshProvider planeMeshProvider(planeSize, planeSize);
@@ -1172,29 +1173,30 @@ bool HeatrayRenderer::renderUI()
             }, false);
         }
 
-        if (m_groundPlane.material) {
+        if (m_groundPlane.exists && m_groundPlane.material) {
             ImGui::Text("Ground Material");
             renderMaterialEditor(m_groundPlane.material);
         }
 
         // Extra lighting.
         {
-            if (ImGui::Button(m_keyLight ? "Remove Key Light" : "Add Key Light")) {
+            if (ImGui::Button(m_keyLight.exists ? "Remove Key Light" : "Add Key Light")) {
+                m_keyLight.exists = !m_keyLight.exists;
                 m_renderer.changeLighting([this](std::shared_ptr<Lighting> lighting) {
-                    if (m_keyLight) {
-                        lighting->removeLight(m_keyLight);
-                        m_keyLight.reset();
+                    if (m_keyLight.light) {
+                        lighting->removeLight(m_keyLight.light);
+                        m_keyLight.light.reset();
                     } else {
-                        m_keyLight = lighting->addDirectionalLight("Key");
+                        m_keyLight.light = lighting->addDirectionalLight("Key");
                     }
 
                     resetRenderer();
                 });
             }
 
-            if (m_keyLight) {
+            if (m_keyLight.exists && m_keyLight.light) {
                 ImGui::Text("Key Light");
-                renderLightEditor(m_keyLight);
+                renderLightEditor(m_keyLight.light);
             }
         }
 
