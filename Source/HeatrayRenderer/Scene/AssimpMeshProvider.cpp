@@ -1,5 +1,11 @@
+#define GLM_SWIZZLE
+
 #include "AssimpMeshProvider.h"
 
+#include "Lighting.h"
+
+#include "HeatrayRenderer/Lights/DirectionalLight.h"
+#include "HeatrayRenderer/Lights/PointLight.h"
 #include "HeatrayRenderer/Materials/GlassMaterial.h"
 #include "HeatrayRenderer/Materials/PhysicallyBasedMaterial.h"
 #include "Utility/AABB.h"
@@ -11,8 +17,10 @@
 #include "glm/glm/gtc/constants.hpp"
 #include "glm/glm/gtc/quaternion.hpp"
 #include "glm/glm/gtc/matrix_transform.hpp"
+#include "glm/glm/gtx/euler_angles.hpp"
 #include "glm/glm/gtx/transform.hpp"
 
+#include <assert.h>
 #include <filesystem>
 #include <memory>
 
@@ -24,13 +32,42 @@ public:
     virtual void write(const char* message) { LOG_INFO("Assimp: %s", message); }
 };
 
-AssimpMeshProvider::AssimpMeshProvider(std::string filename, bool convertToMeters, bool swapYZ)
-: m_filename(std::move(filename)), m_swapYZ(swapYZ)
+glm::mat4x4 getFullTransform(aiScene const *scene, const aiString &nodeName, const bool convertToMeters)
 {
-    LoadModel(m_filename, convertToMeters);
+    // Walk up the tree until we find the root, concatenating transforms along the way.
+    aiNode* node = scene->mRootNode->FindNode(nodeName);
+    assert(node);
+    aiMatrix4x4 transform = node->mTransformation;
+
+    node = node->mParent;
+    while (node) {
+        transform = node->mTransformation * transform;
+        node = node->mParent;
+    }
+
+    // glm is column major, assimp is row major;
+    glm::mat4x4 finalTransform = glm::mat4x4(transform.a1, transform.b1, transform.c1, transform.d1,
+                                             transform.a2, transform.b2, transform.c2, transform.d2,
+                                             transform.a3, transform.b3, transform.c3, transform.d3,
+                                             transform.a4, transform.b4, transform.c4, transform.d4);
+    
+    if (convertToMeters) {
+        // Centimeters to meters.
+        finalTransform[3][0] *= 0.01f;
+        finalTransform[3][1] *= 0.01f;
+        finalTransform[3][2] *= 0.01f;
+    }
+
+    return finalTransform;
 }
 
-void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node, const aiMatrix4x4 & parentTransform, int level, bool convertToMeters)
+AssimpMeshProvider::AssimpMeshProvider(std::string filename, bool convertToMeters, bool swapYZ, std::shared_ptr<Lighting> lighting)
+: m_filename(std::move(filename)), m_swapYZ(swapYZ), m_convertToMeters(convertToMeters)
+{
+    LoadScene(m_filename, lighting);
+}
+
+void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node, const aiMatrix4x4 & parentTransform, int level)
 {
     aiMatrix4x4 transform = parentTransform * node->mTransformation;
 
@@ -42,11 +79,17 @@ void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node,
                                         transform.a2, transform.b2, transform.c2, transform.d2,
                                         transform.a3, transform.b3, transform.c3, transform.d3,
                                         transform.a4, transform.b4, transform.c4, transform.d4);
-        if (convertToMeters) {
+        if (m_convertToMeters) {
             // Centimeters to meters.
             (*submeshTransform)[3][0] *= 0.01f;
             (*submeshTransform)[3][1] *= 0.01f;
             (*submeshTransform)[3][2] *= 0.01f;
+        }
+
+        if (m_swapYZ) {
+            glm::vec4 y = (*submeshTransform)[1];
+            (*submeshTransform)[1] = (*submeshTransform)[2];
+            (*submeshTransform)[2] = -y;
         }
 
         // Determine the transformed AABB for this node in order to calculate the final scene AABB.
@@ -55,10 +98,15 @@ void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node,
             glm::vec4 aabb_min = glm::vec4(node_aabb.mMin.x, node_aabb.mMin.y, node_aabb.mMin.z, 1.0f);
             glm::vec4 aabb_max = glm::vec4(node_aabb.mMax.x, node_aabb.mMax.y, node_aabb.mMax.z, 1.0f);
 
+            if (m_swapYZ) {
+                aabb_min = glm::vec4(aabb_min.x, aabb_min.z, -aabb_min.y, 1.0f);
+                aabb_max = glm::vec4(aabb_max.x, aabb_max.z, -aabb_max.y, 1.0f);
+            }
+
             // HACK! Sometimes there is a scale applied to the transform matrix. If we're doing a conversion to
             // meters just ignore this for now.
             glm::mat4x4 transform = *submeshTransform;
-            if (convertToMeters) {
+            if (m_convertToMeters) {
                 transform = glm::scale(glm::vec3(0.01f)) * transform;
             }
 
@@ -68,11 +116,11 @@ void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node,
     }
     
     for (unsigned int ii = 0; ii < node->mNumChildren; ++ii) {
-        ProcessNode(scene, node->mChildren[ii], transform, level + 1, convertToMeters);
+        ProcessNode(scene, node->mChildren[ii], transform, level + 1);
     }
 }
 
-void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters)
+void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh)
 {
     Submesh submesh;
 
@@ -95,7 +143,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh, bool convert_to_meters
             if (m_swapYZ) {
                 position = glm::vec3(position.x, position.z, -position.y);
             }
-            if (convert_to_meters) {
+            if (m_convertToMeters) {
                 position *= 0.01f; // Centimeters to meters.
             }
             vertexBuffer.push_back(position.x);
@@ -466,7 +514,108 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
     m_materials.push_back(pbrMaterial);
 }
 
-void AssimpMeshProvider::LoadModel(std::string const & filename, bool convertToMeters)
+void AssimpMeshProvider::ProcessLight(aiLight const* light, std::shared_ptr<Lighting> lighting, const aiScene* scene)
+{
+    // Build the transform for this light following the scene all the way back to the root.
+    // In Assimp, the only way to get a scene node for a given light is to search for the node by the name
+    // of the light. This is why this isn't handled in ProcessNode().
+    glm::mat4x4 lightTransform;
+    {
+        aiNode* node = scene->mRootNode->FindNode(light->mName);
+        assert(node);
+        aiMatrix4x4 transform = node->mTransformation;
+
+        node = node->mParent;
+        while (node) {
+            transform = node->mTransformation * transform;
+            node = node->mParent;
+        }
+
+        // glm is column major, assimp is row major;
+        lightTransform = glm::mat4x4(transform.a1, transform.b1, transform.c1, transform.d1,
+                                     transform.a2, transform.b2, transform.c2, transform.d2,
+                                     transform.a3, transform.b3, transform.c3, transform.d3,
+                                     transform.a4, transform.b4, transform.c4, transform.d4);
+        if (m_convertToMeters) {
+            // Centimeters to meters.
+            lightTransform[3][0] *= 0.01f;
+            lightTransform[3][1] *= 0.01f;
+            lightTransform[3][2] *= 0.01f;
+        }
+    }
+
+    if (light->mType == aiLightSourceType::aiLightSource_POINT) {
+        std::shared_ptr<PointLight> newLight = lighting->addPointLight(light->mName.C_Str());
+        PointLight::Params params;
+
+        // Light position.
+        {
+            glm::vec3 position = lightTransform * glm::vec4(light->mPosition.x, light->mPosition.y, light->mPosition.z, 1.0f);
+            if (m_swapYZ) {
+                position = glm::vec3(position.x, position.z, -position.y);
+            }
+
+            params.position = position;
+        }
+
+        // Light color/intensity. Assimp combines the intensity and color together so we
+        // separate them back out here assuming that the color can not be greater than 1
+        // for any channel.
+        {
+            glm::vec3 assimpColor = glm::vec3(light->mColorDiffuse.r, light->mColorDiffuse.g, light->mColorDiffuse.b);
+            params.luminousIntensity = glm::length(assimpColor);
+            params.color = assimpColor / params.luminousIntensity;
+        }
+
+        newLight->setParams(params);
+        lighting->updateLight(newLight);
+    } else if (light->mType == aiLightSource_DIRECTIONAL) {
+        std::shared_ptr<DirectionalLight> newLight = lighting->addDirectionalLight(light->mName.C_Str());
+        DirectionalLight::Params params;
+
+        // Orientation.
+        {
+            // Extract the angles from the light's transform that define the light's final orientation.
+            glm::vec4 yAxis = glm::vec4(light->mUp.x, light->mUp.y, light->mUp.z, 1.0f);
+            glm::vec4 zAxis = glm::vec4(light->mDirection.x, light->mDirection.y, light->mDirection.z, 1.0f);
+            glm::vec4 xAxis = glm::vec4(glm::cross(yAxis.xyz(), zAxis.xyz()), 1.0f);
+            glm::mat4x4 localTransform = glm::mat4x4(xAxis, yAxis, zAxis, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+            glm::mat4x4 finalTransform = lightTransform * localTransform;
+            if (m_swapYZ) {
+                glm::vec4 y = finalTransform[1];
+                finalTransform[1] = finalTransform[2];
+                finalTransform[2] = -y;
+            }
+            float roll = 0.0f;
+            float pitch = 0.0f;
+            float yaw = 0.0f;
+            glm::extractEulerAngleXYZ(finalTransform, pitch, yaw, roll);
+
+            // Ensure that the angles are in range for the directional light.
+            yaw = std::clamp(yaw, 0.0f, glm::two_pi<float>());
+            pitch = std::clamp(pitch, -glm::half_pi<float>(), glm::half_pi<float>());
+
+            // Angles are already in radians.
+            params.orientation.phi = yaw;
+            params.orientation.theta = pitch;
+        }
+
+        // Light color/intensity. Assimp combines the intensity and color together so we
+        // separate them back out here assuming that the color can not be greater than 1
+        // for any channel.
+        {
+            glm::vec3 assimpColor = glm::vec3(light->mColorDiffuse.r, light->mColorDiffuse.g, light->mColorDiffuse.b);
+            params.illuminance = glm::length(assimpColor);
+            params.color = assimpColor / params.illuminance;
+        }
+
+        newLight->setParams(params);
+        lighting->updateLight(newLight);
+    }
+}
+
+void AssimpMeshProvider::LoadScene(std::string const & filename, std::shared_ptr<Lighting> lighting)
 {
     static bool assimpLoggerInitialized = false;
 
@@ -494,7 +643,7 @@ void AssimpMeshProvider::LoadModel(std::string const & filename, bool convertToM
         for (unsigned int ii = 0; ii < scene->mNumMeshes; ++ii) {
             aiMesh const * mesh = scene->mMeshes[ii];
             LOG_INFO("Processing mesh %s", mesh->mName.C_Str());
-            ProcessMesh(mesh, convertToMeters);
+            ProcessMesh(mesh);
         }
 
         for (unsigned int ii = 0; ii < scene->mNumMaterials; ++ii) {
@@ -503,9 +652,15 @@ void AssimpMeshProvider::LoadModel(std::string const & filename, bool convertToM
             ProcessMaterial(material);
         }
 
+        for (unsigned int ii = 0; ii < scene->mNumLights; ++ii) {
+            aiLight const * light = scene->mLights[ii];
+            LOG_INFO("Processing light %s", light->mName.C_Str());
+            ProcessLight(light, lighting, scene);
+        }
+
         aiMatrix4x4 identity;
         LOG_INFO("Processing scene transforms...");
-        ProcessNode(scene, scene->mRootNode, identity, 0, convertToMeters);
+        ProcessNode(scene, scene->mRootNode, identity, 0);
         LOG_INFO("\tDONE");
     } else {
         LOG_ERROR("Error: No scene found in asset.\n");

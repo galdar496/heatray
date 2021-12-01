@@ -16,10 +16,13 @@
 #include <string>
 #include <vector>
 
+// Forward includes.
+class Lighting;
+
 class AssimpMeshProvider : public MeshProvider
 {
 public:
-    explicit AssimpMeshProvider(std::string filename, bool convertToMeters, bool swapYZ = false);
+    explicit AssimpMeshProvider(std::string filename, bool convertToMeters, bool swapYZ, std::shared_ptr<Lighting> lighting);
     virtual ~AssimpMeshProvider() = default;
 
     size_t GetVertexBufferCount() override
@@ -70,11 +73,12 @@ public:
     const util::AABB& sceneAABB() const { return m_sceneAABB; }
 
 private:
-    void LoadModel(std::string const & filename, bool convertToMeters);
-    void ProcessMesh(aiMesh const * mesh, bool convert_to_meters);
+    void LoadScene(std::string const & filename, std::shared_ptr<Lighting> lighting);
+    void ProcessMesh(aiMesh const * mesh);
     void ProcessGlassMaterial(aiMaterial const* material);
     void ProcessMaterial(aiMaterial const * material);
-    void ProcessNode(aiScene const * scene, const aiNode * node, const aiMatrix4x4 & parentTransform, int level, bool convertToMeters);
+    void ProcessLight(aiLight const * light, std::shared_ptr<Lighting> lighting, const aiScene* scene);
+    void ProcessNode(aiScene const * scene, const aiNode * node, const aiMatrix4x4 & parentTransform, int level);
 
     std::string m_filename;
 
@@ -87,6 +91,7 @@ private:
     std::vector<std::shared_ptr<Material>> m_materials;
 
     bool m_swapYZ = false;
+    bool m_convertToMeters = false;
 
     util::AABB m_sceneAABB;
 };

@@ -12,7 +12,8 @@
 #include <assert.h>
 #include <sstream>
 
-EnvironmentLight::EnvironmentLight(std::shared_ptr<openrl::Buffer> lightBuffer)
+EnvironmentLight::EnvironmentLight(const std::string& name, std::shared_ptr<openrl::Buffer> lightBuffer)
+: Light(name, Light::Type::kEnvironment)
 {
     // Setup the environment light OpenRL data.
 

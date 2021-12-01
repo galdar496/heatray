@@ -13,10 +13,11 @@
 #include <sstream>
 
 static constexpr float WATTS_TO_LUMENS = 683.0f;
-static constexpr float LUMENS_TO_WATS = 1.0f / 683.0f;
+static constexpr float LUMENS_TO_WATTS = 1.0f / 683.0f;
 
-DirectionalLight::DirectionalLight(size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer)
-: m_lightIndex(lightIndex)
+DirectionalLight::DirectionalLight(const std::string& name, size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer)
+: Light(name, Light::Type::kDirectional)
+, m_lightIndex(lightIndex)
 {
     // Setup the environment light OpenRL data.
 
@@ -33,7 +34,7 @@ DirectionalLight::DirectionalLight(size_t lightIndex, std::shared_ptr<openrl::Bu
     setUniforms();
 
     m_params.color = glm::vec3(1.0f);
-    m_params.intensity = WATTS_TO_LUMENS * glm::pi<float>(); // We specify a default intensity of 1 watt * π.
+    m_params.illuminance = WATTS_TO_LUMENS * glm::pi<float>(); // We specify a default intensity of 1 watt * π.
     m_params.orientation.phi = 0.0f;
     m_params.orientation.theta = glm::half_pi<float>();
 
@@ -46,7 +47,7 @@ void DirectionalLight::copyToLightBuffer(DirectionalLightsBuffer* buffer)
     
     buffer->directions[m_lightIndex] = m_direction * -1.0f;
     // We convert from photometric to radiometric units for the shader.
-    buffer->colors[m_lightIndex] = m_params.color * (m_params.intensity * LUMENS_TO_WATS);
+    buffer->colors[m_lightIndex] = m_params.color * (m_params.illuminance * LUMENS_TO_WATTS);
     buffer->primitives[m_lightIndex] = m_primitive->primitive();
 }
 

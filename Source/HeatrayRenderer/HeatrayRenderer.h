@@ -314,7 +314,7 @@ private:
     } m_editableMaterialScene;
 
     void renderMaterialEditor(std::shared_ptr<Material> material);
-    void renderKeyLightEditor();
+    void renderLightEditor(std::shared_ptr<Light> light);
 
     bool m_debugPassChanged = false;
 

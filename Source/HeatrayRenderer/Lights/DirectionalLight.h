@@ -24,14 +24,14 @@ class Program;
 class DirectionalLight final : public Light
 {
 public:
-    explicit DirectionalLight(size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer);
+    explicit DirectionalLight(const std::string& name, size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer);
     ~DirectionalLight() = default;
 
     //-------------------------------------------------------------------------
     // Parameters used to define and control a directional light.
     struct Params {
         glm::vec3 color = glm::vec3(1.0f);
-        float intensity = 1.0f;
+        float illuminance = 1.0f;
 
         // Orientation controls for the directional light.
         struct Orientation {

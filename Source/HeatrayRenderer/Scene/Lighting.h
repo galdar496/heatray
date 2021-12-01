@@ -34,6 +34,11 @@ public:
     void clear();
 
     //-------------------------------------------------------------------------
+    // Get rid of all lights in the scene that aren't environment lights. Note 
+    // that this function does not destroy any buffers etc, just clears them.
+    void clearAllButEnvironment();
+
+    //-------------------------------------------------------------------------
     // Binds the internal lighting buffers to an OpenRL program.
     void bindLightingBuffersToProgram(const std::shared_ptr<openrl::Program> program);
 
@@ -42,11 +47,13 @@ public:
     using LightCreatedCallback = std::function<void(std::shared_ptr<Light> light)>;
     void installLightCreatedCallback(LightCreatedCallback &&callback) { m_lightCreatedCallback = std::move(callback); }
 
-    std::shared_ptr<DirectionalLight> addDirectionalLight();
+    std::shared_ptr<DirectionalLight> addDirectionalLight(const std::string &name);
+    const std::shared_ptr<DirectionalLight>* directionalLights() const { return &(m_directional.lights[0]); }
     void updateLight(std::shared_ptr<DirectionalLight> light);
     void removeLight(std::shared_ptr<DirectionalLight> light);
 
-    std::shared_ptr<PointLight> addPointLight();
+    std::shared_ptr<PointLight> addPointLight(const std::string& name);
+    const std::shared_ptr<PointLight>* pointLights() const { return &(m_point.lights[0]); }
     void updateLight(std::shared_ptr<PointLight> light);
     void removeLight(std::shared_ptr<PointLight> light);
 

@@ -69,6 +69,7 @@ private:
 		m_lighting = std::shared_ptr<Lighting>(new Lighting);
 	}
 	void bindLighting(const Mesh &mesh);
+
 	std::vector<Mesh> m_meshes;
 	std::shared_ptr<Lighting> m_lighting = nullptr;
 

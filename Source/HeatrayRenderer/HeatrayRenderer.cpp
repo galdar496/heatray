@@ -1,6 +1,7 @@
 #include "HeatrayRenderer.h"
 
 #include "Lights/DirectionalLight.h"
+#include "Lights/PointLight.h"
 
 #include "Materials/GlassMaterial.h"
 #include "Materials/MultiScatterUtil.h"
@@ -837,34 +838,57 @@ void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
     }
 }
 
-void HeatrayRenderer::renderKeyLightEditor()
+void HeatrayRenderer::renderLightEditor(std::shared_ptr<Light> light)
 {
     bool lightChanged = false;
 
-    DirectionalLight::Params params = m_keyLight->params();
+    if (light->type() == Light::Type::kDirectional) {
+        std::shared_ptr<DirectionalLight> directLight = std::static_pointer_cast<DirectionalLight>(light);
+        DirectionalLight::Params params = directLight->params();
 
-    if (ImGui::SliderFloat3("Color", params.color.data.data, 0.0f, 1.0f)) {
-        lightChanged = true;
+        if (ImGui::SliderFloat3("Color", params.color.data.data, 0.0f, 1.0f)) {
+            lightChanged = true;
+        }
+        if (ImGui::SliderFloat("Illuminance (lm/(m^2))", &params.illuminance, 0.0f, 100000.0f)) {
+            lightChanged = true;
+        }
+        ImGui::PushID("LightTheta");
+        if (ImGui::SliderAngle("Theta", &params.orientation.theta, -90.0f, 90.0f)) {
+            lightChanged = true;
+        }
+        ImGui::PopID();
+        ImGui::PushID("LightPhi");
+        if (ImGui::SliderAngle("Phi", &params.orientation.phi, 0.0f, 360.0f)) {
+            lightChanged = true;
+        }
+        ImGui::PopID();
+
+        directLight->setParams(params);
+    } else if (light->type() == Light::Type::kPoint) {
+        std::shared_ptr<PointLight> pointLight = std::static_pointer_cast<PointLight>(light);
+        PointLight::Params params = pointLight->params();
+
+        if (ImGui::SliderFloat3("Color", params.color.data.data, 0.0f, 1.0f)) {
+            lightChanged = true;
+        }
+        if (ImGui::SliderFloat("Luminous Intensity (lm/sr)", &params.luminousIntensity, 0.0f, 100000.0f)) {
+            lightChanged = true;
+        }
+
+        pointLight->setParams(params);
     }
-    if (ImGui::SliderFloat("Intensity (Lumens)", &params.intensity, 0.0f, 100000.0f)) {
-        lightChanged = true;
-    }
-    ImGui::PushID("LightTheta");
-    if (ImGui::SliderAngle("Theta", &params.orientation.theta, -90.0f, 90.0f)) {
-        lightChanged = true;
-    }
-    ImGui::PopID();
-    ImGui::PushID("LightPhi");
-    if (ImGui::SliderAngle("Phi", &params.orientation.phi, 0.0f, 360.0f)) {
-        lightChanged = true;
-    }
-    ImGui::PopID();
 
     if (lightChanged) {
-        m_keyLight->setParams(params);
 
-        m_renderer.changeLighting([this](std::shared_ptr<Lighting> lighting) {
-            lighting->updateLight(m_keyLight);
+        m_renderer.changeLighting([this, light](std::shared_ptr<Lighting> lighting) {
+            if (light->type() == Light::Type::kDirectional) {
+                std::shared_ptr<DirectionalLight> directLight = std::static_pointer_cast<DirectionalLight>(light);
+                lighting->updateLight(directLight);
+            } else if (light->type() == Light::Type::kPoint) {
+                std::shared_ptr<PointLight> pointLight = std::static_pointer_cast<PointLight>(light);
+                lighting->updateLight(pointLight);
+            }
+
             resetRenderer();
         });
     }
@@ -1054,7 +1078,6 @@ bool HeatrayRenderer::renderUI()
                 if (ImGui::Selectable("<none>", false)) {
                     currentMaterial.reset();
                 } else {
-
                     const std::vector<Mesh>& sceneData = m_renderer.scene()->meshes();
                     for (auto& mesh : sceneData) {
                         for (auto& material : mesh.materials()) {
@@ -1074,6 +1097,52 @@ bool HeatrayRenderer::renderUI()
                 ImGui::Begin(currentMaterialName.c_str());
                 renderMaterialEditor(validMaterial);
                 ImGui::End();				
+            }
+        }
+
+        {
+            static std::string currentLightName = "<none>";
+            static std::weak_ptr<Light> currentLight;
+            if (ImGui::BeginCombo("Lights", currentLightName.c_str())) {
+                if (ImGui::Selectable("<none>", false)) {
+                    currentLight.reset();
+                } else {
+                    std::shared_ptr<Lighting> lighting = m_renderer.scene()->lighting();
+                    const std::shared_ptr<DirectionalLight> *directional = lighting->directionalLights();
+                    const std::shared_ptr<PointLight> *point = lighting->pointLights();
+
+                    for (size_t iLight = 0; iLight < ShaderLightingDefines::MAX_NUM_DIRECTIONAL_LIGHTS; ++iLight) {
+                        if (directional[iLight]) {
+                            if (ImGui::Selectable(directional[iLight]->name().c_str(), false)) {
+                                currentLightName = directional[iLight]->name();
+                                currentLight = directional[iLight];
+                                break;
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+
+                    for (size_t iLight = 0; iLight < ShaderLightingDefines::MAX_NUM_POINT_LIGHTS; ++iLight) {
+                        if (point[iLight]) {
+                            if (ImGui::Selectable(point[iLight]->name().c_str(), false)) {
+                                currentLightName = point[iLight]->name();
+                                currentLight = point[iLight];
+                                break;
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                ImGui::EndCombo();
+            }
+
+            std::shared_ptr<Light> validLight = currentLight.lock();
+            if (validLight) {
+                ImGui::Begin(currentLightName.c_str());
+                renderLightEditor(validLight);
+                ImGui::End();
             }
         }
 
@@ -1116,7 +1185,7 @@ bool HeatrayRenderer::renderUI()
                         lighting->removeLight(m_keyLight);
                         m_keyLight.reset();
                     } else {
-                        m_keyLight = lighting->addDirectionalLight();
+                        m_keyLight = lighting->addDirectionalLight("Key");
                     }
 
                     resetRenderer();
@@ -1125,7 +1194,7 @@ bool HeatrayRenderer::renderUI()
 
             if (m_keyLight) {
                 ImGui::Text("Key Light");
-                renderKeyLightEditor();
+                renderLightEditor(m_keyLight);
             }
         }
 

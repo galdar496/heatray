@@ -24,7 +24,7 @@ class Program;
 class PointLight final : public Light
 {
 public:
-    explicit PointLight(size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer);
+    explicit PointLight(const std::string &name, size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer);
     ~PointLight() = default;
 
     //-------------------------------------------------------------------------
@@ -32,7 +32,7 @@ public:
     struct Params {
         glm::vec3 color = glm::vec3(1.0f);
         glm::vec3 position = glm::vec3(0.0f);
-        float intensity = 1.0f;
+        float luminousIntensity = 1.0f;
     };
 
     //-------------------------------------------------------------------------

@@ -26,7 +26,7 @@ class Texture;
 class EnvironmentLight final : public Light
 {
 public:
-    explicit EnvironmentLight(std::shared_ptr<openrl::Buffer> lightBuffer);
+    explicit EnvironmentLight(const std::string& name, std::shared_ptr<openrl::Buffer> lightBuffer);
     ~EnvironmentLight() = default;
 
     //-------------------------------------------------------------------------

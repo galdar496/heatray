@@ -23,6 +23,11 @@ void Lighting::clear()
     // Environment Light.
     removeEnvironmentLight();
 
+    clearAllButEnvironment();
+}
+
+void Lighting::clearAllButEnvironment()
+{
     // Directional Lights.
     {
         for (size_t iLight = 0; iLight < ShaderLightingDefines::MAX_NUM_DIRECTIONAL_LIGHTS; ++iLight) {
@@ -83,7 +88,7 @@ void Lighting::bindLightingBuffersToProgram(const std::shared_ptr<openrl::Progra
 
 std::shared_ptr<EnvironmentLight> Lighting::addEnvironmentLight()
 {
-    m_environment.light = std::shared_ptr<EnvironmentLight>(new EnvironmentLight(m_environment.buffer));
+    m_environment.light = std::shared_ptr<EnvironmentLight>(new EnvironmentLight("Environment", m_environment.buffer));
 
     m_environment.light->primitive()->bind();
     m_environment.light->program()->bind();
@@ -119,12 +124,12 @@ void Lighting::updateLight(std::shared_ptr<EnvironmentLight> light)
     m_environment.buffer->unbind();
 }
 
-std::shared_ptr<DirectionalLight> Lighting::addDirectionalLight()
+std::shared_ptr<DirectionalLight> Lighting::addDirectionalLight(const std::string& name)
 {
     if (m_directional.count < ShaderLightingDefines::MAX_NUM_DIRECTIONAL_LIGHTS) {
         size_t lightIndex = m_directional.count;
 
-        std::shared_ptr<DirectionalLight> light = std::shared_ptr<DirectionalLight>(new DirectionalLight(lightIndex, m_directional.buffer));
+        std::shared_ptr<DirectionalLight> light = std::shared_ptr<DirectionalLight>(new DirectionalLight(name, lightIndex, m_directional.buffer));
         m_directional.lights[lightIndex] = light;
 
         light->primitive()->bind();
@@ -191,12 +196,12 @@ void Lighting::removeLight(std::shared_ptr<DirectionalLight> light)
     }
 }
 
-std::shared_ptr<PointLight> Lighting::addPointLight()
+std::shared_ptr<PointLight> Lighting::addPointLight(const std::string& name)
 {
     if (m_point.count < ShaderLightingDefines::MAX_NUM_POINT_LIGHTS) {
         size_t lightIndex = m_point.count;
 
-        std::shared_ptr<PointLight> light = std::shared_ptr<PointLight>(new PointLight(lightIndex, m_point.buffer));
+        std::shared_ptr<PointLight> light = std::shared_ptr<PointLight>(new PointLight(name, lightIndex, m_point.buffer));
         m_point.lights[lightIndex] = light;
 
         light->primitive()->bind();
