@@ -317,4 +317,9 @@ private:
         std::shared_ptr<DirectionalLight> light = nullptr;
         bool exists = false;
     } m_keyLight;
+
+    struct Editors {
+        bool materialSelected = false;
+        bool lightSelected = false;
+    } m_editors;
 };

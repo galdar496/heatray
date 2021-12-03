@@ -1075,9 +1075,17 @@ bool HeatrayRenderer::renderUI()
             ImGui::EndCombo();
         }
 
+        static std::string NONE = "<none>";
+        static std::string currentlySelectedMaterialName = NONE;
+        static std::weak_ptr<Material> currentlySelectedMaterial;
+
         if (ImGui::Button(m_groundPlane.exists ? "Remove Ground Plane" : "Add Ground Plane")) {
             bool deleteGroundPlane = m_groundPlane.exists;
             m_groundPlane.exists = !m_groundPlane.exists;
+            if (!m_groundPlane.exists) {
+                currentlySelectedMaterial.reset();
+                currentlySelectedMaterialName = NONE;
+            }
             m_renderer.loadScene([this, deleteGroundPlane](std::shared_ptr<Scene> scene) {
                 if (deleteGroundPlane) {
                     scene->removeMesh(m_groundPlane.meshIndex);
@@ -1102,10 +1110,15 @@ bool HeatrayRenderer::renderUI()
             }, false);
         }
 
+        static std::string currentlySelectedLightName = NONE;
+        static std::weak_ptr<Light> currentlySelectedLight;
+
         // Extra lighting.
         {
             if (ImGui::Button(m_keyLight.exists ? "Remove Key Light" : "Add Key Light")) {
                 m_keyLight.exists = !m_keyLight.exists;
+                currentlySelectedLight.reset();
+                currentlySelectedLightName = NONE;
                 m_renderer.changeLighting([this](std::shared_ptr<Lighting> lighting) {
                     if (m_keyLight.light) {
                         lighting->removeLight(m_keyLight.light);
@@ -1123,18 +1136,16 @@ bool HeatrayRenderer::renderUI()
         ImGui::Separator();
         ImGui::Text("Editors");
         {
-            static std::string currentMaterialName = "<none>";
-            static std::weak_ptr<Material> currentMaterial;
-            if (ImGui::BeginCombo("Materials", currentMaterialName.c_str())) {
-                if (ImGui::Selectable("<none>", false)) {
-                    currentMaterial.reset();
+            if (ImGui::BeginCombo("Materials", currentlySelectedMaterialName.c_str())) {
+                if (ImGui::Selectable(NONE.c_str(), false)) {
+                    currentlySelectedMaterial.reset();
                 } else {
                     const std::vector<Mesh>& sceneData = m_renderer.scene()->meshes();
                     for (auto& mesh : sceneData) {
                         for (auto& material : mesh.materials()) {
                             if (ImGui::Selectable(material->name().c_str(), false)) {
-                                currentMaterialName = material->name();
-                                currentMaterial = material;
+                                currentlySelectedMaterialName = material->name();
+                                currentlySelectedMaterial = material;
                                 break;
                             }
                         }
@@ -1143,7 +1154,7 @@ bool HeatrayRenderer::renderUI()
                 ImGui::EndCombo();
             }
 
-            std::shared_ptr<Material> validMaterial = currentMaterial.lock();
+            std::shared_ptr<Material> validMaterial = currentlySelectedMaterial.lock();
             if (validMaterial) {
                 ImGui::Separator();
                 renderMaterialEditor(validMaterial);		
@@ -1151,11 +1162,10 @@ bool HeatrayRenderer::renderUI()
         }
 
         {
-            static std::string currentLightName = "<none>";
-            static std::weak_ptr<Light> currentLight;
-            if (ImGui::BeginCombo("Lights", currentLightName.c_str())) {
-                if (ImGui::Selectable("<none>", false)) {
-                    currentLight.reset();
+            if (ImGui::BeginCombo("Lights", currentlySelectedLightName.c_str())) {
+                if (ImGui::Selectable(NONE.c_str(), false)) {
+                    currentlySelectedLight.reset();
+                    currentlySelectedLightName = NONE;
                 } else {
                     std::shared_ptr<Lighting> lighting = m_renderer.scene()->lighting();
                     const std::shared_ptr<DirectionalLight> *directional = lighting->directionalLights();
@@ -1164,8 +1174,8 @@ bool HeatrayRenderer::renderUI()
                     for (size_t iLight = 0; iLight < ShaderLightingDefines::MAX_NUM_DIRECTIONAL_LIGHTS; ++iLight) {
                         if (directional[iLight]) {
                             if (ImGui::Selectable(directional[iLight]->name().c_str(), false)) {
-                                currentLightName = directional[iLight]->name();
-                                currentLight = directional[iLight];
+                                currentlySelectedLightName = directional[iLight]->name();
+                                currentlySelectedLight = directional[iLight];
                                 break;
                             }
                         } else {
@@ -1176,8 +1186,8 @@ bool HeatrayRenderer::renderUI()
                     for (size_t iLight = 0; iLight < ShaderLightingDefines::MAX_NUM_POINT_LIGHTS; ++iLight) {
                         if (point[iLight]) {
                             if (ImGui::Selectable(point[iLight]->name().c_str(), false)) {
-                                currentLightName = point[iLight]->name();
-                                currentLight = point[iLight];
+                                currentlySelectedLightName = point[iLight]->name();
+                                currentlySelectedLight = point[iLight];
                                 break;
                             }
                         } else {
@@ -1188,7 +1198,7 @@ bool HeatrayRenderer::renderUI()
                 ImGui::EndCombo();
             }
 
-            std::shared_ptr<Light> validLight = currentLight.lock();
+            std::shared_ptr<Light> validLight = currentlySelectedLight.lock();
             if (validLight) {
                 ImGui::Separator();
                 renderLightEditor(validLight);
