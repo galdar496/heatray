@@ -82,8 +82,6 @@ void HeatrayRenderer::destroy()
 {
     // Run a job to destroy any possible RL objects we may have created.
     m_renderer.runOpenRLTask([this]() {
-        m_editableMaterialScene.material.reset();
-        m_groundPlane.material.reset();
         m_keyLight.light.reset();
     });
     m_renderer.destroy();
@@ -113,11 +111,6 @@ void HeatrayRenderer::resize(const GLint newWindowWidth, const GLint newWindowHe
 
 void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveCamera)
 {
-    m_renderer.runOpenRLTask([this]() {
-        m_groundPlane.material.reset();
-    });
-
-    m_editableMaterialScene.active = false;
     m_renderOptions.scene = sceneName;
 
     LOG_INFO("Loading scene: %s", sceneName.c_str());
@@ -137,9 +130,6 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
             params.clearCoatRoughness = 0.0f;
             params.forceEnableAllTextures = true;
             scene->addMesh(&sphereMeshProvider, { material }, glm::mat4(1.0f));
-
-            m_editableMaterialScene.material = material;
-            m_editableMaterialScene.active = true;
         });
     } else if (sceneName == "Editable Glass Material") {
         m_renderer.loadScene([this](std::shared_ptr<Scene> scene) {
@@ -154,9 +144,6 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
             params.density = 0.8f;
             params.forceEnableAllTextures = true;
             scene->addMesh(&sphereMeshProvider, { material }, glm::mat4(1.0f));
-
-            m_editableMaterialScene.material = material;
-            m_editableMaterialScene.active = true;
         });
     } else if (sceneName == "Multi-Material") {
         m_renderer.loadScene([this](std::shared_ptr<Scene> scene) {
@@ -1087,11 +1074,11 @@ bool HeatrayRenderer::renderUI()
         }
 
         if (ImGui::Button(m_groundPlane.exists ? "Remove Ground Plane" : "Add Ground Plane")) {
+            bool deleteGroundPlane = m_groundPlane.exists;
             m_groundPlane.exists = !m_groundPlane.exists;
-            m_renderer.loadScene([this](std::shared_ptr<Scene> scene) {
-                if (m_groundPlane.material) {
+            m_renderer.loadScene([this, deleteGroundPlane](std::shared_ptr<Scene> scene) {
+                if (deleteGroundPlane) {
                     scene->removeMesh(m_groundPlane.meshIndex);
-                    m_groundPlane.material.reset();
                 }
                 else {
                     size_t planeSize = std::max(size_t(1), size_t(m_sceneAABB.radius())) * 5;
@@ -1107,7 +1094,6 @@ bool HeatrayRenderer::renderUI()
                     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_sceneAABB.min.y, 0.0f));
 
                     m_groundPlane.meshIndex = scene->addMesh(&planeMeshProvider, { material }, translation);
-                    m_groundPlane.material = material;
                 }
 
                 resetRenderer();
@@ -1431,12 +1417,6 @@ bool HeatrayRenderer::renderUI()
             ImVec2 point = ImVec2(start.x + diff.x * v.x, start.y + diff.y * v.y);
             ImGui::GetWindowDrawList()->AddCircle(point, 6.0f, IM_COL32(255, 255, 255, 255));
         }
-        ImGui::End();
-    }
-
-    if (m_editableMaterialScene.active) {
-        ImGui::Begin("Material");
-        renderMaterialEditor(m_editableMaterialScene.material);
         ImGui::End();
     }
 

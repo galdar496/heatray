@@ -302,17 +302,11 @@ private:
 
     struct GroundPlane {
         size_t meshIndex = 0;
-        std::shared_ptr<Material> material = nullptr;
         bool exists = false;
     } m_groundPlane;
 
     bool m_cameraUpdated = false;
     float m_distanceScale = 1.0f;
-
-    struct EditableMaterialScene {
-        std::shared_ptr<Material> material = nullptr;
-        bool active = false;
-    } m_editableMaterialScene;
 
     void renderMaterialEditor(std::shared_ptr<Material> material);
     void renderLightEditor(std::shared_ptr<Light> light);
