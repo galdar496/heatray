@@ -47,7 +47,8 @@ void EnvironmentLight::changeImageSource(const char* path, bool builtInMap)
 
 void EnvironmentLight::enableSolidColor(const glm::vec3& color)
 {
-    if (m_solidColor != color) {
+    if ((m_textureSourcePath != SOLID_COLOR) ||
+        (m_solidColor != color)) {
         // Load a solid color texture. Set to 0.8 instead of full white so that it's obvious if there is more energy being emitted
         // by the surface than should be.
         openrl::Texture::Descriptor desc;
