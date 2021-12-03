@@ -19,7 +19,6 @@
 #include "FlyCamera.h"
 #include "OrbitCamera.h"
 #include "PassGenerator.h"
-#include "Materials/Material.h"
 #include "Scene/Scene.h"
 
 #include <Utility/FileIO.h>
@@ -30,6 +29,7 @@
 
 // Forward declarations.
 class DirectionalLight;
+class Material;
 
 class HeatrayRenderer
 {

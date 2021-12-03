@@ -23,6 +23,7 @@ Mesh::Mesh(MeshProvider* meshProvider,
         material->build();
     }
 
+    LOG_INFO("Building Mesh data for Provider %s", meshProvider->name().c_str());
     size_t vertexBufferCount = meshProvider->GetVertexBufferCount();
     for (size_t ii = 0; ii < vertexBufferCount; ++ii) {
         std::shared_ptr<openrl::Buffer> buffer = openrl::Buffer::create(RL_ARRAY_BUFFER, nullptr, meshProvider->GetVertexBufferSize(ii), "Vertex Buffer");
@@ -132,10 +133,13 @@ Mesh::Mesh(MeshProvider* meshProvider,
         rlSubmesh.offset = submesh.indexOffset;
         
         if (m_indexBuffers[submesh.indexBuffer]) {
+            LOG_INFO("\tSubmitting to OpenRL");
             m_indexBuffers[submesh.indexBuffer]->bind();
             RLFunc(rlDrawElements(rlSubmesh.mode, rlSubmesh.elementCount, RL_UNSIGNED_INT, rlSubmesh.offset));
             rlSubmesh.primitive->unbind();
         }
+
+        LOG_INFO("\tDONE");
     }
 }
 

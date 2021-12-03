@@ -5,6 +5,7 @@
 #include "Lights/PointLight.h"
 
 #include "Materials/GlassMaterial.h"
+#include "Materials/Material.h"
 #include "Materials/MultiScatterUtil.h"
 #include "Materials/PhysicallyBasedMaterial.h"
 #include "Scene/AssimpMeshProvider.h"
@@ -71,6 +72,8 @@ bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
     // Setup some defaults.
     m_renderOptions.environment.map = "studio.hdr";
     m_renderOptions.scene = "Multi-Material";
+    m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance;
+    m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
 
     // Load the default scene.
     changeScene(m_renderOptions.scene, true);
@@ -119,7 +122,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
         m_renderer.loadScene([this](std::shared_ptr<Scene> scene) {
             m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
 
-            SphereMeshProvider sphereMeshProvider(50, 50, 1.0f);
+            SphereMeshProvider sphereMeshProvider(50, 50, 1.0f, "PBR Sphere");
             std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>("PBR");
             PhysicallyBasedMaterial::Parameters &params = material->parameters();
             params.metallic = 0.0f;
@@ -135,7 +138,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
         m_renderer.loadScene([this](std::shared_ptr<Scene> scene) {
             m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
 
-            SphereMeshProvider sphereMeshProvider(50, 50, 1.0f);
+            SphereMeshProvider sphereMeshProvider(50, 50, 1.0f, "Glass Sphere");
             std::shared_ptr<GlassMaterial> material = std::make_shared<GlassMaterial>("Glass");
             GlassMaterial::Parameters& params = material->parameters();
             params.baseColor = glm::vec3(0.8f);
@@ -149,7 +152,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
         m_renderer.loadScene([this](std::shared_ptr<Scene> scene) {
             m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
 
-            PlaneMeshProvider planeMeshProvider(15, 15);
+            PlaneMeshProvider planeMeshProvider(15, 15, "Plane");
             glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);
             glm::vec3 yAxis = glm::vec3(0.0f, 1.0f, 0.0f);
             glm::vec3 zAxis = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -207,7 +210,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
 #endif
 
             float radius = 1.0f;
-            SphereMeshProvider sphereMeshProvider(50, 50, radius);
+            SphereMeshProvider sphereMeshProvider(50, 50, radius, "Sphere");
 
             // Sphere 1.
             {
@@ -238,7 +241,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
             m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
 
             float radius = 0.5f;
-            SphereMeshProvider sphereMeshProvider(50, 50, radius);
+            SphereMeshProvider sphereMeshProvider(50, 50, radius, "Sphere");
             float roughness = 0.0f;
             float padding = radius * 0.2f;
             float startX = (-5.0f * (radius * 2.0f + padding)) + ((radius * 2.0f + padding) * 0.5f);
@@ -366,8 +369,7 @@ void HeatrayRenderer::render()
         if (m_renderOptions.debugPassRendering) {
             if (m_debugPassChanged) {
                 m_debugPassChanged = false;
-            }
-            else {
+            } else {
                 skipRendering = true;
             }
         }
@@ -1082,7 +1084,7 @@ bool HeatrayRenderer::renderUI()
                 }
                 else {
                     size_t planeSize = std::max(size_t(1), size_t(m_sceneAABB.radius())) * 5;
-                    PlaneMeshProvider planeMeshProvider(planeSize, planeSize);
+                    PlaneMeshProvider planeMeshProvider(planeSize, planeSize, "Ground Plane");
 
                     std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>("Ground Plane");
                     PhysicallyBasedMaterial::Parameters& params = material->parameters();

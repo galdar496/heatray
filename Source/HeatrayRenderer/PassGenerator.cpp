@@ -324,7 +324,7 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
     }
 
     if ((newOptions.enableInteractiveMode != m_renderOptions.enableInteractiveMode) || 
-        (newOptions.resetInternalState != m_renderOptions.resetInternalState)) {
+        (newOptions.resetInternalState)) {
         resetRenderingState(newOptions);
     }
 
