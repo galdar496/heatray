@@ -62,6 +62,7 @@ public:
 
         struct Environment {
             std::string map; // Name of the IBL to load.
+            glm::vec3 solidColor; // Optional solid color that can be set for the environment map.
             bool builtInMap = true; // If true, we're loading one of Heatray's built-in IBLs.
             float exposureCompensation = 0.0f;
             float thetaRotation = 0.0f; // Extra rotation to apply to the environment map.

@@ -420,7 +420,8 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
     // Walk over the render options and switch things out iff something has changed.
     if ((m_renderOptions.environment.map != newOptions.environment.map) ||
         (m_renderOptions.environment.exposureCompensation != newOptions.environment.exposureCompensation) ||
-        (m_renderOptions.environment.thetaRotation != newOptions.environment.thetaRotation)) {
+        (m_renderOptions.environment.thetaRotation != newOptions.environment.thetaRotation) ||
+        (m_renderOptions.environment.solidColor != newOptions.environment.solidColor)) {
 
         changeEnvironment(newOptions.environment);
     }
@@ -551,8 +552,8 @@ void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
     m_environmentLight->rotate(newEnv.thetaRotation);
     m_environmentLight->setExposure(newEnv.exposureCompensation);
 
-    if (newEnv.map == "white furnace test") {
-        m_environmentLight->enableWhiteFurnaceTest();
+    if (newEnv.map == EnvironmentLight::SOLID_COLOR) {
+        m_environmentLight->enableSolidColor(newEnv.solidColor);
     }
     else if (newEnv.map == "<none>") {
         m_scene->lighting()->removeEnvironmentLight();

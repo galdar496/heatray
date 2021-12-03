@@ -14,6 +14,8 @@
 #include <RLWrapper/Primitive.h>
 #include <Utility/TextureLoader.h>
 
+#include <glm/glm/vec3.hpp>
+
 #include <string>
 
 // Forward declarations.
@@ -35,9 +37,9 @@ public:
     void changeImageSource(const char* path, bool builtInMap);
 
     //-------------------------------------------------------------------------
-    // Switches the internal image data to be a constant bright grey
-    // in order to enable a white furnace test for BRDF testing.
-    void enableWhiteFurnaceTest();
+    // Switches the internal image data to be a constant color.
+    static constexpr const char* SOLID_COLOR = "solid color";
+    void enableSolidColor(const glm::vec3 &color);
 
     //-------------------------------------------------------------------------
     // Apply a rotation to the IBL (theta-only).
@@ -59,4 +61,6 @@ private:
     float m_thetaRotation = 0.0f;
 
     std::string m_textureSourcePath;
+
+    glm::vec3 m_solidColor = glm::vec3(0.0f);
 };

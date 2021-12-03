@@ -1,6 +1,7 @@
 #include "HeatrayRenderer.h"
 
 #include "Lights/DirectionalLight.h"
+#include "Lights/EnvironmentLight.h"
 #include "Lights/PointLight.h"
 
 #include "Materials/GlassMaterial.h"
@@ -68,7 +69,7 @@ bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
     m_renderOptions.camera.setApertureRadius();
 
     // Setup some defaults.
-    m_renderOptions.environment.map = "noon_grass.exr";
+    m_renderOptions.environment.map = "studio.hdr";
     m_renderOptions.scene = "Multi-Material";
 
     // Load the default scene.
@@ -519,6 +520,9 @@ void HeatrayRenderer::writeSessionFile(const std::string& filename)
             session.setVariableValue(Session::SessionVariable::kEnvironmentBuiltIn, m_renderOptions.environment.builtInMap);
             session.setVariableValue(Session::SessionVariable::kEnvironmentExposureCompensation, m_renderOptions.environment.exposureCompensation);
             session.setVariableValue(Session::SessionVariable::kEnvironmentThetaRotation, m_renderOptions.environment.thetaRotation);
+            session.setVariableValue(Session::SessionVariable::kEnvironmentMapSolidColorX, m_renderOptions.environment.solidColor.x);
+            session.setVariableValue(Session::SessionVariable::kEnvironmentMapSolidColorY, m_renderOptions.environment.solidColor.y);
+            session.setVariableValue(Session::SessionVariable::kEnvironmentMapSolidColorZ, m_renderOptions.environment.solidColor.z);
         }
 
         // Camera.
@@ -595,6 +599,9 @@ void HeatrayRenderer::readSessionFile(const std::string& filename)
                 session.getVariableValue(Session::SessionVariable::kEnvironmentBuiltIn, m_renderOptions.environment.builtInMap);
                 session.getVariableValue(Session::SessionVariable::kEnvironmentExposureCompensation, m_renderOptions.environment.exposureCompensation);
                 session.getVariableValue(Session::SessionVariable::kEnvironmentThetaRotation, m_renderOptions.environment.thetaRotation);
+                session.getVariableValue(Session::SessionVariable::kEnvironmentMapSolidColorX, m_renderOptions.environment.solidColor.x);
+                session.getVariableValue(Session::SessionVariable::kEnvironmentMapSolidColorY, m_renderOptions.environment.solidColor.y);
+                session.getVariableValue(Session::SessionVariable::kEnvironmentMapSolidColorZ, m_renderOptions.environment.solidColor.z);
             }
 
             // Camera.
@@ -663,6 +670,7 @@ void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
         kClearCoatRoughness
     } textureType;
 
+    ImGui::Text(material->name().c_str());
     if (material->type() == Material::Type::PBR) {
         bool materialChanged = false;
         std::shared_ptr<PhysicallyBasedMaterial> pbrMaterial = std::static_pointer_cast<PhysicallyBasedMaterial>(material);
@@ -842,6 +850,7 @@ void HeatrayRenderer::renderLightEditor(std::shared_ptr<Light> light)
 {
     bool lightChanged = false;
 
+    ImGui::Text(light->name().c_str());
     if (light->type() == Light::Type::kDirectional) {
         std::shared_ptr<DirectionalLight> directLight = std::static_pointer_cast<DirectionalLight>(light);
         DirectionalLight::Params params = directLight->params();
@@ -988,12 +997,12 @@ bool HeatrayRenderer::renderUI()
         }
     }
     if (ImGui::CollapsingHeader("Environment options")) {
-        static const char* options[] = { "<none>", "noon_grass.exr", "kloppenheim.exr", "peppermint_powerplant.exr", "urban_alley.exr", "chinese_garden.exr", "studio.hdr", "glacier.exr", "uffizi.exr", "white furnace test", "Load Custom..." };
+        static const char* options[] = { "<none>", EnvironmentLight::SOLID_COLOR, "studio.hdr", "noon_grass.exr", "kloppenheim.exr", "peppermint_powerplant.exr", "urban_alley.exr", "chinese_garden.exr", "glacier.exr", "uffizi.exr", "Load Custom..." };
         static constexpr size_t NUM_OPTIONS = sizeof(options) / sizeof(options[0]);
         static constexpr size_t CUSTOM_OPTION_INDEX = NUM_OPTIONS - 1;
+        static constexpr size_t SOLID_COLOR_OPTION_INDEX = 1;
 
-
-        static size_t currentSelection = 1;
+        static size_t currentSelection = 2;
         if (ImGui::BeginCombo("Environment map", options[currentSelection])) {
             for (size_t iOption = 0; iOption < NUM_OPTIONS; ++iOption) {
                 bool isSelected = (currentSelection == iOption);
@@ -1017,6 +1026,12 @@ bool HeatrayRenderer::renderUI()
                 }
             }
             ImGui::EndCombo();
+        }
+
+        if (currentSelection == SOLID_COLOR_OPTION_INDEX) {
+            if (ImGui::SliderFloat3("Color", m_renderOptions.environment.solidColor.data.data, 0.0f, 1.0f)) {
+                shouldResetRenderer = true;
+            }
         }
 
         if (ImGui::SliderAngle("Environment Rotation", &m_renderOptions.environment.thetaRotation, 0.0f, 360.0f)) {
@@ -1071,6 +1086,54 @@ bool HeatrayRenderer::renderUI()
             ImGui::EndCombo();
         }
 
+        if (ImGui::Button(m_groundPlane.exists ? "Remove Ground Plane" : "Add Ground Plane")) {
+            m_groundPlane.exists = !m_groundPlane.exists;
+            m_renderer.loadScene([this](std::shared_ptr<Scene> scene) {
+                if (m_groundPlane.material) {
+                    scene->removeMesh(m_groundPlane.meshIndex);
+                    m_groundPlane.material.reset();
+                }
+                else {
+                    size_t planeSize = std::max(size_t(1), size_t(m_sceneAABB.radius())) * 5;
+                    PlaneMeshProvider planeMeshProvider(planeSize, planeSize);
+
+                    std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>("Ground Plane");
+                    PhysicallyBasedMaterial::Parameters& params = material->parameters();
+                    params.metallic = 0.0f;
+                    params.roughness = 0.9f;
+                    params.baseColor = glm::vec3(0.9f);
+                    params.specularF0 = 0.2f;
+                    params.forceEnableAllTextures = true;
+                    glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_sceneAABB.min.y, 0.0f));
+
+                    m_groundPlane.meshIndex = scene->addMesh(&planeMeshProvider, { material }, translation);
+                    m_groundPlane.material = material;
+                }
+
+                resetRenderer();
+            }, false);
+        }
+
+        // Extra lighting.
+        {
+            if (ImGui::Button(m_keyLight.exists ? "Remove Key Light" : "Add Key Light")) {
+                m_keyLight.exists = !m_keyLight.exists;
+                m_renderer.changeLighting([this](std::shared_ptr<Lighting> lighting) {
+                    if (m_keyLight.light) {
+                        lighting->removeLight(m_keyLight.light);
+                        m_keyLight.light.reset();
+                    }
+                    else {
+                        m_keyLight.light = lighting->addDirectionalLight("Key");
+                    }
+
+                    resetRenderer();
+                });
+            }
+        }
+
+        ImGui::Separator();
+        ImGui::Text("Editors");
         {
             static std::string currentMaterialName = "<none>";
             static std::weak_ptr<Material> currentMaterial;
@@ -1094,9 +1157,8 @@ bool HeatrayRenderer::renderUI()
 
             std::shared_ptr<Material> validMaterial = currentMaterial.lock();
             if (validMaterial) {
-                ImGui::Begin(currentMaterialName.c_str());
-                renderMaterialEditor(validMaterial);
-                ImGui::End();				
+                ImGui::Separator();
+                renderMaterialEditor(validMaterial);		
             }
         }
 
@@ -1140,67 +1202,14 @@ bool HeatrayRenderer::renderUI()
 
             std::shared_ptr<Light> validLight = currentLight.lock();
             if (validLight) {
-                ImGui::Begin(currentLightName.c_str());
+                ImGui::Separator();
                 renderLightEditor(validLight);
-                ImGui::End();
-            }
-        }
-
-        if (ImGui::Button(m_groundPlane.exists ? "Remove Ground Plane" : "Add Ground Plane")) {
-            m_groundPlane.exists = !m_groundPlane.exists;
-            m_renderer.loadScene([this](std::shared_ptr<Scene> scene) {
-                if (m_groundPlane.material) {
-                    scene->removeMesh(m_groundPlane.meshIndex);
-                    m_groundPlane.material.reset();
-                } else {
-                    size_t planeSize = std::max(size_t(1), size_t(m_sceneAABB.radius())) * 5;
-                    PlaneMeshProvider planeMeshProvider(planeSize, planeSize);
-
-                    std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>("Ground Plane");
-                    PhysicallyBasedMaterial::Parameters& params = material->parameters();
-                    params.metallic = 0.0f;
-                    params.roughness = 0.9f;
-                    params.baseColor = glm::vec3(0.9f);
-                    params.specularF0 = 0.2f;
-                    params.forceEnableAllTextures = true;
-                    glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_sceneAABB.min.y, 0.0f));
-
-                    m_groundPlane.meshIndex = scene->addMesh(&planeMeshProvider, { material }, translation);
-                    m_groundPlane.material = material;
-                }
-
-                resetRenderer();
-            }, false);
-        }
-
-        if (m_groundPlane.exists && m_groundPlane.material) {
-            ImGui::Text("Ground Material");
-            renderMaterialEditor(m_groundPlane.material);
-        }
-
-        // Extra lighting.
-        {
-            if (ImGui::Button(m_keyLight.exists ? "Remove Key Light" : "Add Key Light")) {
-                m_keyLight.exists = !m_keyLight.exists;
-                m_renderer.changeLighting([this](std::shared_ptr<Lighting> lighting) {
-                    if (m_keyLight.light) {
-                        lighting->removeLight(m_keyLight.light);
-                        m_keyLight.light.reset();
-                    } else {
-                        m_keyLight.light = lighting->addDirectionalLight("Key");
-                    }
-
-                    resetRenderer();
-                });
-            }
-
-            if (m_keyLight.exists && m_keyLight.light) {
-                ImGui::Text("Key Light");
-                renderLightEditor(m_keyLight.light);
             }
         }
 
         // Debug visualizations.
+        ImGui::Separator();
+        ImGui::Text("Debug");
         {
             static const char* options[] = { "None", "Geometric Normals", "UVs", "Tangnents", "Bitangents", "Normalmap", "Final Normals",
                                              "Base color", "Roughness", "Metallic", "Emissive", "Clearcoat", "Clearcoat roughness", "Clearcoat normalmap", "Shader" };

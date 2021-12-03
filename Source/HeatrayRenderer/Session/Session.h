@@ -29,6 +29,9 @@
     X(RenderOptions, EnvironmentBuiltIn, kBool, true)				 \
     X(RenderOptions, EnvironmentExposureCompensation, kFloat, 0.0f)  \
     X(RenderOptions, EnvironmentThetaRotation, kFloat, 0.0f)		 \
+    X(RenderOptions, EnvironmentMapSolidColorX, kFloat, 0.0f)        \
+    X(RenderOptions, EnvironmentMapSolidColorY, kFloat, 0.0f)        \
+    X(RenderOptions, EnvironmentMapSolidColorZ, kFloat, 0.0f)        \
     \
     X(RenderOptions, CameraAspectRatio, kFloat, -1.0f)		\
     X(RenderOptions, CameraFocusDistance, kFloat, 1.0f)		\
