@@ -98,7 +98,7 @@ void directSpecularGlassSample(vec3 N, vec3 I, float NdotI, vec3 weight, vec3 ba
             float G = G2_Smith_GGX(NdotO, NdotI, roughnessAlpha);
         
             // Note that the NdotO cancels out here.
-            float specular = (D * G) / (4.0 * NdotI);
+            float specular = (D * G) / greaterThanZero(4.0 * NdotI);
 
             vec3 reflectance = specular * baseColor;
             reflectance *= weight;
@@ -238,7 +238,7 @@ void main()
             emitRay();
         }
     } else {
-        // Do reflection. Use the unique microfacets for the direct and indirect lighting.
+        // Do reflection. Use unique microfacets for the direct and indirect lighting.
         {
             rand = getSequenceValue(rl_InRay.sequenceID + rl_InRay.depth + 2, Globals.sampleIndex + rl_InRay.sequenceIndexOffset);
             directSpecularGlassSample(N, I, NdotI, weight, baseColor, roughnessAlpha, refractProbability.x, rand, frame);

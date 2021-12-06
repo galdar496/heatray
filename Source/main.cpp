@@ -26,7 +26,7 @@
     #define HEATRAY_DEBUG 0
 #endif // defined(_DEBUG)
 
-const std::string kVersion      = "4.0 - Build 0x0002";
+const std::string kVersion      = "4.0 - Build 0x0003";
 const std::string kWindowTitle  = "Heatray " + kVersion;
 
 bool mousePositionValid = false;
