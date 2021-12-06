@@ -21,7 +21,7 @@ struct ShaderParams
 
     glm::vec3 baseColor = glm::vec3(1.0f);
     float roughness = 0.0f;
-    float roughnessAlpha = 0.0f; ///< GGX alpha value (roughness^2).
+    float roughnessAlpha = 0.0f; // GGX alpha value (roughness^2).
     float ior = 1.0f;
     float density = 0.0f;
     float specularF0 = 0.0f;

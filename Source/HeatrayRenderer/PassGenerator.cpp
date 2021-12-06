@@ -570,9 +570,9 @@ void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
 void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptions::SampleMode sampleMode, RenderOptions::BokehShape bokehShape)
 {
     struct SequenceBlockData {
-        RLtexture randomNumbers = RL_NULL_TEXTURE; ///< The actual sequence data stored in a 2D texture.
-        RLfloat uvStep = 0.0f;  ///< The step to move forward to access the next sample (in UV space).
-        RLfloat uvSequenceStep = 0.0f; ///< The step to move forward to access the next sequence (in UV space).
+        RLtexture randomNumbers = RL_NULL_TEXTURE; // The actual sequence data stored in a 2D texture.
+        RLfloat uvStep = 0.0f;  // The step to move forward to access the next sample (in UV space).
+        RLfloat uvSequenceStep = 0.0f; // The step to move forward to access the next sequence (in UV space).
     };
 
     // If we already have previous sequence data, get rid of it.

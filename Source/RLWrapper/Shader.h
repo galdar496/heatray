@@ -152,7 +152,7 @@ private:
         return valid();
     }
 
-    RLshader m_shader = RL_NULL_SHADER; ///< OpenRL shader configured by this class.
+    RLshader m_shader = RL_NULL_SHADER; // OpenRL shader configured by this class.
 
     const ShaderType m_type;
 };

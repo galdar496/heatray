@@ -75,7 +75,7 @@ public:
 
     inline bool mapped() const { return m_isMapped; }
 
-    static constexpr RLint kNumChannels = 4; ///< Currently only supports 4 channels of data (RGBA).
+    static constexpr RLint kNumChannels = 4; // Currently only supports 4 channels of data (RGBA).
 
 private:
     explicit PixelPackBuffer(RLint sizeInBytes) {

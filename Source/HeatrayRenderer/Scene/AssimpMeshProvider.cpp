@@ -384,6 +384,8 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
 {
     // Check to see if we should be processing this material as glass.
     {
+
+
         aiString mode;
         float transmissionFactor = 0.0f;
         material->Get(AI_MATKEY_GLTF_ALPHAMODE, mode);

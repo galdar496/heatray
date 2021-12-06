@@ -29,10 +29,10 @@ struct ShaderParams {
     float metallic = 0.0f;
     float roughness = 0.0f;
     float specularF0 = 0.0f;
-    float roughnessAlpha = 0.0f; ///< GGX alpha value (roughness^2).
+    float roughnessAlpha = 0.0f; // GGX alpha value (roughness^2).
     float clearCoat = 0.0f;
     float clearCoatRoughness = 0.0f;
-    float clearCoatRoughnessAlpha = 0.0f; ///< GGX alpha value (roughness^2).
+    float clearCoatRoughnessAlpha = 0.0f; // GGX alpha value (roughness^2).
 };
 
 void PhysicallyBasedMaterial::build()

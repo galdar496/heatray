@@ -47,8 +47,8 @@ public:
 protected:
     static constexpr char const * m_vertexShader = "vertex.rlsl";
 
-    std::shared_ptr<openrl::Buffer>  m_constants = nullptr; ///< Constants used by this material. Will be uploaded as a uniform block to the corresponding shader.
-    std::shared_ptr<openrl::Program> m_program   = nullptr; ///< Shader representing this material.
+    std::shared_ptr<openrl::Buffer>  m_constants = nullptr; // Constants used by this material. Will be uploaded as a uniform block to the corresponding shader.
+    std::shared_ptr<openrl::Program> m_program   = nullptr; // Shader representing this material.
 
     const std::string m_name;
     Type m_type;

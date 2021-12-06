@@ -137,6 +137,6 @@ public:
     }
 
 private:
-    size_t m_width = 0;  ///< X
-    size_t m_length = 0; ///< Z
+    size_t m_width = 0;  // X
+    size_t m_length = 0; // Z
 };
