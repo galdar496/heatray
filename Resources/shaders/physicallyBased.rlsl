@@ -50,9 +50,23 @@ void setup()
 
 void main()
 {
-    if (rl_FrontFacing == false) return;
-
     vec3 N = normalize(normal);
+
+#if defined(DOUBLE_SIDED)
+    // If this is a double-sided material and we've hit the backface,
+    // invert the normal.
+    if (!rl_FrontFacing) {
+        N = -N;
+    }
+#else
+    // Ignore backface intersections.
+    if (!rl_FrontFacing) {
+        createRay();
+        emitRay();
+        return;
+    }
+#endif // defined(DOUBLE_SIDED)
+
     vec3 clearCoatN = N;
 
 #if defined(HAS_NORMALMAP)

@@ -85,6 +85,9 @@ void PhysicallyBasedMaterial::build()
             hasNormalmap = true;
             shaderPrefix << "#define HAS_CLEARCOAT_NORMALMAP\n";
         }
+        if (m_params.doubleSided) {
+            shaderPrefix << "#define DOUBLE_SIDED\n";
+        }
     }
 
     // Loadup the shader code.

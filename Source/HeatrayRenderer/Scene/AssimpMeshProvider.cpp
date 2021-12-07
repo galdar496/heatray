@@ -419,6 +419,7 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
     if (material->Get(AI_MATKEY_COLOR_EMISSIVE, color) == aiReturn_SUCCESS) {
         params.emissiveColor = glm::vec3(color.r, color.g, color.b);
     }
+    material->Get(AI_MATKEY_TWOSIDED, params.doubleSided);
 
     {
         float ior = 0.0f;

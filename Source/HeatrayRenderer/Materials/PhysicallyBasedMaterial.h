@@ -34,6 +34,7 @@ public:
         float specularF0 = 0.5f;                    // [0-1] Specular value at Fresnel of 0 degrees.
         float clearCoat = 0.0f;                     // [0-1] Controls the clear coat scaling power. 
         float clearCoatRoughness = 0.0f;            // [0-1] such that 0 == completely smooth and 1 == completely rough.
+        bool doubleSided = true;                    // If true, shading will happen on both sides of any polygon by flipping the normal.
 
         bool forceEnableAllTextures = false;        // If true, all shader texture options are enabled even if no texture is present.
     };
