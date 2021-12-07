@@ -1,0 +1,51 @@
+<HeatraySession>
+    <RenderOptions>
+        <InteractiveMode value="0"/>
+        <MaxRenderPasses value="32"/>
+        <Scene value="C:\Users\Cody\Downloads\Models\cyber_woman_x71_by_oscar_creativo_-_free_model\scene.gltf"/>
+        <MaxRayDepth value="10"/>
+        <SampleMode value="4"/>
+        <BokehShape value="0"/>
+        <EnvironmentMap value="glacier.exr"/>
+        <EnvironmentBuiltIn value="1"/>
+        <EnvironmentExposureCompensation value="0.74000001"/>
+        <EnvironmentThetaRotation value="4.5378561"/>
+        <CameraAspectRatio value="1"/>
+        <CameraFocusDistance value="8.1040001"/>
+        <CameraFocalLength value="50"/>
+        <CameraApertureRadius value="0.017857144"/>
+        <CameraFStop value="2.8"/>
+    </RenderOptions>
+    <Camera>
+        <OrbitDistance value="7.381"/>
+        <OrbitPhi value="0.68940681"/>
+        <OrbitTheta value="-0.148353"/>
+        <OrbitTargetX value="4.1723251e-07"/>
+        <OrbitTargetY value="1.6521454"/>
+        <OrbitTargetZ value="0.0069108382"/>
+        <OrbitMaxDistance value="40.27124"/>
+    </Camera>
+    <Scene>
+        <Units value="0"/>
+        <SwapYZ value="0"/>
+        <AABB_MinX value="-1.1533157"/>
+        <AABB_MinY value="0.018854568"/>
+        <AABB_MinZ value="-0.23111281"/>
+        <AABB_MaxX value="1.1533165"/>
+        <AABB_MaxY value="3.2854362"/>
+        <AABB_MaxZ value="0.24493448"/>
+        <DistanceScale value="1"/>
+    </Scene>
+    <PostProcessing>
+        <TonemapEnable value="1"/>
+        <Exposure value="1.383"/>
+        <Brightness value="0"/>
+        <Contrast value="0"/>
+        <Hue value="1"/>
+        <Saturation value="1"/>
+        <Vibrance value="0.27700001"/>
+        <Red value="1"/>
+        <Green value="1"/>
+        <Blue value="1"/>
+    </PostProcessing>
+</HeatraySession>

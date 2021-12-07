@@ -130,7 +130,9 @@ public:
             kClearcoat,
             kClearcoatRoughness,
             kClearcoatNormalmap,
-            kShader
+            kShader,
+            kNANs,
+            kInf
         };
 
         DebugVisualizationMode debugVisMode = DebugVisualizationMode::kNone;
@@ -273,6 +275,10 @@ private:
         int showClearcoatRoughness = 0;
         int showClearcoatNormalmap = 0;
         int showShader = 0;
+
+        int enableAccumulatorVisualizer = 0;
+        int showNANs = 0;
+        int showInf = 0;
     };
     std::shared_ptr<openrl::Buffer> m_globalData = nullptr;
 

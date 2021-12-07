@@ -7,9 +7,22 @@
 //
 
 #include "globalData.rlsl"
+#include "utility.rlsl"
 
 void performAccumulate(vec3 color)
 {
-    vec3 value = min(vec3(Globals.maxChannelValue), color);
+    vec3 value;
+
+    if (Globals.enableAccumulatorVisualizer == 1) {
+        if (Globals.showNANs == 1) {
+            value = any(isnan(color)) ? vec3(100.0) : (min(color, 1.0) * 0.1);
+        } else if (Globals.showInf == 1) {
+            value = any(isinf(color)) ? vec3(100.0) : (min(color, 1.0) * 0.1);
+        }
+    } else {
+        // Apply a user-defined clamp to the incoming color.
+        value = min(vec3(Globals.maxChannelValue), color);
+    }
+
     accumulate(value);
 }

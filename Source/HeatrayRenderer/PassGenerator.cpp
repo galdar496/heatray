@@ -468,6 +468,9 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
         globalData->showClearcoatRoughness = 0;
         globalData->showClearcoatNormalmap = 0;
         globalData->showShader = 0;
+        globalData->enableAccumulatorVisualizer = 0;
+        globalData->showNANs = 0;
+        globalData->showInf = 0;
         switch (newOptions.debugVisMode) {
             case RenderOptions::DebugVisualizationMode::kNone:
                 globalData->enableDebugVisualizer = 0;
@@ -527,6 +530,14 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
             case RenderOptions::DebugVisualizationMode::kShader:
                 globalData->enableDebugVisualizer = 1;
                 globalData->showShader = 1;
+                break;
+            case RenderOptions::DebugVisualizationMode::kNANs:
+                globalData->enableAccumulatorVisualizer = 1;
+                globalData->showNANs = 1;
+                break;
+            case RenderOptions::DebugVisualizationMode::kInf:
+                globalData->enableAccumulatorVisualizer = 1;
+                globalData->showInf = 1;
                 break;
             default:
                 break;

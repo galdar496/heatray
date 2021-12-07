@@ -1,0 +1,51 @@
+<HeatraySession>
+    <RenderOptions>
+        <InteractiveMode value="0"/>
+        <MaxRenderPasses value="512"/>
+        <Scene value="C:\Users\Cody\Downloads\Models\lord_of_the_rings_the_witch-king_of_angmar\scene.gltf"/>
+        <MaxRayDepth value="10"/>
+        <SampleMode value="4"/>
+        <BokehShape value="0"/>
+        <EnvironmentMap value="C:\Users\Cody\Downloads\peppermint_powerplant_4k.exr"/>
+        <EnvironmentBuiltIn value="0"/>
+        <EnvironmentExposureCompensation value="0.86799997"/>
+        <EnvironmentThetaRotation value="0"/>
+        <CameraAspectRatio value="1"/>
+        <CameraFocusDistance value="4.5019999"/>
+        <CameraFocalLength value="50"/>
+        <CameraApertureRadius value="0.035714287"/>
+        <CameraFStop value="1.4"/>
+    </RenderOptions>
+    <Camera>
+        <OrbitDistance value="5.29"/>
+        <OrbitPhi value="5.3058009"/>
+        <OrbitTheta value="0.15707964"/>
+        <OrbitTargetX value="0.027504742"/>
+        <OrbitTargetY value="0.60000002"/>
+        <OrbitTargetZ value="-0.17363724"/>
+        <OrbitMaxDistance value="48.390366"/>
+    </Camera>
+    <Scene>
+        <Units value="1"/>
+        <SwapYZ value="0"/>
+        <AABB_MinX value="-1.023265"/>
+        <AABB_MinY value="-1.6521813"/>
+        <AABB_MinZ value="-0.84992594"/>
+        <AABB_MaxX value="1.0782745"/>
+        <AABB_MaxY value="2.4915292"/>
+        <AABB_MaxZ value="0.50265145"/>
+        <DistanceScale value="1"/>
+    </Scene>
+    <PostProcessing>
+        <TonemapEnable value="1"/>
+        <Exposure value="1.125"/>
+        <Brightness value="0"/>
+        <Contrast value="0"/>
+        <Hue value="1"/>
+        <Saturation value="1"/>
+        <Vibrance value="0"/>
+        <Red value="1"/>
+        <Green value="1"/>
+        <Blue value="1"/>
+    </PostProcessing>
+</HeatraySession>

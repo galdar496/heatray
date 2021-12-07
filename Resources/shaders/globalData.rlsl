@@ -27,4 +27,8 @@ uniformblock Globals {
     int showClearcoatRoughness;
     int showClearcoatNormalmap;
     int showShader;
+
+    int enableAccumulatorVisualizer;
+    int showNANs;
+    int showInf;
 };

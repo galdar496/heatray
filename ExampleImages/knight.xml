@@ -1,0 +1,51 @@
+<HeatraySession>
+    <RenderOptions>
+        <InteractiveMode value="0"/>
+        <MaxRenderPasses value="32"/>
+        <Scene value="C:\Users\Cody\Downloads\Models\the_parade_armour_of_king_erik_xiv_of_sweden\scene.gltf"/>
+        <MaxRayDepth value="10"/>
+        <SampleMode value="4"/>
+        <BokehShape value="0"/>
+        <EnvironmentMap value="uffizi.exr"/>
+        <EnvironmentBuiltIn value="1"/>
+        <EnvironmentExposureCompensation value="1.061"/>
+        <EnvironmentThetaRotation value="0"/>
+        <CameraAspectRatio value="1"/>
+        <CameraFocusDistance value="0.773"/>
+        <CameraFocalLength value="50"/>
+        <CameraApertureRadius value="0.0045454544"/>
+        <CameraFStop value="11"/>
+    </RenderOptions>
+    <Camera>
+        <OrbitDistance value="0"/>
+        <OrbitPhi value="5.2709017"/>
+        <OrbitTheta value="0.13962664"/>
+        <OrbitTargetX value="-0.15000001"/>
+        <OrbitTargetY value="-0.0099999998"/>
+        <OrbitTargetZ value="0.89999998"/>
+        <OrbitMaxDistance value="3.8305807"/>
+    </Camera>
+    <Scene>
+        <Units value="1"/>
+        <SwapYZ value="0"/>
+        <AABB_MinX value="-0.020551983"/>
+        <AABB_MinY value="-0.0017605668"/>
+        <AABB_MinZ value="-0.075257316"/>
+        <AABB_MaxX value="0.017489856"/>
+        <AABB_MaxY value="0.34586266"/>
+        <AABB_MaxZ value="0.08108975"/>
+        <DistanceScale value="1"/>
+    </Scene>
+    <PostProcessing>
+        <TonemapEnable value="1"/>
+        <Exposure value="0.80400002"/>
+        <Brightness value="0"/>
+        <Contrast value="0"/>
+        <Hue value="1"/>
+        <Saturation value="1"/>
+        <Vibrance value="0.186"/>
+        <Red value="1"/>
+        <Green value="1"/>
+        <Blue value="1"/>
+    </PostProcessing>
+</HeatraySession>

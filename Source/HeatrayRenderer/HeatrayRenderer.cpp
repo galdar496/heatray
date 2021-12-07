@@ -1213,7 +1213,8 @@ bool HeatrayRenderer::renderUI()
         ImGui::Text("Debug");
         {
             static const char* options[] = { "None", "Geometric Normals", "UVs", "Tangnents", "Bitangents", "Normalmap", "Final Normals",
-                                             "Base color", "Roughness", "Metallic", "Emissive", "Clearcoat", "Clearcoat roughness", "Clearcoat normalmap", "Shader" };
+                                             "Base color", "Roughness", "Metallic", "Emissive", "Clearcoat", "Clearcoat roughness", "Clearcoat normalmap", "Shader",
+                                             "NANs", "Inf"};
             constexpr PassGenerator::RenderOptions::DebugVisualizationMode realOptions[] = {
                 PassGenerator::RenderOptions::DebugVisualizationMode::kNone,
                 PassGenerator::RenderOptions::DebugVisualizationMode::kGeometricNormals,
@@ -1229,7 +1230,9 @@ bool HeatrayRenderer::renderUI()
                 PassGenerator::RenderOptions::DebugVisualizationMode::kClearcoat,
                 PassGenerator::RenderOptions::DebugVisualizationMode::kClearcoatRoughness,
                 PassGenerator::RenderOptions::DebugVisualizationMode::kClearcoatNormalmap,
-                PassGenerator::RenderOptions::DebugVisualizationMode::kShader
+                PassGenerator::RenderOptions::DebugVisualizationMode::kShader,
+                PassGenerator::RenderOptions::DebugVisualizationMode::kNANs,
+                PassGenerator::RenderOptions::DebugVisualizationMode::kInf
             };
 
             static unsigned int currentSelection = 0;

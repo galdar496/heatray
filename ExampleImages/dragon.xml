@@ -1,0 +1,51 @@
+<HeatraySession>
+    <RenderOptions>
+        <InteractiveMode value="0"/>
+        <MaxRenderPasses value="1024"/>
+        <Scene value="C:\Users\Cody\Downloads\Models\one_angery_dragon_boi\scene.gltf"/>
+        <MaxRayDepth value="10"/>
+        <SampleMode value="4"/>
+        <BokehShape value="0"/>
+        <EnvironmentMap value="uffizi.exr"/>
+        <EnvironmentBuiltIn value="1"/>
+        <EnvironmentExposureCompensation value="-0.41800001"/>
+        <EnvironmentThetaRotation value="0"/>
+        <CameraAspectRatio value="1"/>
+        <CameraFocusDistance value="19.165001"/>
+        <CameraFocalLength value="50"/>
+        <CameraApertureRadius value="0.0089285718"/>
+        <CameraFStop value="5.5999999"/>
+    </RenderOptions>
+    <Camera>
+        <OrbitDistance value="1246.2222"/>
+        <OrbitPhi value="2.6354475"/>
+        <OrbitTheta value="0.026179947"/>
+        <OrbitTargetX value="39.110229"/>
+        <OrbitTargetY value="207.17035"/>
+        <OrbitTargetZ value="59.62674"/>
+        <OrbitMaxDistance value="24924.443"/>
+    </Camera>
+    <Scene>
+        <Units value="0"/>
+        <SwapYZ value="0"/>
+        <AABB_MinX value="-780.96436"/>
+        <AABB_MinY value="-624.2218"/>
+        <AABB_MinZ value="-375.49915"/>
+        <AABB_MaxX value="859.18481"/>
+        <AABB_MaxY value="1038.5625"/>
+        <AABB_MaxZ value="494.75262"/>
+        <DistanceScale value="1"/>
+    </Scene>
+    <PostProcessing>
+        <TonemapEnable value="1"/>
+        <Exposure value="1.125"/>
+        <Brightness value="0.079999998"/>
+        <Contrast value="0.074000001"/>
+        <Hue value="1"/>
+        <Saturation value="1"/>
+        <Vibrance value="0"/>
+        <Red value="1"/>
+        <Green value="1"/>
+        <Blue value="1"/>
+    </PostProcessing>
+</HeatraySession>
