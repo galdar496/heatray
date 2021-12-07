@@ -15,6 +15,11 @@ varying vec3 tangent;
 varying vec3 bitangent;
 #endif // defined(USE_TANGENT_SPACE)
 
+#if defined(VERTEX_COLORS)
+attribute vec3 colorAttribute;
+varying vec3 vertexColor;
+#endif // defined(VERTEX_COLORS)
+
 varying vec3 normal;
 
 void main()
@@ -31,4 +36,8 @@ void main()
     tangent = normalMatrix * tangentAttribute;
     bitangent = normalMatrix * bitangentAttribute;
 #endif // defined(USE_TANGENT_SPACE)
+
+#if defined(VERTEX_COLORS)
+    vertexColor = colorAttribute;
+#endif // defined(VERTEX_COLORS)
 }

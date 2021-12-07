@@ -88,6 +88,13 @@ void PhysicallyBasedMaterial::build()
         if (m_params.doubleSided) {
             shaderPrefix << "#define DOUBLE_SIDED\n";
         }
+
+        // Base Material parameters.
+        {
+            if (m_enableVertexColors) {
+                shaderPrefix << "#define VERTEX_COLORS\n";
+            }
+        }
     }
 
     // Loadup the shader code.

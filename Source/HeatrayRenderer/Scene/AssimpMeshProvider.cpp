@@ -266,6 +266,33 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh)
         }
     }
 
+    if (mesh->HasVertexColors(0)) {
+        LOG_INFO("Vertex Colors: %u", mesh->mNumVertices);
+        VertexAttribute& attribute = submesh.vertexAttributes[submesh.vertexAttributeCount];
+        attribute.usage = VertexAttributeUsage_Colors;
+        attribute.buffer = (int)m_vertexBuffers.size();
+        attribute.componentCount = 3;
+        attribute.size = sizeof(float);
+        attribute.offset = 0;
+        attribute.stride = 3 * sizeof(float);
+
+        m_vertexBuffers.push_back(std::vector<float>());
+        std::vector<float>& vertexBuffer = m_vertexBuffers.back();
+        vertexBuffer.reserve(mesh->mNumVertices * 3);
+
+        for (uint32_t iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex) {
+            glm::vec3 color(mesh->mColors[0][iVertex].r, mesh->mColors[0][iVertex].g, mesh->mColors[0][iVertex].b);
+            vertexBuffer.push_back(color.x);
+            vertexBuffer.push_back(color.y);
+            vertexBuffer.push_back(color.z);
+        }
+
+        ++submesh.vertexAttributeCount;
+
+        // Tell the associated material to enable vertex colors.
+        m_materials[mesh->mMaterialIndex]->enableVertexColors();
+    }
+
     size_t indexCount = 0;
     for (unsigned int ff = 0; ff < mesh->mNumFaces; ++ff) {
         indexCount += (mesh->mFaces[ff].mNumIndices - 2) * 3;
@@ -384,8 +411,6 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
 {
     // Check to see if we should be processing this material as glass.
     {
-
-
         aiString mode;
         float transmissionFactor = 0.0f;
         material->Get(AI_MATKEY_GLTF_ALPHAMODE, mode);
@@ -646,16 +671,16 @@ void AssimpMeshProvider::LoadScene(std::string const & filename, std::shared_ptr
     LOG_INFO("Scene imported by assimp!");
 
     if (scene) {
+        for (unsigned int ii = 0; ii < scene->mNumMaterials; ++ii) {
+            aiMaterial const* material = scene->mMaterials[ii];
+            LOG_INFO("Processing material %s", material->GetName().C_Str());
+            ProcessMaterial(material);
+        }
+
         for (unsigned int ii = 0; ii < scene->mNumMeshes; ++ii) {
             aiMesh const * mesh = scene->mMeshes[ii];
             LOG_INFO("Processing mesh %s", mesh->mName.C_Str());
             ProcessMesh(mesh);
-        }
-
-        for (unsigned int ii = 0; ii < scene->mNumMaterials; ++ii) {
-            aiMaterial const * material = scene->mMaterials[ii];
-            LOG_INFO("Processing material %s", material->GetName().C_Str());
-            ProcessMaterial(material);
         }
 
         for (unsigned int ii = 0; ii < scene->mNumLights; ++ii) {

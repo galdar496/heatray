@@ -22,6 +22,10 @@ varying vec3 tangent;
 varying vec3 bitangent;
 #endif // defined(USE_TANGENT_SPACE)
 
+#if defined(VERTEX_COLORS)
+varying vec3 vertexColor;
+#endif // defined(VERTEX_COLORS)
+
 uniformblock Material {
     sampler2D baseColorTexture;
     sampler2D metallicRoughnessTexture;
@@ -93,6 +97,9 @@ void main()
 #if defined(HAS_BASE_COLOR_TEXTURE)
     baseColor *= texture2D(Material.baseColorTexture, texCoord).rgb;
 #endif //  defined(HAS_BASE_COLOR_TEXTURE)
+#if defined(VERTEX_COLORS)
+    baseColor *= vertexColor;
+#endif // defined(VERTEX_COLORS)
 
     float metallic = Material.metallic;
     float roughness = Material.roughness;

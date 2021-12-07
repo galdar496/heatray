@@ -33,6 +33,7 @@ enum VertexAttributeUsage {
     VertexAttributeUsage_TexCoord,
     VertexAttributeUsage_Tangents,
     VertexAttributeUsage_Bitangents,
+    VertexAttributeUsage_Colors,
 
     VertexAttributeUsageCount,
 };

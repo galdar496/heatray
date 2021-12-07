@@ -109,6 +109,9 @@ Mesh::Mesh(MeshProvider* meshProvider,
                 case VertexAttributeUsage_Bitangents:
                     attributeLocation = material->program()->getAttributeLocation("bitangentAttribute");
                     break;
+                case VertexAttributeUsage_Colors:
+                    attributeLocation = material->program()->getAttributeLocation("colorAttribute");
+                    break;
                 default:
                     LOG_ERROR("Unknown vertex attribute usage %d\n", attribute.usage);
             }
