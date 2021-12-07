@@ -77,6 +77,7 @@ bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
 
     // Load the default scene.
     changeScene(m_renderOptions.scene, true);
+    resetRenderer();
 
     return true;
 }
@@ -115,6 +116,7 @@ void HeatrayRenderer::resize(const GLint newWindowWidth, const GLint newWindowHe
 void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveCamera)
 {
     m_keyLight.light.reset();
+    m_groundPlane.exists = false;
 
     m_renderOptions.scene = sceneName;
 
@@ -299,8 +301,6 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
 
                 m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
             }
-
-            resetRenderer();
         });
     }
 }
@@ -652,7 +652,7 @@ void HeatrayRenderer::readSessionFile(const std::string& filename)
     }
 }
 
-void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
+bool HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
 {
     enum class TextureType {
         kBaseColor,
@@ -661,9 +661,10 @@ void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
         kClearCoatRoughness
     } textureType;
 
+    bool materialChanged = false;
+
     ImGui::Text(material->name().c_str());
     if (material->type() == Material::Type::PBR) {
-        bool materialChanged = false;
         std::shared_ptr<PhysicallyBasedMaterial> pbrMaterial = std::static_pointer_cast<PhysicallyBasedMaterial>(material);
         PhysicallyBasedMaterial::Parameters& parameters = pbrMaterial->parameters();
 
@@ -760,11 +761,9 @@ void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
                 }
 
                 pbrMaterial->modify();
-                resetRenderer();
             });
         }
     } else if (material->type() == Material::Type::Glass) {
-        bool materialChanged = false;
         std::shared_ptr<GlassMaterial> glassMaterial = std::static_pointer_cast<GlassMaterial>(material);
         GlassMaterial::Parameters& parameters = glassMaterial->parameters();
 
@@ -831,13 +830,14 @@ void HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
                 }
 
                 glassMaterial->modify();
-                resetRenderer();
             });
         }
     }
+
+    return materialChanged;
 }
 
-void HeatrayRenderer::renderLightEditor(std::shared_ptr<Light> light)
+bool HeatrayRenderer::renderLightEditor(std::shared_ptr<Light> light)
 {
     bool lightChanged = false;
 
@@ -888,10 +888,10 @@ void HeatrayRenderer::renderLightEditor(std::shared_ptr<Light> light)
                 std::shared_ptr<PointLight> pointLight = std::static_pointer_cast<PointLight>(light);
                 lighting->updateLight(pointLight);
             }
-
-            resetRenderer();
         });
     }
+
+    return lightChanged;
 }
 
 bool HeatrayRenderer::renderUI()
@@ -1159,7 +1159,7 @@ bool HeatrayRenderer::renderUI()
             std::shared_ptr<Material> validMaterial = currentlySelectedMaterial.lock();
             if (validMaterial) {
                 ImGui::Separator();
-                renderMaterialEditor(validMaterial);		
+                shouldResetRenderer |= renderMaterialEditor(validMaterial);		
             }
         }
 
@@ -1203,7 +1203,7 @@ bool HeatrayRenderer::renderUI()
             std::shared_ptr<Light> validLight = currentlySelectedLight.lock();
             if (validLight) {
                 ImGui::Separator();
-                renderLightEditor(validLight);
+                shouldResetRenderer |= renderLightEditor(validLight);
             }
         }
 

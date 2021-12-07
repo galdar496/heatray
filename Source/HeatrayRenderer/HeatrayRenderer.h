@@ -76,6 +76,10 @@ public:
     // Move the orbital camera. Useful for mouse-style controls.
     void adjustCamera(const float phiDelta, const float thetaDelta, const float distanceDelta);
 
+    //-------------------------------------------------------------------------
+    // Reset the renderer's internal state.
+    void resetRenderer();
+
     // Fixed pixel width of the ImGui UI.
     static constexpr size_t UI_WINDOW_WIDTH = 500;
 
@@ -87,7 +91,6 @@ private:
     void resizeGLData();
     void generateSequenceVisualizationData(int sequenceIndex, int renderPasses, bool aperture);
     bool renderUI();
-    void resetRenderer();
     void saveScreenshot();
 
     void writeSessionFile(const std::string& filename);
@@ -308,8 +311,8 @@ private:
     bool m_cameraUpdated = false;
     float m_distanceScale = 1.0f;
 
-    void renderMaterialEditor(std::shared_ptr<Material> material);
-    void renderLightEditor(std::shared_ptr<Light> light);
+    bool renderMaterialEditor(std::shared_ptr<Material> material);
+    bool renderLightEditor(std::shared_ptr<Light> light);
 
     bool m_debugPassChanged = false;
 

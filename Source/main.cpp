@@ -78,6 +78,7 @@ void glfwPathDropCallback(GLFWwindow* window, int pathCount, const char* paths[]
 
         // If we've gotten this far then we assume the path is a scene file.
         heatray.changeScene(path, true);
+        heatray.resetRenderer();
     }
 }
 
