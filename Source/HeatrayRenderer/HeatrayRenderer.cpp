@@ -300,6 +300,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
                 m_distanceScale = m_sceneAABB.radius();
 
                 m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
+                resetRenderer(); // We must reset here in order to move the camera.
             }
         });
     }
