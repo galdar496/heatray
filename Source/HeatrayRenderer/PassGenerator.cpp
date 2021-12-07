@@ -467,6 +467,7 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions)
         globalData->showClearcoat = 0;
         globalData->showClearcoatRoughness = 0;
         globalData->showClearcoatNormalmap = 0;
+        globalData->showShader = 0;
         switch (newOptions.debugVisMode) {
             case RenderOptions::DebugVisualizationMode::kNone:
                 globalData->enableDebugVisualizer = 0;
