@@ -1,8 +1,6 @@
 
 <h1><img src="https://github.com/galdar496/heatray/blob/master/Resources/logo.png" />    Heatray</h1>
 
-**Note**: *Heatray is currently being completely rewritten with an emphasis on being physically correct, statistically accurate, and with lessons learned from years of building production offline and realtime renderers.*
-
 Join our discord server! https://discord.gg/Ux9G7QR2vP
 
 ## Overview
@@ -28,12 +26,18 @@ Heatray is a C++ path tracer utilizing [OpenRL](https://en.wikipedia.org/wiki/Op
     * Configurable Bokeh shapes
 * ACES filmic tonemapping + color processing pipeline
 * Interactive UI via [imgui](https://github.com/ocornut/imgui)
+* Many model formats via [Assimp](https://github.com/assimp/assimp)
 * Materials:
     * Physically-based
        * Roughness/Metallic
        * Clearcoat
        * Multiscattering
+       * Vertex colors
+       * Normalmapping
+       * Emission
     * Glass
+       * Vertex colors
+       * Normalmapping
 ## Theory
 Checkout [this link](http://galdar496.github.io/heatray/) to get an overview of the mathematics behind Heatray.
 ## Meet the Developers
@@ -41,4 +45,6 @@ Checkout [this link](http://galdar496.github.io/heatray/) to get an overview of 
 
 [Aaron Dwyer](https://www.linkedin.com/in/aadwyer/)
 ## Notes
-Heatray was written and developed for macOS Catalina and Windows 10. All libraries required to run the code are included in the repository.
+Heatray was written and developed for Windows 10 and macOS Catalina. All libraries required to run the code are included in the repository.
+
+This project is licensed under the [GNU GPL v2](http://www.gnu.org/licenses/old-licenses/gpl-2.0.html) license.
