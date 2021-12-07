@@ -105,7 +105,6 @@ void main()
 #if defined(HAS_EMISSIVE_TEXTURE)
     emissive = texture2D(Material.emissiveTexture, texCoord).rgb;
 #endif // defined(HAS_EMISSIVE_TEXTURE)
-    performAccumulate(rl_InRay.weight * emissive);
 
     // Handle debug visualizations (if applicable).
     if (Globals.enableVisualizer == 1) {
@@ -154,6 +153,7 @@ void main()
         return;
     }
 
+    performAccumulate(rl_InRay.weight * emissive);
     float clearCoatNdotV = saturate(dot(clearCoatN, V));
 
     // https://nicedoc.io/KhronosGroup/glTF/extensions/2.0/Khronos/KHR_materials_clearcoat/README.md#user-content-implementation
