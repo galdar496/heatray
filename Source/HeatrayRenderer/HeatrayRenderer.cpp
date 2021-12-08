@@ -116,6 +116,7 @@ void HeatrayRenderer::resize(const GLint newWindowWidth, const GLint newWindowHe
 void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveCamera)
 {
     m_keyLight.light.reset();
+    m_keyLight.exists = false;
     m_groundPlane.exists = false;
 
     m_renderOptions.scene = sceneName;
