@@ -82,13 +82,6 @@ void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node,
                                         transform.a2, transform.b2, transform.c2, transform.d2,
                                         transform.a3, transform.b3, transform.c3, transform.d3,
                                         transform.a4, transform.b4, transform.c4, transform.d4);
-        if (m_convertToMeters) {
-            // Centimeters to meters.
-            (*submeshTransform)[3][0] *= 0.01f;
-            (*submeshTransform)[3][1] *= 0.01f;
-            (*submeshTransform)[3][2] *= 0.01f;
-        }
-
         if (m_swapYZ) {
             glm::vec4 y = (*submeshTransform)[1];
             (*submeshTransform)[1] = (*submeshTransform)[2];
@@ -106,15 +99,8 @@ void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node,
                 aabb_max = glm::vec4(aabb_max.x, aabb_max.z, -aabb_max.y, 1.0f);
             }
 
-            // HACK! Sometimes there is a scale applied to the transform matrix. If we're doing a conversion to
-            // meters just ignore this for now.
-            glm::mat4x4 transform = *submeshTransform;
-            if (m_convertToMeters) {
-                transform = glm::scale(glm::vec3(0.01f)) * transform;
-            }
-
-            m_sceneAABB.expand(transform * aabb_min);
-            m_sceneAABB.expand(transform * aabb_max);
+            m_sceneAABB.expand(*submeshTransform * aabb_min);
+            m_sceneAABB.expand(*submeshTransform * aabb_max);
         }
     }
     
@@ -145,9 +131,6 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh)
             glm::vec3 position(mesh->mVertices[iVertex].x, mesh->mVertices[iVertex].y, mesh->mVertices[iVertex].z);
             if (m_swapYZ) {
                 position = glm::vec3(position.x, position.z, -position.y);
-            }
-            if (m_convertToMeters) {
-                position *= 0.01f; // Centimeters to meters.
             }
             vertexBuffer.push_back(position.x);
             vertexBuffer.push_back(position.y);
@@ -571,12 +554,6 @@ void AssimpMeshProvider::ProcessLight(aiLight const* light, std::shared_ptr<Ligh
                                      transform.a2, transform.b2, transform.c2, transform.d2,
                                      transform.a3, transform.b3, transform.c3, transform.d3,
                                      transform.a4, transform.b4, transform.c4, transform.d4);
-        if (m_convertToMeters) {
-            // Centimeters to meters.
-            lightTransform[3][0] *= 0.01f;
-            lightTransform[3][1] *= 0.01f;
-            lightTransform[3][2] *= 0.01f;
-        }
     }
 
     if (light->mType == aiLightSourceType::aiLightSource_POINT) {
@@ -672,7 +649,13 @@ void AssimpMeshProvider::LoadScene(std::string const & filename, std::shared_ptr
     aiProcess_GenBoundingBoxes      |
     aiProcess_Triangulate           |
     aiProcess_GenSmoothNormals      |
-    aiProcess_TransformUVCoords;
+    aiProcess_TransformUVCoords     |
+    aiProcess_GlobalScale;
+
+    // Tell Assimp to apply the proper scene scale based on what the user has requested.
+    // NOTE: it's assumed that if the user wants to convert to meters (the Heatray default)
+    // then the model is originally in centimeters.
+    importer.SetPropertyFloat(AI_CONFIG_GLOBAL_SCALE_FACTOR_KEY, m_convertToMeters ? 0.01f : 1.0f);
 
     const aiScene * scene = importer.ReadFile(filename.c_str(), postProcessFlags);
     LOG_INFO("Scene imported by assimp!");
