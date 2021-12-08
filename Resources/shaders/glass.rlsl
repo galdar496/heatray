@@ -221,6 +221,12 @@ void main()
 
     float NdotI = saturate(dot(N, I));
 
+    if (!rl_FrontFacing) {
+        // If we're internal to an object then the only option for us is to refract. Therefore, we 
+        // force the probability here.
+        refractProbability = vec2(refractProbability.x, 0.0);
+    }
+
     // Note that since the Fresnel term is used to determine how to sample it ends up getting cancelled out of the following math.
     if (refractProbability.y < (1.0 - F)) {
         vec3 O = normalize(refract(-I, H, eta));
