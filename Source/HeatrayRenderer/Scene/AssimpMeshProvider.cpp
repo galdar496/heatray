@@ -435,6 +435,10 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
     aiColor3D color;
     if (material->Get(AI_MATKEY_BASE_COLOR, color) == aiReturn_SUCCESS) {
         params.baseColor = glm::vec3(color.r, color.g, color.b);
+    } else if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == aiReturn_SUCCESS) {
+        params.baseColor = glm::vec3(color.r, color.g, color.b);
+    } else if (material->Get(AI_MATKEY_COLOR_SPECULAR, color) == aiReturn_SUCCESS) {
+        params.baseColor = glm::vec3(color.r, color.g, color.b);
     }
 
     material->Get(AI_MATKEY_METALLIC_FACTOR, params.metallic);
@@ -665,7 +669,10 @@ void AssimpMeshProvider::LoadScene(std::string const & filename, std::shared_ptr
     aiProcess_GenUVCoords           |
     aiProcess_OptimizeMeshes        |
     aiProcess_CalcTangentSpace      |
-    aiProcess_GenBoundingBoxes;
+    aiProcess_GenBoundingBoxes      |
+    aiProcess_Triangulate           |
+    aiProcess_GenSmoothNormals      |
+    aiProcess_TransformUVCoords;
 
     const aiScene * scene = importer.ReadFile(filename.c_str(), postProcessFlags);
     LOG_INFO("Scene imported by assimp!");
