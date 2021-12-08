@@ -96,7 +96,7 @@ void GlassMaterial::modify()
     shaderParams.baseColor = glm::saturate(m_params.baseColor);
     shaderParams.roughness = glm::max(glm::saturate<float, glm::defaultp>(m_params.roughness), kMinRoughness);
     shaderParams.roughnessAlpha = shaderParams.roughness * shaderParams.roughness;
-    shaderParams.density = glm::saturate<float, glm::defaultp>(m_params.density);
+    shaderParams.density = m_params.density;
     shaderParams.ior = glm::max(0.0f, m_params.ior);
 
     // Calculate F0 based on the IOR.

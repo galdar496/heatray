@@ -777,7 +777,7 @@ bool HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
         if (ImGui::SliderFloat("Roughness", &parameters.roughness, 0.0f, 1.0f)) {
             materialChanged = true;
         }
-        if (ImGui::SliderFloat("Density", &parameters.density, 0.0f, 1.0f)) {
+        if (ImGui::SliderFloat("Density", &parameters.density, 0.0f, 20.0f)) {
             materialChanged = true;
         }
 

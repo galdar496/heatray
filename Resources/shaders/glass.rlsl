@@ -128,7 +128,7 @@ void directSpecularGlassSample(vec3 N, vec3 I, float NdotI, vec3 weight, vec3 ba
 vec3 beersLaw(vec3 baseColor)
 {
     vec3 absorption = vec3(1.0) - baseColor;
-    float rayLength = length(rl_IntersectionPoint - rl_InRay.origin);
+    float rayLength = rl_IntersectionT;
     return rl_InRay.weight * exp(absorption * Material.density * -rayLength);
 }
 
