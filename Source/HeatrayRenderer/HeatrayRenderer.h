@@ -28,7 +28,7 @@
 #include <memory>
 
 // Forward declarations.
-class DirectionalLight;
+class Light;
 class Material;
 
 class HeatrayRenderer
@@ -317,7 +317,7 @@ private:
     bool m_debugPassChanged = false;
 
     struct KeyLight {;
-        std::shared_ptr<DirectionalLight> light = nullptr;
+        std::shared_ptr<Light> light = nullptr;
         bool exists = false;
     } m_keyLight;
 

@@ -114,7 +114,8 @@ void directSpecularGlassSample(vec3 N, vec3 I, float NdotI, vec3 weight, vec3 ba
                     rl_OutRay.weight            = reflectance;
                     rl_OutRay.occlusionTest     = true;
                     rl_OutRay.defaultPrimitive  = lightPrimitive;
-                    if (lightType == LIGHT_TYPE_POINT) {
+                    if ((lightType == LIGHT_TYPE_POINT) ||
+                        (lightType == LIGHT_TYPE_SPOT)) {
                         rl_OutRay.maxT = lightMaxDistance;
                     }
                 emitRay();

@@ -3,6 +3,7 @@
 #include <HeatrayRenderer/Lights/EnvironmentLight.h>
 #include <HeatrayRenderer/Lights/DirectionalLight.h>
 #include <HeatrayRenderer/Lights/PointLight.h>
+#include <HeatrayRenderer/Lights/SpotLight.h>
 
 #include <RLWrapper/Buffer.h>
 #include <RLWrapper/Program.h>
@@ -13,6 +14,7 @@ Lighting::Lighting()
     m_environment.buffer = openrl::Buffer::create(RL_ARRAY_BUFFER, nullptr, sizeof(EnvironmentLightBuffer), "Environment Light Buffer");
     m_directional.buffer = openrl::Buffer::create(RL_ARRAY_BUFFER, nullptr, sizeof(DirectionalLightsBuffer), "Directional Lights Buffer");
     m_point.buffer = openrl::Buffer::create(RL_ARRAY_BUFFER, nullptr, sizeof(PointLightsBuffer), "Point Lights Buffer");
+    m_spot.buffer = openrl::Buffer::create(RL_ARRAY_BUFFER, nullptr, sizeof(SpotLightsBuffer), "Spot Lights Buffer");
 
     // Sets all lighting buffers to good defaults.
     clear();
@@ -57,6 +59,21 @@ void Lighting::clearAllButEnvironment()
 
         m_point.count = 0;
     }
+
+    // Spot Lights.
+    {
+        for (size_t iLight = 0; iLight < ShaderLightingDefines::MAX_NUM_SPOT_LIGHTS; ++iLight) {
+            m_spot.lights[iLight].reset();
+        }
+
+        m_spot.buffer->bind();
+        SpotLightsBuffer* spotLights = m_spot.buffer->mapBuffer<SpotLightsBuffer>();
+        spotLights->numberOfLights = 0;
+        m_spot.buffer->unmapBuffer();
+        m_spot.buffer->unbind();
+
+        m_spot.count = 0;
+    }
 }
 
 void Lighting::bindLightingBuffersToProgram(const std::shared_ptr<openrl::Program> program)
@@ -84,6 +101,54 @@ void Lighting::bindLightingBuffersToProgram(const std::shared_ptr<openrl::Progra
             program->setUniformBlock(blockIndex, m_point.buffer->buffer());
         }
     }
+
+    // Spot lights.
+    {
+        RLint blockIndex = program->getUniformBlockIndex("SpotLights");
+        if (blockIndex != -1) {
+            program->setUniformBlock(blockIndex, m_spot.buffer->buffer());
+        }
+    }
+}
+
+void Lighting::updateLight(std::shared_ptr<Light> light)
+{
+    switch (light->type()) {
+        case Light::Type::kEnvironment:
+            updateEnvironmentLight(std::static_pointer_cast<EnvironmentLight>(light));
+            break;
+        case Light::Type::kDirectional:
+            updateDirectionalLight(std::static_pointer_cast<DirectionalLight>(light));
+            break;
+        case Light::Type::kPoint:
+            updatePointLight(std::static_pointer_cast<PointLight>(light));
+            break;
+        case Light::Type::kSpot:
+            updateSpotLight(std::static_pointer_cast<SpotLight>(light));
+            break;
+        default:
+            break;
+    };
+}
+
+void Lighting::removeLight(std::shared_ptr<Light> light)
+{
+    switch (light->type()) {
+    case Light::Type::kEnvironment:
+        removeEnvironmentLight();
+        break;
+    case Light::Type::kDirectional:
+        removeDirectionalLight(std::static_pointer_cast<DirectionalLight>(light));
+        break;
+    case Light::Type::kPoint:
+        removePointLight(std::static_pointer_cast<PointLight>(light));
+        break;
+    case Light::Type::kSpot:
+        removeSpotLight(std::static_pointer_cast<SpotLight>(light));
+        break;
+    default:
+        break;
+    };
 }
 
 std::shared_ptr<EnvironmentLight> Lighting::addEnvironmentLight()
@@ -115,7 +180,7 @@ void Lighting::removeEnvironmentLight()
     m_environment.buffer->unbind();
 }
 
-void Lighting::updateLight(std::shared_ptr<EnvironmentLight> light)
+void Lighting::updateEnvironmentLight(std::shared_ptr<EnvironmentLight> light)
 {
     m_environment.buffer->bind();
     EnvironmentLightBuffer* environmentLight = m_environment.buffer->mapBuffer<EnvironmentLightBuffer>();
@@ -152,7 +217,7 @@ std::shared_ptr<DirectionalLight> Lighting::addDirectionalLight(const std::strin
     return nullptr;
 }
 
-void Lighting::updateLight(std::shared_ptr<DirectionalLight> light)
+void Lighting::updateDirectionalLight(std::shared_ptr<DirectionalLight> light)
 {
     m_directional.buffer->bind();
     DirectionalLightsBuffer* directionalLights = m_directional.buffer->mapBuffer<DirectionalLightsBuffer>();
@@ -162,7 +227,7 @@ void Lighting::updateLight(std::shared_ptr<DirectionalLight> light)
     m_directional.buffer->unbind();
 }
 
-void Lighting::removeLight(std::shared_ptr<DirectionalLight> light)
+void Lighting::removeDirectionalLight(std::shared_ptr<DirectionalLight> light)
 {
     // Find this light in our list of directional lights.
     size_t index = 0;
@@ -224,7 +289,7 @@ std::shared_ptr<PointLight> Lighting::addPointLight(const std::string& name)
     return nullptr;
 }
 
-void Lighting::updateLight(std::shared_ptr<PointLight> light)
+void Lighting::updatePointLight(std::shared_ptr<PointLight> light)
 {
     m_point.buffer->bind();
     PointLightsBuffer* pointLights = m_point.buffer->mapBuffer<PointLightsBuffer>();
@@ -234,7 +299,7 @@ void Lighting::updateLight(std::shared_ptr<PointLight> light)
     m_point.buffer->unbind();
 }
 
-void Lighting::removeLight(std::shared_ptr<PointLight> light)
+void Lighting::removePointLight(std::shared_ptr<PointLight> light)
 {
     // Find this light in our list of point lights.
     size_t index = 0;
@@ -265,5 +330,77 @@ void Lighting::removeLight(std::shared_ptr<PointLight> light)
         pointLights->numberOfLights = m_point.count;
         m_point.buffer->unmapBuffer();
         m_point.buffer->unbind();
+    }
+}
+
+std::shared_ptr<SpotLight> Lighting::addSpotLight(const std::string& name)
+{
+    if (m_spot.count < ShaderLightingDefines::MAX_NUM_SPOT_LIGHTS) {
+        size_t lightIndex = m_spot.count;
+
+        std::shared_ptr<SpotLight> light = std::shared_ptr<SpotLight>(new SpotLight(name, lightIndex, m_spot.buffer));
+        m_spot.lights[lightIndex] = light;
+
+        light->primitive()->bind();
+        light->program()->bind();
+        bindLightingBuffersToProgram(light->program());
+        light->primitive()->unbind();
+
+        ++m_spot.count;
+
+        // Update the lighting buffer.
+        updateLight(light);
+
+        if (m_lightCreatedCallback) {
+            m_lightCreatedCallback(light);
+        }
+        return light;
+    }
+
+    LOG_ERROR("Attempting to add too many Spot Lights!");
+    return nullptr;
+}
+
+void Lighting::updateSpotLight(std::shared_ptr<SpotLight> light)
+{
+    m_spot.buffer->bind();
+    SpotLightsBuffer* spotLights = m_spot.buffer->mapBuffer<SpotLightsBuffer>();
+    light->copyToLightBuffer(spotLights);
+    spotLights->numberOfLights = m_spot.count;
+    m_spot.buffer->unmapBuffer();
+    m_spot.buffer->unbind();
+}
+
+void Lighting::removeSpotLight(std::shared_ptr<SpotLight> light)
+{
+    // Find this light in our list of spot lights.
+    size_t index = 0;
+    for (; index < m_spot.count; ++index) {
+        if (m_spot.lights[index] == light) {
+            break;
+        }
+    }
+    assert(index < m_spot.count);
+
+    // If this is the last light in the list, just get rid of it.
+    // Otherwise, swap this light with the last light in the list
+    // in order to keep the light list compact.
+    size_t finalIndex = m_spot.count - 1;
+    if (index != finalIndex) {
+        std::swap(m_spot.lights[index], m_spot.lights[finalIndex]);
+        m_spot.lights[index]->updateLightIndex(index);
+    }
+
+    // Finally, remove the light.
+    m_spot.lights[finalIndex].reset();
+    --m_spot.count;
+
+    {
+        m_spot.buffer->bind();
+        SpotLightsBuffer* spotLights = m_spot.buffer->mapBuffer<SpotLightsBuffer>();
+        spotLights->primitives[finalIndex] = RL_NULL_PRIMITIVE;
+        spotLights->numberOfLights = m_spot.count;
+        m_spot.buffer->unmapBuffer();
+        m_spot.buffer->unbind();
     }
 }

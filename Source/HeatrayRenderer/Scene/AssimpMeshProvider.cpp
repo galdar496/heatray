@@ -6,6 +6,7 @@
 
 #include "HeatrayRenderer/Lights/DirectionalLight.h"
 #include "HeatrayRenderer/Lights/PointLight.h"
+#include "HeatrayRenderer/Lights/SpotLight.h"
 #include "HeatrayRenderer/Materials/GlassMaterial.h"
 #include "HeatrayRenderer/Materials/PhysicallyBasedMaterial.h"
 #include "Utility/AABB.h"
@@ -620,6 +621,65 @@ void AssimpMeshProvider::ProcessLight(aiLight const* light, std::shared_ptr<Ligh
             glm::vec3 assimpColor = glm::vec3(light->mColorDiffuse.r, light->mColorDiffuse.g, light->mColorDiffuse.b);
             params.illuminance = glm::length(assimpColor);
             params.color = assimpColor / params.illuminance;
+        }
+
+        newLight->setParams(params);
+        lighting->updateLight(newLight);
+    } else if (light->mType == aiLightSource_SPOT) {
+        std::shared_ptr<SpotLight> newLight = lighting->addSpotLight(light->mName.C_Str());
+        SpotLight::Params params;
+
+        // Light position.
+        {
+            glm::vec3 position = lightTransform * glm::vec4(light->mPosition.x, light->mPosition.y, light->mPosition.z, 1.0f);
+            if (m_swapYZ) {
+                position = glm::vec3(position.x, position.z, -position.y);
+            }
+
+            params.position = position;
+        }
+
+        // Orientation.
+        {
+            // Extract the angles from the light's transform that define the light's final orientation.
+            glm::vec4 yAxis = glm::vec4(light->mUp.x, light->mUp.y, light->mUp.z, 1.0f);
+            glm::vec4 zAxis = glm::vec4(light->mDirection.x, light->mDirection.y, light->mDirection.z, 1.0f);
+            glm::vec4 xAxis = glm::vec4(glm::cross(yAxis.xyz(), zAxis.xyz()), 1.0f);
+            glm::mat4x4 localTransform = glm::mat4x4(xAxis, yAxis, zAxis, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+            glm::mat4x4 finalTransform = lightTransform * localTransform;
+            if (m_swapYZ) {
+                glm::vec4 y = finalTransform[1];
+                finalTransform[1] = finalTransform[2];
+                finalTransform[2] = -y;
+            }
+            float roll = 0.0f;
+            float pitch = 0.0f;
+            float yaw = 0.0f;
+            glm::extractEulerAngleXYZ(finalTransform, pitch, yaw, roll);
+
+            // Ensure that the angles are in range for the directional light.
+            yaw = std::clamp(yaw, 0.0f, glm::two_pi<float>());
+            pitch = std::clamp(pitch, -glm::half_pi<float>(), glm::half_pi<float>());
+
+            // Angles are already in radians.
+            params.orientation.phi = yaw;
+            params.orientation.theta = pitch;
+        }
+
+        // Light color/intensity. Assimp combines the intensity and color together so we
+        // separate them back out here assuming that the color can not be greater than 1
+        // for any channel.
+        {
+            glm::vec3 assimpColor = glm::vec3(light->mColorDiffuse.r, light->mColorDiffuse.g, light->mColorDiffuse.b);
+            params.luminousIntensity = glm::length(assimpColor);
+            params.color = assimpColor / params.luminousIntensity;
+        }
+
+        // Finally the angles that control the light cone.
+        {
+            params.innerAngle = light->mAngleInnerCone;
+            params.outerAngle = light->mAngleOuterCone;
         }
 
         newLight->setParams(params);

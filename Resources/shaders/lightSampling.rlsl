@@ -47,6 +47,24 @@ void computeLightSample(vec3 N,
         }
     }
 
+    // Spot lights.
+    float spot[MAX_NUM_SPOT_LIGHTS];
+    vec3 spotLightDirections[MAX_NUM_SPOT_LIGHTS];
+    {
+        for (int iLight = 0; iLight < MAX_NUM_SPOT_LIGHTS; ++iLight) {
+            if (iLight < SpotLights.numberOfLights) { // Lighting buffer is tightly packed.
+                // Determine a probability for this light based on its angle to the shading surface,
+                // its intensity, as well as the direction that the light is shining.. This should 
+                // weight more samples towards more "important" lights.
+                spotLightDirections[iLight] = normalize(SpotLights.positions[iLight] - rl_IntersectionPoint);
+                spot[iLight] = saturate(dot(N, spotLightDirections[iLight])) * 
+                               luminosity(SpotLights.colors[iLight] *
+                               ((dot(SpotLights.directions[iLight], -spotLightDirections[iLight]) > 0.0) ? 1.0 : 0.0));
+                probabilitySum += spot[iLight];
+            }
+        }
+    }
+
     // Environment light.
     float environment = 0.0;
     {
@@ -67,6 +85,9 @@ void computeLightSample(vec3 N,
     }
     for (int iLight = 0; iLight < MAX_NUM_POINT_LIGHTS; ++iLight) {
         point[iLight] *= probabiltyNormalization;
+    }
+    for (int iLight = 0; iLight < MAX_NUM_SPOT_LIGHTS; ++iLight) {
+        spot[iLight] *= probabiltyNormalization;
     }
 
     // Now - determine which light to actually sample.
@@ -104,6 +125,26 @@ void computeLightSample(vec3 N,
                         sampleProbability = point[iLight];
                         maxLightDistance = length(PointLights.positions[iLight] - rl_IntersectionPoint);
                         lightType = LIGHT_TYPE_POINT;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    // Spot lights.
+    {
+        for (int iLight = 0; iLight < MAX_NUM_SPOT_LIGHTS; ++iLight) {
+            if (iLight < SpotLights.numberOfLights) {
+                currentProbability += spot[iLight];
+                if (spot[iLight] > 0.0) {
+                    if (lightProbability <= currentProbability) {
+                        // We've found our light.
+                        sampleDirection = spotLightDirections[iLight];
+                        samplePrimitive = SpotLights.primitives[iLight];
+                        sampleProbability = spot[iLight];
+                        maxLightDistance = length(SpotLights.positions[iLight] - rl_IntersectionPoint);
+                        lightType = LIGHT_TYPE_SPOT;
                         return;
                     }
                 }

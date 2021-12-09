@@ -17,6 +17,7 @@
 class EnvironmentLight;
 class DirectionalLight;
 class PointLight;
+class SpotLight;
 namespace openrl {
 class Buffer;
 class Program;
@@ -47,19 +48,32 @@ public:
     using LightCreatedCallback = std::function<void(std::shared_ptr<Light> light)>;
     void installLightCreatedCallback(LightCreatedCallback &&callback) { m_lightCreatedCallback = std::move(callback); }
 
+    //-------------------------------------------------------------------------
+    // Update a light, which re-uploads its parameters to OpenRL.
+    void updateLight(std::shared_ptr<Light> light);
+
+    //-------------------------------------------------------------------------
+    // Remove a light, deleting its resources from OpenRL as well.
+    void removeLight(std::shared_ptr<Light> light);
+
     std::shared_ptr<DirectionalLight> addDirectionalLight(const std::string &name);
     const std::shared_ptr<DirectionalLight>* directionalLights() const { return &(m_directional.lights[0]); }
-    void updateLight(std::shared_ptr<DirectionalLight> light);
-    void removeLight(std::shared_ptr<DirectionalLight> light);
+    void updateDirectionalLight(std::shared_ptr<DirectionalLight> light);
+    void removeDirectionalLight(std::shared_ptr<DirectionalLight> light);
 
     std::shared_ptr<PointLight> addPointLight(const std::string& name);
     const std::shared_ptr<PointLight>* pointLights() const { return &(m_point.lights[0]); }
-    void updateLight(std::shared_ptr<PointLight> light);
-    void removeLight(std::shared_ptr<PointLight> light);
+    void updatePointLight(std::shared_ptr<PointLight> light);
+    void removePointLight(std::shared_ptr<PointLight> light);
+
+    std::shared_ptr<SpotLight> addSpotLight(const std::string& name);
+    const std::shared_ptr<SpotLight>* spotLights() const { return &(m_spot.lights[0]); }
+    void updateSpotLight(std::shared_ptr<SpotLight> light);
+    void removeSpotLight(std::shared_ptr<SpotLight> light);
 
     std::shared_ptr<EnvironmentLight> addEnvironmentLight();
     void removeEnvironmentLight();
-    void updateLight(std::shared_ptr<EnvironmentLight> light);
+    void updateEnvironmentLight(std::shared_ptr<EnvironmentLight> light);
 
 private:
     struct Environment {
@@ -78,6 +92,12 @@ private:
         std::shared_ptr<openrl::Buffer> buffer = nullptr;
         int count = 0;
     } m_point;
+
+    struct Spot {
+        std::shared_ptr<SpotLight> lights[ShaderLightingDefines::MAX_NUM_SPOT_LIGHTS] = { nullptr };
+        std::shared_ptr<openrl::Buffer> buffer = nullptr;
+        int count = 0;
+    } m_spot;
 
     LightCreatedCallback m_lightCreatedCallback;
 };

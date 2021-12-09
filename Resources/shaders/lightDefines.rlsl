@@ -10,7 +10,8 @@
 
 int LIGHT_TYPE_DIRECTIONAL = 1;
 int LIGHT_TYPE_POINT       = 2;
-int LIGHT_TYPE_ENVIRONMENT = 3;
+int LIGHT_TYPE_SPOT        = 3;
+int LIGHT_TYPE_ENVIRONMENT = 4;
 
 uniformblock EnvironmentLight {
     sampler2D texture; // 2D lat/long map defining environment colors.
@@ -33,4 +34,14 @@ uniformblock PointLights {
     vec3 positions[MAX_NUM_POINT_LIGHTS];
     vec3 colors[MAX_NUM_POINT_LIGHTS];
     primitive primitives[MAX_NUM_POINT_LIGHTS];
+};
+
+uniformblock SpotLights {
+    int numberOfLights;
+    
+    vec3 positions[MAX_NUM_SPOT_LIGHTS];
+    vec3 directions[MAX_NUM_SPOT_LIGHTS];
+    vec3 colors[MAX_NUM_SPOT_LIGHTS];
+    vec2 angles[MAX_NUM_SPOT_LIGHTS];
+    primitive primitives[MAX_NUM_SPOT_LIGHTS];
 };

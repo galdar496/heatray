@@ -20,8 +20,9 @@ Heatray is a C++ path tracer utilizing [OpenRL](https://en.wikipedia.org/wiki/Op
 * Next-event estimation
 * Environment lighting
 * Punctual lighting
-    * Point
     * Directional
+    * Point
+    * Spot
 * Depth of field
     * Configurable Bokeh shapes
 * ACES filmic tonemapping + color processing pipeline

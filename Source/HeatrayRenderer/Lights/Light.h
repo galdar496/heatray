@@ -21,7 +21,8 @@ public:
     enum class Type {
         kEnvironment,
         kDirectional,
-        kPoint
+        kPoint,
+        kSpot
     };
 
     explicit Light(const std::string &name, const Type type) 

@@ -1,8 +1,8 @@
 ﻿//
-//  DirectionalLight.h
+//  SpotLight.h
 //  Heatray
 //
-//  Defines a single directional light along with any OpenRL
+//  Defines a single spot light along with any OpenRL
 //  resources that are required.
 //
 
@@ -21,19 +21,22 @@ namespace openrl {
 class Program;
 } // namespace openrl.
 
-class DirectionalLight final : public Light
+class SpotLight final : public Light
 {
 public:
-    explicit DirectionalLight(const std::string& name, size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer);
-    ~DirectionalLight() = default;
+    explicit SpotLight(const std::string &name, size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer);
+    ~SpotLight() = default;
 
     //-------------------------------------------------------------------------
     // Parameters used to define and control a directional light.
     struct Params {
         glm::vec3 color = glm::vec3(1.0f);
-        float illuminance = 1.0f;
+        glm::vec3 position = glm::vec3(0.0f);
+        float luminousIntensity = 1.0f;
+        float innerAngle = 0.0f;
+        float outerAngle = 0.0f;
 
-        // Orientation controls for the directional light.
+        // Orientation controls for the spot light.
         struct Orientation {
             float phi = 0.0f; // In radians [0 - 2π]
             float theta = 0.0f; // In radians [-π/2 - π/2]
@@ -41,16 +44,16 @@ public:
     };
 
     //-------------------------------------------------------------------------
-    // Copy to the light buffer that represents all directional lights
+    // Copy to the light buffer that represents all spot lights
     // in a scene. It is assumed that this light will copy into the 
     // right part of the buffer.
-    void copyToLightBuffer(DirectionalLightsBuffer* buffer);
+    void copyToLightBuffer(SpotLightsBuffer* buffer);
 
     Params params() const { return m_params; }
-    void setParams(const Params &params);   
+    void setParams(const Params &params);
 
     //-------------------------------------------------------------------------
-    // Update the light index for this directional light. This can happen when
+    // Update the light index for this spot light. This can happen when
     // lights are deleted and the lighting buffer needs to reshuffle lights to
     // keep the buffer tightly packed.
     void updateLightIndex(const size_t newLightIndex);

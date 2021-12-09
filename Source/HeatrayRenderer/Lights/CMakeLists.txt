@@ -7,4 +7,6 @@ add_library(Lights STATIC
     PointLight.h
     PointLight.cpp
     ShaderLightingDefines.h
+    SpotLight.h
+    SpotLight.cpp
 )
