@@ -173,6 +173,11 @@ public:
     void changeLighting(LightingCallback callback);
 
     //-------------------------------------------------------------------------
+    // Change the scene lighting via a user-supplied callback.
+    using RotationCallback = std::function<void(std::shared_ptr<Scene> scene)>;
+    void rotateScene(RotationCallback callback);
+
+    //-------------------------------------------------------------------------
     // Run a general OpenRL task. This can be useful for things that need to 
     // happen on the OpenRL thread but don't need a dedicated job.
     using OpenRLTask = std::function<void()>;
@@ -224,6 +229,7 @@ private:
         kRenderPass,
         kLoadScene,
         kChangeLighting,
+        kRotateScene,
         kDestroy,
         kGeneralTask
     };

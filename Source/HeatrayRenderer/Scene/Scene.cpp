@@ -6,6 +6,8 @@
 #include <HeatrayRenderer/Materials/Material.h>
 #include <RLWrapper/Program.h>
 
+#include <glm/glm/gtx/euler_angles.hpp>
+
 std::shared_ptr<Scene> Scene::create()
 {
 	return std::shared_ptr<Scene>(new Scene());
@@ -33,6 +35,22 @@ size_t Scene::addMesh(MeshProvider *meshProvider, std::vector<std::shared_ptr<Ma
 	
 	m_meshes.emplace_back(std::move(mesh));
 	return (m_meshes.size() - 1);
+}
+
+void Scene::applyRotation(const float yaw, const float pitch, const float roll)
+{
+	glm::mat4 rotation = glm::yawPitchRoll(yaw, pitch, roll);
+	for (auto &mesh : m_meshes) {
+		for (auto &submesh : mesh.submeshes()) {
+			submesh.primitive->bind();
+			int worldFromEntityLocation = submesh.material->program()->getUniformLocation("worldFromEntity");
+			glm::mat4 transform = rotation * submesh.transform;
+			submesh.material->program()->setMatrix4fv(worldFromEntityLocation, &(transform[0][0]));
+			submesh.primitive->unbind();
+		}
+	}
+
+	// TODO: consider how to add lighting here.
 }
 
 void Scene::bindLighting(const Mesh& mesh)

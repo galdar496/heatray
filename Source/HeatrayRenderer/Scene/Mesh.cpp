@@ -81,14 +81,14 @@ Mesh::Mesh(MeshProvider* meshProvider,
 
         int worldFromEntityLocation = material->program()->getUniformLocation("worldFromEntity");
 
-        glm::mat4 finalTransform = submesh.localTransform * transform;
-        float determinant = glm::determinant(finalTransform);
+        rlSubmesh.transform = submesh.localTransform * transform;
+        float determinant = glm::determinant(rlSubmesh.transform);
         if (determinant < 0.0) {
             rlFrontFace(RL_CW);
         } else {
             rlFrontFace(RL_CCW);
         }
-        material->program()->setMatrix4fv(worldFromEntityLocation, &(finalTransform[0][0]));
+        material->program()->setMatrix4fv(worldFromEntityLocation, &(rlSubmesh.transform[0][0]));
 
         for (int jj = 0; jj < submesh.vertexAttributeCount; ++jj) {
             auto & attribute = submesh.vertexAttributes[jj];

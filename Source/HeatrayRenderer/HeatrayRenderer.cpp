@@ -1079,6 +1079,31 @@ bool HeatrayRenderer::renderUI()
             ImGui::EndCombo();
         }
 
+        // Scene rotations.
+        {
+            ImGui::Separator();
+            ImGui::Text("Scene Rotation");
+            bool rotationChanged = false;
+            static float rotationYaw = 0.0f;
+            static float rotationPitch = 0.0f;
+            static float rotationRoll = 0.0f;
+            rotationChanged |= ImGui::SliderAngle("Yaw", &rotationYaw, 0.0f, 360.0f);
+            rotationChanged |= ImGui::SliderAngle("Pitch", &rotationPitch, 0.0f, 360.0f);
+            rotationChanged |= ImGui::SliderAngle("Roll", &rotationRoll, 0.0f, 360.0f);
+            ImGui::Separator();
+
+            if (rotationChanged) {
+                float yaw = rotationYaw;
+                float pitch = rotationPitch;
+                float roll = rotationRoll;
+                m_renderer.rotateScene([yaw, pitch, roll](std::shared_ptr<Scene> scene) {
+                    scene->applyRotation(yaw, pitch, roll);
+                });
+
+                shouldResetRenderer = true;
+            }
+        }
+
         static std::string NONE = "<none>";
         static std::string currentlySelectedMaterialName = NONE;
         static std::weak_ptr<Material> currentlySelectedMaterial;

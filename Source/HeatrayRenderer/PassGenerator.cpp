@@ -58,6 +58,12 @@ void PassGenerator::init(const RLint renderWidth, const RLint renderHeight)
                 runLoadSceneJob(clearOldScene);
                 break;
             }
+            case JobType::kRotateScene:
+            {
+                RotationCallback callback = std::any_cast<RotationCallback>(job.params);
+                callback(m_scene);
+                break;
+            }
             case JobType::kChangeLighting:
             {
                 LightingCallback callback = std::any_cast<LightingCallback>(job.params);
@@ -126,6 +132,12 @@ void PassGenerator::loadScene(LoadSceneCallback callback, bool clearOldScene)
 void PassGenerator::changeLighting(LightingCallback callback)
 {
     Job job(JobType::kChangeLighting, std::make_any<LightingCallback>(callback));
+    m_jobProcessor.addTask(std::move(job));
+}
+
+void PassGenerator::rotateScene(RotationCallback callback)
+{
+    Job job(JobType::kRotateScene, std::make_any<RotationCallback>(callback));
     m_jobProcessor.addTask(std::move(job));
 }
 

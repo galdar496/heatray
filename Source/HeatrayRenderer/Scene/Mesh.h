@@ -52,6 +52,7 @@ public:
         size_t offset = 0;
         RLenum mode = 0;
         std::shared_ptr<Material> material = nullptr;
+        glm::mat4 transform = glm::mat4(1.0f);
     };
     const std::vector<Submesh> &submeshes() const { return m_submeshes; }
 
