@@ -55,6 +55,9 @@
     X(Scene, AABB_MaxY, kFloat, 0.0f)     \
     X(Scene, AABB_MaxZ, kFloat, 0.0f)     \
     X(Scene, DistanceScale, kFloat, 1.0f) \
+    X(Scene, RotationYaw, kFloat, 0.0f)   \
+    X(Scene, RotationPitch, kFloat, 0.0f) \
+    X(Scene, RotationRoll, kFloat, 0.0f)  \
     \
     X(PostProcessing, TonemapEnable, kBool, false) \
     X(PostProcessing, Exposure, kFloat, 0.0f)      \

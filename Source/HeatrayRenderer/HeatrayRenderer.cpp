@@ -549,6 +549,9 @@ void HeatrayRenderer::writeSessionFile(const std::string& filename)
         session.setVariableValue(Session::SessionVariable::kAABB_MaxX, m_sceneAABB.max.x);
         session.setVariableValue(Session::SessionVariable::kAABB_MaxY, m_sceneAABB.max.y);
         session.setVariableValue(Session::SessionVariable::kAABB_MaxZ, m_sceneAABB.max.z);
+        session.setVariableValue(Session::SessionVariable::kRotationYaw, m_sceneRotation.yaw);
+        session.setVariableValue(Session::SessionVariable::kRotationPitch, m_sceneRotation.pitch);
+        session.setVariableValue(Session::SessionVariable::kRotationRoll, m_sceneRotation.roll);
     }
 
     // Post processing.
@@ -629,6 +632,9 @@ void HeatrayRenderer::readSessionFile(const std::string& filename)
             session.getVariableValue(Session::SessionVariable::kAABB_MaxX, m_sceneAABB.max.x);
             session.getVariableValue(Session::SessionVariable::kAABB_MaxY, m_sceneAABB.max.y);
             session.getVariableValue(Session::SessionVariable::kAABB_MaxZ, m_sceneAABB.max.z);
+            session.getVariableValue(Session::SessionVariable::kRotationYaw, m_sceneRotation.yaw);
+            session.getVariableValue(Session::SessionVariable::kRotationPitch, m_sceneRotation.pitch);
+            session.getVariableValue(Session::SessionVariable::kRotationRoll, m_sceneRotation.roll);
         }
 
         // Post processing.
@@ -1096,18 +1102,15 @@ bool HeatrayRenderer::renderUI()
             ImGui::Separator();
             ImGui::Text("Scene Rotation");
             bool rotationChanged = false;
-            static float rotationYaw = 0.0f;
-            static float rotationPitch = 0.0f;
-            static float rotationRoll = 0.0f;
-            rotationChanged |= ImGui::SliderAngle("Yaw", &rotationYaw, 0.0f, 360.0f);
-            rotationChanged |= ImGui::SliderAngle("Pitch", &rotationPitch, 0.0f, 360.0f);
-            rotationChanged |= ImGui::SliderAngle("Roll", &rotationRoll, 0.0f, 360.0f);
+            rotationChanged |= ImGui::SliderAngle("Yaw", &m_sceneRotation.yaw, 0.0f, 360.0f);
+            rotationChanged |= ImGui::SliderAngle("Pitch", &m_sceneRotation.pitch, 0.0f, 360.0f);
+            rotationChanged |= ImGui::SliderAngle("Roll", &m_sceneRotation.roll, 0.0f, 360.0f);
             ImGui::Separator();
 
             if (rotationChanged) {
-                float yaw = rotationYaw;
-                float pitch = rotationPitch;
-                float roll = rotationRoll;
+                float yaw = m_sceneRotation.yaw;
+                float pitch = m_sceneRotation.pitch;
+                float roll = m_sceneRotation.roll;
                 m_renderer.rotateScene([yaw, pitch, roll](std::shared_ptr<Scene> scene) {
                     scene->applyRotation(yaw, pitch, roll);
                 });

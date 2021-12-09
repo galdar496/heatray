@@ -323,4 +323,10 @@ private:
         bool materialSelected = false;
         bool lightSelected = false;
     } m_editors;
+
+    struct SceneRotation {
+        float yaw = 0.0f;
+        float pitch = 0.0f;
+        float roll = 0.0f;
+    } m_sceneRotation;
 };
