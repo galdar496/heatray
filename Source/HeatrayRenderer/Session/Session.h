@@ -48,7 +48,6 @@
     X(Camera, OrbitMaxDistance, kFloat, 10.0f) \
     \
     X(Scene, Units, kUInt, 0)             \
-    X(Scene, SwapYZ, kBool, false)        \
     X(Scene, AABB_MinX, kFloat, 0.0f)     \
     X(Scene, AABB_MinY, kFloat, 0.0f)     \
     X(Scene, AABB_MinZ, kFloat, 0.0f)     \

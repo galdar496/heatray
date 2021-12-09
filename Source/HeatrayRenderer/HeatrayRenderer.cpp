@@ -290,7 +290,7 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
         });
     } else {
         m_renderer.loadScene([this, sceneName, moveCamera](std::shared_ptr<Scene> scene) {
-            scene->loadFromDisk(sceneName, (m_sceneUnits == SceneUnits::kCentimeters), m_swapYZ);
+            scene->loadFromDisk(sceneName, (m_sceneUnits == SceneUnits::kCentimeters));
 
             // We'll automatically setup camera and AABB info if requested to do so.
             if (moveCamera) {
@@ -543,7 +543,6 @@ void HeatrayRenderer::writeSessionFile(const std::string& filename)
     // Scene.
     {
         session.setVariableValue(Session::SessionVariable::kUnits, static_cast<uint32_t>(m_sceneUnits));
-        session.setVariableValue(Session::SessionVariable::kSwapYZ, m_swapYZ);
         session.setVariableValue(Session::SessionVariable::kAABB_MinX, m_sceneAABB.min.x);
         session.setVariableValue(Session::SessionVariable::kAABB_MinY, m_sceneAABB.min.y);
         session.setVariableValue(Session::SessionVariable::kAABB_MinZ, m_sceneAABB.min.z);
@@ -624,7 +623,6 @@ void HeatrayRenderer::readSessionFile(const std::string& filename)
             uint32_t tmp = 0;
             session.getVariableValue(Session::SessionVariable::kUnits, tmp);
             m_sceneUnits = static_cast<SceneUnits>(tmp);
-            session.getVariableValue(Session::SessionVariable::kSwapYZ, m_swapYZ);
             session.getVariableValue(Session::SessionVariable::kAABB_MinX, m_sceneAABB.min.x);
             session.getVariableValue(Session::SessionVariable::kAABB_MinY, m_sceneAABB.min.y);
             session.getVariableValue(Session::SessionVariable::kAABB_MinZ, m_sceneAABB.min.z);
@@ -1058,7 +1056,6 @@ bool HeatrayRenderer::renderUI()
         if (ImGui::RadioButton("Centimeters", m_sceneUnits == SceneUnits::kCentimeters)) {
             m_sceneUnits = SceneUnits::kCentimeters;
         }
-        ImGui::Checkbox("Swap Y & Z on load", &m_swapYZ);
 
         static const char* options[] = { "Sphere Array", "Multi-Material", "Editable PBR Material", "Editable Glass Material", "Load Custom..."};
         static constexpr size_t NUM_OPTIONS = sizeof(options) / sizeof(options[0]);

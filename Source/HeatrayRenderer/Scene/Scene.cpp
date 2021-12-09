@@ -13,12 +13,12 @@ std::shared_ptr<Scene> Scene::create()
 	return std::shared_ptr<Scene>(new Scene());
 }
 
-void Scene::loadFromDisk(const std::string& path, bool convertToMeters, bool swapYZ)
+void Scene::loadFromDisk(const std::string& path, bool convertToMeters)
 {
 	m_lighting->clearAllButEnvironment();
 
 	// We use Assimp to load scene data from disk.
-	AssimpMeshProvider provider(path, convertToMeters, swapYZ, m_lighting);
+	AssimpMeshProvider provider(path, convertToMeters, m_lighting);
 	m_aabb = provider.sceneAABB();
 
 	auto &materials = provider.GetMaterials();

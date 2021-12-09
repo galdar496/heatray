@@ -292,8 +292,6 @@ private:
     };
     SceneUnits m_sceneUnits = SceneUnits::kMeters;
 
-    bool m_swapYZ = false;
-
     float m_currentPassTime = 0.0f;
     float m_totalRenderTime = 0.0f;
 

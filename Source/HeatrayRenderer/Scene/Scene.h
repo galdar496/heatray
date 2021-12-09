@@ -40,7 +40,7 @@ public:
 	//-------------------------------------------------------------------------
 	// Load a mesh from disk. It is recommended to use this function instead
 	// of the AssimpMeshProvider directly.
-	void loadFromDisk(const std::string &path, bool convertToMeters, bool swapYZ);
+	void loadFromDisk(const std::string &path, bool convertToMeters);
 
 	//-------------------------------------------------------------------------
 	// Add a new mesh to the scene via the various supported MeshProviders.

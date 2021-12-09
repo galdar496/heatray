@@ -62,10 +62,9 @@ glm::mat4x4 getFullTransform(aiScene const *scene, const aiString &nodeName, con
     return finalTransform;
 }
 
-AssimpMeshProvider::AssimpMeshProvider(std::string filename, bool convertToMeters, bool swapYZ, std::shared_ptr<Lighting> lighting)
+AssimpMeshProvider::AssimpMeshProvider(std::string filename, bool convertToMeters, std::shared_ptr<Lighting> lighting)
 : MeshProvider(filename)
 , m_filename(std::move(filename))
-, m_swapYZ(swapYZ)
 , m_convertToMeters(convertToMeters)
 {
     LoadScene(m_filename, lighting);
@@ -83,22 +82,12 @@ void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node,
                                         transform.a2, transform.b2, transform.c2, transform.d2,
                                         transform.a3, transform.b3, transform.c3, transform.d3,
                                         transform.a4, transform.b4, transform.c4, transform.d4);
-        if (m_swapYZ) {
-            glm::vec4 y = (*submeshTransform)[1];
-            (*submeshTransform)[1] = (*submeshTransform)[2];
-            (*submeshTransform)[2] = -y;
-        }
 
         // Determine the transformed AABB for this node in order to calculate the final scene AABB.
         {
             aiAABB node_aabb = scene->mMeshes[node->mMeshes[ii]]->mAABB;
             glm::vec4 aabb_min = glm::vec4(node_aabb.mMin.x, node_aabb.mMin.y, node_aabb.mMin.z, 1.0f);
             glm::vec4 aabb_max = glm::vec4(node_aabb.mMax.x, node_aabb.mMax.y, node_aabb.mMax.z, 1.0f);
-
-            if (m_swapYZ) {
-                aabb_min = glm::vec4(aabb_min.x, aabb_min.z, -aabb_min.y, 1.0f);
-                aabb_max = glm::vec4(aabb_max.x, aabb_max.z, -aabb_max.y, 1.0f);
-            }
 
             m_sceneAABB.expand(*submeshTransform * aabb_min);
             m_sceneAABB.expand(*submeshTransform * aabb_max);
@@ -130,9 +119,6 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh)
 
         for (uint32_t iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex) {
             glm::vec3 position(mesh->mVertices[iVertex].x, mesh->mVertices[iVertex].y, mesh->mVertices[iVertex].z);
-            if (m_swapYZ) {
-                position = glm::vec3(position.x, position.z, -position.y);
-            }
             vertexBuffer.push_back(position.x);
             vertexBuffer.push_back(position.y);
             vertexBuffer.push_back(position.z);
@@ -156,9 +142,6 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh)
 
         for (uint32_t iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex) {
             glm::vec3 normal(mesh->mNormals[iVertex].x, mesh->mNormals[iVertex].y, mesh->mNormals[iVertex].z);
-            if (m_swapYZ) {
-                normal = glm::vec3(normal.x, normal.z, -normal.y);
-            }
             vertexBuffer.push_back(normal.x);
             vertexBuffer.push_back(normal.y);
             vertexBuffer.push_back(normal.z);
@@ -208,9 +191,6 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh)
 
             for (uint32_t iVertex = 0; iVertex < mesh->mNumVertices; ++iVertex) {
                 glm::vec3 tangent(mesh->mTangents[iVertex].x, mesh->mTangents[iVertex].y, mesh->mTangents[iVertex].z);
-                if (m_swapYZ) {
-                    tangent = glm::vec3(tangent.x, tangent.z, -tangent.y);
-                }
                 vertexBuffer.push_back(tangent.x);
                 vertexBuffer.push_back(tangent.y);
                 vertexBuffer.push_back(tangent.z);
@@ -238,9 +218,6 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh)
                 glm::vec3 normal(mesh->mNormals[iVertex].x, mesh->mNormals[iVertex].y, mesh->mNormals[iVertex].z);
                 glm::vec3 tangent(mesh->mTangents[iVertex].x, mesh->mTangents[iVertex].y, mesh->mTangents[iVertex].z);
                 glm::vec3 bitangent = glm::cross(normal, tangent);
-                if (m_swapYZ) {
-                    bitangent = glm::vec3(bitangent.x, bitangent.z, -bitangent.y);
-                }
                 vertexBuffer.push_back(bitangent.x);
                 vertexBuffer.push_back(bitangent.y);
                 vertexBuffer.push_back(bitangent.z);
@@ -564,10 +541,6 @@ void AssimpMeshProvider::ProcessLight(aiLight const* light, std::shared_ptr<Ligh
         // Light position.
         {
             glm::vec3 position = lightTransform * glm::vec4(light->mPosition.x, light->mPosition.y, light->mPosition.z, 1.0f);
-            if (m_swapYZ) {
-                position = glm::vec3(position.x, position.z, -position.y);
-            }
-
             params.position = position;
         }
 
@@ -595,11 +568,6 @@ void AssimpMeshProvider::ProcessLight(aiLight const* light, std::shared_ptr<Ligh
             glm::mat4x4 localTransform = glm::mat4x4(xAxis, yAxis, zAxis, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
             glm::mat4x4 finalTransform = lightTransform * localTransform;
-            if (m_swapYZ) {
-                glm::vec4 y = finalTransform[1];
-                finalTransform[1] = finalTransform[2];
-                finalTransform[2] = -y;
-            }
             float roll = 0.0f;
             float pitch = 0.0f;
             float yaw = 0.0f;
@@ -632,10 +600,6 @@ void AssimpMeshProvider::ProcessLight(aiLight const* light, std::shared_ptr<Ligh
         // Light position.
         {
             glm::vec3 position = lightTransform * glm::vec4(light->mPosition.x, light->mPosition.y, light->mPosition.z, 1.0f);
-            if (m_swapYZ) {
-                position = glm::vec3(position.x, position.z, -position.y);
-            }
-
             params.position = position;
         }
 
@@ -648,11 +612,6 @@ void AssimpMeshProvider::ProcessLight(aiLight const* light, std::shared_ptr<Ligh
             glm::mat4x4 localTransform = glm::mat4x4(xAxis, yAxis, zAxis, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
             glm::mat4x4 finalTransform = lightTransform * localTransform;
-            if (m_swapYZ) {
-                glm::vec4 y = finalTransform[1];
-                finalTransform[1] = finalTransform[2];
-                finalTransform[2] = -y;
-            }
             float roll = 0.0f;
             float pitch = 0.0f;
             float yaw = 0.0f;
