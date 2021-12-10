@@ -57,9 +57,11 @@ void computeLightSample(vec3 N,
                 // its intensity, as well as the direction that the light is shining.. This should 
                 // weight more samples towards more "important" lights.
                 spotLightDirections[iLight] = normalize(SpotLights.positions[iLight] - rl_IntersectionPoint);
+                float rayAngle = dot(SpotLights.directions[iLight], -spotLightDirections[iLight]);
                 spot[iLight] = saturate(dot(N, spotLightDirections[iLight])) * 
-                               luminosity(SpotLights.colors[iLight] *
-                               ((dot(SpotLights.directions[iLight], -spotLightDirections[iLight]) > 0.0) ? 1.0 : 0.0));
+                               luminosity(SpotLights.colors[iLight]) *
+                               ((rayAngle > 0.0) ? 1.0 : 0.0) *
+                               ((rayAngle < SpotLights.angles[iLight].y) ? 0.0 : 1.0);
                 probabilitySum += spot[iLight];
             }
         }
