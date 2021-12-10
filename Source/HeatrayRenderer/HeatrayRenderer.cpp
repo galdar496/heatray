@@ -1063,7 +1063,7 @@ bool HeatrayRenderer::renderUI()
         static constexpr size_t CUSTOM_OPTION_INDEX = NUM_OPTIONS - 1;
 
         static unsigned int currentSelection = 1;
-        if (ImGui::BeginCombo("Scenes", options[currentSelection])) {
+        if (ImGui::BeginCombo("Built-In Scenes", options[currentSelection])) {
             for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
                 bool isSelected = currentSelection == iOption;
                 if (ImGui::Selectable(options[iOption], false)) {

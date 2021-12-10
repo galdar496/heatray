@@ -415,6 +415,8 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
         float ior = 0.0f;
         if (material->Get(AI_MATKEY_REFRACTI, ior) == aiReturn_SUCCESS) {
             params.specularF0 = std::powf((1.0f - ior) / (1.0f + ior), 2.0f);
+        } else {
+            material->Get(AI_MATKEY_SPECULAR_FACTOR, params.specularF0);
         }
     }
 
