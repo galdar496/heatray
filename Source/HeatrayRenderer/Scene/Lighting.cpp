@@ -39,6 +39,9 @@ void Lighting::clearAllButEnvironment()
         m_directional.buffer->bind();
         DirectionalLightsBuffer* directionalLights = m_directional.buffer->mapBuffer<DirectionalLightsBuffer>();
         directionalLights->numberOfLights = 0;
+        for (size_t iLight = 0; iLight < ShaderLightingDefines::MAX_NUM_DIRECTIONAL_LIGHTS; ++iLight) {
+            directionalLights->primitives[iLight] = RL_NULL_PRIMITIVE;
+        }
         m_directional.buffer->unmapBuffer();
         m_directional.buffer->unbind();
 
@@ -54,6 +57,9 @@ void Lighting::clearAllButEnvironment()
         m_point.buffer->bind();
         PointLightsBuffer* pointLights = m_point.buffer->mapBuffer<PointLightsBuffer>();
         pointLights->numberOfLights = 0;
+        for (size_t iLight = 0; iLight < ShaderLightingDefines::MAX_NUM_POINT_LIGHTS; ++iLight) {
+            pointLights->primitives[iLight] = RL_NULL_PRIMITIVE;
+        }        
         m_point.buffer->unmapBuffer();
         m_point.buffer->unbind();
 
@@ -69,6 +75,9 @@ void Lighting::clearAllButEnvironment()
         m_spot.buffer->bind();
         SpotLightsBuffer* spotLights = m_spot.buffer->mapBuffer<SpotLightsBuffer>();
         spotLights->numberOfLights = 0;
+        for (size_t iLight = 0; iLight < ShaderLightingDefines::MAX_NUM_SPOT_LIGHTS; ++iLight) {
+            spotLights->primitives[iLight] = RL_NULL_PRIMITIVE;
+        }
         m_spot.buffer->unmapBuffer();
         m_spot.buffer->unbind();
 

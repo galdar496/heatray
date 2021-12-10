@@ -28,7 +28,6 @@
 #include <memory>
 
 // Forward declarations.
-class Light;
 class Material;
 
 class HeatrayRenderer
@@ -313,11 +312,6 @@ private:
     bool renderLightEditor(std::shared_ptr<Light> light);
 
     bool m_debugPassChanged = false;
-
-    struct KeyLight {;
-        std::shared_ptr<Light> light = nullptr;
-        bool exists = false;
-    } m_keyLight;
 
     struct Editors {
         bool materialSelected = false;

@@ -86,9 +86,6 @@ bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
 void HeatrayRenderer::destroy()
 {
     // Run a job to destroy any possible RL objects we may have created.
-    m_renderer.runOpenRLTask([this]() {
-        m_keyLight.light.reset();
-    });
     m_renderer.destroy();
 
     glDeleteBuffers(1, &m_displayPixelBuffer);
@@ -116,8 +113,6 @@ void HeatrayRenderer::resize(const GLint newWindowWidth, const GLint newWindowHe
 
 void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveCamera)
 {
-    m_keyLight.light.reset();
-    m_keyLight.exists = false;
     m_groundPlane.exists = false;
 
     m_renderOptions.scene = sceneName;
@@ -1159,19 +1154,46 @@ bool HeatrayRenderer::renderUI()
 
         // Extra lighting.
         {
-            if (ImGui::Button(m_keyLight.exists ? "Remove Key Light" : "Add Key Light")) {
-                m_keyLight.exists = !m_keyLight.exists;
+            ImGui::Separator();
+            static Light::Type selectedType = Light::Type::kDirectional;
+            ImGui::Text("Additional Lighting");
+            if (ImGui::RadioButton("Directional", selectedType == Light::Type::kDirectional)) {
+                selectedType = Light::Type::kDirectional;
+            }
+            if (ImGui::RadioButton("Point", selectedType == Light::Type::kPoint)) {
+                selectedType = Light::Type::kPoint;
+            }
+            if (ImGui::RadioButton("Spot", selectedType == Light::Type::kSpot)) {
+                selectedType = Light::Type::kSpot;
+            }
+
+            static char lightName[256] = { "Scene Light" };
+            ImGui::InputText("Name", lightName, 256);
+            if (ImGui::Button("Add Light")) {
                 currentlySelectedLight.reset();
                 currentlySelectedLightName = NONE;
                 m_renderer.changeLighting([this](std::shared_ptr<Lighting> lighting) {
-                    if (m_keyLight.light) {
-                        lighting->removeLight(m_keyLight.light);
-                        m_keyLight.light.reset();
+                    switch (selectedType) {
+                        case Light::Type::kDirectional:
+                            lighting->addDirectionalLight(lightName);
+                            break;
+                        case Light::Type::kPoint:
+                            lighting->addPointLight(lightName);
+                            break;
+                        case Light::Type::kSpot:
+                            lighting->addSpotLight(lightName);
+                            break;
+                        default:
+                            break;
                     }
-                    else {
-                        m_keyLight.light = lighting->addDirectionalLight("Key");
-                    }
+                    
+                    resetRenderer();
+                });
+            }
 
+            if (ImGui::Button("Clear Lighting")) {
+                m_renderer.changeLighting([this](std::shared_ptr<Lighting> lighting) {
+                    lighting->clearAllButEnvironment();
                     resetRenderer();
                 });
             }
