@@ -35,7 +35,7 @@ PointLight::PointLight(const std::string& name, size_t lightIndex, std::shared_p
 
     m_params.color = glm::vec3(1.0f);
     m_params.luminousIntensity = WATTS_TO_LUMENS * (4.0f * (glm::pi<float>() * glm::pi<float>())); // We specify a default intensity of 1 watt * 4π^2.
-    m_params.position = glm::vec3(0.0f, 0.0f, 0.0f);
+    m_params.position = glm::vec3(0.0f, 3.0f, 0.0f);
 }
 
 void PointLight::copyToLightBuffer(PointLightsBuffer* buffer)
