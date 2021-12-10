@@ -61,7 +61,8 @@ void computeLightSample(vec3 N,
                 spot[iLight] = saturate(dot(N, spotLightDirections[iLight])) * 
                                luminosity(SpotLights.colors[iLight]) *
                                ((rayAngle > 0.0) ? 1.0 : 0.0) *
-                               ((rayAngle < SpotLights.angles[iLight].y) ? 0.0 : 1.0);
+                               ((rayAngle < SpotLights.angles[iLight].y) ? 0.0 : 1.0) *
+                               (1.0 - smoothstep(SpotLights.angles[iLight].x, SpotLights.angles[iLight].y, rayAngle));
                 probabilitySum += spot[iLight];
             }
         }
