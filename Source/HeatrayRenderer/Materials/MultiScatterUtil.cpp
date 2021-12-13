@@ -13,7 +13,7 @@
 #include <vector>
 
 namespace {
-static constexpr char* const LUT_FILENAME = "Resources/multiscatter_lut.tiff";
+static char const *LUT_FILENAME = "Resources/multiscatter_lut.tiff";
 static std::weak_ptr<openrl::Texture> multiscatterTexture;
 }
 

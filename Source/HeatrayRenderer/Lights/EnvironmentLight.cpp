@@ -33,7 +33,7 @@ void EnvironmentLight::changeImageSource(const char* path, bool builtInMap)
 
     std::string fullPath;
     if (builtInMap) {
-        static constexpr char *BASE_PATH = "Resources/Environments/";
+        static char const *BASE_PATH = "Resources/Environments/";
         fullPath = std::string(BASE_PATH) + std::string(path);
     } else {
         fullPath = std::string(path);

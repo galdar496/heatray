@@ -43,12 +43,6 @@ namespace {
     constexpr GLint kDefaultWindowHeight = 800;
 } // namespace.
 
-#if defined(_WIN32) || defined(_WIN64)
-const int kCheesyMultiplier = 1;
-#else
-const int kCheesyMultiplier = 2;
-#endif
-
 void glfwErrorCallback(int error, const char* description)
 {
     LOG_ERROR("GLFW error %d: %s\n", error, description);
@@ -65,7 +59,7 @@ void glfwPathDropCallback(GLFWwindow* window, int pathCount, const char* paths[]
 {
     if (pathCount) {
         // Is this an env map or a scene file?
-        static constexpr char * ENV_FORMATS[] = { ".exr", ".hdr" };
+        static char const * ENV_FORMATS[] = { ".exr", ".hdr" };
         static constexpr size_t NUM_ENV_FORMATS = sizeof(ENV_FORMATS) / sizeof(ENV_FORMATS[0]);
     
         std::string path(paths[0]);
@@ -92,10 +86,11 @@ int main(int argc, char **argv)
     }
 
     // GL 4.6 + GLSL 460
-    const char* glsl_version = "#version 460";
+    const char* glsl_version = "#version 410";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, (HEATRAY_DEBUG ? GLFW_TRUE : GLFW_FALSE));
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWwindow* window = glfwCreateWindow(kDefaultWindowWidth, kDefaultWindowHeight, kWindowTitle.c_str(), nullptr, nullptr);
@@ -127,7 +122,7 @@ int main(int argc, char **argv)
 
     // Handles GLEW init as well.
     heatray.init(kDefaultWindowWidth, kDefaultWindowHeight);
-    heatray.resize(kDefaultWindowWidth * kCheesyMultiplier, kDefaultWindowHeight * kCheesyMultiplier);
+    heatray.resize(kDefaultWindowWidth, kDefaultWindowHeight);
 
     // ImGui setup code.
     {
@@ -154,7 +149,7 @@ int main(int argc, char **argv)
             if (newWindowSize != previousWindowSize) {
                 if ((newWindowSize.x > 0) &&
                     (newWindowSize.y > 0)) {
-                    heatray.resize(newWindowSize.x * kCheesyMultiplier, newWindowSize.y * kCheesyMultiplier);
+                    heatray.resize(newWindowSize.x, newWindowSize.y);
                 }
                 previousWindowSize = newWindowSize;
             }

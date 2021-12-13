@@ -43,8 +43,6 @@ public:
             m_shader = RL_NULL_SHADER;
         }
     }
-    Shader(const Shader& other) = default;
-    Shader& operator=(const Shader& other) = default;
 
     //-------------------------------------------------------------------------
     // Create and compile a shader from a passed-in source string.
@@ -138,6 +136,8 @@ private:
                 break;
             case ShaderType::kPrefix:
                 rlType = RL_PREFIX_RAY_SHADER;
+                break;
+            default:
                 break;
         };
         m_shader = RLFunc(rlCreateShader(rlType));

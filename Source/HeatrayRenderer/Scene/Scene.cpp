@@ -30,7 +30,7 @@ void Scene::loadFromDisk(const std::string& path, bool convertToMeters)
 
 size_t Scene::addMesh(MeshProvider *meshProvider, std::vector<std::shared_ptr<Material>>&& materials, const glm::mat4& transform)
 {
-	Mesh mesh(meshProvider, std::move(materials), m_newProgramCreatedCallback, transform);
+	Mesh mesh(meshProvider, materials, m_newProgramCreatedCallback, transform);
 	bindLighting(mesh);
 	
 	m_meshes.emplace_back(std::move(mesh));

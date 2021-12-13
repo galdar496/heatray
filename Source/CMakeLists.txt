@@ -17,13 +17,13 @@ target_link_libraries(Heatray
   FreeImage
   HeatrayRenderer
   Utility
-  opengl32
 )
 if (WIN32)
   target_link_libraries(Heatray
     glfw3dll
     glew32
     openrl
+    opengl32
   )
   add_custom_command(TARGET Heatray POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -41,9 +41,15 @@ if (APPLE)
     COMPILE_FLAGS "-F ${PROJECT_SOURCE_DIR}/3rdParty/OpenRL"
     LINK_FLAGS "-F ${PROJECT_SOURCE_DIR}/3rdParty/OpenRL"
   )
+  find_library(QUARTZ QuartzCore)
+  find_library(IOKIT IOKit)
   target_link_libraries(Heatray
     "-framework OpenGL"
     "-framework OpenRL"
+    glfw3
+    glew
+    ${QUARTZ}
+    ${IOKIT}
   )
 endif()
 

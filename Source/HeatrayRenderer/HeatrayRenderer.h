@@ -13,7 +13,10 @@
     #include <glew/GL/glew.h>
     #include <gl/GL.h>
 #else
+    #include <glew/GL/glew.h>
     #include <OpenGL/gl.h>
+    #include <OpenGL/gl3.h>
+    #include <OpenGL/gl3ext.h>
 #endif
 
 #include "FlyCamera.h"

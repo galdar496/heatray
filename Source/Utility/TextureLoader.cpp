@@ -8,6 +8,7 @@
 #include "stb/stb_image.h"
 
 #include <assert.h>
+#include <cmath>
 #include <filesystem>
 
 namespace util {

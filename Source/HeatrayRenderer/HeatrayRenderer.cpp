@@ -1,3 +1,5 @@
+#define GLM_FORCE_SWIZZLE
+
 #include "HeatrayRenderer.h"
 
 #include "Lights/DirectionalLight.h"
@@ -40,9 +42,7 @@ bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
 
     // Next setup OpenGL display data.
     {
-        #if defined(_WIN32) || defined(_WIN64)
         glewInit();
-        #endif
 
         // Create the pixel-pack buffer and gl texture to use for displaying the raytraced result.
 
@@ -358,8 +358,8 @@ void HeatrayRenderer::render()
 
     // Kick the raytracer if necessary.
     if (!m_justResized && // Don't kick the renderer if we've just resized.
-        (!m_renderingFrame && (m_currentPass < m_totalPasses)) || // If we haven't yet rendered all passes and are not currently rendering a pass.
-        (m_resetRequested && !m_renderingFrame)) { // If we've been asked to reset but are not in the middle of another frame.
+        ((!m_renderingFrame && (m_currentPass < m_totalPasses)) || // If we haven't yet rendered all passes and are not currently rendering a pass.
+        (m_resetRequested && !m_renderingFrame))) { // If we've been asked to reset but are not in the middle of another frame.
 
         if (m_resetRequested) {
             resetRenderer();
@@ -665,12 +665,12 @@ bool HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
 
     bool materialChanged = false;
 
-    ImGui::Text(material->name().c_str());
+    ImGui::Text("%s", material->name().c_str());
     if (material->type() == Material::Type::PBR) {
         std::shared_ptr<PhysicallyBasedMaterial> pbrMaterial = std::static_pointer_cast<PhysicallyBasedMaterial>(material);
         PhysicallyBasedMaterial::Parameters& parameters = pbrMaterial->parameters();
 
-        if (ImGui::SliderFloat3("BaseColor", parameters.baseColor.data.data, 0.0f, 1.0f)) {
+        if (ImGui::SliderFloat3("BaseColor", &parameters.baseColor.r, 0.0f, 1.0f)) {
             materialChanged = true;
         }
         if (ImGui::SliderFloat("Metallic", &parameters.metallic, 0.0f, 1.0f)) {
@@ -769,7 +769,7 @@ bool HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
         std::shared_ptr<GlassMaterial> glassMaterial = std::static_pointer_cast<GlassMaterial>(material);
         GlassMaterial::Parameters& parameters = glassMaterial->parameters();
 
-        if (ImGui::SliderFloat3("BaseColor", parameters.baseColor.data.data, 0.0f, 1.0f)) {
+        if (ImGui::SliderFloat3("BaseColor", &parameters.baseColor.r, 0.0f, 1.0f)) {
             materialChanged = true;
         }
         if (ImGui::SliderFloat("IOR", &parameters.ior, 1.0f, 4.0f)) {
@@ -843,12 +843,12 @@ bool HeatrayRenderer::renderLightEditor(std::shared_ptr<Light> light)
 {
     bool lightChanged = false;
 
-    ImGui::Text(light->name().c_str());
+    ImGui::Text("%s", light->name().c_str());
     if (light->type() == Light::Type::kDirectional) {
         std::shared_ptr<DirectionalLight> directLight = std::static_pointer_cast<DirectionalLight>(light);
         DirectionalLight::Params params = directLight->params();
 
-        lightChanged |= ImGui::SliderFloat3("Color", params.color.data.data, 0.0f, 1.0f);
+        lightChanged |= ImGui::SliderFloat3("Color", &params.color.r, 0.0f, 1.0f);
         lightChanged |= ImGui::SliderFloat("Illuminance (lm/(m^2))", &params.illuminance, 0.0f, 100000.0f);
 
         ImGui::PushID("LightTheta");
@@ -864,8 +864,8 @@ bool HeatrayRenderer::renderLightEditor(std::shared_ptr<Light> light)
         std::shared_ptr<PointLight> pointLight = std::static_pointer_cast<PointLight>(light);
         PointLight::Params params = pointLight->params();
 
-        lightChanged |= ImGui::InputFloat3("Position", params.position.data.data);
-        lightChanged |= ImGui::SliderFloat3("Color", params.color.data.data, 0.0f, 1.0f);
+        lightChanged |= ImGui::InputFloat3("Position", &params.position.r);
+        lightChanged |= ImGui::SliderFloat3("Color", &params.color.r, 0.0f, 1.0f);
         lightChanged |= ImGui::SliderFloat("Luminous Intensity (lm/sr)", &params.luminousIntensity, 0.0f, 100000.0f);
 
         pointLight->setParams(params);
@@ -873,8 +873,8 @@ bool HeatrayRenderer::renderLightEditor(std::shared_ptr<Light> light)
         std::shared_ptr<SpotLight> spotLight = std::static_pointer_cast<SpotLight>(light);
         SpotLight::Params params = spotLight->params();
 
-        lightChanged |= ImGui::InputFloat3("Position", params.position.data.data);
-        lightChanged |= ImGui::SliderFloat3("Color", params.color.data.data, 0.0f, 1.0f);
+        lightChanged |= ImGui::InputFloat3("Position", &params.position.r);
+        lightChanged |= ImGui::SliderFloat3("Color", &params.color.r, 0.0f, 1.0f);
         lightChanged |= ImGui::SliderFloat("Luminous Intensity (lm/sr)", &params.luminousIntensity, 0.0f, 100000.0f);
 
         ImGui::PushID("LightTheta");
@@ -1036,7 +1036,7 @@ bool HeatrayRenderer::renderUI()
         }
 
         if (currentSelection == SOLID_COLOR_OPTION_INDEX) {
-            if (ImGui::SliderFloat3("Color", m_renderOptions.environment.solidColor.data.data, 0.0f, 1.0f)) {
+            if (ImGui::SliderFloat3("Color", &m_renderOptions.environment.solidColor.r, 0.0f, 1.0f)) {
                 shouldResetRenderer = true;
             }
         }
@@ -1339,7 +1339,7 @@ bool HeatrayRenderer::renderUI()
             changed |= ImGui::SliderAngle("Theta", &(m_camera.orbitCamera.theta), -90.0f, 90.0f);
             ImGui::PopID();
             changed |= ImGui::SliderFloat("Distance", &(m_camera.orbitCamera.distance), 0.0f, m_camera.orbitCamera.max_distance);
-            changed |= ImGui::InputFloat3("Target", m_camera.orbitCamera.target.data.data, "%f", ImGuiInputTextFlags_CharsDecimal);
+            changed |= ImGui::InputFloat3("Target", &m_camera.orbitCamera.target.r, "%f", ImGuiInputTextFlags_CharsDecimal);
             if (changed) {
                 shouldResetRenderer = true;
             }

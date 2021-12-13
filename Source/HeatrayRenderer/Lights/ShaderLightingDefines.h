@@ -1,4 +1,4 @@
-﻿//
+//
 //  ShaderLightingDefines.h
 //  Heatray
 //
@@ -9,7 +9,7 @@
 
 #include <RLWrapper/Primitive.h>
 
-#define GLM_SWIZZLE
+#define GLM_FORCE_SWIZZLE
 #include <glm/glm/glm.hpp>
 
 #include <sstream>
