@@ -11,8 +11,12 @@ bool readTextFile(const char* filename, std::string& content)
     std::ifstream fin;
     fin.open(filename);
     if (!fin) {
-        LOG_ERROR("Unable to open file %s", filename);
-        return false;
+        // Attempt to look one directory back, just in case.
+        fin.open("../" + std::string(filename));
+        if (!fin) {
+            LOG_ERROR("Unable to open file %s", filename);
+            return false;
+        }
     }
 
     // Size the string to get ready for the file.

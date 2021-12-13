@@ -2,7 +2,8 @@
 // divided by the number of passes that have been done which is stored in the alpha
 // channel of the texture.
 
-#extension GL_EXT_gpu_shader4 : require
+#version 410
+//#extension GL_EXT_gpu_shader4 : require
 
 uniform sampler2D raytracedTexture;
 uniform int tonemappingEnabled;
@@ -17,6 +18,8 @@ uniform float green;
 uniform float blue;
 
 in vec2 textureCoords;
+
+out vec4 fragColor;
 
 const float SRGB_ALPHA = 0.055;
 
@@ -69,7 +72,7 @@ vec3 SRGBToLinear(vec3 srgb) {
 void main()
 {
     // raytraced texture is rgb of all accumulated passes and w = # of passes performed.
-    vec4 result = texture2D(raytracedTexture, textureCoords.xy);
+    vec4 result = texture(raytracedTexture, textureCoords.xy);
     vec3 finalColor = result.xyz / result.w;
 
     // Apply the color processing pipeline.
@@ -135,5 +138,5 @@ void main()
 
     finalColor = LinearToSRGB(finalColor);
 
-    gl_FragColor = vec4(finalColor, 1.0);
+    fragColor = vec4(finalColor, 1.0);
 }

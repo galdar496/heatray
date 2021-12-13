@@ -10,12 +10,30 @@
 #include <assert.h>
 #include <cmath>
 #include <filesystem>
+#include <fstream>
 
 namespace util {
 
 void loadTextureInternal(LoadedTexture& loadedTexture, const char *path, bool generateMips, bool convertToLinear)
 {
     LOG_INFO("Loading texture %s", path);
+    
+    // Make sure the file exists. It may be one directory back as well.
+    std::string finalPath = std::string(path);
+    {
+        std::ifstream fin;
+        fin.open(finalPath);
+        if (!fin) {
+            finalPath = "../" + finalPath;
+            fin.open(finalPath);
+            if (!fin) {
+                LOG_ERROR("Unable to find texture %s", path);
+                return;
+            }
+        }
+        fin.close();
+    }
+    
     if (!generateMips) { // default sampler state is with mipmapping enabled.
         loadedTexture.sampler.magFilter = RL_LINEAR;
         loadedTexture.sampler.minFilter = RL_LINEAR;
@@ -23,13 +41,13 @@ void loadTextureInternal(LoadedTexture& loadedTexture, const char *path, bool ge
         loadedTexture.sampler.wrapT = RL_CLAMP_TO_EDGE;
     }
 
-    if ((std::filesystem::path(path).extension() == ".exr") ||
-        (std::filesystem::path(path).extension() == ".tiff")) {
-        FREE_IMAGE_FORMAT format = FreeImage_GetFileType(path, 0);
+    if ((std::filesystem::path(finalPath).extension() == ".exr") ||
+        (std::filesystem::path(finalPath).extension() == ".tiff")) {
+        FREE_IMAGE_FORMAT format = FreeImage_GetFileType(finalPath.c_str(), 0);
         assert(FreeImage_FIFSupportsReading(format));
 
         // Get the raw image data from FreeImage.
-        FIBITMAP* imageData = FreeImage_Load(format, path);
+        FIBITMAP* imageData = FreeImage_Load(format, finalPath.c_str());
         if (!imageData) {
             LOG_ERROR("Unable to load image %s", path);
             return;
@@ -71,15 +89,15 @@ void loadTextureInternal(LoadedTexture& loadedTexture, const char *path, bool ge
         stbi_set_flip_vertically_on_load(true);
 
         unsigned char* pixels;
-        bool isHDR = stbi_is_hdr(path);
+        bool isHDR = stbi_is_hdr(finalPath.c_str());
         if (isHDR) {
-            pixels = (unsigned char*)stbi_loadf(path, &width, &height, &channelCount, 0);
+            pixels = (unsigned char*)stbi_loadf(finalPath.c_str(), &width, &height, &channelCount, 0);
             if (!pixels) {
                 LOG_ERROR("Unable to load texture %s", path);
                 return;
             }
         } else {
-            pixels = stbi_load(path, &width, &height, &channelCount, 0);
+            pixels = stbi_load(finalPath.c_str(), &width, &height, &channelCount, 0);
             if (!pixels) {
                 LOG_ERROR("Unable to load texture %s", path);
                 return;
