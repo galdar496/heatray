@@ -18,6 +18,7 @@ target_link_libraries(Heatray
   HeatrayRenderer
   Utility
 )
+
 if (WIN32)
   target_link_libraries(Heatray
     glfw3dll

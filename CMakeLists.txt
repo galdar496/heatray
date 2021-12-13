@@ -30,6 +30,7 @@ endif()
 
 # This causes CMake to look for a CMakeLists.txt in that folder.
 add_subdirectory(Source)
+add_subdirectory(Resources)
 
 # Stick assimp into a CMake function so options we set don't pollute our entire project
 function(AddAssimp)
