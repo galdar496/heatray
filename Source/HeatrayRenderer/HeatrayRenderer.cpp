@@ -1192,6 +1192,8 @@ bool HeatrayRenderer::renderUI()
             }
 
             if (ImGui::Button("Clear Lighting")) {
+                currentlySelectedLight.reset();
+                currentlySelectedLightName = NONE;
                 m_renderer.changeLighting([this](std::shared_ptr<Lighting> lighting) {
                     lighting->clearAllButEnvironment();
                     resetRenderer();
