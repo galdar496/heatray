@@ -1572,10 +1572,15 @@ void HeatrayRenderer::saveScreenshot()
         }
 
         bitmap = FreeImage_ConvertToRGBF(hdrBitmap);
-    } else {     
-        bitmap = FreeImage_AllocateT(FIT_BITMAP, m_pixelDimensions.x, m_pixelDimensions.y, 24); // 8 bits per channel.
+    } else {
+        int scale = 1;
+#if defined(__APPLE__)
+        // Account for retina scaling.
+        scale = 2;
+#endif // defined(__APPLE__)
+        bitmap = FreeImage_AllocateT(FIT_BITMAP, m_pixelDimensions.x * scale, m_pixelDimensions.y * scale, 24); // 8 bits per channel.
         void* pixelData = FreeImage_GetBits(bitmap);
-        glReadPixels(UI_WINDOW_WIDTH, 0, m_pixelDimensions.x, m_pixelDimensions.y, GL_BGR, GL_UNSIGNED_BYTE, pixelData);
+        glReadPixels(UI_WINDOW_WIDTH * scale, 0, m_pixelDimensions.x * scale, m_pixelDimensions.y * scale, GL_BGR, GL_UNSIGNED_BYTE, pixelData);
     }
 
     FreeImage_Save(FreeImage_GetFIFFromFilename(m_screenshotPath.c_str()), bitmap, m_screenshotPath.c_str(), 0);
