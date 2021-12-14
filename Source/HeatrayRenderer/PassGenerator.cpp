@@ -147,6 +147,33 @@ void PassGenerator::runOpenRLTask(OpenRLTask task)
     m_jobProcessor.addTask(std::move(job));
 }
 
+void PassGenerator::generateSequenceOffsets(const RLint renderWidth, const RLint renderHeight)
+{
+    // Generate the random sequence used in the frame shader when generating primary rays
+    // to determine which offset into the main sequence data is used.
+    std::vector<glm::vec3> randomValues;
+    randomValues.resize(renderWidth * renderHeight);
+    util::sobol(randomValues.data(), (uint32_t)randomValues.size(), 0);
+
+    openrl::Texture::Descriptor desc;
+    desc.dataType       = RL_FLOAT;
+    desc.format         = RL_RGB;
+    desc.internalFormat = RL_RGB;
+    desc.width          = renderWidth;
+    desc.height         = renderHeight;
+
+    openrl::Texture::Sampler sampler;
+    sampler.minFilter   = RL_NEAREST;
+    sampler.magFilter   = RL_NEAREST;
+    sampler.wrapS       = RL_CLAMP_TO_EDGE;
+    sampler.wrapT       = RL_CLAMP_TO_EDGE;
+
+    m_sequenceOffsetsTexture = openrl::Texture::create(randomValues.data(),
+                                                       desc,
+                                                       sampler,
+                                                       false);
+}
+
 bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight)
 {
     //OpenRLContextAttribute attributes[] = {kOpenRL_EnableRayPrefixShaders, 1, NULL};
@@ -276,6 +303,8 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
         m_interactiveBlockCoordsTexture = openrl::Texture::create(coords.data(), desc, sampler, false);
     }
 
+    generateSequenceOffsets(renderWidth, renderHeight);
+
     return true;
 }
 
@@ -297,29 +326,7 @@ void PassGenerator::runResizeJob(const RLint newRenderWidth, const RLint newRend
 
         // Generate the random sequence used in the frame shader when generating primary rays
         // to determine which offset into the main sequence data is used.
-        {
-            std::vector<glm::vec3> randomValues;
-            randomValues.resize(newRenderWidth * newRenderHeight);
-            util::sobol(randomValues.data(), (uint32_t)randomValues.size(), 0);
-
-            openrl::Texture::Descriptor desc;
-            desc.dataType       = RL_FLOAT;
-            desc.format         = RL_RGB;
-            desc.internalFormat = RL_RGB;
-            desc.width          = newRenderWidth;
-            desc.height         = newRenderHeight;
-
-            openrl::Texture::Sampler sampler;
-            sampler.minFilter = RL_NEAREST;
-            sampler.magFilter = RL_NEAREST;
-            sampler.wrapS     = RL_CLAMP_TO_EDGE;
-            sampler.wrapT     = RL_CLAMP_TO_EDGE;
-
-            m_sequenceOffsetsTexture = openrl::Texture::create(randomValues.data(),
-                                                               desc,
-                                                               sampler,
-                                                               false);
-        }
+        generateSequenceOffsets(newRenderWidth, newRenderHeight);        
 
         m_renderOptions.resetInternalState = true;
     }

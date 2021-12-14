@@ -197,6 +197,7 @@ private:
     void changeEnvironment(const RenderOptions::Environment& newEnv);
     void generateRandomSequences(const RLint sampleCount, RenderOptions::SampleMode sampleMode, RenderOptions::BokehShape bokehShape);
     void resetRenderingState(const RenderOptions& newOptions);
+    void generateSequenceOffsets(const RLint renderWidth, const RLint renderHeight);
 
     bool runInitJob(const RLint renderWidth, const RLint renderHeight);
     void runResizeJob(const RLint newRenderWidth, const RLint newRenderHeight);
