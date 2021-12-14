@@ -848,7 +848,9 @@ bool HeatrayRenderer::renderLightEditor(std::shared_ptr<Light> light)
         std::shared_ptr<DirectionalLight> directLight = std::static_pointer_cast<DirectionalLight>(light);
         DirectionalLight::Params params = directLight->params();
 
+        ImGui::PushID("LightColor");
         lightChanged |= ImGui::SliderFloat3("Color", &params.color.r, 0.0f, 1.0f);
+        ImGui::PopID();
         lightChanged |= ImGui::SliderFloat("Illuminance (lm/(m^2))", &params.illuminance, 0.0f, 100000.0f);
 
         ImGui::PushID("LightTheta");
@@ -1036,9 +1038,11 @@ bool HeatrayRenderer::renderUI()
         }
 
         if (currentSelection == SOLID_COLOR_OPTION_INDEX) {
+            ImGui::PushID("SolidColor");
             if (ImGui::SliderFloat3("Color", &m_renderOptions.environment.solidColor.r, 0.0f, 1.0f)) {
                 shouldResetRenderer = true;
             }
+            ImGui::PopID();
         }
 
         if (ImGui::SliderAngle("Environment Rotation", &m_renderOptions.environment.thetaRotation, 0.0f, 360.0f)) {
