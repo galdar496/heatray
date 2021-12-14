@@ -1,4 +1,4 @@
-﻿#include "PointLight.h"
+#include "PointLight.h"
 
 #include <RLWrapper/Shader.h>
 #include <RLWrapper/Program.h>
@@ -34,7 +34,7 @@ PointLight::PointLight(const std::string& name, size_t lightIndex, std::shared_p
     setUniforms();
 
     m_params.color = glm::vec3(1.0f);
-    m_params.luminousIntensity = WATTS_TO_LUMENS * (4.0f * (glm::pi<float>() * glm::pi<float>())); // We specify a default intensity of 1 watt * 4π^2.
+    m_params.luminousIntensity = WATTS_TO_LUMENS * (4.0f * glm::pi<float>()); // We specify a default intensity of 1 watt * 4π.
     m_params.position = glm::vec3(0.0f, 3.0f, 0.0f);
 }
 
