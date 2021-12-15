@@ -11,6 +11,7 @@ find_package(OpenGL REQUIRED)
 
 target_link_libraries(Heatray
   imgui
+  glfw
   glm
   assimp
   tinyxml2
@@ -21,7 +22,6 @@ target_link_libraries(Heatray
 
 if (WIN32)
   target_link_libraries(Heatray
-    glfw3dll
     glew32
     openrl
     opengl32
@@ -29,7 +29,6 @@ if (WIN32)
   add_custom_command(TARGET Heatray POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
       "${PROJECT_SOURCE_DIR}/3rdParty/glew/glew32.dll"
-      "${PROJECT_SOURCE_DIR}/3rdParty/GLFW/glfw3.dll"
       "${PROJECT_SOURCE_DIR}/3rdParty/OpenRL/OpenRL.dll"
       "${PROJECT_SOURCE_DIR}/3rdParty/OpenRL/OpenRL_pthread.dll"
       "${PROJECT_SOURCE_DIR}/3rdParty/OpenRL/CausticGLUT.dll"
@@ -47,7 +46,6 @@ if (APPLE)
   target_link_libraries(Heatray
     "-framework OpenGL"
     "-framework OpenRL"
-    glfw3
     glew
     ${QUARTZ}
     ${IOKIT}

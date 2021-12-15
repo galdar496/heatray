@@ -1,3 +1,6 @@
 [submodule "3rdParty/assimp"]
 	path = 3rdParty/assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "3rdParty/glfw"]
+	path = 3rdParty/glfw
+	url = https://github.com/glfw/glfw

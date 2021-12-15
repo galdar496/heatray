@@ -11,6 +11,7 @@ add_subdirectory(3rdParty/tinyxml2)
 # Set up include path roots.
 include_directories(
   3rdParty/assimp/include/
+  3rdParty/glfw/include/
   3rdParty/
   Source
 )
@@ -19,7 +20,6 @@ include_directories(
 link_directories(
   3rdParty/FreeImage
   3rdParty/glew
-  3rdParty/GLFW
   3rdParty/OpenRL
   3rdParty/tinyxml2
 )
@@ -40,4 +40,11 @@ function(AddAssimp)
   add_subdirectory(3rdParty/assimp)
 endfunction(AddAssimp)
 
+function(AddGLFW)
+  # Build GLFW static
+  set(BUILD_SHARED_LIBS OFF)
+  add_subdirectory(3rdParty/glfw)
+endfunction(AddGLFW)
+
 AddAssimp()
+AddGLFW()
