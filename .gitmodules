@@ -4,3 +4,6 @@
 [submodule "3rdParty/glfw"]
 	path = 3rdParty/glfw
 	url = https://github.com/glfw/glfw
+[submodule "3rdParty/tinyxml2"]
+	path = 3rdParty/tinyxml2
+	url = https://github.com/leethomason/tinyxml2

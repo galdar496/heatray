@@ -211,7 +211,7 @@ bool Session::writeSessionFile(const std::string& filename) const
         rootElement->InsertEndChild(groupNode);
     }
 
-    bool success = (file.SaveFile(filename.c_str()) == tinyxml2::XML_NO_ERROR);
+    bool success = (file.SaveFile(filename.c_str()) == tinyxml2::XML_SUCCESS);
     if (success) {
         LOG_INFO("Saved Heatray session to %s", filename.c_str());
     } else {
