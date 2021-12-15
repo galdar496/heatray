@@ -35,7 +35,7 @@ add_subdirectory(Resources)
 # Stick assimp into a CMake function so options we set don't pollute our entire project
 function(AddAssimp)
   # Build Assimp static
-  set(BUILD_SHARED_LIBS OFF)
+  set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
   SET(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
   add_subdirectory(3rdParty/assimp)
 endfunction(AddAssimp)
