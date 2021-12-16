@@ -3,6 +3,7 @@
 #include "MeshProvider.h"
 
 #include <HeatrayRenderer/Materials/Material.h>
+#include <HeatrayRenderer/Materials/PhysicallyBasedMaterial.h>
 
 #include <RLWrapper/Buffer.h>
 #include <RLWrapper/Primitive.h>
@@ -88,6 +89,16 @@ Mesh::Mesh(MeshProvider* meshProvider,
         } else {
             rlFrontFace(RL_CCW);
         }
+
+        // If this material is setup to do alpha masking (and is a PBR material), then tell RL that this is not an occluder so that
+        // occlusion rays will still run the shader code.
+        if (material->type() == Material::Type::PBR) {
+            std::shared_ptr<PhysicallyBasedMaterial> pbrMaterial = std::static_pointer_cast<PhysicallyBasedMaterial>(material);
+            if (pbrMaterial->parameters().alphaMask) {
+                rlPrimitiveParameter1i(RL_PRIMITIVE, RL_PRIMITIVE_IS_OCCLUDER, RL_FALSE);
+            }
+        }
+
         material->program()->setMatrix4fv(worldFromEntityLocation, &(rlSubmesh.transform[0][0]));
 
         for (int jj = 0; jj < submesh.vertexAttributeCount; ++jj) {

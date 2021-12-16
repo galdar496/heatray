@@ -5,6 +5,7 @@
 //  Shared ray attributes for all materials.
 //
 
-rayattribute vec3 weight;
-rayattribute int sequenceID;
-rayattribute int sequenceIndexOffset;
+rayattribute vec3 weight;              // Final accumulated value into the framebuffer.
+rayattribute int sequenceID;           // Which sequence should this ray be using.
+rayattribute int sequenceIndexOffset;  // The offset into the sequence for this ray.
+rayattribute float extraT;             // In the case of alpha masking, we may re-emit rays that have impacted a masking surface. In that case, this value contains the extra distance the ray has traveled to a light.

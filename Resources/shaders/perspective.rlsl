@@ -83,6 +83,7 @@ void main()
         rl_OutRay.weight              = vec3(1.0);
         rl_OutRay.sequenceID          = sequenceID;
         rl_OutRay.sequenceIndexOffset = sequenceIndex;
+        rl_OutRay.extraT              = 0.0;
     emitRay();
 }
 

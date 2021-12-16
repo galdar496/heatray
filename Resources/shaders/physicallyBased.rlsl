@@ -54,6 +54,42 @@ void setup()
 
 void main()
 {
+    vec3 baseColor = Material.baseColor;
+    float alpha = 1.0;
+#if defined(HAS_BASE_COLOR_TEXTURE)
+    {
+        vec4 baseColorSample = texture2D(Material.baseColorTexture, texCoord);
+        baseColor *= baseColorSample.rgb;
+        alpha = baseColorSample.a;
+    }
+#endif //  defined(HAS_BASE_COLOR_TEXTURE)
+#if defined(VERTEX_COLORS)
+    baseColor *= vertexColor;
+#endif // defined(VERTEX_COLORS)
+
+#if defined(ALPHA_MASK)
+    // Make sure that this ray should actually be shaded. If not then we have two options:
+    // 1) this is a normal ray and should just be re-emitted.
+    // 2) this is an occlusion ray and we need to modify the maxT on the way to the light
+    //    or do nothing as this ray should be shadowed.
+    if (alpha < 1.0) {
+        createRay();
+            if (rl_InRay.occlusionTest) {
+                // This is a shadow ray - we must update the maxT as this intersection
+                // should not "get in the way" towards the light.
+                rl_OutRay.maxT = rl_InRay.maxT - rl_IntersectionT;
+                // We also add the currently traveled distance to 'extraT'. The lighting
+                // shaders will utilize this to determine the true distance the ray has
+                // traveled.
+                rl_OutRay.extraT += rl_IntersectionT;
+            }
+        emitRay();
+        return;
+    } else if (rl_InRay.occlusionTest) {
+        return; // this was a shadow ray.
+    }
+#endif // defined(ALPHA_MASK)
+
     vec3 N = normalize(normal);
 
 #if defined(DOUBLE_SIDED)
@@ -92,14 +128,6 @@ void main()
     mat3 frame = orthonormalFrame(N);
     vec3 V = -rl_InRay.direction;
     float NdotV = saturate(dot(N, V));
-
-    vec3 baseColor = Material.baseColor;
-#if defined(HAS_BASE_COLOR_TEXTURE)
-    baseColor *= texture2D(Material.baseColorTexture, texCoord).rgb;
-#endif //  defined(HAS_BASE_COLOR_TEXTURE)
-#if defined(VERTEX_COLORS)
-    baseColor *= vertexColor;
-#endif // defined(VERTEX_COLORS)
 
     float metallic = Material.metallic;
     float roughness = Material.roughness;

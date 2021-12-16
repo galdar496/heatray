@@ -71,6 +71,7 @@ void indirectSpecularGlassSample(vec3 N, vec3 I, float NdotI, vec3 weight, vec3 
                 rl_OutRay.weight            = reflectance;
                 rl_OutRay.occlusionTest     = (rayMissPrimitive == rl_NullPrimitive) ? false : true;
                 rl_OutRay.defaultPrimitive  = rayMissPrimitive;
+                rl_OutRay.extraT            = 0.0;
             emitRay();
         }
     }
@@ -114,6 +115,7 @@ void directSpecularGlassSample(vec3 N, vec3 I, float NdotI, vec3 weight, vec3 ba
                     rl_OutRay.weight            = reflectance;
                     rl_OutRay.occlusionTest     = true;
                     rl_OutRay.defaultPrimitive  = lightPrimitive;
+                    rl_OutRay.extraT            = 0.0;
                     if ((lightType == LIGHT_TYPE_POINT) ||
                         (lightType == LIGHT_TYPE_SPOT)) {
                         rl_OutRay.maxT = lightMaxDistance;
@@ -248,6 +250,7 @@ void main()
                 rl_OutRay.direction = O;
                 rl_OutRay.weight = transmission;
                 rl_OutRay.occlusionTest = false;
+                rl_OutRay.extraT = 0.0;
                 rl_OutRay.defaultPrimitive = EnvironmentLight.lightPrimitive;
             emitRay();
         }

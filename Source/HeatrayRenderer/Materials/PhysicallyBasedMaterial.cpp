@@ -88,6 +88,9 @@ void PhysicallyBasedMaterial::build()
         if (m_params.doubleSided) {
             shaderPrefix << "#define DOUBLE_SIDED\n";
         }
+        if (m_params.alphaMask) {
+            shaderPrefix << "#define ALPHA_MASK\n";
+        }
 
         // Base Material parameters.
         {

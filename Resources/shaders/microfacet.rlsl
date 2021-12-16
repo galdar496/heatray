@@ -45,6 +45,7 @@ void indirectDiffuseSample(vec3 N, vec3 Cdiff, float sampleProbability, float op
                 rl_OutRay.weight            = reflectance;
                 rl_OutRay.occlusionTest     = (rayMissPrimitive == rl_NullPrimitive) ? false : true;
                 rl_OutRay.defaultPrimitive  = rayMissPrimitive;
+                rl_OutRay.extraT            = 0.0;
             emitRay();
         }
     }
@@ -81,6 +82,7 @@ void directDiffuseSample(vec3 N, vec3 Cdiff, float sampleProbability, float ligh
                     rl_OutRay.weight            = reflectance;
                     rl_OutRay.occlusionTest     = true;
                     rl_OutRay.defaultPrimitive  = lightPrimitive;
+                    rl_OutRay.extraT            = 0.0;
                     if ((lightType == LIGHT_TYPE_POINT) ||
                         (lightType == LIGHT_TYPE_SPOT)) {
                         rl_OutRay.maxT = lightMaxDistance;
@@ -144,6 +146,7 @@ void indirectSpecularSample(vec3 N,
                 rl_OutRay.weight            = reflectance;
                 rl_OutRay.occlusionTest     = (rayMissPrimitive == rl_NullPrimitive) ? false : true;
                 rl_OutRay.defaultPrimitive  = rayMissPrimitive;
+                rl_OutRay.extraT            = 0.0;
             emitRay();
         }
     }
@@ -201,6 +204,7 @@ void directSpecularSample(vec3 N,
                     rl_OutRay.weight            = reflectance;
                     rl_OutRay.occlusionTest     = true;
                     rl_OutRay.defaultPrimitive  = lightPrimitive;
+                    rl_OutRay.extraT            = 0.0;
                     if ((lightType == LIGHT_TYPE_POINT) ||
                         (lightType == LIGHT_TYPE_SPOT)) {
                         rl_OutRay.maxT = lightMaxDistance;

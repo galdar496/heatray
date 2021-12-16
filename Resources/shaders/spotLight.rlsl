@@ -23,7 +23,7 @@ void main()
     float rayAngle = dot(-rl_InRay.direction, SpotLights.directions[lightIndex]);
     if (rayAngle >= 0.0) {
         // Perform a square falloff for the light intensity.
-        float attenuation = 1.0 / square(rl_IntersectionT);
+        float attenuation = 1.0 / square(rl_IntersectionT + rl_InRay.extraT);
 
         // Lookup the color for this particular light.
         vec3 result = rl_InRay.weight * SpotLights.colors[lightIndex] * attenuation;

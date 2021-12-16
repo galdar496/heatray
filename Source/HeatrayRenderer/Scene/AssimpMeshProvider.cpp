@@ -393,6 +393,15 @@ void AssimpMeshProvider::ProcessMaterial(aiMaterial const * material)
     params.baseColor = { 1.0f, 1.0f, 1.0f };
     params.specularF0 = 0.5f;
 
+    // Check to see if this material wants to perform alpha masking.
+    {
+        aiString mode;
+        material->Get(AI_MATKEY_GLTF_ALPHAMODE, mode);
+        if (strcmp(mode.C_Str(), "MASK") == 0) {
+            params.alphaMask = true;
+        }
+    }
+
     aiColor3D color;
     if (material->Get(AI_MATKEY_BASE_COLOR, color) == aiReturn_SUCCESS) {
         params.baseColor = glm::vec3(color.r, color.g, color.b);

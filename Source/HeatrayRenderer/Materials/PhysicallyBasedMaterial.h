@@ -35,6 +35,7 @@ public:
         float clearCoat = 0.0f;                     // [0-1] Controls the clear coat scaling power. 
         float clearCoatRoughness = 0.0f;            // [0-1] such that 0 == completely smooth and 1 == completely rough.
         bool doubleSided = true;                    // If true, shading will happen on both sides of any polygon by flipping the normal.
+        bool alphaMask = false;                     // If true, perform an alpha masking test on any rays that hit this material.
 
         bool forceEnableAllTextures = false;        // If true, all shader texture options are enabled even if no texture is present.
     };
