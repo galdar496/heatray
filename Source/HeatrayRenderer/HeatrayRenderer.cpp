@@ -29,6 +29,7 @@
 #include <FreeImage/FreeImage.h>
 
 #include <assert.h>
+#include <fstream>
 
 bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
 {
@@ -1461,6 +1462,23 @@ bool HeatrayRenderer::renderUI()
         ImGui::SameLine();
         if (ImGui::Button("Clear")) {
             std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->clear();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Write To Disk")) {
+            std::vector<std::string> names = util::SaveFileDialog("txt");
+                if (!names.empty()) {
+                    std::ofstream fout;
+                    fout.open(names[0]);
+                    if (fout) {
+                        fout << "INFO:" << std::endl;
+                        fout << std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->textBuffer(util::Log::Type::kInfo).c_str() << std::endl;
+                        fout << "WARNINGS:" << std::endl;
+                        fout << std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->textBuffer(util::Log::Type::kWarning).c_str() << std::endl;
+                        fout << "ERRORS:" << std::endl;
+                        fout << std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->textBuffer(util::Log::Type::kError).c_str() << std::endl;
+                        fout.close();
+                    }
+                }
         }
         ImGui::Separator();
         ImGui::BeginChild("Info Console Log", ImVec2(0.0f, -1.0f), false, ImGuiWindowFlags_AlwaysHorizontalScrollbar);
