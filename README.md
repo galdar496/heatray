@@ -31,12 +31,21 @@ Heatray is a C++ path tracer utilizing [OpenRL](https://en.wikipedia.org/wiki/Op
 * Materials:
     * Physically-based
        * Roughness/Metallic
+       * SpecularF0
        * Clearcoat
+          * Roughness
+          * Normalmapping
        * Multiscattering
        * Vertex colors
        * Normalmapping
        * Emission
+       * Double sided
+       * Alpha masking
     * Glass
+       * Transmission color
+       * Roughness
+       * IOR
+       * Absorbtion
        * Vertex colors
        * Normalmapping
 ## Theory
