@@ -53,9 +53,8 @@ public:
 	void removeMesh(size_t meshIndex) { m_meshes.erase(m_meshes.begin() + meshIndex); }
 
 	//-------------------------------------------------------------------------
-	// Apply rotations to the scene that will affect all objects (including lights).
-	// Values are in radians.
-	void applyRotation(const float yaw, const float pitch, const float roll);
+	// Apply a transform to the scene that will affect all mesh objects.
+    void applyTransform(const glm::mat4 &transform);
 
 	void clearMeshesAndMaterials() { m_meshes.clear(); }
 	void clearLighting() { m_lighting->clear(); }

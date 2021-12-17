@@ -311,6 +311,8 @@ private:
 
     bool renderMaterialEditor(std::shared_ptr<Material> material);
     bool renderLightEditor(std::shared_ptr<Light> light);
+    
+    void updateCameraFromAABB();
 
     bool m_debugPassChanged = false;
 
@@ -319,9 +321,10 @@ private:
         bool lightSelected = false;
     } m_editors;
 
-    struct SceneRotation {
+    struct SceneTransform {
         float yaw = 0.0f;
         float pitch = 0.0f;
         float roll = 0.0f;
-    } m_sceneRotation;
+        float scale = 1.0f;
+    } m_sceneTransform;
 };

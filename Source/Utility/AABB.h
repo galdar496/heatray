@@ -31,16 +31,27 @@ struct AABB {
     }
 
     glm::vec3 center() const {
-        return (min + max) * 0.5f;
+        glm::vec3 transformedMin = transform * glm::vec4(min, 1.0f);
+        glm::vec3 transformedMax = transform * glm::vec4(max, 1.0f);
+        return (transformedMin + transformedMax) * 0.5f;
     }
 
     float radius() const {
-        return glm::length(max - min);
+        glm::vec3 transformedMin = transform * glm::vec4(min, 1.0f);
+        glm::vec3 transformedMax = transform * glm::vec4(max, 1.0f);
+        return glm::length(transformedMax - transformedMin);
+    }
+    
+    float bottom() const {
+        glm::vec3 transformedMin = transform * glm::vec4(min, 1.0f);
+        return transformedMin.y;
     }
 
     // Corners of the box.
     glm::vec3 min = glm::vec3(0.0f);
     glm::vec3 max = glm::vec3(0.0f);
+    
+    glm::mat4 transform = glm::mat4(1.0f);
 };
 
 } // namespace util.

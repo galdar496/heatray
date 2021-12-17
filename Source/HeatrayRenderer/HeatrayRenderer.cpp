@@ -25,6 +25,7 @@
 
 #include <glm/glm/gtc/matrix_transform.hpp>
 #include <glm/glm/gtc/constants.hpp>
+#include <glm/glm/gtx/euler_angles.hpp>
 #include "imgui/imgui.h"
 #include <FreeImage/FreeImage.h>
 
@@ -291,17 +292,22 @@ void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveC
             // We'll automatically setup camera and AABB info if requested to do so.
             if (moveCamera) {
                 m_sceneAABB = scene->aabb();
-                m_camera.orbitCamera.target = m_sceneAABB.center();
-                m_camera.orbitCamera.distance = m_sceneAABB.radius() * 3.0f; // Add some extra scale.
-                m_camera.orbitCamera.max_distance = m_sceneAABB.radius() * 10.0f;
-
-                m_distanceScale = m_sceneAABB.radius();
-
-                m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
-                resetRenderer(); // We must reset here in order to move the camera.
+                updateCameraFromAABB();
             }
         });
     }
+}
+
+void HeatrayRenderer::updateCameraFromAABB()
+{
+    m_camera.orbitCamera.target = m_sceneAABB.center();
+    m_camera.orbitCamera.distance = m_sceneAABB.radius() * 3.0f; // Add some extra scale.
+    m_camera.orbitCamera.max_distance = m_sceneAABB.radius() * 10.0f;
+
+    m_distanceScale = m_sceneAABB.radius();
+
+    m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
+    resetRenderer(); // We must reset here in order to move the camera.
 }
 
 void HeatrayRenderer::changeEnvironment(std::string const& envMapPath)
@@ -545,9 +551,10 @@ void HeatrayRenderer::writeSessionFile(const std::string& filename)
         session.setVariableValue(Session::SessionVariable::kAABB_MaxX, m_sceneAABB.max.x);
         session.setVariableValue(Session::SessionVariable::kAABB_MaxY, m_sceneAABB.max.y);
         session.setVariableValue(Session::SessionVariable::kAABB_MaxZ, m_sceneAABB.max.z);
-        session.setVariableValue(Session::SessionVariable::kRotationYaw, m_sceneRotation.yaw);
-        session.setVariableValue(Session::SessionVariable::kRotationPitch, m_sceneRotation.pitch);
-        session.setVariableValue(Session::SessionVariable::kRotationRoll, m_sceneRotation.roll);
+        session.setVariableValue(Session::SessionVariable::kRotationYaw, m_sceneTransform.yaw);
+        session.setVariableValue(Session::SessionVariable::kRotationPitch, m_sceneTransform.pitch);
+        session.setVariableValue(Session::SessionVariable::kRotationRoll, m_sceneTransform.roll);
+        session.setVariableValue(Session::SessionVariable::kScale, m_sceneTransform.scale);
     }
 
     // Post processing.
@@ -628,9 +635,10 @@ void HeatrayRenderer::readSessionFile(const std::string& filename)
             session.getVariableValue(Session::SessionVariable::kAABB_MaxX, m_sceneAABB.max.x);
             session.getVariableValue(Session::SessionVariable::kAABB_MaxY, m_sceneAABB.max.y);
             session.getVariableValue(Session::SessionVariable::kAABB_MaxZ, m_sceneAABB.max.z);
-            session.getVariableValue(Session::SessionVariable::kRotationYaw, m_sceneRotation.yaw);
-            session.getVariableValue(Session::SessionVariable::kRotationPitch, m_sceneRotation.pitch);
-            session.getVariableValue(Session::SessionVariable::kRotationRoll, m_sceneRotation.roll);
+            session.getVariableValue(Session::SessionVariable::kRotationYaw, m_sceneTransform.yaw);
+            session.getVariableValue(Session::SessionVariable::kRotationPitch, m_sceneTransform.pitch);
+            session.getVariableValue(Session::SessionVariable::kRotationRoll, m_sceneTransform.roll);
+            session.getVariableValue(Session::SessionVariable::kScale, m_sceneTransform.scale);
         }
 
         // Post processing.
@@ -1100,19 +1108,23 @@ bool HeatrayRenderer::renderUI()
         // Scene rotations.
         {
             ImGui::Separator();
-            ImGui::Text("Scene Rotation");
-            bool rotationChanged = false;
-            rotationChanged |= ImGui::SliderAngle("Yaw", &m_sceneRotation.yaw, 0.0f, 360.0f);
-            rotationChanged |= ImGui::SliderAngle("Pitch", &m_sceneRotation.pitch, 0.0f, 360.0f);
-            rotationChanged |= ImGui::SliderAngle("Roll", &m_sceneRotation.roll, 0.0f, 360.0f);
+            ImGui::Text("Scene Transform");
+            bool transformChanged = false;
+            transformChanged |= ImGui::SliderAngle("Yaw", &m_sceneTransform.yaw, 0.0f, 360.0f);
+            transformChanged |= ImGui::SliderAngle("Pitch", &m_sceneTransform.pitch, 0.0f, 360.0f);
+            transformChanged |= ImGui::SliderAngle("Roll", &m_sceneTransform.roll, 0.0f, 360.0f);
+            transformChanged |= ImGui::InputFloat("Scale", &m_sceneTransform.scale);
             ImGui::Separator();
 
-            if (rotationChanged) {
-                float yaw = m_sceneRotation.yaw;
-                float pitch = m_sceneRotation.pitch;
-                float roll = m_sceneRotation.roll;
-                m_renderer.rotateScene([yaw, pitch, roll](std::shared_ptr<Scene> scene) {
-                    scene->applyRotation(yaw, pitch, roll);
+            if (transformChanged) {
+                glm::mat4 transform = glm::scale(glm::mat4(1.0f), glm::vec3(m_sceneTransform.scale)) *
+                                      glm::yawPitchRoll(m_sceneTransform.yaw, m_sceneTransform.pitch, m_sceneTransform.roll);
+                m_renderer.modifyScene([this, transform](std::shared_ptr<Scene> scene) {
+                    scene->applyTransform(transform);
+                    
+                    // Also transform the scene AABB and be sure to update it.
+                    m_sceneAABB.transform = transform;
+                    updateCameraFromAABB();
                 });
 
                 shouldResetRenderer = true;
@@ -1130,11 +1142,10 @@ bool HeatrayRenderer::renderUI()
                 currentlySelectedMaterial.reset();
                 currentlySelectedMaterialName = NONE;
             }
-            m_renderer.loadScene([this, deleteGroundPlane](std::shared_ptr<Scene> scene) {
+            m_renderer.modifyScene([this, deleteGroundPlane](std::shared_ptr<Scene> scene) {
                 if (deleteGroundPlane) {
                     scene->removeMesh(m_groundPlane.meshIndex);
-                }
-                else {
+                } else {
                     size_t planeSize = std::max(size_t(1), size_t(m_sceneAABB.radius())) * 5;
                     PlaneMeshProvider planeMeshProvider(planeSize, planeSize, "Ground Plane");
 
@@ -1145,13 +1156,13 @@ bool HeatrayRenderer::renderUI()
                     params.baseColor = glm::vec3(0.9f);
                     params.specularF0 = 0.2f;
                     params.forceEnableAllTextures = true;
-                    glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_sceneAABB.min.y, 0.0f));
+                    glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_sceneAABB.bottom(), 0.0f));
 
                     m_groundPlane.meshIndex = scene->addMesh(&planeMeshProvider, { material }, translation);
                 }
 
                 resetRenderer();
-            }, false);
+            });
         }
 
         static std::string currentlySelectedLightName = NONE;

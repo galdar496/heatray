@@ -58,6 +58,7 @@
     X(Scene, RotationYaw, kFloat, 0.0f)   \
     X(Scene, RotationPitch, kFloat, 0.0f) \
     X(Scene, RotationRoll, kFloat, 0.0f)  \
+    X(Scene, Scale, kFloat, 1.0f)         \
     \
     X(PostProcessing, TonemapEnable, kBool, false) \
     X(PostProcessing, Exposure, kFloat, 0.0f)      \

@@ -173,9 +173,9 @@ public:
     void changeLighting(LightingCallback callback);
 
     //-------------------------------------------------------------------------
-    // Change the scene lighting via a user-supplied callback.
-    using RotationCallback = std::function<void(std::shared_ptr<Scene> scene)>;
-    void rotateScene(RotationCallback callback);
+    // Change the scene data via a user-supplied callback.
+    using ModifySceneCallback = std::function<void(std::shared_ptr<Scene> scene)>;
+    void modifyScene(ModifySceneCallback callback);
 
     //-------------------------------------------------------------------------
     // Run a general OpenRL task. This can be useful for things that need to 
@@ -230,7 +230,7 @@ private:
         kRenderPass,
         kLoadScene,
         kChangeLighting,
-        kRotateScene,
+        kModifyScene,
         kDestroy,
         kGeneralTask
     };

@@ -152,8 +152,6 @@ Mesh::Mesh(MeshProvider* meshProvider,
             RLFunc(rlDrawElements(rlSubmesh.mode, rlSubmesh.elementCount, RL_UNSIGNED_INT, rlSubmesh.offset));
             rlSubmesh.primitive->unbind();
         }
-
-        LOG_INFO("\tDONE");
     }
 }
 
