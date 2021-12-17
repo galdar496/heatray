@@ -13,9 +13,9 @@
 #include <glm/glm/gtc/matrix_transform.hpp>
 
 Mesh::Mesh(MeshProvider* meshProvider,
-               std::vector<std::shared_ptr<Material>> &materials,
-               std::function<void(const std::shared_ptr<openrl::Program>)> &materialCreatedCallback, 
-               const glm::mat4 &transform)
+           std::vector<std::shared_ptr<Material>> &materials,
+           std::function<void(const std::shared_ptr<openrl::Program>)> &materialCreatedCallback, 
+           const glm::mat4 &transform)
 {
     m_materials = std::move(materials);
 
@@ -124,7 +124,7 @@ Mesh::Mesh(MeshProvider* meshProvider,
                     attributeLocation = material->program()->getAttributeLocation("colorAttribute");
                     break;
                 default:
-                    LOG_ERROR("Unknown vertex attribute usage %d\n", attribute.usage);
+                    LOG_ERROR("Unknown vertex attribute usage %d for submesh %s\n", attribute.usage, submesh.name.c_str());
             }
             if (attributeLocation != -1) {
                 m_vertexBuffers[attribute.buffer]->setAsVertexAttribute(attributeLocation, attribute.componentCount, RL_FLOAT, attribute.stride, attribute.offset);
@@ -139,7 +139,7 @@ Mesh::Mesh(MeshProvider* meshProvider,
                 rlSubmesh.mode = RL_TRIANGLE_STRIP;
                 break;
             default:
-                LOG_ERROR("Unsupported draw mode!\n");
+                LOG_ERROR("Unsupported draw mode for submesh %s!\n", submesh.name.c_str());
                 break;
         }
 
@@ -147,7 +147,7 @@ Mesh::Mesh(MeshProvider* meshProvider,
         rlSubmesh.offset = submesh.indexOffset;
         
         if (m_indexBuffers[submesh.indexBuffer]) {
-            LOG_INFO("\tSubmitting to OpenRL");
+            LOG_INFO("\tSubmitting %s to OpenRL", submesh.name.c_str());
             m_indexBuffers[submesh.indexBuffer]->bind();
             RLFunc(rlDrawElements(rlSubmesh.mode, rlSubmesh.elementCount, RL_UNSIGNED_INT, rlSubmesh.offset));
             rlSubmesh.primitive->unbind();

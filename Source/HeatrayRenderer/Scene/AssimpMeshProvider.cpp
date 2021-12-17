@@ -280,6 +280,7 @@ void AssimpMeshProvider::ProcessMesh(aiMesh const * mesh)
     submesh.indexBuffer = m_indexBuffers.size() - 1;
     submesh.indexOffset = 0;
     submesh.materialIndex = mesh->mMaterialIndex;
+    submesh.name = std::string(mesh->mName.C_Str());
     m_submeshes.push_back(submesh);
 }
 

@@ -164,6 +164,7 @@ public:
 
         submesh.drawMode = DrawMode::Triangles;
         submesh.localTransform = glm::mat4(1.0f); // identity.
+        submesh.name = "Sphere";
 
         return submesh;
     }

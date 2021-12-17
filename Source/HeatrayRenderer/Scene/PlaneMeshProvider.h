@@ -132,6 +132,7 @@ public:
 
         submesh.drawMode = DrawMode::TriangleStrip;
         submesh.localTransform = glm::mat4(1.0f); // identity.
+        submesh.name = "Plane";
 
         return submesh;
     }

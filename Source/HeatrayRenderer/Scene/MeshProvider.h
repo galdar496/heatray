@@ -59,6 +59,7 @@ public:
         DrawMode drawMode = DrawMode::Triangles;
         int materialIndex = -1;
         glm::mat4 localTransform = glm::mat4(1.0f);
+        std::string name;
     };
 
     explicit MeshProvider(const std::string &name) : m_name(name) {}
