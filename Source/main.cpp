@@ -98,6 +98,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
+#ifndef __APPLE__ // Only works on Windows.
     // Setup the window icon.
     {
         int width, height, channelCount = 0;
@@ -110,6 +111,7 @@ int main(int argc, char **argv)
         glfwSetWindowIcon(window, 1, &icon);
         free(pixels);
     }
+#endif // ifndef __APPLE__
 
     glfwMakeContextCurrent(window);
 
@@ -154,7 +156,7 @@ int main(int argc, char **argv)
             glfwSetWindowPos(window, ++x, y);
             windowMoved = true;
         }
-#endif
+#endif // ifdef __APPLE__
 
         // Resize.
         {
