@@ -151,27 +151,11 @@ void PassGenerator::generateSequenceOffsets(const RLint renderWidth, const RLint
 {
     // Generate the random sequence used in the frame shader when generating primary rays
     // to determine which offset into the main sequence data is used.
-    std::vector<glm::vec3> randomValues;
+    std::vector<glm::vec2> randomValues;
     randomValues.resize(renderWidth * renderHeight);
     util::sobol(randomValues.data(), (uint32_t)randomValues.size(), 0);
-
-    openrl::Texture::Descriptor desc;
-    desc.dataType       = RL_FLOAT;
-    desc.format         = RL_RGB;
-    desc.internalFormat = RL_RGB;
-    desc.width          = renderWidth;
-    desc.height         = renderHeight;
-
-    openrl::Texture::Sampler sampler;
-    sampler.minFilter   = RL_NEAREST;
-    sampler.magFilter   = RL_NEAREST;
-    sampler.wrapS       = RL_CLAMP_TO_EDGE;
-    sampler.wrapT       = RL_CLAMP_TO_EDGE;
-
-    m_sequenceOffsetsTexture = openrl::Texture::create(randomValues.data(),
-                                                       desc,
-                                                       sampler,
-                                                       false);
+    
+    m_sequenceOffsetsBuffer = openrl::Buffer::create(RL_UNIFORM_BLOCK_BUFFER, randomValues.data(), sizeof(glm::vec2) * randomValues.size());
 }
 
 bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight)
@@ -227,6 +211,11 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
             if (sequenceIndex != -1) {
                 program->setUniformBlock(sequenceIndex, m_randomSequences->buffer());
             }
+            
+            RLint sequenceMetadataIndex = program->getUniformBlockIndex("RandomSequenceMetadata");
+            if (sequenceMetadataIndex != -1) {
+                program->setUniformBlock(sequenceMetadataIndex, m_randomSequencesMetadata->buffer());
+            }
 
             RLint globalsIndex = program->getUniformBlockIndex("Globals");
             if (globalsIndex != -1) {
@@ -269,6 +258,7 @@ bool PassGenerator::runInitJob(const RLint renderWidth, const RLint renderHeight
         RLFunc(rlBindPrimitive(RL_PRIMITIVE, RL_NULL_PRIMITIVE));
         m_frameProgram->bind();
         m_frameProgram->setUniformBlock(m_frameProgram->getUniformBlockIndex("RandomSequences"), m_randomSequences->buffer());
+        m_frameProgram->setUniformBlock(m_frameProgram->getUniformBlockIndex("RandomSequenceMetadata"), m_randomSequencesMetadata->buffer());
         m_frameProgram->setUniformBlock(m_frameProgram->getUniformBlockIndex("Globals"), m_globalData->buffer());
         m_scene->lighting()->bindLightingBuffersToProgram(m_frameProgram);
     }
@@ -370,10 +360,10 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
     m_frameProgram->set2iv(m_frameProgram->getUniformLocation("blockSize"), &m_renderOptions.kInteractiveBlockSize.x);
     m_frameProgram->set2iv(m_frameProgram->getUniformLocation("currentBlockPixelSample"), &m_currentBlockPixelSample.x);
     m_frameProgram->set1i(m_frameProgram->getUniformLocation("interactiveMode"), m_renderOptions.enableInteractiveMode ? 1 : 0);
-    m_frameProgram->setTexture(m_frameProgram->getUniformLocation("apertureSamplesTexture"), m_apertureSamplesTexture);
+    m_frameProgram->setUniformBlock(m_frameProgram->getUniformBlockIndex("ApertureSamples"), m_apertureSamplesBuffer->buffer());
     m_frameProgram->setTexture(m_frameProgram->getUniformLocation("interactiveBlockSamplesTexture"), m_interactiveBlockCoordsTexture);
     m_frameProgram->set1f(m_frameProgram->getUniformLocation("maxSampleIndex"), float(m_renderOptions.maxRenderPasses));
-    m_frameProgram->setTexture(m_frameProgram->getUniformLocation("sequenceOffsetsTexture"), m_sequenceOffsetsTexture);
+    m_frameProgram->setUniformBlock(m_frameProgram->getUniformBlockIndex("SequenceOffsets"), m_sequenceOffsetsBuffer->buffer());
 
     // In interactive mode, we now move to the next pixel sample within a block of pixels.
     if (m_renderOptions.enableInteractiveMode) {
@@ -415,12 +405,12 @@ void PassGenerator::runDestroyJob()
     m_fboTexture.reset();
     m_globalData.reset();
     m_randomSequences.reset();
-    m_randomSequenceTexture.reset();
-    m_apertureSamplesTexture.reset();
+    m_randomSequencesMetadata.reset();
+    m_apertureSamplesBuffer.reset();
     m_environmentLight.reset();
     m_frameProgram.reset();
     m_interactiveBlockCoordsTexture.reset();
-    m_sequenceOffsetsTexture.reset();
+    m_sequenceOffsetsBuffer.reset();
 
     m_scene.reset();
 
@@ -601,42 +591,19 @@ void PassGenerator::changeEnvironment(const RenderOptions::Environment &newEnv)
 void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptions::SampleMode sampleMode, RenderOptions::BokehShape bokehShape)
 {
     struct SequenceBlockData {
-        RLtexture randomNumbers = RL_NULL_TEXTURE; // The actual sequence data stored in a 2D texture.
-        RLfloat uvStep = 0.0f;  // The step to move forward to access the next sample (in UV space).
-        RLfloat uvSequenceStep = 0.0f; // The step to move forward to access the next sequence (in UV space).
+        //RLtexture randomNumbers = RL_NULL_TEXTURE; // The actual sequence data stored in a 2D texture.
+        glm::vec2 randomNumbers[1];
+    };
+    struct SequenceMetadata {
+        int numSequences = 0;
+        int sequenceLength = 0;
     };
 
-    // If we already have previous sequence data, get rid of it.
-    // Note that we don't delete the buffer however in order to keep all shader bindings valid.
-    if (m_randomSequences && m_randomSequences->valid()) {
-        m_randomSequenceTexture.reset();
-    }
-    else {
-        // This is the first time this function is being called.
-        SequenceBlockData dummyData;
-        m_randomSequences = openrl::Buffer::create(RL_UNIFORM_BLOCK_BUFFER, &dummyData, sizeof(SequenceBlockData), "Random sequences uniform block");
-    }
-
-    // Note that each sequence is a 1D texture of values. Since OpenRL doesn't support 1D textures,
-    // we make a 2D texture with a height of 1.
-    openrl::Texture::Descriptor desc;
-    desc.dataType       = RL_FLOAT;
-    desc.format         = RL_RGB;
-    desc.internalFormat = RL_RGB;
-    desc.width          = sampleCount;
-    desc.height         = kNumRandomSequences;
-
-    openrl::Texture::Sampler sampler;
-    sampler.minFilter = RL_NEAREST;
-    sampler.magFilter = RL_NEAREST;
-    sampler.wrapS     = RL_REPEAT;
-    sampler.wrapT     = RL_REPEAT;
-
-    std::vector<glm::vec3> values(kNumRandomSequences * sampleCount);
+    std::vector<glm::vec2> values(kNumRandomSequences * sampleCount);
     for (unsigned int iSequence = 0; iSequence < kNumRandomSequences; ++iSequence) {
         switch (sampleMode) {
             case RenderOptions::SampleMode::kRandom:
-                util::uniformRandomFloats<glm::vec3>(&values[iSequence * sampleCount], sampleCount, iSequence, 0.0f, 1.0f);
+                util::uniformRandomFloats<glm::vec2>(&values[iSequence * sampleCount], sampleCount, iSequence, 0.0f, 1.0f);
                 break;
             case RenderOptions::SampleMode::kHalton:
                 util::halton(&values[iSequence * sampleCount], sampleCount, iSequence);
@@ -655,23 +622,28 @@ void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptio
         }
     }
 
-    // Load the data into a 2D texture and associate it with the overall sequence data.
-    // The sequence data will be stored in a 2D texture that has the following layout:
-    //      width  - number of samples in the sequence
-    //      height -kNumRandomSequences -- therefore each row is a unique set of sequence data.
-    m_randomSequenceTexture = openrl::Texture::create(&values[0], desc, sampler, false);
-
-    m_randomSequences->bind();
-    SequenceBlockData* sequences = m_randomSequences->mapBuffer<SequenceBlockData>(RL_WRITE_ONLY);
-    sequences->randomNumbers = m_randomSequenceTexture->texture();
-    sequences->uvStep = 1.0f / static_cast<RLfloat>(sampleCount);
-    sequences->uvSequenceStep = 1.0f / static_cast<RLfloat>(kNumRandomSequences);
-    m_randomSequences->unmapBuffer();
-    m_randomSequences->unbind();
+    size_t totalNumberOfSamples = kNumRandomSequences * sampleCount;
+    
+    if (!m_randomSequences) {
+        m_randomSequences = openrl::Buffer::create(RL_UNIFORM_BLOCK_BUFFER, values.data(), sizeof(SequenceBlockData) * totalNumberOfSamples, "Random sequences uniform block");
+        
+        SequenceMetadata metadata;
+        metadata.sequenceLength = sampleCount;
+        metadata.numSequences = kNumRandomSequences;
+        m_randomSequencesMetadata = openrl::Buffer::create(RL_UNIFORM_BLOCK_BUFFER, &metadata, sizeof(SequenceMetadata));
+    } else {
+        m_randomSequences->modify(values.data(), sizeof(SequenceBlockData) * totalNumberOfSamples);
+        
+        m_randomSequencesMetadata->bind();
+        SequenceMetadata *metadata = m_randomSequencesMetadata->mapBuffer<SequenceMetadata>(RL_WRITE_ONLY);
+        metadata->sequenceLength = sampleCount;
+        m_randomSequencesMetadata->unmapBuffer();
+        m_randomSequencesMetadata->unbind();
+    }
 
     // Now generate the data random sequence data for aperture sampling for depth of field.
     {
-        std::vector<glm::vec3> values(kNumRandomSequences * sampleCount);
+        std::vector<glm::vec2> values(kNumRandomSequences * sampleCount);
         for (unsigned int iSequence = 0; iSequence < kNumRandomSequences; ++iSequence) {
             switch (bokehShape) {
                 case PassGenerator::RenderOptions::BokehShape::kCircular:
@@ -691,7 +663,11 @@ void PassGenerator::generateRandomSequences(const RLint sampleCount, RenderOptio
             }
         }
 
-        m_apertureSamplesTexture = openrl::Texture::create(&values[0], desc, sampler, false);
+        if (!m_apertureSamplesBuffer) {
+            m_apertureSamplesBuffer = openrl::Buffer::create(RL_UNIFORM_BLOCK_BUFFER, values.data(), sizeof(glm::vec2) * totalNumberOfSamples);
+        } else {
+            m_apertureSamplesBuffer->modify(values.data(), sizeof(glm::vec2) * totalNumberOfSamples);
+        }
     }
  }
 

@@ -255,9 +255,9 @@ private:
     glm::ivec2 m_currentBlockPixelSample = glm::ivec2(0, 0);
 
     std::shared_ptr<openrl::Buffer>  m_randomSequences = nullptr;
-    std::shared_ptr<openrl::Texture> m_randomSequenceTexture = nullptr;   // Series of random sequences stored in a 2D texture. Each row of the texture is a different sequence.
-    std::shared_ptr<openrl::Texture> m_apertureSamplesTexture = nullptr;  // Randomly generated values to use while sampling the aperture for depth of field.
-    std::shared_ptr<openrl::Texture> m_sequenceOffsetsTexture = nullptr;  // Randomly generated values to use while determining which sample to start a camera ray with.
+    std::shared_ptr<openrl::Buffer>  m_randomSequencesMetadata = nullptr;
+    std::shared_ptr<openrl::Buffer>  m_apertureSamplesBuffer = nullptr; // Randomly generated values to use while sampling the aperture for depth of field.
+    std::shared_ptr<openrl::Buffer>  m_sequenceOffsetsBuffer = nullptr; // Randomly generated values to use while determining which sample to start a camera ray with.
 
     //-------------------------------------------------------------------------
     // Global data shared by all OpenRL shaders.

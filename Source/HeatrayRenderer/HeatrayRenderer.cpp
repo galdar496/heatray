@@ -473,7 +473,7 @@ void HeatrayRenderer::generateSequenceVisualizationData(int sequenceIndex, int r
         switch (m_renderOptions.sampleMode) {
             // Random and hammerlsey have no index to use.
             case PassGenerator::RenderOptions::SampleMode::kRandom:
-                util::uniformRandomFloats<glm::vec3>(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex, 0.0f, 1.0f);
+                util::uniformRandomFloats<glm::vec2>(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex, 0.0f, 1.0f);
                 break;
             case PassGenerator::RenderOptions::SampleMode::kHalton:
                 util::halton(&m_sequenceVisualizationData[0], renderPasses, sequenceIndex);
@@ -1542,7 +1542,7 @@ bool HeatrayRenderer::renderUI()
         ImVec2 start = ImVec2(topLeft.x, bottomRight.y);
         ImVec2 end = ImVec2(bottomRight.x, topLeft.y);
         ImVec2 diff = ImVec2(end.x - start.x, end.y - start.y);
-        for (glm::vec3& v : m_sequenceVisualizationData) {
+        for (glm::vec2& v : m_sequenceVisualizationData) {
             ImVec2 point = ImVec2(start.x + diff.x * v.x, start.y + diff.y * v.y);
             ImGui::GetWindowDrawList()->AddCircle(point, 6.0f, IM_COL32(255, 255, 255, 255));
         }

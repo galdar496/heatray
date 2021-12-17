@@ -40,7 +40,7 @@ public:
     }
 
     //-------------------------------------------------------------------------
-    // Modify the buffer contents. The new contents MUST be the same size as the previous ones.
+    // Modify the buffer contents.
     void modify(const void* data, size_t sizeInBytes) {
         assert(valid());
 

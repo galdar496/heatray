@@ -82,7 +82,7 @@ inline uint32_t nestedUniformScramble(uint32_t x, uint32_t seed)
 using SequenceGenerator = std::function<glm::vec2(uint32_t sampleIndex, uint32_t arrayIndex)>;
 
 // Adapted from http://www.jcgt.org/published/0009/04/01/paper.pdf
-inline void owenScrambleSequence(glm::vec3* results, const uint32_t count, const uint32_t sequenceIndex, const SequenceGenerator generator)
+inline void owenScrambleSequence(glm::vec2* results, const uint32_t count, const uint32_t sequenceIndex, const SequenceGenerator generator)
 {
     enum Dimension {
         ZERO = 0,
@@ -131,7 +131,7 @@ inline void uniformRandomFloats(T* results, const size_t count, unsigned int see
 
 //-------------------------------------------------------------------------
 // Generate a low-discrepancy sequence using Hammersley.
-inline void hammersley(glm::vec3* results, const unsigned int count, const int sequenceIndex)
+inline void hammersley(glm::vec2* results, const unsigned int count, const int sequenceIndex)
 {
     assert(results);
     auto radicalInverse = [](uint32_t bits) {
@@ -155,18 +155,18 @@ inline void hammersley(glm::vec3* results, const unsigned int count, const int s
 
 //-------------------------------------------------------------------------
 // Generate a low-discrepancy sequence using Blue Noise.
-inline void blueNoise(glm::vec3* results, const unsigned int count, const int sequenceIndex)
+inline void blueNoise(glm::vec2* results, const unsigned int count, const int sequenceIndex)
 {
     LowDiscrepancyBlueNoiseGenerator generator(sequenceIndex);
     generator.GeneratePoints(count);
     for (unsigned int i = 0; i < count; ++i) {
-        results[i] = glm::vec3(generator.GetPoints()[i], 0);
+        results[i] = glm::vec2(generator.GetPoints()[i]);
     }
 }
 
 //-------------------------------------------------------------------------
 // Generate a low-discrepancy sequence using Halton.
-inline void halton(glm::vec3* results, const unsigned int count, const int sequenceIndex)
+inline void halton(glm::vec2* results, const unsigned int count, const int sequenceIndex)
 {
     assert(results);
     glm::ivec2 coprimes[] = {
@@ -218,7 +218,7 @@ inline void halton(glm::vec3* results, const unsigned int count, const int seque
 
 //-------------------------------------------------------------------------
 // Generate a low-discrepancy sequence using Sobol.
-inline void sobol(glm::vec3* results, const uint32_t count, const uint32_t sequenceIndex)
+inline void sobol(glm::vec2 *results, const uint32_t count, const uint32_t sequenceIndex)
 {
     assert(results);
 
@@ -265,7 +265,7 @@ inline void sobol(glm::vec3* results, const uint32_t count, const uint32_t seque
  
 //-------------------------------------------------------------------------
 // Generates Sobol values on a disk such that the center is (0,0).
-inline void radialSobol(glm::vec3* results, const uint32_t count, const uint32_t sequenceIndex)
+inline void radialSobol(glm::vec2* results, const uint32_t count, const uint32_t sequenceIndex)
 {
     assert(results);
     sobol(results, count, sequenceIndex);
@@ -284,13 +284,13 @@ inline void radialSobol(glm::vec3* results, const uint32_t count, const uint32_t
         x = (x + 1.0f) * 0.5f;
         y = (y + 1.0f) * 0.5f;
 
-        results[iIndex] = glm::vec3(x, y, 0.0f);
+        results[iIndex] = glm::vec2(x, y);
     }
 }
 
 //-------------------------------------------------------------------------
 // Generates random values on an arbitrary circular polygon (e.g. a pentagram).
-inline void randomPolygonal(glm::vec3* results, const uint32_t numEdges, const uint32_t count, const uint32_t seed)
+inline void randomPolygonal(glm::vec2* results, const uint32_t numEdges, const uint32_t count, const uint32_t seed)
 {
     std::vector<glm::vec2> vertices;
     vertices.resize(numEdges + 1); // Include the center.
@@ -350,7 +350,7 @@ inline void randomPolygonal(glm::vec3* results, const uint32_t numEdges, const u
         float x = (vertex.x + 1.0f) * 0.5f;
         float y = (vertex.y + 1.0f) * 0.5f;
 
-        results[iIndex] = glm::vec3(x, y, 0.0f);
+        results[iIndex] = glm::vec2(x, y);
     }
 }
 

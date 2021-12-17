@@ -284,7 +284,7 @@ private:
 
     Camera m_camera;
     bool m_visualizeSequenceData = false;
-    std::vector<glm::vec3> m_sequenceVisualizationData;
+    std::vector<glm::vec2> m_sequenceVisualizationData;
 
     enum class SceneUnits {
         kMeters, // Heatray default.

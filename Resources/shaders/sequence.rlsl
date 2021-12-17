@@ -6,24 +6,23 @@
 //
 //
 
-// NOTE: this must stay in sync with the C code for Heatray.
-float kNumRandomSequences = 16.0;
 uniformblock RandomSequences {
-    sampler2D randomNumbers;
-    float uvStep;
-    float uvSequenceStep;
+    vec2 randomNumbers[1];
 };
 
-vec2 getSequenceUV(int sequenceIndex, int sampleIndex)
-{
-    vec2 uv = vec2(float(sampleIndex) * RandomSequences.uvStep, float(sequenceIndex) * RandomSequences.uvSequenceStep);
-    return uv;
-}
+uniformblock RandomSequenceMetadata {
+    int numSequences;
+    int sequenceLength;
+};
 
 vec2 getSequenceValue(int sequenceIndex, int sampleIndex)
 {
-    int index = sequenceIndex % int(kNumRandomSequences); 
-    vec2 uv = getSequenceUV(index, sampleIndex);
-    vec2 value = texture2D(RandomSequences.randomNumbers, uv).xy;
+    // Sequence data is ordered linearly in memory where each sequence index
+    // follows each other. Therefore, accessing a particular sequence value
+    // means first finding the right chunk of data based on the sequenceIndex and
+    // then offsetting from there based on the sample index requested.
+    int wrappedSequenceIndex = sequenceIndex % RandomSequenceMetadata.numSequences;
+    int wrappedSequenceValue = sampleIndex % RandomSequenceMetadata.sequenceLength;
+    vec2 value = RandomSequences.randomNumbers[wrappedSequenceIndex * RandomSequenceMetadata.sequenceLength + wrappedSequenceValue];
     return value;
 }

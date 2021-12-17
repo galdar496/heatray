@@ -7,7 +7,6 @@
 //
 
 #include "rayAttributes.rlsl"
-
 #include "globalData.rlsl"
 #include "lightDefines.rlsl"
 #include "sequence.rlsl"
@@ -21,10 +20,16 @@ uniform mat4 viewMatrix;
 uniform ivec2 blockSize;
 uniform ivec2 currentBlockPixelSample;
 uniform int interactiveMode;
-uniform sampler2D apertureSamplesTexture;
 uniform sampler2D interactiveBlockSamplesTexture;
 uniform float maxSampleIndex;
-uniform sampler2D sequenceOffsetsTexture;
+
+uniformblock ApertureSamples {
+    vec2 samples[1];
+};
+
+uniformblock SequenceOffsets {
+    vec2 offsets[1];
+};
 
 void setup()
 {
@@ -54,9 +59,9 @@ void main()
     // This pixel is being sampled, increment its sample count.
     accumulate(vec4(0.0, 0.0, 0.0, 1.0));
 
-    int sequenceID = int(floor(random(rl_FrameCoord.xy / rl_FrameSize.xy) * kNumRandomSequences));
+    int sequenceID = int(floor(random(rl_FrameCoord.xy / rl_FrameSize.xy) * float(RandomSequenceMetadata.numSequences)));
 
-    float rand = texture2D(sequenceOffsetsTexture, rl_FrameCoord.xy / rl_FrameSize.xy).x;
+    float rand = SequenceOffsets.offsets[int(rl_FrameCoord.y * rl_FrameSize.y + rl_FrameCoord.x)].x;
     int sequenceIndex = int(floor(rand * maxSampleIndex));
     
     vec2 sampleOffset = getSequenceValue(sequenceID, Globals.sampleIndex + sequenceIndex);
@@ -70,7 +75,7 @@ void main()
 
     // Compute the origin and direction based on the focal length and aperture of the camera (dof).
     vec3 focalPoint = focusDistance * dirCameraSpace;
-    vec2 apertureSample = texture2D(apertureSamplesTexture, getSequenceUV(sequenceID, Globals.sampleIndex)).xy;
+    vec2 apertureSample = ApertureSamples.samples[sequenceID * RandomSequenceMetadata.sequenceLength + Globals.sampleIndex];
     // Sample is compressed to be between 0-1.
     apertureSample = ((apertureSample * 2.0) - 1.0) * apertureRadius;
     vec3 origin = vec3(apertureSample, 0.0);

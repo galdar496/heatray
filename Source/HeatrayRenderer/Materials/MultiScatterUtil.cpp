@@ -46,7 +46,7 @@ glm::vec3 importanceSampleGGX(glm::vec2 random, float alpha) // Returns the half
     return glm::normalize(glm::vec3(x, y, z));
 }
 
-float generateValue(float NdotV, float alpha, size_t sampleCount, const std::vector<glm::vec3>& randomSequence)
+float generateValue(float NdotV, float alpha, size_t sampleCount, const std::vector<glm::vec2>& randomSequence)
 {
     // NOTE: this is working in a Z-up basis just to be easier for matching literature. In the end, it 
     // doesn't matter if this calculation is Y or Z up, so long as all calculations here are done with
@@ -98,7 +98,7 @@ void generateMultiScatterTexture()
     static constexpr size_t SAMPLE_COUNT = 4096;
 
     // Generate our random sequence data to use for importance sampling.
-    std::vector<glm::vec3> randomSequence;
+    std::vector<glm::vec2> randomSequence;
     randomSequence.resize(SAMPLE_COUNT);
     util::sobol(randomSequence.data(), SAMPLE_COUNT, 0);
 
