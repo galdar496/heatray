@@ -141,6 +141,20 @@ int main(int argc, char **argv)
     // Main loop.
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
+        
+#ifdef __APPLE__
+        // Workaround for a weird problem with GLFW and macOS. If the window is not moved then a framebuffer
+        // from the previous session is shown. Any slight movement of the window seems to flush whatever GLFW
+        // needs to get rid of this, so we do it once manually to avoid the issue.
+        static bool windowMoved = false;
+        if(!windowMoved) {
+            int x = 0;
+            int y = 0;
+            glfwGetWindowPos(window, &x, &y);
+            glfwSetWindowPos(window, ++x, y);
+            windowMoved = true;
+        }
+#endif
 
         // Resize.
         {
