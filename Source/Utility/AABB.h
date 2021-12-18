@@ -10,6 +10,7 @@
 
 #include "glm/glm/glm.hpp"
 
+#include <cmath>
 #include <limits>
 
 namespace util {
@@ -44,7 +45,9 @@ struct AABB {
     
     float bottom() const {
         glm::vec3 transformedMin = transform * glm::vec4(min, 1.0f);
-        return transformedMin.y;
+        glm::vec3 transformedMax = transform * glm::vec4(max, 1.0f);
+        float floor = center().y - std::fabsf(transformedMax.y - transformedMin.y) * 0.5f;
+        return floor;
     }
     
     bool valid() const { return glm::any(glm::lessThan(min, max)); }
