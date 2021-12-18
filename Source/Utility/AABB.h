@@ -46,6 +46,8 @@ struct AABB {
         glm::vec3 transformedMin = transform * glm::vec4(min, 1.0f);
         return transformedMin.y;
     }
+    
+    bool valid() const { return glm::any(glm::lessThan(min, max)); }
 
     // Corners of the box.
     glm::vec3 min = glm::vec3(0.0f);

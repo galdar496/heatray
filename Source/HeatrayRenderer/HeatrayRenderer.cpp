@@ -23,9 +23,7 @@
 #include <Utility/Random.h>
 #include <Utility/TextureLoader.h>
 
-#include <glm/glm/gtc/matrix_transform.hpp>
 #include <glm/glm/gtc/constants.hpp>
-#include <glm/glm/gtx/euler_angles.hpp>
 #include "imgui/imgui.h"
 #include <FreeImage/FreeImage.h>
 
@@ -658,6 +656,20 @@ void HeatrayRenderer::readSessionFile(const std::string& filename)
         // Now actually process the parameters. NOTE: we do not allow the camera to be reset because we want to use
         // the values present in the session file.
         changeScene(m_renderOptions.scene, false);
+        
+        // Ensure that the proper transform is applied to the scene AABB and the scene itself.
+        {
+            m_renderer.modifyScene([this](std::shared_ptr<Scene> scene) {
+                glm::mat4 transform = m_sceneTransform.transform();
+                scene->applyTransform(transform);
+                
+                if (m_sceneAABB.valid()) {
+                    m_sceneAABB.transform = transform;
+                    updateCameraFromAABB();
+                }
+            });
+        }
+        
         // NOTE: most everything is handled automatically during a reset.
         resetRenderer();
     }
@@ -1117,14 +1129,15 @@ bool HeatrayRenderer::renderUI()
             ImGui::Separator();
 
             if (transformChanged) {
-                glm::mat4 transform = glm::scale(glm::mat4(1.0f), glm::vec3(m_sceneTransform.scale)) *
-                                      glm::yawPitchRoll(m_sceneTransform.yaw, m_sceneTransform.pitch, m_sceneTransform.roll);
+                glm::mat4 transform = m_sceneTransform.transform();
                 m_renderer.modifyScene([this, transform](std::shared_ptr<Scene> scene) {
                     scene->applyTransform(transform);
                     
-                    // Also transform the scene AABB and be sure to update it.
-                    m_sceneAABB.transform = transform;
-                    updateCameraFromAABB();
+                    if (m_sceneAABB.valid()) {
+                        // Also transform the scene AABB and be sure to update it.
+                        m_sceneAABB.transform = transform;
+                        updateCameraFromAABB();
+                    }
                 });
 
                 shouldResetRenderer = true;

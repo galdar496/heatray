@@ -25,6 +25,10 @@
 #include <Utility/FileIO.h>
 #include <Utility/AABB.h>
 
+#include <glm/glm/mat4x4.hpp>
+#include <glm/glm/gtx/euler_angles.hpp>
+#include <glm/glm/gtc/matrix_transform.hpp>
+
 #include <atomic>
 #include <memory>
 
@@ -326,5 +330,10 @@ private:
         float pitch = 0.0f;
         float roll = 0.0f;
         float scale = 1.0f;
+        
+        glm::mat4 transform() const {
+            return glm::scale(glm::mat4(1.0f), glm::vec3(scale)) *
+                   glm::yawPitchRoll(yaw, pitch, roll);
+        }
     } m_sceneTransform;
 };
