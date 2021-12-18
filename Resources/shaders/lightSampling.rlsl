@@ -74,7 +74,7 @@ void computeLightSample(vec3 N,
         if (EnvironmentLight.lightPrimitive != rl_NullPrimitive) {
             // TODO: Add IBL importance sampling. Right now this is just a hack
             // to ensure that the IBL has a high chance of being sampled.
-            environment = 50.0;
+            environment = 50.0 * EnvironmentLight.exposureCompensation;
             probabilitySum += environment;
         }
     }
