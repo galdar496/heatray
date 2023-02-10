@@ -37,6 +37,7 @@ function(AddAssimp)
   # Build Assimp static
   set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
   SET(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+  set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE BOOL "" FORCE)
   add_subdirectory(3rdParty/assimp)
 endfunction(AddAssimp)
 

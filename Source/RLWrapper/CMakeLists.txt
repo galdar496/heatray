@@ -1,4 +1,4 @@
-add_library(RLWrapper STATIC
+add_library(RLWrapper INTERFACE
     Shader.h
     Error.h
     Buffer.h

@@ -1,4 +1,4 @@
-add_library(Shaders STATIC
+add_library(Shaders INTERFACE
     accumulator.rlsl
     brdfs.rlsl
     directionalLight.rlsl
