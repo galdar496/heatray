@@ -1,9 +1,14 @@
 [submodule "3rdParty/assimp"]
 	path = 3rdParty/assimp
 	url = https://github.com/assimp/assimp.git
+	ignore = dirty
 [submodule "3rdParty/glfw"]
 	path = 3rdParty/glfw
 	url = https://github.com/glfw/glfw
+	ignore = dirty
 [submodule "3rdParty/tinyxml2"]
 	path = 3rdParty/tinyxml2
 	url = https://github.com/leethomason/tinyxml2
+	ignore = dirty	
+
+
