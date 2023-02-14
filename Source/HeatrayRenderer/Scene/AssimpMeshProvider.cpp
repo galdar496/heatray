@@ -13,7 +13,7 @@
 #include "Utility/Log.h"
 #include "Utility/TextureLoader.h"
 
-#include "assimp/pbrmaterial.h"
+#include "assimp/GltfMaterial.h"
 #include "glm/glm/glm.hpp"
 #include "glm/glm/gtc/constants.hpp"
 #include "glm/glm/gtc/quaternion.hpp"

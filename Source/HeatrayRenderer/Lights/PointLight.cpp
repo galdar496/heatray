@@ -62,6 +62,6 @@ void PointLight::setUniforms() const
 
     m_primitive->bind();
     m_program->bind();
-    m_program->set1i(m_program->getUniformLocation("lightIndex"), m_lightIndex);
+    m_program->set1i(m_program->getUniformLocation("lightIndex"), (int)m_lightIndex);
     m_primitive->unbind();
 }
