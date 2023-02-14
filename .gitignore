@@ -3,3 +3,14 @@
 out
 build
 .DS_Store
+*.xcodeproj
+CMakeScripts
+*.swp
+cmake_install.cmake
+*.touchfile
+CMakeFiles
+Source/Debug
+Source/Resources
+CMakeCache.txt
+Debug
+
