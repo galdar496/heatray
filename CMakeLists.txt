@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.1)
 project(HeatRay4)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_OSX_ARCHITECTURES x86_64)
 
 add_subdirectory(3rdParty/imgui)
 add_subdirectory(3rdParty/glm)
