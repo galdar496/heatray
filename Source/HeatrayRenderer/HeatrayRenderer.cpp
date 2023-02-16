@@ -107,7 +107,7 @@ void HeatrayRenderer::resize(const GLint newWindowWidth, const GLint newWindowHe
     m_renderOptions.camera.aspectRatio = static_cast<float>(m_renderWindowParams.width) / static_cast<float>(m_renderWindowParams.height);
 
     m_pathracedPixels.store(nullptr);
-    m_shouldCopyPixels.store(false);
+    m_shouldCopyPixels.clear();
     m_justResized = true;
 }
 
@@ -318,14 +318,14 @@ void HeatrayRenderer::changeEnvironment(std::string const& envMapPath)
 void HeatrayRenderer::render()
 {
     // Copy the most recent frame (if necessary).
-    bool copyPixels = m_shouldCopyPixels.load();
+    bool copyPixels = m_shouldCopyPixels.test();
     if (!m_justResized && copyPixels) {
         // Copy the data into a PBO and upload it to a texture for rendering. If the renderer is being reset then no reason to actually copy anything.
         if (copyPixels && !m_renderOptions.resetInternalState) {
             // These may not be the same if a resize just happened - in that case we don't want to copy old data.
             if (m_renderWindowParams.width == m_pixelDimensions.x && m_renderWindowParams.height == m_pixelDimensions.y) {
                 const float* pixels = m_pathracedPixels.load();
-                m_shouldCopyPixels.store(false);
+                m_shouldCopyPixels.clear();
                 glBindTexture(GL_TEXTURE_2D, m_displayTexture);
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_displayPixelBuffer);
                 glBufferSubData(GL_PIXEL_UNPACK_BUFFER, 0, m_pixelDimensions.x * m_pixelDimensions.y * sizeof(float) * openrl::PixelPackBuffer::kNumChannels, pixels);
@@ -381,7 +381,7 @@ void HeatrayRenderer::render()
 
         if (!skipRendering) {
             m_renderingFrame = true;
-            m_shouldCopyPixels.store(false);
+            m_shouldCopyPixels.clear();
             // Tell the pathtracer to start generating a new frame.
             m_renderer.renderPass(m_renderOptions,
                 [this](std::shared_ptr<openrl::PixelPackBuffer> results, float passTime, size_t passIndex)
@@ -389,7 +389,7 @@ void HeatrayRenderer::render()
                     const float* pixelData = results->mapPixelData();
                     m_pathracedPixels.store(pixelData);
                     m_pixelDimensions = glm::ivec2(results->width(), results->height());
-                    m_shouldCopyPixels.store(true);
+                    m_shouldCopyPixels.test_and_set();
                     m_renderingFrame = false;
                     m_currentPassTime = passTime;
                     m_totalRenderTime += passTime;
