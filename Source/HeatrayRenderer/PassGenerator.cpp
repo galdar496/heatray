@@ -332,60 +332,64 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
         m_resultPixels->unmapPixelData();
     }
 
-    if ((newOptions.enableInteractiveMode != m_renderOptions.enableInteractiveMode) || 
+    if ((newOptions.enableInteractiveMode != m_renderOptions.enableInteractiveMode) ||
+        (newOptions.enableOfflineMode != m_renderOptions.enableOfflineMode) ||
         (newOptions.resetInternalState)) {
         resetRenderingState(newOptions);
     }
-
-    // Update global data for this frame.
-    {
-        m_globalData->bind();
-        GlobalData* globalData = m_globalData->mapBuffer<GlobalData>();
-        globalData->sampleIndex = m_currentSampleIndex;
-        m_globalData->unmapBuffer();
-        m_globalData->unbind();
-    }
     
-    glm::vec2 sensorDimensions(36.0f, 24.0f); // Dimensions of 35mm film.
+    constexpr glm::vec2 sensorDimensions(36.0f, 24.0f); // Dimensions of 35mm film.
     // https://en.wikipedia.org/wiki/Angle_of_view#Calculating_a_camera's_angle_of_view
-    float fovY = 2.0f * std::atan2(sensorDimensions.y, 2.0f * m_renderOptions.camera.focalLength);
+    const float fovY = 2.0f * std::atan2(sensorDimensions.y, 2.0f * m_renderOptions.camera.focalLength);
 
-    m_frameProgram->bind();
-    float fovTan = std::tanf(fovY * 0.5f);
-    m_frameProgram->set1f(m_frameProgram->getUniformLocation("fovTan"), fovTan);
-    m_frameProgram->set1f(m_frameProgram->getUniformLocation("aspectRatio"), m_renderOptions.camera.aspectRatio);
-    m_frameProgram->set1f(m_frameProgram->getUniformLocation("focusDistance"), m_renderOptions.camera.focusDistance);
-    m_frameProgram->set1f(m_frameProgram->getUniformLocation("apertureRadius"), m_renderOptions.camera.apertureRadius);
-    m_frameProgram->setMatrix4fv(m_frameProgram->getUniformLocation("viewMatrix"), &(m_renderOptions.camera.viewMatrix[0][0]));
-    m_frameProgram->set2iv(m_frameProgram->getUniformLocation("blockSize"), &m_renderOptions.kInteractiveBlockSize.x);
-    m_frameProgram->set2iv(m_frameProgram->getUniformLocation("currentBlockPixelSample"), &m_currentBlockPixelSample.x);
-    m_frameProgram->set1i(m_frameProgram->getUniformLocation("interactiveMode"), m_renderOptions.enableInteractiveMode ? 1 : 0);
-    m_frameProgram->setUniformBlock(m_frameProgram->getUniformBlockIndex("ApertureSamples"), m_apertureSamplesBuffer->buffer());
-    m_frameProgram->setTexture(m_frameProgram->getUniformLocation("interactiveBlockSamplesTexture"), m_interactiveBlockCoordsTexture);
-    m_frameProgram->set1f(m_frameProgram->getUniformLocation("maxSampleIndex"), float(m_renderOptions.maxRenderPasses));
-    m_frameProgram->setUniformBlock(m_frameProgram->getUniformBlockIndex("SequenceOffsets"), m_sequenceOffsetsBuffer->buffer());
-
-    // In interactive mode, we now move to the next pixel sample within a block of pixels.
-    if (m_renderOptions.enableInteractiveMode) {
-        m_currentBlockPixelSample.x += 1;
-        if (m_currentBlockPixelSample.x == m_renderOptions.kInteractiveBlockSize.x) {
-            m_currentBlockPixelSample.x = 0;
-            m_currentBlockPixelSample.y += 1;
-            if (m_currentBlockPixelSample.y == m_renderOptions.kInteractiveBlockSize.y) {
-                m_currentBlockPixelSample = glm::vec2(0, 0);
-                ++m_currentSampleIndex;
-            }
+    do {
+        // Update global data for this frame.
+        {
+            m_globalData->bind();
+            GlobalData* globalData = m_globalData->mapBuffer<GlobalData>();
+            globalData->sampleIndex = m_currentSampleIndex;
+            m_globalData->unmapBuffer();
+            m_globalData->unbind();
         }
-    } else {
-        ++m_currentSampleIndex;
-    }
-
-    RLFunc(rlRenderFrame());
+        
+        m_frameProgram->bind();
+        float fovTan = std::tanf(fovY * 0.5f);
+        m_frameProgram->set1f(m_frameProgram->getUniformLocation("fovTan"), fovTan);
+        m_frameProgram->set1f(m_frameProgram->getUniformLocation("aspectRatio"), m_renderOptions.camera.aspectRatio);
+        m_frameProgram->set1f(m_frameProgram->getUniformLocation("focusDistance"), m_renderOptions.camera.focusDistance);
+        m_frameProgram->set1f(m_frameProgram->getUniformLocation("apertureRadius"), m_renderOptions.camera.apertureRadius);
+        m_frameProgram->setMatrix4fv(m_frameProgram->getUniformLocation("viewMatrix"), &(m_renderOptions.camera.viewMatrix[0][0]));
+        m_frameProgram->set2iv(m_frameProgram->getUniformLocation("blockSize"), &m_renderOptions.kInteractiveBlockSize.x);
+        m_frameProgram->set2iv(m_frameProgram->getUniformLocation("currentBlockPixelSample"), &m_currentBlockPixelSample.x);
+        m_frameProgram->set1i(m_frameProgram->getUniformLocation("interactiveMode"), m_renderOptions.enableInteractiveMode ? 1 : 0);
+        m_frameProgram->setUniformBlock(m_frameProgram->getUniformBlockIndex("ApertureSamples"), m_apertureSamplesBuffer->buffer());
+        m_frameProgram->setTexture(m_frameProgram->getUniformLocation("interactiveBlockSamplesTexture"), m_interactiveBlockCoordsTexture);
+        m_frameProgram->set1f(m_frameProgram->getUniformLocation("maxSampleIndex"), float(m_renderOptions.maxRenderPasses));
+        m_frameProgram->setUniformBlock(m_frameProgram->getUniformBlockIndex("SequenceOffsets"), m_sequenceOffsetsBuffer->buffer());
+        
+        // In interactive mode, we now move to the next pixel sample within a block of pixels.
+        if (m_renderOptions.enableInteractiveMode) {
+            m_currentBlockPixelSample.x += 1;
+            if (m_currentBlockPixelSample.x == m_renderOptions.kInteractiveBlockSize.x) {
+                m_currentBlockPixelSample.x = 0;
+                m_currentBlockPixelSample.y += 1;
+                if (m_currentBlockPixelSample.y == m_renderOptions.kInteractiveBlockSize.y) {
+                    m_currentBlockPixelSample = glm::vec2(0, 0);
+                    ++m_currentSampleIndex;
+                }
+            }
+        } else {
+            ++m_currentSampleIndex;
+        }
+        
+        RLFunc(rlRenderFrame());
+    } while (m_renderOptions.enableOfflineMode && (m_currentSampleIndex < m_renderOptions.maxRenderPasses));
+    
     m_resultPixels->setPixelData(*m_fboTexture);
 
     // Let the client know that a frame has been completed.
     float passTime = timer.stop();
-    m_passCompleteCallback(m_resultPixels, passTime);
+    m_passCompleteCallback(m_resultPixels, passTime, m_currentSampleIndex);
 }
 
 void PassGenerator::runLoadSceneJob(bool clearOldScene)

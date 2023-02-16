@@ -384,7 +384,7 @@ void HeatrayRenderer::render()
             m_shouldCopyPixels.store(false);
             // Tell the pathtracer to start generating a new frame.
             m_renderer.renderPass(m_renderOptions,
-                [this](std::shared_ptr<openrl::PixelPackBuffer> results, float passTime)
+                [this](std::shared_ptr<openrl::PixelPackBuffer> results, float passTime, size_t passIndex)
                 {
                     const float* pixelData = results->mapPixelData();
                     m_pathracedPixels.store(pixelData);
@@ -393,7 +393,7 @@ void HeatrayRenderer::render()
                     m_renderingFrame = false;
                     m_currentPassTime = passTime;
                     m_totalRenderTime += passTime;
-                    ++m_currentPass;
+                    m_currentPass = passIndex;
                 });
 
             m_renderOptions.resetInternalState = false;
@@ -501,6 +501,7 @@ void HeatrayRenderer::writeSessionFile(const std::string& filename)
     {
         // General.
         session.setVariableValue(Session::SessionVariable::kInteractiveMode, m_renderOptions.enableInteractiveMode);
+        session.setVariableValue(Session::SessionVariable::kInteractiveMode, m_renderOptions.enableOfflineMode);
         session.setVariableValue(Session::SessionVariable::kMaxRenderPasses, m_renderOptions.maxRenderPasses);
         session.setVariableValue(Session::SessionVariable::kMaxRayDepth, m_renderOptions.maxRayDepth);
         session.setVariableValue(Session::SessionVariable::kMaxChannelValue, m_renderOptions.maxChannelValue);
@@ -580,6 +581,7 @@ void HeatrayRenderer::readSessionFile(const std::string& filename)
         {
             // General.
             session.getVariableValue(Session::SessionVariable::kInteractiveMode, m_renderOptions.enableInteractiveMode);
+            session.getVariableValue(Session::SessionVariable::kInteractiveMode, m_renderOptions.enableOfflineMode);
             session.getVariableValue(Session::SessionVariable::kMaxRenderPasses, m_renderOptions.maxRenderPasses);
             session.getVariableValue(Session::SessionVariable::kMaxRayDepth, m_renderOptions.maxRayDepth);
             session.getVariableValue(Session::SessionVariable::kMaxChannelValue, m_renderOptions.maxChannelValue);
@@ -990,6 +992,10 @@ bool HeatrayRenderer::renderUI()
             }
             if (ImGui::Checkbox("Enable interactive mode", &m_renderOptions.enableInteractiveMode)) {
                 shouldResetRenderer = true;
+                m_renderOptions.enableOfflineMode = false; // These are radial options.
+            } else if (ImGui::Checkbox("Enable offline mode", &m_renderOptions.enableOfflineMode)) {
+                shouldResetRenderer = true;
+                m_renderOptions.enableInteractiveMode = false; // These are radial options.
             }
             if (ImGui::SliderFloat("Max channel value", &(m_renderOptions.maxChannelValue), 0.0f, 10.0f)) {
                 shouldResetRenderer = true;

@@ -51,6 +51,11 @@ public:
         // This speeds up raytraced for a more interactive experience but is slower to generate final frames.
         // Defaulted on.
         bool enableInteractiveMode = true;
+        
+        // If true, the UI is not updated until all passes have completed. This is the fastest way to run Heatray but
+        // shows no intermediate progress.
+        bool enableOfflineMode = false;
+        
         static constexpr glm::ivec2 kInteractiveBlockSize = glm::ivec2(3, 3);
 
         bool resetInternalState = true; 
@@ -153,7 +158,7 @@ public:
     // via RenderOptions to this function then the renderer is reset prior to
     // rendering this pass. Upon completion the PassCompleteCallback will be
     // invoked.
-    using PassCompleteCallback = std::function<void(std::shared_ptr<openrl::PixelPackBuffer> resultPixels, float passTime)>;
+    using PassCompleteCallback = std::function<void(std::shared_ptr<openrl::PixelPackBuffer> resultPixels, float passTime, size_t passIndex)>;
     void renderPass(const RenderOptions& newOptions, PassCompleteCallback callback);
     
     //-------------------------------------------------------------------------
