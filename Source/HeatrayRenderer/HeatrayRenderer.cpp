@@ -1442,7 +1442,7 @@ bool HeatrayRenderer::renderUI()
         ImGui::Checkbox("ACES tonemapping enabled", &m_post_processing_params.tonemapping_enabled);
         ImGui::SliderFloat("Exposure compensation", &m_post_processing_params.exposure, -10.0f, 10.0f);
         ImGui::SliderFloat("Brightness", &m_post_processing_params.brightness, -1.0f, 1.0f);
-        ImGui::SliderFloat("Contrast", &m_post_processing_params.contrast, -1.0f, 2.0f);
+        ImGui::SliderFloat("Contrast", &m_post_processing_params.contrast, 0.9f, 1.1f);
         ImGui::SliderFloat("Saturation", &m_post_processing_params.saturation, 0.0f, 3.0f);
         ImGui::SliderFloat("Vibrance", &m_post_processing_params.vibrance, 0.0f, 1.0f);
         ImGui::SliderFloat("Red", &m_post_processing_params.red, 0.0f, 1.5f);
