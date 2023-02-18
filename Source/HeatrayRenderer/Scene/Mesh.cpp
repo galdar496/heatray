@@ -158,7 +158,6 @@ Mesh::Mesh(MeshProvider* meshProvider,
 void Mesh::destroy()
 {
     m_vertexBuffers.clear();
-    m_vertexBuffers.clear();
     m_indexBuffers.clear();
     m_submeshes.clear();
     m_materials.clear();
