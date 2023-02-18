@@ -29,7 +29,16 @@ class Program
 public:
     ~Program() {
         if (m_program != RL_NULL_PROGRAM) {
+#ifdef __APPLE__
+            // This is pretty stupid but something about the arm-based Mac emulating
+            // x86_64 conflicts with the OpenRL driver attempting to delete a program.
+            // It doesn't always fail, maybe 1 out of 4 times but when it does it locks up
+            // the app and it can't even be forced to quit (have to restart the machine).
+            // Yes this leaks memory but that's better than locking up the system for the
+            // time being.
+#else
             RLFunc(rlDeleteProgram(m_program));
+#endif // __APPLE__
             m_program = RL_NULL_PROGRAM;
         }
     }
