@@ -14,29 +14,16 @@
 
 namespace util {
 
-inline std::string createStringWithFormat(const char* format, va_list args) {
-    va_list argsCopy;
-    va_copy(argsCopy, args);
-
-    std::string out;
-    char str[4096] = { 0 };
-    int length = vsnprintf(str, 2047, format, argsCopy);
-    assert(length < 4096);
-    out = str;
-    va_end(argsCopy);
-
-    return out;
-}
-
 //-------------------------------------------------------------------------
 // Create a string using printf-style syntax.
-inline std::string createStringWithFormat(const char *format, ...)
-{
-    va_list args;
-    va_start(args, format);
-    std::string out = createStringWithFormat(format, args);
-    va_end(args);
-    
+template <class ... Args>
+inline std::string createStringWithFormat(const char* format, Args &&... args) {
+    std::string out;
+    char str[4096] = { 0 };
+    int length = snprintf(str, 2047, format, args...);
+    assert(length < 4096);
+    out = str;
+
     return out;
 }
 

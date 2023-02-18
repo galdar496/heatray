@@ -33,12 +33,9 @@ public:
 
     //-------------------------------------------------------------------------
     // Log a message to the installed logger.
-    void log(Type type, const char* format, ...) {
-        va_list args;
-        va_start(args, format);
-        std::string formattedString = util::createStringWithFormat(format, args);
-        va_end(args);
-
+    template <class ... Args>
+    void log(Type type, const char* format, Args &&... args) {
+        std::string formattedString = util::createStringWithFormat(format, args...);
         m_instance->addNewItem(formattedString, type);
     }
 protected:
