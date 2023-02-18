@@ -1487,53 +1487,56 @@ bool HeatrayRenderer::renderUI()
 
     // Console log.
     {
-        ImGui::Separator();
-        ImGui::Text("Output Console");
-        ImGui::SameLine();
-        if (ImGui::Button("Clear")) {
-            std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->clear();
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Write To Disk")) {
-            std::vector<std::string> names = util::SaveFileDialog("txt");
+        std::shared_ptr<util::ImGuiLog> imguiLog = std::static_pointer_cast<util::ImGuiLog>(util::Log::instance());
+        if (imguiLog) {
+            ImGui::Separator();
+            ImGui::Text("Output Console");
+            ImGui::SameLine();
+            if (ImGui::Button("Clear")) {
+                imguiLog->clear();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Write To Disk")) {
+                std::vector<std::string> names = util::SaveFileDialog("txt");
                 if (!names.empty()) {
                     std::ofstream fout;
                     fout.open(names[0]);
                     if (fout) {
                         fout << "INFO:" << std::endl;
-                        fout << std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->textBuffer(util::Log::Type::kInfo).c_str() << std::endl;
+                        fout << imguiLog->textBuffer(util::Log::Type::kInfo).c_str() << std::endl;
                         fout << "WARNINGS:" << std::endl;
-                        fout << std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->textBuffer(util::Log::Type::kWarning).c_str() << std::endl;
+                        fout << imguiLog->textBuffer(util::Log::Type::kWarning).c_str() << std::endl;
                         fout << "ERRORS:" << std::endl;
-                        fout << std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->textBuffer(util::Log::Type::kError).c_str() << std::endl;
+                        fout << imguiLog->textBuffer(util::Log::Type::kError).c_str() << std::endl;
                         fout.close();
                     }
                 }
-        }
-        ImGui::Separator();
-        ImGui::BeginChild("Info Console Log", ImVec2(0.0f, -1.0f), false, ImGuiWindowFlags_AlwaysHorizontalScrollbar);
-        {
-            ImGui::Text("Info");
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-            ImGui::TextUnformatted(std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->textBuffer(util::Log::Type::kInfo).begin());
-            ImGui::PopStyleColor();
+            }
+            ImGui::Separator();
+            ImGui::BeginChild("Info Console Log", ImVec2(0.0f, -1.0f), false, ImGuiWindowFlags_AlwaysHorizontalScrollbar);
+            {
+                ImGui::Text("Info");
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+                ImGui::TextUnformatted(imguiLog->textBuffer(util::Log::Type::kInfo).begin());
+                ImGui::PopStyleColor();
+                ImGui::Separator();
+            }
+            {
+                ImGui::Text("Warnings");
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.8f, 0.5f, 1.0f));
+                ImGui::TextUnformatted(imguiLog->textBuffer(util::Log::Type::kWarning).begin());
+                ImGui::PopStyleColor();
+            }
+            {
+                ImGui::Text("Errors");
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.5f, 0.5f, 1.0f));
+                ImGui::TextUnformatted(imguiLog->textBuffer(util::Log::Type::kError).begin());
+                ImGui::PopStyleColor();
+            }
+            ImGui::SetScrollHere(1.0f);
+            ImGui::EndChild();
             ImGui::Separator();
         }
-        {
-            ImGui::Text("Warnings");
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.8f, 0.5f, 1.0f));
-            ImGui::TextUnformatted(std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->textBuffer(util::Log::Type::kWarning).begin());
-            ImGui::PopStyleColor();
-        }
-        {
-            ImGui::Text("Errors");
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.5f, 0.5f, 1.0f));
-            ImGui::TextUnformatted(std::static_pointer_cast<util::ImGuiLog>(util::Log::instance())->textBuffer(util::Log::Type::kError).begin());
-            ImGui::PopStyleColor();
-        }
-        ImGui::SetScrollHere(1.0f);
-        ImGui::EndChild();
-        ImGui::Separator();
     }
 
     ImGui::End();
