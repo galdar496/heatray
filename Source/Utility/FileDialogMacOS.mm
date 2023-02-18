@@ -5,7 +5,7 @@
 namespace util
 {
 
-std::vector<std::string> OpenFileDialog(const std::string &extension)
+std::vector<std::string> OpenFileDialog(const std::string_view extension)
 {
     NSOpenPanel * openPanel = [NSOpenPanel openPanel];
     
@@ -26,7 +26,7 @@ std::vector<std::string> OpenFileDialog(const std::string &extension)
     return std::vector<std::string>();
 }
 
-std::vector<std::string> SaveFileDialog(const std::string &extension)
+std::vector<std::string> SaveFileDialog(const std::string_view extension)
 {
     NSSavePanel * savePanel = [NSSavePanel savePanel];
     
@@ -36,7 +36,7 @@ std::vector<std::string> SaveFileDialog(const std::string &extension)
         std::vector<std::string> retVal;
 
         NSURL * selectedFile = [savePanel URL];
-        retVal.push_back([[selectedFile path] UTF8String] + std::string(".") + extension);
+        retVal.push_back([[selectedFile path] UTF8String] + std::string(".") + std::string{extension});
         return retVal;
     }
 

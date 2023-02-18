@@ -13,8 +13,10 @@
 #include "../Utility/Log.h"
 
 #include <OpenRL/rl.h>
+#include <array>
 #include <assert.h>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace openrl {
@@ -46,13 +48,13 @@ public:
 
     //-------------------------------------------------------------------------
     // Create and compile a shader from a passed-in source string.
-    static std::shared_ptr<Shader> createFromString(const std::string& shaderSource, const ShaderType type, const char* name)
+    static std::shared_ptr<Shader> createFromString(const std::string_view shaderSource, const ShaderType type, const std::string_view name)
     {
         if (shaderSource.length()) {
             Shader* shader = new Shader(type);
-            RLFunc(rlShaderString(shader->shader(), RL_SHADER_NAME, name));
+            RLFunc(rlShaderString(shader->shader(), RL_SHADER_NAME, name.data()));
 
-            const char* s = shaderSource.c_str();
+            const char* s = shaderSource.data();
             RLFunc(rlShaderSource(shader->shader(), 1, &s, nullptr));
 
             if (shader->compile()) {
@@ -72,14 +74,14 @@ public:
 
     //-------------------------------------------------------------------------
     // Create and compile s ahder from multiple shader source strings.
-    static std::shared_ptr<Shader> createFromMultipleStrings(const std::vector<std::string>& shaderSource, const ShaderType type, const char* name)
+    static std::shared_ptr<Shader> createFromMultipleStrings(const std::vector<std::string>& shaderSource, const ShaderType type, const std::string_view name)
     {
         constexpr static size_t MAX_NUM_SHADER_STRINGS = 20;
         assert(shaderSource.size() < MAX_NUM_SHADER_STRINGS);
 
         if (shaderSource.size()) {
             Shader* shader = new Shader(type);
-            RLFunc(rlShaderString(shader->shader(), RL_SHADER_NAME, name));
+            RLFunc(rlShaderString(shader->shader(), RL_SHADER_NAME, name.data()));
 
             const char* strings[MAX_NUM_SHADER_STRINGS];
             for (int iIndex = 0; iIndex < shaderSource.size(); ++iIndex) {
@@ -94,11 +96,11 @@ public:
             } else {
                 const char* log = nullptr;
                 RLFunc(rlGetShaderString(shader->shader(), RL_COMPILE_LOG, &log));
-                LOG_ERROR("Unable to compile shader %s \n\t%s", name, log);
+                LOG_ERROR("Unable to compile %s for %s \n\t%s", m_typeToNameTable[static_cast<const uint8_t>(type)], name, log);
                 return nullptr;
             }
         } else {
-            LOG_ERROR("Attempting to build shader \"%s\" with an empty source file!", name);
+            LOG_ERROR("Attempting to build %s for \"%s\" with an empty source file!", m_typeToNameTable[static_cast<const uint8_t>(type)], name.data());
         }
 
         return nullptr;
@@ -151,6 +153,13 @@ private:
         RLFunc(rlCompileShader(m_shader));
         return valid();
     }
+    
+    static constexpr std::array<std::string_view, static_cast<uint8_t>(ShaderType::kCount)> m_typeToNameTable = {
+      "vertex shader",
+      "frame shader",
+      "ray shader",
+      "prefix shader"
+    };
 
     RLshader m_shader = RL_NULL_SHADER; // OpenRL shader configured by this class.
 

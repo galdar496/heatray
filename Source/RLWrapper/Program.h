@@ -17,6 +17,7 @@
 #include <OpenRL/rl.h>
 #include <assert.h>
 #include <memory>
+#include <string_view>
 
 namespace openrl {
 
@@ -63,7 +64,7 @@ public:
     //-------------------------------------------------------------------------
     // Link the program. This must be called after all shaders have been attached
     // to finish program creation.
-    inline bool link(const char* name = "Program")
+    inline bool link(const std::string_view name = "Program")
     {
         RLFunc(rlLinkProgram(m_program));
 
@@ -79,17 +80,17 @@ public:
 
     //-------------------------------------------------------------------------
     // Get the location of a uniform by name.
-    inline RLint getUniformLocation(const std::string& name) const
+    inline RLint getUniformLocation(const std::string_view name) const
     {
-        RLint location = RLFunc(rlGetUniformLocation(m_program, name.c_str()));
+        RLint location = RLFunc(rlGetUniformLocation(m_program, name.data()));
         return location;
     }
 
     //-------------------------------------------------------------------------
     // Get the index of a uniform block by name.
-    inline RLint getUniformBlockIndex(const std::string& name) const
+    inline RLint getUniformBlockIndex(const std::string_view name) const
     {
-        RLint index = RLFunc(rlGetUniformBlockIndex(m_program, name.c_str()));
+        RLint index = RLFunc(rlGetUniformBlockIndex(m_program, name.data()));
         return index;
     }
 
@@ -134,7 +135,7 @@ public:
 
     //-------------------------------------------------------------------------
     // Get a location of an attribute variable in the program.
-    inline RLint getAttributeLocation(const std::string& name) const { return RLFunc(rlGetAttribLocation(m_program, name.c_str())); }
+    inline RLint getAttributeLocation(const std::string_view name) const { return RLFunc(rlGetAttribLocation(m_program, name.data())); }
 
     //-------------------------------------------------------------------------
     // Access to the internal program objects.

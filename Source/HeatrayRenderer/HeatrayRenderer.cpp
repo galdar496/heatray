@@ -29,6 +29,7 @@
 
 #include <assert.h>
 #include <fstream>
+#include <string_view>
 
 bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
 {
@@ -111,7 +112,7 @@ void HeatrayRenderer::resize(const GLint newWindowWidth, const GLint newWindowHe
     m_justResized = true;
 }
 
-void HeatrayRenderer::changeScene(std::string const& sceneName, const bool moveCamera)
+void HeatrayRenderer::changeScene(const std::string &sceneName, const bool moveCamera)
 {
     m_groundPlane.exists = false;
     m_sceneTransform = SceneTransform();
@@ -308,7 +309,7 @@ void HeatrayRenderer::updateCameraFromAABB()
     resetRenderer(); // We must reset here in order to move the camera.
 }
 
-void HeatrayRenderer::changeEnvironment(std::string const& envMapPath)
+void HeatrayRenderer::changeEnvironment(const std::string &envMapPath)
 {
     m_renderOptions.environment.map = envMapPath;
     m_renderOptions.environment.builtInMap = false;
@@ -491,7 +492,7 @@ void HeatrayRenderer::generateSequenceVisualizationData(int sequenceIndex, int r
     }
 }
 
-void HeatrayRenderer::writeSessionFile(const std::string& filename)
+void HeatrayRenderer::writeSessionFile(const std::string_view filename)
 {
     Session session;
 
@@ -573,7 +574,7 @@ void HeatrayRenderer::writeSessionFile(const std::string& filename)
     session.writeSessionFile(filename);
 }
 
-void HeatrayRenderer::readSessionFile(const std::string& filename)
+void HeatrayRenderer::readSessionFile(const std::string_view filename)
 {
     Session session;
     if (session.parseSessionFile(filename)) {
@@ -688,7 +689,7 @@ bool HeatrayRenderer::renderMaterialEditor(std::shared_ptr<Material> material)
 
     bool materialChanged = false;
 
-    ImGui::Text("%s", material->name().c_str());
+    ImGui::Text("%s", material->name().data());
     if (material->type() == Material::Type::PBR) {
         std::shared_ptr<PhysicallyBasedMaterial> pbrMaterial = std::static_pointer_cast<PhysicallyBasedMaterial>(material);
         PhysicallyBasedMaterial::Parameters& parameters = pbrMaterial->parameters();
@@ -866,7 +867,7 @@ bool HeatrayRenderer::renderLightEditor(std::shared_ptr<Light> light)
 {
     bool lightChanged = false;
 
-    ImGui::Text("%s", light->name().c_str());
+    ImGui::Text("%s", light->name().data());
     if (light->type() == Light::Type::kDirectional) {
         std::shared_ptr<DirectionalLight> directLight = std::static_pointer_cast<DirectionalLight>(light);
         DirectionalLight::Params params = directLight->params();
@@ -969,14 +970,14 @@ bool HeatrayRenderer::renderUI()
     }
     if (ImGui::CollapsingHeader("Render options")) {
         {
-            static const char* options[] = { "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024", "2048", "4096", "8192" };
+            static constexpr std::string_view options[] = { "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024", "2048", "4096", "8192" };
             constexpr unsigned int realOptions[] = { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192 };
 
             static unsigned int currentSelection = 5;
-            if (ImGui::BeginCombo("Max number of passes", options[currentSelection])) {
+            if (ImGui::BeginCombo("Max number of passes", options[currentSelection].data())) {
                 for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
                     bool isSelected = currentSelection == iOption;
-                    if (ImGui::Selectable(options[iOption], false)) {
+                    if (ImGui::Selectable(options[iOption].data(), false)) {
                         currentSelection = iOption;
                         m_renderOptions.maxRenderPasses = realOptions[currentSelection];
                         shouldResetRenderer = true;
@@ -1002,7 +1003,7 @@ bool HeatrayRenderer::renderUI()
             }
         }
         {
-            static const char* options[] = { "Pseudo-random", "Halton", "Hammersley", "Blue Noise", "Sobol", };
+            static constexpr std::string_view options[] = { "Pseudo-random", "Halton", "Hammersley", "Blue Noise", "Sobol", };
             constexpr PassGenerator::RenderOptions::SampleMode realOptions[] = { 
                 PassGenerator::RenderOptions::SampleMode::kRandom,
                 PassGenerator::RenderOptions::SampleMode::kHalton,
@@ -1011,10 +1012,10 @@ bool HeatrayRenderer::renderUI()
                 PassGenerator::RenderOptions::SampleMode::kSobol
             };
             static unsigned int currentSelection = static_cast<unsigned int>(m_renderOptions.sampleMode);
-            if (ImGui::BeginCombo("Sampling technique", options[currentSelection])) {
+            if (ImGui::BeginCombo("Sampling technique", options[currentSelection].data())) {
                 for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
                     bool isSelected = currentSelection == iOption;
-                    if (ImGui::Selectable(options[iOption], false)) {
+                    if (ImGui::Selectable(options[iOption].data(), false)) {
                         currentSelection = iOption;
                         m_renderOptions.sampleMode = realOptions[currentSelection];
                         shouldResetRenderer = true;
@@ -1033,16 +1034,16 @@ bool HeatrayRenderer::renderUI()
         }
     }
     if (ImGui::CollapsingHeader("Environment options")) {
-        static const char* options[] = { "<none>", EnvironmentLight::SOLID_COLOR, "studio.hdr", "noon_grass.exr", "kloppenheim.exr", "peppermint_powerplant.exr", "urban_alley.exr", "chinese_garden.exr", "glacier.exr", "uffizi.exr", "Load Custom..." };
+        static constexpr std::string_view options[] = { "<none>", EnvironmentLight::SOLID_COLOR, "studio.hdr", "noon_grass.exr", "kloppenheim.exr", "peppermint_powerplant.exr", "urban_alley.exr", "chinese_garden.exr", "glacier.exr", "uffizi.exr", "Load Custom..." };
         static constexpr size_t NUM_OPTIONS = sizeof(options) / sizeof(options[0]);
         static constexpr size_t CUSTOM_OPTION_INDEX = NUM_OPTIONS - 1;
         static constexpr size_t SOLID_COLOR_OPTION_INDEX = 1;
 
         static size_t currentSelection = 2;
-        if (ImGui::BeginCombo("Environment map", options[currentSelection])) {
+        if (ImGui::BeginCombo("Environment map", options[currentSelection].data())) {
             for (size_t iOption = 0; iOption < NUM_OPTIONS; ++iOption) {
                 bool isSelected = (currentSelection == iOption);
-                if (ImGui::Selectable(options[iOption], false)) {
+                if (ImGui::Selectable(options[iOption].data(), false)) {
                     currentSelection = iOption;
                     if (currentSelection != CUSTOM_OPTION_INDEX) {
                         m_renderOptions.environment.map = std::string(options[iOption]);
@@ -1089,15 +1090,15 @@ bool HeatrayRenderer::renderUI()
             m_sceneUnits = SceneUnits::kCentimeters;
         }
 
-        static const char* options[] = { "Sphere Array", "Multi-Material", "Editable PBR Material", "Editable Glass Material", "Load Custom..."};
+        static constexpr std::string_view options[] = { "Sphere Array", "Multi-Material", "Editable PBR Material", "Editable Glass Material", "Load Custom..."};
         static constexpr size_t NUM_OPTIONS = sizeof(options) / sizeof(options[0]);
         static constexpr size_t CUSTOM_OPTION_INDEX = NUM_OPTIONS - 1;
 
         static unsigned int currentSelection = 1;
-        if (ImGui::BeginCombo("Built-In Scenes", options[currentSelection])) {
+        if (ImGui::BeginCombo("Built-In Scenes", options[currentSelection].data())) {
             for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
                 bool isSelected = currentSelection == iOption;
-                if (ImGui::Selectable(options[iOption], false)) {
+                if (ImGui::Selectable(options[iOption].data(), false)) {
                     currentSelection = iOption;
                     bool newScene = false;
                     if (currentSelection == CUSTOM_OPTION_INDEX) {
@@ -1150,8 +1151,8 @@ bool HeatrayRenderer::renderUI()
             }
         }
 
-        static std::string NONE = "<none>";
-        static std::string currentlySelectedMaterialName = NONE;
+        static constexpr std::string_view NONE = "<none>";
+        static std::string_view currentlySelectedMaterialName = NONE;
         static std::weak_ptr<Material> currentlySelectedMaterial;
 
         if (ImGui::Button(m_groundPlane.exists ? "Remove Ground Plane" : "Add Ground Plane")) {
@@ -1184,7 +1185,7 @@ bool HeatrayRenderer::renderUI()
             });
         }
 
-        static std::string currentlySelectedLightName = NONE;
+        static std::string_view currentlySelectedLightName = NONE;
         static std::weak_ptr<Light> currentlySelectedLight;
 
         // Extra lighting.
@@ -1239,14 +1240,14 @@ bool HeatrayRenderer::renderUI()
         ImGui::Separator();
         ImGui::Text("Editors");
         {
-            if (ImGui::BeginCombo("Materials", currentlySelectedMaterialName.c_str())) {
-                if (ImGui::Selectable(NONE.c_str(), false)) {
+            if (ImGui::BeginCombo("Materials", currentlySelectedMaterialName.data())) {
+                if (ImGui::Selectable(NONE.data(), false)) {
                     currentlySelectedMaterial.reset();
                 } else {
                     const std::vector<Mesh>& sceneData = m_renderer.scene()->meshes();
                     for (auto& mesh : sceneData) {
                         for (auto& material : mesh.materials()) {
-                            if (ImGui::Selectable(material->name().c_str(), false)) {
+                            if (ImGui::Selectable(material->name().data(), false)) {
                                 currentlySelectedMaterialName = material->name();
                                 currentlySelectedMaterial = material;
                                 break;
@@ -1265,8 +1266,8 @@ bool HeatrayRenderer::renderUI()
         }
 
         {
-            if (ImGui::BeginCombo("Lights", currentlySelectedLightName.c_str())) {
-                if (ImGui::Selectable(NONE.c_str(), false)) {
+            if (ImGui::BeginCombo("Lights", currentlySelectedLightName.data())) {
+                if (ImGui::Selectable(NONE.data(), false)) {
                     currentlySelectedLight.reset();
                     currentlySelectedLightName = NONE;
                 } else {
@@ -1277,7 +1278,7 @@ bool HeatrayRenderer::renderUI()
 
                     for (size_t iLight = 0; iLight < ShaderLightingDefines::MAX_NUM_DIRECTIONAL_LIGHTS; ++iLight) {
                         if (directional[iLight]) {
-                            if (ImGui::Selectable(directional[iLight]->name().c_str(), false)) {
+                            if (ImGui::Selectable(directional[iLight]->name().data(), false)) {
                                 currentlySelectedLightName = directional[iLight]->name();
                                 currentlySelectedLight = directional[iLight];
                                 break;
@@ -1289,7 +1290,7 @@ bool HeatrayRenderer::renderUI()
 
                     for (size_t iLight = 0; iLight < ShaderLightingDefines::MAX_NUM_POINT_LIGHTS; ++iLight) {
                         if (point[iLight]) {
-                            if (ImGui::Selectable(point[iLight]->name().c_str(), false)) {
+                            if (ImGui::Selectable(point[iLight]->name().data(), false)) {
                                 currentlySelectedLightName = point[iLight]->name();
                                 currentlySelectedLight = point[iLight];
                                 break;
@@ -1301,7 +1302,7 @@ bool HeatrayRenderer::renderUI()
 
                     for (size_t iLight = 0; iLight < ShaderLightingDefines::MAX_NUM_SPOT_LIGHTS; ++iLight) {
                         if (spot[iLight]) {
-                            if (ImGui::Selectable(spot[iLight]->name().c_str(), false)) {
+                            if (ImGui::Selectable(spot[iLight]->name().data(), false)) {
                                 currentlySelectedLightName = spot[iLight]->name();
                                 currentlySelectedLight = spot[iLight];
                                 break;
@@ -1325,9 +1326,9 @@ bool HeatrayRenderer::renderUI()
         ImGui::Separator();
         ImGui::Text("Debug");
         {
-            static const char* options[] = { "None", "Geometric Normals", "UVs", "Tangnents", "Bitangents", "Normalmap", "Final Normals",
-                                             "Base color", "Roughness", "Metallic", "Emissive", "Clearcoat", "Clearcoat roughness", "Clearcoat normalmap", "Shader",
-                                             "NANs", "Inf"};
+            static constexpr std::string_view options[] = { "None", "Geometric Normals", "UVs", "Tangnents", "Bitangents", "Normalmap", "Final Normals",
+                                                            "Base color", "Roughness", "Metallic", "Emissive", "Clearcoat", "Clearcoat roughness", "Clearcoat normalmap", "Shader",
+                                                            "NANs", "Inf"};
             constexpr PassGenerator::RenderOptions::DebugVisualizationMode realOptions[] = {
                 PassGenerator::RenderOptions::DebugVisualizationMode::kNone,
                 PassGenerator::RenderOptions::DebugVisualizationMode::kGeometricNormals,
@@ -1349,10 +1350,10 @@ bool HeatrayRenderer::renderUI()
             };
 
             static unsigned int currentSelection = 0;
-            if (ImGui::BeginCombo("Debug Visualization", options[currentSelection])) {
+            if (ImGui::BeginCombo("Debug Visualization", options[currentSelection].data())) {
                 for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
                     bool isSelected = currentSelection == iOption;
-                    if (ImGui::Selectable(options[iOption], false)) {
+                    if (ImGui::Selectable(options[iOption].data(), false)) {
                         currentSelection = iOption;
                         m_renderOptions.debugVisMode = realOptions[iOption];
                         shouldResetRenderer = true;
@@ -1391,13 +1392,13 @@ bool HeatrayRenderer::renderUI()
             }
             {
                 static unsigned int currentSelection = 1;
-                static const char* options[PassGenerator::RenderOptions::Camera::NUM_FSTOPS] = {
+                static constexpr std::string_view options[PassGenerator::RenderOptions::Camera::NUM_FSTOPS] = {
                     "<disabled>", "f32", "f22", "f16", "f11", "f8", "f5.6", "f4", "f2.8", "f2", "f1.4", "f1"
                 };
-                if (ImGui::BeginCombo("f-Stop", options[currentSelection])) {
+                if (ImGui::BeginCombo("f-Stop", options[currentSelection].data())) {
                     for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
                         bool isSelected = currentSelection == iOption;
-                        if (ImGui::Selectable(options[iOption], false)) {
+                        if (ImGui::Selectable(options[iOption].data(), false)) {
                             currentSelection = iOption;
                             m_renderOptions.camera.fstop = PassGenerator::RenderOptions::Camera::fstopOptions[currentSelection];
                             m_renderOptions.camera.setApertureRadius();
@@ -1411,7 +1412,7 @@ bool HeatrayRenderer::renderUI()
                 }
             }
             {
-                static const char* options[] = { "Circular", "Pentagon", "Hexagon", "Octagon" };
+                static constexpr std::string_view options[] = { "Circular", "Pentagon", "Hexagon", "Octagon" };
                 constexpr PassGenerator::RenderOptions::BokehShape realOptions[] = {
                     PassGenerator::RenderOptions::BokehShape::kCircular,
                     PassGenerator::RenderOptions::BokehShape::kPentagon,
@@ -1420,10 +1421,10 @@ bool HeatrayRenderer::renderUI()
                 };
 
                 static unsigned int currentSelection = 0;
-                if (ImGui::BeginCombo("Bokeh shape", options[currentSelection])) {
+                if (ImGui::BeginCombo("Bokeh shape", options[currentSelection].data())) {
                     for (int iOption = 0; iOption < sizeof(options) / sizeof(options[0]); ++iOption) {
                         bool isSelected = currentSelection == iOption;
-                        if (ImGui::Selectable(options[iOption], false)) {
+                        if (ImGui::Selectable(options[iOption].data(), false)) {
                             currentSelection = iOption;
                             m_renderOptions.bokehShape = realOptions[iOption];
                             shouldResetRenderer = true;

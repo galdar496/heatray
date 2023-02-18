@@ -24,7 +24,7 @@ public:
         Log::setInstance(newLog);
     }
 
-    void addNewItem(const std::string& item, const Log::Type type) override;
+    void addNewItem(const std::string_view item, const Log::Type type) override;
 
 private:
     ConsoleLog() = default;

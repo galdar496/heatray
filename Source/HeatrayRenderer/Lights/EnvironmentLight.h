@@ -17,6 +17,7 @@
 #include <glm/glm/vec3.hpp>
 
 #include <string>
+#include <string_view>
 
 // Forward declarations.
 namespace openrl {
@@ -28,17 +29,17 @@ class Texture;
 class EnvironmentLight final : public Light
 {
 public:
-    explicit EnvironmentLight(const std::string& name, std::shared_ptr<openrl::Buffer> lightBuffer);
+    explicit EnvironmentLight(const std::string_view name, std::shared_ptr<openrl::Buffer> lightBuffer);
     ~EnvironmentLight() = default;
 
     //-------------------------------------------------------------------------
     // Alter the source of the environment light. Any primitive bindings
     // etc will still be valid after this function executes.
-    void changeImageSource(const char* path, bool builtInMap);
+    void changeImageSource(const std::string_view path, bool builtInMap);
 
     //-------------------------------------------------------------------------
     // Switches the internal image data to be a constant color.
-    static constexpr const char* SOLID_COLOR = "solid color";
+    static constexpr std::string_view SOLID_COLOR = "solid color";
     void enableSolidColor(const glm::vec3 &color);
 
     //-------------------------------------------------------------------------

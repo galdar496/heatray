@@ -26,10 +26,11 @@ public:
         Log::setInstance(newLog);
     }
 
-    void addNewItem(const std::string &item, const Log::Type type) override {
-        std::string new_item = (item + "\n");
+    void addNewItem(const std::string_view item, const Log::Type type) override {
+        std::string newItem{item};
+        newItem.append("\n"); // Auto-add a newline to avoid the user having to worry about it.
         std::unique_lock<std::mutex> lock(m_mutex);
-        m_textBuffer[static_cast<size_t>(type)].append(new_item.c_str());
+        m_textBuffer[static_cast<size_t>(type)].append(newItem.c_str());
     }
 
     void clear() { 

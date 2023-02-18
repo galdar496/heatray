@@ -16,7 +16,7 @@
 static constexpr float WATTS_TO_LUMENS = 683.0f;
 static constexpr float LUMENS_TO_WATTS = 1.0f / 683.0f;
 
-SpotLight::SpotLight(const std::string& name, size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer)
+SpotLight::SpotLight(const std::string_view name, size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer)
 : Light(name, Light::Type::kSpot)
 , m_lightIndex(lightIndex)
 {

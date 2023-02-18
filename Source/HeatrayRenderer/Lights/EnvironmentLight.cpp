@@ -12,7 +12,7 @@
 #include <assert.h>
 #include <sstream>
 
-EnvironmentLight::EnvironmentLight(const std::string& name, std::shared_ptr<openrl::Buffer> lightBuffer)
+EnvironmentLight::EnvironmentLight(const std::string_view name, std::shared_ptr<openrl::Buffer> lightBuffer)
 : Light(name, Light::Type::kEnvironment)
 {
     // Setup the environment light OpenRL data.
@@ -27,20 +27,20 @@ EnvironmentLight::EnvironmentLight(const std::string& name, std::shared_ptr<open
     m_primitive->attachProgram(m_program);
 }
 
-void EnvironmentLight::changeImageSource(const char* path, bool builtInMap)
+void EnvironmentLight::changeImageSource(const std::string_view path, bool builtInMap)
 {
-    assert(path);
+    assert(!path.empty());
 
     std::string fullPath;
     if (builtInMap) {
-        static char const *BASE_PATH = "Resources/Environments/";
+        static constexpr std::string_view BASE_PATH = "Resources/Environments/";
         fullPath = std::string(BASE_PATH) + std::string(path);
     } else {
         fullPath = std::string(path);
     }
 
     if (m_textureSourcePath != fullPath) {
-        m_texture = util::loadTexture(fullPath.c_str());
+        m_texture = util::loadTexture(fullPath);
         m_textureSourcePath = fullPath;
     }
 }

@@ -1,4 +1,4 @@
-﻿//
+//
 //  SpotLight.h
 //  Heatray
 //
@@ -24,7 +24,7 @@ class Program;
 class SpotLight final : public Light
 {
 public:
-    explicit SpotLight(const std::string &name, size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer);
+    explicit SpotLight(const std::string_view name, size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer);
     ~SpotLight() = default;
 
     //-------------------------------------------------------------------------

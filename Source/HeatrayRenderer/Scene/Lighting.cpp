@@ -198,7 +198,7 @@ void Lighting::updateEnvironmentLight(std::shared_ptr<EnvironmentLight> light)
     m_environment.buffer->unbind();
 }
 
-std::shared_ptr<DirectionalLight> Lighting::addDirectionalLight(const std::string& name)
+std::shared_ptr<DirectionalLight> Lighting::addDirectionalLight(const std::string_view name)
 {
     if (m_directional.count < ShaderLightingDefines::MAX_NUM_DIRECTIONAL_LIGHTS) {
         size_t lightIndex = m_directional.count;
@@ -270,7 +270,7 @@ void Lighting::removeDirectionalLight(std::shared_ptr<DirectionalLight> light)
     }
 }
 
-std::shared_ptr<PointLight> Lighting::addPointLight(const std::string& name)
+std::shared_ptr<PointLight> Lighting::addPointLight(const std::string_view name)
 {
     if (m_point.count < ShaderLightingDefines::MAX_NUM_POINT_LIGHTS) {
         size_t lightIndex = m_point.count;
@@ -342,7 +342,7 @@ void Lighting::removePointLight(std::shared_ptr<PointLight> light)
     }
 }
 
-std::shared_ptr<SpotLight> Lighting::addSpotLight(const std::string& name)
+std::shared_ptr<SpotLight> Lighting::addSpotLight(const std::string_view name)
 {
     if (m_spot.count < ShaderLightingDefines::MAX_NUM_SPOT_LIGHTS) {
         size_t lightIndex = m_spot.count;

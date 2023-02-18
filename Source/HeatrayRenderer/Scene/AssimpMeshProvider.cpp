@@ -62,7 +62,7 @@ glm::mat4x4 getFullTransform(aiScene const *scene, const aiString &nodeName, con
     return finalTransform;
 }
 
-AssimpMeshProvider::AssimpMeshProvider(const std::string &filename, bool convertToMeters, std::shared_ptr<Lighting> lighting)
+AssimpMeshProvider::AssimpMeshProvider(const std::string_view filename, bool convertToMeters, std::shared_ptr<Lighting> lighting)
 : MeshProvider(filename)
 , m_filename(std::move(filename))
 , m_convertToMeters(convertToMeters)
@@ -658,7 +658,7 @@ void AssimpMeshProvider::ProcessLight(aiLight const* light, std::shared_ptr<Ligh
     }
 }
 
-void AssimpMeshProvider::LoadScene(std::string const & filename, std::shared_ptr<Lighting> lighting)
+void AssimpMeshProvider::LoadScene(const std::string_view filename, std::shared_ptr<Lighting> lighting)
 {
     static bool assimpLoggerInitialized = false;
 
@@ -688,7 +688,7 @@ void AssimpMeshProvider::LoadScene(std::string const & filename, std::shared_ptr
     // then the model is originally in centimeters.
     importer.SetPropertyFloat(AI_CONFIG_GLOBAL_SCALE_FACTOR_KEY, m_convertToMeters ? 0.01f : 1.0f);
 
-    const aiScene * scene = importer.ReadFile(filename.c_str(), postProcessFlags);
+    const aiScene * scene = importer.ReadFile(filename.data(), postProcessFlags);
     LOG_INFO("Scene imported by assimp!");
 
     if (scene) {

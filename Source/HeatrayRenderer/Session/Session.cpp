@@ -10,6 +10,7 @@
 
 #include <tinyxml2/tinyxml2.h>
 
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -30,7 +31,7 @@ struct Variable {
         Value(uint32_t uinteger) { u = uinteger; }
         Value(bool boolean) { b = boolean; }
         Value(float decimal) { f = decimal; }
-        Value(const char* string) { strcpy(c, string); }
+        Value(const std::string_view string) { strcpy(c, string.data()); }
 
         int		     i = 0;
         uint32_t     u;
@@ -39,7 +40,7 @@ struct Variable {
         char		 c[512];
     };
 
-    explicit Variable(const std::string &varName, VariableType varType, Value varDefaultValue) :
+    explicit Variable(const std::string_view varName, VariableType varType, Value varDefaultValue) :
         name(varName),
         type(varType),
         value(varDefaultValue)
@@ -84,7 +85,7 @@ Session::~Session()
 {
 }
 
-bool Session::parseSessionFile(const std::string& filename)
+bool Session::parseSessionFile(const std::string_view filename)
 {
     bool result = true;
 
@@ -92,16 +93,16 @@ bool Session::parseSessionFile(const std::string& filename)
     const tinyxml2::XMLElement* rootSessionNode = nullptr;
     tinyxml2::XMLDocument xmlSessionFile;
 
-    tinyxml2::XMLError error = xmlSessionFile.LoadFile(filename.c_str());
+    tinyxml2::XMLError error = xmlSessionFile.LoadFile(filename.data());
     if (error != tinyxml2::XML_SUCCESS) {
         xmlSessionFile.PrintError();
-        LOG_ERROR("Unable to load session file %s", filename.c_str());
+        LOG_ERROR("Unable to load session file %s", filename.data());
         result = false;
     }
     else {
-        rootSessionNode = xmlSessionFile.FirstChildElement(s_rootSessionNodeName);
+        rootSessionNode = xmlSessionFile.FirstChildElement(s_rootSessionNodeName.data());
         if (rootSessionNode == nullptr) {
-            LOG_ERROR("Unable to load root session node %s in session file %s", s_rootSessionNodeName, filename.c_str());
+            LOG_ERROR("Unable to load root session node %s in session file %s", s_rootSessionNodeName, filename.data());
             result = false;
         } else {
             VariableMap::iterator iter = g_sessionVariableMap.begin();
@@ -122,27 +123,27 @@ bool Session::parseSessionFile(const std::string& filename)
                     switch (variable->type) {
                         case VariableType::kInt:
                         {
-                            element->QueryAttribute(s_attributeName, &variable->value.i);
+                            element->QueryAttribute(s_attributeName.data(), &variable->value.i);
                             break;
                         }
                         case VariableType::kUInt:
                         {
-                            element->QueryAttribute(s_attributeName, &variable->value.u);
+                            element->QueryAttribute(s_attributeName.data(), &variable->value.u);
                             break;
                         }
                         case VariableType::kBool:
                         {
-                            element->QueryAttribute(s_attributeName, &variable->value.b);
+                            element->QueryAttribute(s_attributeName.data(), &variable->value.b);
                             break;
                         }
                         case VariableType::kFloat:
                         {
-                            element->QueryAttribute(s_attributeName, &variable->value.f);
+                            element->QueryAttribute(s_attributeName.data(), &variable->value.f);
                             break;
                         }
                         case VariableType::kString:
                         {
-                            std::string value = element->Attribute(s_attributeName);
+                            std::string value = element->Attribute(s_attributeName.data());
                             strcpy(variable->value.c, value.c_str());
                             break;
                         }
@@ -155,10 +156,10 @@ bool Session::parseSessionFile(const std::string& filename)
     return result;
 }
 
-bool Session::writeSessionFile(const std::string& filename) const
+bool Session::writeSessionFile(const std::string_view filename) const
 {
     tinyxml2::XMLDocument file;
-    tinyxml2::XMLElement* rootElement = file.NewElement(s_rootSessionNodeName);
+    tinyxml2::XMLElement* rootElement = file.NewElement(s_rootSessionNodeName.data());
     file.InsertFirstChild(rootElement);
 
     // Create an XML element for each group with a sub element for each variable.	
@@ -174,27 +175,27 @@ bool Session::writeSessionFile(const std::string& filename) const
             switch (variable->type) {
                 case VariableType::kInt:
                 {
-                    newVariable->SetAttribute(s_attributeName, variable->value.i);
+                    newVariable->SetAttribute(s_attributeName.data(), variable->value.i);
                     break;
                 }
                 case VariableType::kUInt:
                 {
-                    newVariable->SetAttribute(s_attributeName, variable->value.u);
+                    newVariable->SetAttribute(s_attributeName.data(), variable->value.u);
                     break;
                 }
                 case VariableType::kFloat:
                 {
-                    newVariable->SetAttribute(s_attributeName, variable->value.f);
+                    newVariable->SetAttribute(s_attributeName.data(), variable->value.f);
                     break;
                 }
                 case VariableType::kBool:
                 {
-                    newVariable->SetAttribute(s_attributeName, variable->value.b);
+                    newVariable->SetAttribute(s_attributeName.data(), variable->value.b);
                     break;
                 }
                 case VariableType::kString:
                 {
-                    newVariable->SetAttribute(s_attributeName, variable->value.c);
+                    newVariable->SetAttribute(s_attributeName.data(), variable->value.c);
                     break;
                 }
                 default:
@@ -210,9 +211,9 @@ bool Session::writeSessionFile(const std::string& filename) const
         rootElement->InsertEndChild(groupNode);
     }
 
-    bool success = (file.SaveFile(filename.c_str()) == tinyxml2::XML_SUCCESS);
+    bool success = (file.SaveFile(filename.data()) == tinyxml2::XML_SUCCESS);
     if (success) {
-        LOG_INFO("Saved Heatray session to %s", filename.c_str());
+        LOG_INFO("Saved Heatray session to %s", filename.data());
     } else {
         LOG_ERROR("Unable to save Heatray session file");
     }
@@ -264,7 +265,7 @@ void Session::setVariableValue(const SessionVariable& variable, const float valu
     g_sessionVariables[static_cast<size_t>(variable)].value.f = value;
 }
 
-void Session::setVariableValue(const SessionVariable& variable, const std::string& value) const
+void Session::setVariableValue(const SessionVariable& variable, const std::string_view value) const
 {
-    strcpy(g_sessionVariables[static_cast<size_t>(variable)].value.c, value.c_str());
+    strcpy(g_sessionVariables[static_cast<size_t>(variable)].value.c, value.data());
 }

@@ -24,7 +24,7 @@ Mesh::Mesh(MeshProvider* meshProvider,
         material->build();
     }
 
-    LOG_INFO("Building Mesh data for Provider %s", meshProvider->name().c_str());
+    LOG_INFO("Building Mesh data for Provider %s", meshProvider->name().data());
     size_t vertexBufferCount = meshProvider->GetVertexBufferCount();
     for (size_t ii = 0; ii < vertexBufferCount; ++ii) {
         std::shared_ptr<openrl::Buffer> buffer = openrl::Buffer::create(RL_ARRAY_BUFFER, nullptr, meshProvider->GetVertexBufferSize(ii), "Vertex Buffer");

@@ -6,7 +6,7 @@
 
 namespace util {
 
-bool readTextFile(const char* filename, std::string& content)
+bool readTextFile(const std::string_view filename, std::string& content)
 {
     std::ifstream fin;
     fin.open(filename);

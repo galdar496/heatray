@@ -14,7 +14,7 @@
 
 namespace util {
 
-void loadTextureInternal(LoadedTexture& loadedTexture, const char *path, bool generateMips, bool convertToLinear)
+void loadTextureInternal(LoadedTexture& loadedTexture, const std::string_view path, bool generateMips, bool convertToLinear)
 {
     LOG_INFO("Loading texture %s", path);
     
@@ -158,7 +158,7 @@ void loadTextureInternal(LoadedTexture& loadedTexture, const char *path, bool ge
     }
 }
 
-std::future<LoadedTexture> loadTextureAsync(const char *path, bool generateMips, bool convertToLinear)
+std::future<LoadedTexture> loadTextureAsync(const std::string_view path, bool generateMips, bool convertToLinear)
 {
     std::shared_ptr<uint8_t> pixels = nullptr;
     std::string filepath = std::string(path);
@@ -169,7 +169,7 @@ std::future<LoadedTexture> loadTextureAsync(const char *path, bool generateMips,
     });
 }
 
-std::shared_ptr<openrl::Texture> loadTexture(const char* path, bool generateMips, bool convertToLinear)
+std::shared_ptr<openrl::Texture> loadTexture(const std::string_view path, bool generateMips, bool convertToLinear)
 {
     LoadedTexture loadedTexture;
     loadTextureInternal(loadedTexture, path, generateMips, convertToLinear);
@@ -183,9 +183,9 @@ std::shared_ptr<openrl::Texture> loadTexture(const char* path, bool generateMips
     return texture;
 }
 
-uint8_t* loadLDRTexturePixels(const char* path, int& width, int& height, int& channelCount)
+uint8_t* loadLDRTexturePixels(const std::string_view path, int& width, int& height, int& channelCount)
 {
-    stbi_uc* pixels = stbi_load(path, &width, &height, &channelCount, 0);
+    stbi_uc* pixels = stbi_load(path.data(), &width, &height, &channelCount, 0);
     return static_cast<uint8_t*>(pixels);
 }
 

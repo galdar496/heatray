@@ -1,4 +1,4 @@
-﻿//
+//
 //  Lighting.h
 //  Heatray
 //
@@ -56,17 +56,17 @@ public:
     // Remove a light, deleting its resources from OpenRL as well.
     void removeLight(std::shared_ptr<Light> light);
 
-    std::shared_ptr<DirectionalLight> addDirectionalLight(const std::string &name);
+    std::shared_ptr<DirectionalLight> addDirectionalLight(const std::string_view name);
     const std::shared_ptr<DirectionalLight>* directionalLights() const { return &(m_directional.lights[0]); }
     void updateDirectionalLight(std::shared_ptr<DirectionalLight> light);
     void removeDirectionalLight(std::shared_ptr<DirectionalLight> light);
 
-    std::shared_ptr<PointLight> addPointLight(const std::string& name);
+    std::shared_ptr<PointLight> addPointLight(const std::string_view name);
     const std::shared_ptr<PointLight>* pointLights() const { return &(m_point.lights[0]); }
     void updatePointLight(std::shared_ptr<PointLight> light);
     void removePointLight(std::shared_ptr<PointLight> light);
 
-    std::shared_ptr<SpotLight> addSpotLight(const std::string& name);
+    std::shared_ptr<SpotLight> addSpotLight(const std::string_view name);
     const std::shared_ptr<SpotLight>* spotLights() const { return &(m_spot.lights[0]); }
     void updateSpotLight(std::shared_ptr<SpotLight> light);
     void removeSpotLight(std::shared_ptr<SpotLight> light);

@@ -13,6 +13,7 @@
 #include <OpenRL/rl.h>
 
 #include <assert.h>
+#include <string_view>
 
 #define checkRLErrors() openrl::checkError(__FILE__, __LINE__)
 
@@ -26,7 +27,7 @@ namespace openrl {
 // Check the current OpenRL state for errors. If an error is detected, the 
 // system will stop. It is recommended to use the macro checkRLErrors() 
 // instead of this function directly.
-inline void checkError(const char* filename, int lineNumber)
+inline void checkError(const std::string_view filename, int lineNumber)
 {
     RLenum errorID = rlGetError();
 

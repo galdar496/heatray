@@ -11,7 +11,7 @@ std::shared_ptr<Scene> Scene::create()
 	return std::shared_ptr<Scene>(new Scene());
 }
 
-void Scene::loadFromDisk(const std::string& path, bool convertToMeters)
+void Scene::loadFromDisk(const std::string_view path, bool convertToMeters)
 {
 	m_lighting->clearAllButEnvironment();
 

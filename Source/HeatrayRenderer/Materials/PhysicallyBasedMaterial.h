@@ -15,7 +15,7 @@
 class PhysicallyBasedMaterial final : public Material
 {
 public:
-    explicit PhysicallyBasedMaterial(const std::string& name)
+    explicit PhysicallyBasedMaterial(const std::string_view name)
         : Material(name, Material::Type::PBR) {}
     virtual ~PhysicallyBasedMaterial() = default;
 

@@ -10,8 +10,9 @@
 //-------------------------------------------------------------------------
 // Define session variables to read from an XML session file.
 
-#include <string>
 #include <assert.h>
+#include <string>
+#include <string_view>
 
 // Session variables that should be present in the session xml file. The parameters are marked as:
 // "Variable Group", "Variable Name" (as it is present in the session file) "VariableType", and "Variable Default Value".
@@ -96,13 +97,13 @@ public:
     //-------------------------------------------------------------------------
     // Read the session file and populate the list of session variables. Returns
     // true if the file was successfully parsed.
-    bool parseSessionFile(const std::string& filename);
+    bool parseSessionFile(const std::string_view filename);
 
     //-------------------------------------------------------------------------
     // Write a new XML session file to disk using the current values of the 
     // session variables. Returns true if the new session file was succesfully
     // written.
-    bool writeSessionFile(const std::string& filename) const;
+    bool writeSessionFile(const std::string_view filename) const;
  
     //-------------------------------------------------------------------------
     // Get the value of a specific session variable. If parseSessionFile() has 
@@ -122,11 +123,11 @@ public:
     void setVariableValue(const SessionVariable& variable, const uint32_t value) const;
     void setVariableValue(const SessionVariable& variable, const bool value) const;
     void setVariableValue(const SessionVariable& variable, const float value) const;
-    void setVariableValue(const SessionVariable& variable, const std::string& value) const;
+    void setVariableValue(const SessionVariable& variable, const std::string_view value) const;
 
 private:
 
-    constexpr static const char* const s_rootSessionNodeName = "HeatraySession";
-    constexpr static const char* const s_attributeName = "value";
+    constexpr static std::string_view s_rootSessionNodeName = "HeatraySession";
+    constexpr static std::string_view s_attributeName = "value";
 };
 

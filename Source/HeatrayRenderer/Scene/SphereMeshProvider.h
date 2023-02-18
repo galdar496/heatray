@@ -24,7 +24,7 @@ glm::vec3 CartesianFromSpherical(glm::vec3 const & spherical)
 class SphereMeshProvider : public MeshProvider
 {
 public:
-    explicit SphereMeshProvider(size_t uSlices, size_t vSlices, float radius, const std::string &name) : MeshProvider(name), uSlices(uSlices), vSlices(vSlices), radius(radius)
+    explicit SphereMeshProvider(size_t uSlices, size_t vSlices, float radius, const std::string_view name) : MeshProvider(name), uSlices(uSlices), vSlices(vSlices), radius(radius)
     {
         vertexCount = (uSlices + 1) * (vSlices + 2);
     }

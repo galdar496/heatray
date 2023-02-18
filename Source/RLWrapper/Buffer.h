@@ -12,6 +12,8 @@
 
 #include <OpenRL/rl.h>
 
+#include <string_view>
+
 namespace openrl {
 
 //
@@ -32,7 +34,7 @@ public:
 
     //-------------------------------------------------------------------------
     // Generates an OpenRL buffer and returns a shared_ptr to it.
-    static std::shared_ptr<Buffer> create(const RLenum target, const void* data, const size_t sizeInBytes, const char* name = "<unnamed>")
+    static std::shared_ptr<Buffer> create(const RLenum target, const void* data, const size_t sizeInBytes, const std::string_view name = "<unnamed>")
     {
         Buffer* buffer = new Buffer(target, sizeInBytes, name);
         buffer->modify(data, sizeInBytes);
@@ -75,13 +77,13 @@ public:
     inline void unmapBuffer() const { RLFunc(rlUnmapBuffer(m_target)); }
 
 private:
-    explicit Buffer(const RLenum target, const size_t sizeInBytes, const char* name)
+    explicit Buffer(const RLenum target, const size_t sizeInBytes, const std::string_view name)
         : m_target(target)
         , m_sizeInBytes(sizeInBytes)
     {
         RLFunc(rlGenBuffers(1, &m_buffer));
         RLFunc(rlBindBuffer(m_target, m_buffer));
-        RLFunc(rlBufferParameterString(m_target, RL_BUFFER_NAME, name));
+        RLFunc(rlBufferParameterString(m_target, RL_BUFFER_NAME, name.data()));
         RLFunc(rlBindBuffer(m_target, RL_NULL_BUFFER));
     }
 

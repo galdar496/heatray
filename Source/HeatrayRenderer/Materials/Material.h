@@ -21,14 +21,14 @@ public:
         Glass
     };
 
-    explicit Material(const std::string& name, Type type)
+    explicit Material(const std::string_view name, Type type)
         : m_name(name)
         , m_type(type) {}
     virtual ~Material() = default;
 
     std::shared_ptr<openrl::Program> program() { return m_program; }
     std::shared_ptr<openrl::Buffer> uniformBlock() { return m_constants; }
-    const std::string& name() const { return m_name; }
+    const std::string_view name() const { return m_name; }
     Type type() const { return m_type; }
 
     //-------------------------------------------------------------------------

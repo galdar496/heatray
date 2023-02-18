@@ -14,7 +14,7 @@
 class GlassMaterial final : public Material
 {
 public:
-    GlassMaterial(const std::string &name)
+    GlassMaterial(const std::string_view name)
         : Material(name, Material::Type::Glass) {}
     virtual ~GlassMaterial() = default;
 

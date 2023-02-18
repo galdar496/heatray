@@ -23,7 +23,7 @@ enum BufferTypes {
 };
 
 public:
-    explicit PlaneMeshProvider(size_t width, size_t length, const std::string &name) : MeshProvider(name), m_width(width), m_length(length)
+    explicit PlaneMeshProvider(size_t width, size_t length, const std::string_view name) : MeshProvider(name), m_width(width), m_length(length)
     {
     }
     virtual ~PlaneMeshProvider() {}

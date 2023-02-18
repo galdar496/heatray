@@ -62,7 +62,7 @@ public:
         std::string name;
     };
 
-    explicit MeshProvider(const std::string &name) : m_name(name) {}
+    explicit MeshProvider(const std::string_view name) : m_name(name) {}
     virtual ~MeshProvider() {}
     virtual size_t GetVertexBufferCount() = 0;
     virtual size_t GetVertexBufferSize(size_t bufferIndex) = 0;
@@ -75,7 +75,7 @@ public:
     virtual size_t GetSubmeshCount() = 0;
     virtual Submesh GetSubmesh(size_t submeshIndex) = 0;
 
-    const std::string &name() { return m_name; }
+    const std::string_view name() { return m_name; }
 protected:
     const std::string m_name;
 };

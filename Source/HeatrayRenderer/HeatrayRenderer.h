@@ -67,11 +67,11 @@ public:
     //-------------------------------------------------------------------------
     // Load a new scene from disk. If 'moveCamera' is true, the camera will be
     // moved to a new location based on the size of the new scene.
-    void changeScene(std::string const &sceneName, bool moveCamera);
+    void changeScene(const std::string &sceneName, bool moveCamera);
 
     //-------------------------------------------------------------------------
     // Load a new environment map to use for image-based lighting.
-    void changeEnvironment(std::string const& envMapPath);
+    void changeEnvironment(const std::string &envMapPath);
 
     //-------------------------------------------------------------------------
     // Render a frame.
@@ -98,8 +98,8 @@ private:
     bool renderUI();
     void saveScreenshot();
 
-    void writeSessionFile(const std::string& filename);
-    void readSessionFile(const std::string& filename);
+    void writeSessionFile(const std::string_view filename);
+    void readSessionFile(const std::string_view filename);
 
     struct PostProcessingParams {
         bool tonemapping_enabled = false;

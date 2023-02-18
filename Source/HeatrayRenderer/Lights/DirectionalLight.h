@@ -1,4 +1,4 @@
-﻿//
+//
 //  DirectionalLight.h
 //  Heatray
 //
@@ -24,7 +24,7 @@ class Program;
 class DirectionalLight final : public Light
 {
 public:
-    explicit DirectionalLight(const std::string& name, size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer);
+    explicit DirectionalLight(const std::string_view name, size_t lightIndex, std::shared_ptr<openrl::Buffer> lightBuffer);
     ~DirectionalLight() = default;
 
     //-------------------------------------------------------------------------
