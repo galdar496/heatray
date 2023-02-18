@@ -342,6 +342,7 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
     // https://en.wikipedia.org/wiki/Angle_of_view#Calculating_a_camera's_angle_of_view
     const float fovY = 2.0f * std::atan2(sensorDimensions.y, 2.0f * m_renderOptions.camera.focalLength);
 
+    bool jobCompleted = false;
     do {
         // Update global data for this frame.
         {
@@ -383,13 +384,20 @@ void PassGenerator::runRenderFrameJob(const RenderOptions& newOptions)
         }
         
         RLFunc(rlRenderFrame());
-    } while (m_renderOptions.enableOfflineMode && (m_currentSampleIndex < m_renderOptions.maxRenderPasses));
-    
-    m_resultPixels->setPixelData(*m_fboTexture);
+        
+        // This job is considered "complete" if pixel data was generated, which can happen when we're either progressively
+        // rendering OR if all passes have been completed (while in offline rendering mode).
+        jobCompleted = !(m_renderOptions.enableOfflineMode && (m_currentSampleIndex < m_renderOptions.maxRenderPasses));
+        
+        if (jobCompleted) {
+            m_resultPixels->setPixelData(*m_fboTexture);
+        }
 
-    // Let the client know that a frame has been completed.
-    float passTime = timer.stop();
-    m_passCompleteCallback(m_resultPixels, passTime, m_currentSampleIndex);
+        // Let the client know that a frame has been completed.
+        float passTime = timer.dt();
+        m_passCompleteCallback(jobCompleted, m_resultPixels, passTime, m_currentSampleIndex);
+        
+    } while (!jobCompleted);
 }
 
 void PassGenerator::runLoadSceneJob(bool clearOldScene)

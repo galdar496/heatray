@@ -385,13 +385,18 @@ void HeatrayRenderer::render()
             m_shouldCopyPixels.clear();
             // Tell the pathtracer to start generating a new frame.
             m_renderer.renderPass(m_renderOptions,
-                [this](std::shared_ptr<openrl::PixelPackBuffer> results, float passTime, size_t passIndex)
+                [this](bool frameDataAvailable, std::shared_ptr<openrl::PixelPackBuffer> results, float passTime, size_t passIndex)
                 {
-                    const float* pixelData = results->mapPixelData();
-                    m_pathracedPixels.store(pixelData);
-                    m_pixelDimensions = glm::ivec2(results->width(), results->height());
-                    m_shouldCopyPixels.test_and_set();
-                    m_renderingFrame = false;
+                    if (frameDataAvailable) {
+                        const float* pixelData = results->mapPixelData();
+                        m_pathracedPixels.store(pixelData);
+                        m_pixelDimensions = glm::ivec2(results->width(), results->height());
+                        m_shouldCopyPixels.test_and_set();
+                        m_renderingFrame = false;
+                    }
+                
+                    // This callback can still be invoked during offline rendering mode so that the UI can keep updating
+                    // these values.
                     m_currentPassTime = passTime;
                     m_totalRenderTime += passTime;
                     m_currentPass = passIndex;

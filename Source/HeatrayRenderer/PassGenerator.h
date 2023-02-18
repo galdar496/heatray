@@ -158,7 +158,7 @@ public:
     // via RenderOptions to this function then the renderer is reset prior to
     // rendering this pass. Upon completion the PassCompleteCallback will be
     // invoked.
-    using PassCompleteCallback = std::function<void(std::shared_ptr<openrl::PixelPackBuffer> resultPixels, float passTime, size_t passIndex)>;
+    using PassCompleteCallback = std::function<void(bool frameDataAvailable, std::shared_ptr<openrl::PixelPackBuffer> resultPixels, float passTime, size_t passIndex)>;
     void renderPass(const RenderOptions& newOptions, PassCompleteCallback callback);
     
     //-------------------------------------------------------------------------
