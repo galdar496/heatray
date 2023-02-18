@@ -12,7 +12,6 @@
 
 #include <assert.h>
 #include <memory>
-#include <stdarg.h>
 #include <string>
 
 namespace util {
