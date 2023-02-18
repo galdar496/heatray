@@ -105,18 +105,18 @@ bool Session::parseSessionFile(const std::string& filename)
             result = false;
         } else {
             VariableMap::iterator iter = g_sessionVariableMap.begin();
-            for (auto &iter : g_sessionVariableMap) {
+            for (auto &[groupName, variableList] : g_sessionVariableMap) {
                 // Read the specific node for this session group.
-                const tinyxml2::XMLElement* groupNode = rootSessionNode->FirstChildElement(iter.first.c_str());
+                const tinyxml2::XMLElement* groupNode = rootSessionNode->FirstChildElement(groupName.c_str());
                 if (!groupNode) {
-                    LOG_ERROR("Unable to read group '%s' from session file", iter.first.c_str());
+                    LOG_ERROR("Unable to read group '%s' from session file", groupName.c_str());
                     continue;
                 }
 
                 // Read each variable in this group. Every variable will have an attribute attached
                 // to it that contains the final value of the session variable.
-                for (size_t ii = 0; ii < iter.second.size(); ++ii) {
-                    Variable* variable = iter.second[ii];
+                for (size_t ii = 0; ii < variableList.size(); ++ii) {
+                    Variable* variable = variableList[ii];
                     const tinyxml2::XMLElement* element = groupNode->FirstChildElement(variable->name.c_str());
 
                     switch (variable->type) {
@@ -162,13 +162,12 @@ bool Session::writeSessionFile(const std::string& filename) const
     file.InsertFirstChild(rootElement);
 
     // Create an XML element for each group with a sub element for each variable.	
-    for (auto &iter : g_sessionVariableMap) {
-        std::string groupName = iter.first;
+    for (auto &[groupName, variableList] : g_sessionVariableMap) {
         tinyxml2::XMLElement* groupNode = file.NewElement(groupName.c_str());
 
         // Write the variables for this group.
-        for (size_t ii = 0; ii < iter.second.size(); ++ii) {
-            const Variable* variable = iter.second[ii];
+        for (size_t ii = 0; ii < variableList.size(); ++ii) {
+            const Variable* variable = variableList[ii];
 
             tinyxml2::XMLElement* newVariable = file.NewElement(variable->name.c_str());
 
