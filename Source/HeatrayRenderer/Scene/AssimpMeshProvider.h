@@ -22,7 +22,7 @@ class Lighting;
 class AssimpMeshProvider : public MeshProvider
 {
 public:
-    explicit AssimpMeshProvider(std::string filename, bool convertToMeters, std::shared_ptr<Lighting> lighting);
+    explicit AssimpMeshProvider(const std::string &filename, bool convertToMeters, std::shared_ptr<Lighting> lighting);
     virtual ~AssimpMeshProvider() = default;
 
     size_t GetVertexBufferCount() override

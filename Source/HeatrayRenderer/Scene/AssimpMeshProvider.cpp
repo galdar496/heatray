@@ -62,7 +62,7 @@ glm::mat4x4 getFullTransform(aiScene const *scene, const aiString &nodeName, con
     return finalTransform;
 }
 
-AssimpMeshProvider::AssimpMeshProvider(std::string filename, bool convertToMeters, std::shared_ptr<Lighting> lighting)
+AssimpMeshProvider::AssimpMeshProvider(const std::string &filename, bool convertToMeters, std::shared_ptr<Lighting> lighting)
 : MeshProvider(filename)
 , m_filename(std::move(filename))
 , m_convertToMeters(convertToMeters)
