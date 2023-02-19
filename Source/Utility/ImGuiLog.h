@@ -12,6 +12,7 @@
 
 #include "../../3rdParty/imgui/imgui.h"
 
+#include <atomic>
 #include <mutex>
 
 namespace util {
@@ -31,6 +32,7 @@ public:
         newItem.append("\n"); // Auto-add a newline to avoid the user having to worry about it.
         std::unique_lock<std::mutex> lock(m_mutex);
         m_textBuffer[static_cast<size_t>(type)].append(newItem.c_str());
+        m_newTextAvailable[static_cast<size_t>(type)].store(true);
     }
 
     void clear() { 
@@ -39,10 +41,14 @@ public:
         }
     }
 
-    const ImGuiTextBuffer& textBuffer(const Log::Type type) const { return m_textBuffer[static_cast<size_t>(type)]; }
+    const ImGuiTextBuffer& textBuffer(const Log::Type type, bool &newTextAvailable) {
+        newTextAvailable = m_newTextAvailable[static_cast<size_t>(type)].exchange(false);
+        return m_textBuffer[static_cast<size_t>(type)];
+    }
 private:
     ImGuiLog() = default;
     ImGuiTextBuffer m_textBuffer[static_cast<size_t>(Log::Type::kCount)];
+    std::atomic_bool m_newTextAvailable[static_cast<size_t>(Log::Type::kCount)] = {false};
     std::mutex m_mutex;
 };
 

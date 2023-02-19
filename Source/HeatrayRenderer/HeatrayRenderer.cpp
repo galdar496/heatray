@@ -1508,38 +1508,48 @@ bool HeatrayRenderer::renderUI()
                     std::ofstream fout;
                     fout.open(names[0]);
                     if (fout) {
+                        bool temp;
                         fout << "INFO:" << std::endl;
-                        fout << imguiLog->textBuffer(util::Log::Type::kInfo).c_str() << std::endl;
+                        fout << imguiLog->textBuffer(util::Log::Type::kInfo, temp).c_str() << std::endl;
                         fout << "WARNINGS:" << std::endl;
-                        fout << imguiLog->textBuffer(util::Log::Type::kWarning).c_str() << std::endl;
+                        fout << imguiLog->textBuffer(util::Log::Type::kWarning, temp).c_str() << std::endl;
                         fout << "ERRORS:" << std::endl;
-                        fout << imguiLog->textBuffer(util::Log::Type::kError).c_str() << std::endl;
+                        fout << imguiLog->textBuffer(util::Log::Type::kError, temp).c_str() << std::endl;
                         fout.close();
                     }
                 }
             }
             ImGui::Separator();
+            bool shouldScrollToBottom = false;
             ImGui::BeginChild("Info Console Log", ImVec2(0.0f, -1.0f), false, ImGuiWindowFlags_AlwaysHorizontalScrollbar);
             {
                 ImGui::Text("Info");
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-                ImGui::TextUnformatted(imguiLog->textBuffer(util::Log::Type::kInfo).begin());
+                bool newText = false;
+                ImGui::TextUnformatted(imguiLog->textBuffer(util::Log::Type::kInfo, newText).begin());
+                shouldScrollToBottom |= newText;
                 ImGui::PopStyleColor();
                 ImGui::Separator();
             }
             {
                 ImGui::Text("Warnings");
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.8f, 0.5f, 1.0f));
-                ImGui::TextUnformatted(imguiLog->textBuffer(util::Log::Type::kWarning).begin());
+                bool newText = false;
+                ImGui::TextUnformatted(imguiLog->textBuffer(util::Log::Type::kWarning, newText).begin());
+                shouldScrollToBottom |= newText;
                 ImGui::PopStyleColor();
             }
             {
                 ImGui::Text("Errors");
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.5f, 0.5f, 1.0f));
-                ImGui::TextUnformatted(imguiLog->textBuffer(util::Log::Type::kError).begin());
+                bool newText = false;
+                ImGui::TextUnformatted(imguiLog->textBuffer(util::Log::Type::kError, newText).begin());
+                shouldScrollToBottom |= newText;
                 ImGui::PopStyleColor();
             }
-            ImGui::SetScrollHere(1.0f);
+            if (shouldScrollToBottom) {
+                ImGui::SetScrollHere(1.0f);
+            }
             ImGui::EndChild();
             ImGui::Separator();
         }
