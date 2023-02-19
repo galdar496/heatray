@@ -68,6 +68,9 @@ AssimpMeshProvider::AssimpMeshProvider(const std::string_view filename, bool con
 , m_convertToMeters(convertToMeters)
 {
     LoadScene(m_filename, lighting);
+    
+    LOG_INFO("Scene AABB (min): %f %f %f", m_sceneAABB.min.x, m_sceneAABB.min.y, m_sceneAABB.min.z);
+    LOG_INFO("Scene AABB (max): %f %f %f", m_sceneAABB.max.x, m_sceneAABB.max.y, m_sceneAABB.max.z);
 }
 
 void AssimpMeshProvider::ProcessNode(const aiScene * scene, const aiNode * node, const aiMatrix4x4 & parentTransform, int level)
