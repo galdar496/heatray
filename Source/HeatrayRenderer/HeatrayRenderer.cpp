@@ -72,7 +72,7 @@ bool HeatrayRenderer::init(const GLint windowWidth, const GLint windowHeight)
     m_renderOptions.camera.setApertureRadius();
 
     // Setup some defaults.
-    m_renderOptions.environment.map = "studio.hdr";
+    m_renderOptions.environment.map = "studio2.exr";
     m_renderOptions.scene = "Multi-Material";
     m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance;
     m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
@@ -1043,12 +1043,12 @@ bool HeatrayRenderer::renderUI()
         }
     }
     if (ImGui::CollapsingHeader("Environment options")) {
-        static constexpr std::string_view options[] = { "<none>", EnvironmentLight::SOLID_COLOR, "studio.hdr", "noon_grass.exr", "kloppenheim.exr", "peppermint_powerplant.exr", "urban_alley.exr", "chinese_garden.exr", "glacier.exr", "uffizi.exr", "Load Custom..." };
+        static constexpr std::string_view options[] = { "<none>", EnvironmentLight::SOLID_COLOR, "studio.hdr", "studio2.exr", "noon_grass.exr", "kloppenheim.exr", "peppermint_powerplant.exr", "urban_alley.exr", "chinese_garden.exr", "glacier.exr", "uffizi.exr", "Load Custom..." };
         static constexpr size_t NUM_OPTIONS = sizeof(options) / sizeof(options[0]);
         static constexpr size_t CUSTOM_OPTION_INDEX = NUM_OPTIONS - 1;
         static constexpr size_t SOLID_COLOR_OPTION_INDEX = 1;
 
-        static size_t currentSelection = 2;
+        static size_t currentSelection = 3;
         if (ImGui::BeginCombo("Environment map", options[currentSelection].data())) {
             for (size_t iOption = 0; iOption < NUM_OPTIONS; ++iOption) {
                 bool isSelected = (currentSelection == iOption);
