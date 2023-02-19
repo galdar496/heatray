@@ -113,7 +113,7 @@ private:
         float green = 1.0f;
         float blue = 1.0f;
         float vignetteIntensity = 0.0f;
-        float vignetteFalloff = 0.0f;
+        float vignetteFalloff = 1.0f;
     } m_post_processing_params;
 
     // Object which handles final display of the raytraced pixels via a custom fragment shader.
