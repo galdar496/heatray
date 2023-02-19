@@ -112,6 +112,8 @@ private:
         float red = 1.0f;
         float green = 1.0f;
         float blue = 1.0f;
+        float vignetteIntensity = 0.0f;
+        float vignetteFalloff = 0.0f;
     } m_post_processing_params;
 
     // Object which handles final display of the raytraced pixels via a custom fragment shader.
@@ -135,6 +137,8 @@ private:
         GLint redLocation = -1;
         GLint greenLocation = -1;
         GLint blueLocation = -1;
+        GLint vignetteIntensityLocation = -1;
+        GLint vignetteFalloffLocation = -1;
         GLint xStartLocation = -1;
 
         void init()
@@ -195,6 +199,8 @@ private:
             redLocation = glGetUniformLocation(program, "red");
             greenLocation = glGetUniformLocation(program, "green");
             blueLocation = glGetUniformLocation(program, "blue");
+            vignetteIntensityLocation = glGetUniformLocation(program, "vignetteIntensity");
+            vignetteFalloffLocation = glGetUniformLocation(program, "vignetteFalloff");
             xStartLocation = glGetUniformLocation(program, "xStart");
 
             // Create the display VBO.
@@ -238,6 +244,8 @@ private:
                 glUniform1f(redLocation, post_params.red);
                 glUniform1f(greenLocation, post_params.green);
                 glUniform1f(blueLocation, post_params.blue);
+                glUniform1f(vignetteIntensityLocation, post_params.vignetteIntensity);
+                glUniform1f(vignetteFalloffLocation, post_params.vignetteFalloff);
             }
         }
 

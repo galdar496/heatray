@@ -16,6 +16,8 @@ uniform float vibrance;
 uniform float red;
 uniform float green;
 uniform float blue;
+uniform float vignetteIntensity;
+uniform float vignetteFalloff;
 
 in vec2 textureCoords;
 
@@ -130,6 +132,13 @@ void main()
             finalColor.r *= red;
             finalColor.g *= green;
             finalColor.b *= blue;
+        }
+        
+        // Vignette
+        {
+            float distanceFromCenter = length(vec2(0.5) - textureCoords.xy);
+            finalColor *= smoothstep(0.8, vignetteFalloff * 0.799, distanceFromCenter * (vignetteIntensity + blue));
+            
         }
 
         // Apply exposure compensation.

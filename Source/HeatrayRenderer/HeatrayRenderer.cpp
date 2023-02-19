@@ -574,6 +574,8 @@ void HeatrayRenderer::writeSessionFile(const std::string_view filename)
         session.setVariableValue(Session::SessionVariable::kRed, m_post_processing_params.red);
         session.setVariableValue(Session::SessionVariable::kGreen, m_post_processing_params.green);
         session.setVariableValue(Session::SessionVariable::kBlue, m_post_processing_params.blue);
+        session.setVariableValue(Session::SessionVariable::kVignetteIntensity, m_post_processing_params.vignetteIntensity);
+        session.setVariableValue(Session::SessionVariable::kVignetteFalloff, m_post_processing_params.vignetteFalloff);
     }
 
     session.writeSessionFile(filename);
@@ -659,6 +661,8 @@ void HeatrayRenderer::readSessionFile(const std::string_view filename)
             session.getVariableValue(Session::SessionVariable::kRed, m_post_processing_params.red);
             session.getVariableValue(Session::SessionVariable::kGreen, m_post_processing_params.green);
             session.getVariableValue(Session::SessionVariable::kBlue, m_post_processing_params.blue);
+            session.getVariableValue(Session::SessionVariable::kVignetteIntensity, m_post_processing_params.vignetteIntensity);
+            session.getVariableValue(Session::SessionVariable::kVignetteFalloff, m_post_processing_params.vignetteFalloff);
         }
 
         // Now actually process the parameters. NOTE: we do not allow the camera to be reset because we want to use
@@ -999,7 +1003,7 @@ bool HeatrayRenderer::renderUI()
             if (ImGui::Checkbox("Enable interactive mode", &m_renderOptions.enableInteractiveMode)) {
                 shouldResetRenderer = true;
                 m_renderOptions.enableOfflineMode = false; // These are radial options.
-            } else if (ImGui::Checkbox("Enable offline mode", &m_renderOptions.enableOfflineMode)) {
+            } else if (ImGui::Checkbox("Enable offline mode (uninterruptable)", &m_renderOptions.enableOfflineMode)) {
                 shouldResetRenderer = true;
                 m_renderOptions.enableInteractiveMode = false; // These are radial options.
             }
@@ -1388,7 +1392,7 @@ bool HeatrayRenderer::renderUI()
             }
 
             ImGui::Text("Lens Properties");
-            if (ImGui::SliderFloat("Focus distance(m)", &m_renderOptions.camera.focusDistance, 0.0f, m_camera.orbitCamera.max_distance)) {
+            if (ImGui::SliderFloat("Focus distance(m)", &m_renderOptions.camera.focusDistance, 0.0f, m_camera.orbitCamera.distance * 3.0f)) {
                 shouldResetRenderer = true;
             }
             if (ImGui::SliderFloat("Focal length(mm)", &m_renderOptions.camera.focalLength, 10.0f, 200.0f)) {
@@ -1453,6 +1457,8 @@ bool HeatrayRenderer::renderUI()
         ImGui::SliderFloat("Red", &m_post_processing_params.red, 0.0f, 1.5f);
         ImGui::SliderFloat("Green", &m_post_processing_params.green, 0.0f, 1.5f);
         ImGui::SliderFloat("Blue", &m_post_processing_params.blue, 0.0f, 1.5f);
+        ImGui::SliderFloat("Vignette Intensity", &m_post_processing_params.vignetteIntensity, 0.0f, 1.0f);
+        ImGui::SliderFloat("Vignette Falloff", &m_post_processing_params.vignetteFalloff, 0.0f, 1.0f);
         if (ImGui::Button("Reset parameters")) {
             m_post_processing_params = PostProcessingParams();
         }

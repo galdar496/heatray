@@ -61,16 +61,18 @@
     X(Scene, RotationRoll, kFloat, 0.0f)  \
     X(Scene, Scale, kFloat, 1.0f)         \
     \
-    X(PostProcessing, TonemapEnable, kBool, false) \
-    X(PostProcessing, Exposure, kFloat, 0.0f)      \
-    X(PostProcessing, Brightness, kFloat, 0.0f)    \
-    X(PostProcessing, Contrast, kFloat, 0.0f)      \
-    X(PostProcessing, Hue, kFloat, 0.0f)           \
-    X(PostProcessing, Saturation, kFloat, 0.0f)    \
-    X(PostProcessing, Vibrance, kFloat, 0.0f)      \
-    X(PostProcessing, Red, kFloat, 0.0f)           \
-    X(PostProcessing, Green, kFloat, 0.0f)         \
-    X(PostProcessing, Blue, kFloat, 0.0f) 
+    X(PostProcessing, TonemapEnable, kBool, false)      \
+    X(PostProcessing, Exposure, kFloat, 0.0f)          \
+    X(PostProcessing, Brightness, kFloat, 0.0f)        \
+    X(PostProcessing, Contrast, kFloat, 0.0f)          \
+    X(PostProcessing, Hue, kFloat, 0.0f)               \
+    X(PostProcessing, Saturation, kFloat, 0.0f)        \
+    X(PostProcessing, Vibrance, kFloat, 0.0f)          \
+    X(PostProcessing, Red, kFloat, 0.0f)               \
+    X(PostProcessing, Green, kFloat, 0.0f)             \
+    X(PostProcessing, Blue, kFloat, 0.0f)              \
+    X(PostProcessing, VignetteIntensity, kFloat, 0.0f) \
+    X(PostProcessing, VignetteFalloff, kFloat, 0.0f)
     
 
 ////////////////////////////////////////////////////////////////////////////////
