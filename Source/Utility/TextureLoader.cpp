@@ -16,10 +16,10 @@ namespace util {
 
 void loadTextureInternal(LoadedTexture& loadedTexture, const std::string_view path, bool generateMips, bool convertToLinear)
 {
-    LOG_INFO("Loading texture %s", path);
-    
     // Make sure the file exists. It may be one directory back as well.
     std::string finalPath = std::string(path);
+    LOG_INFO("Loading texture %s", finalPath.c_str());
+    
     {
         std::ifstream fin;
         fin.open(finalPath);
