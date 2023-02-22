@@ -276,7 +276,7 @@ private:
     WindowParams m_windowParams; // Current size of the display window.
     WindowParams m_renderWindowParams; // Current size of the rendering window.
 
-    std::atomic_flag m_shouldCopyPixels = false;   // If true, a new frame is available from the FrameGenerator.
+    std::atomic_flag m_shouldCopyPixels;   // If true, a new frame is available from the FrameGenerator.
     std::atomic<const float*> m_pathracedPixels = nullptr;  // Result of the pathtracer.
     glm::ivec2 m_pixelDimensions = glm::ivec2(0); // width,height of the pathtraced pixel data.
     bool m_justResized = false; // If true, the renderer has just processed a resize event.
