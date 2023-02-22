@@ -9,7 +9,7 @@ namespace util {
 bool readTextFile(const std::string_view filename, std::string& content)
 {
     std::ifstream fin;
-    fin.open(filename);
+    fin.open(std::string(filename));
     if (!fin) {
         // Attempt to look one directory back, just in case.
         fin.open("../" + std::string(filename));
