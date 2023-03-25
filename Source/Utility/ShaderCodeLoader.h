@@ -9,6 +9,8 @@
 
 #pragma once
 
+#if 0
+
 #include <RLWrapper/Program.h>
 
 #include <memory>
@@ -29,3 +31,5 @@ bool loadShaderSourceFile(const std::string_view filepath, std::vector<std::stri
 std::shared_ptr<openrl::Program> buildProgram(const std::string_view vertexShaderPath, const std::string_view rayShaderPath, const std::string_view name, const std::string_view shaderPrefix = "");
 
 } // namespace util.
+
+#endif

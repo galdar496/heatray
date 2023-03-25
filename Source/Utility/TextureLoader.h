@@ -8,6 +8,7 @@
 
 #pragma once
 
+#if 0
 #include <RLWrapper/Texture.h>
 
 #include <future>
@@ -35,3 +36,5 @@ std::future<LoadedTexture> loadTextureAsync(const std::string_view path, bool ge
 uint8_t* loadLDRTexturePixels(const std::string_view path, int& width, int& height, int& channelCount);
 
 } // namespace util.
+
+#endif

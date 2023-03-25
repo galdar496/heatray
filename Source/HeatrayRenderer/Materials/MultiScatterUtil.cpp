@@ -1,3 +1,5 @@
+#if 0
+
 #include "MultiScatterUtil.h"
 
 #include <Utility/Log.h>
@@ -148,3 +150,5 @@ std::shared_ptr<openrl::Texture> loadMultiscatterTexture()
 
     return texture;
 }
+
+#endif

@@ -2,6 +2,8 @@
 
 #include "FileIO.h"
 
+#if 0
+
 #include <RLWrapper/Shader.h>
 #include <Utility/Hash.h>
 
@@ -128,3 +130,5 @@ std::shared_ptr<openrl::Program> buildProgram(const std::string_view vertexShade
 }
 
 } // namespace util.
+
+#endif

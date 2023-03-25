@@ -2,6 +2,8 @@
 
 #include "Log.h"
 
+#if 0
+
 #include <FreeImage/FreeImage.h>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -190,3 +192,5 @@ uint8_t* loadLDRTexturePixels(const std::string_view path, int& width, int& heig
 }
 
 } // namespace util.
+
+#endif

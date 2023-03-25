@@ -44,7 +44,7 @@ include_directories(
   3rdParty/assimp/include/
   3rdParty/glfw/include/
   3rdParty/
-  Source
+  Source_Old
 )
 
 # Set up .lib file search paths for windows.
@@ -60,5 +60,5 @@ if (APPLE)
 endif()
 
 # This causes CMake to look for a CMakeLists.txt in that folder.
-add_subdirectory(Source)
+add_subdirectory(Source_Old)
 add_subdirectory(Resources)
