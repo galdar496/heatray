@@ -7,6 +7,7 @@
 
 #include "HeatrayRenderer_macOS.hpp"
 
+#include "Shaders/DisplayShaderTypes.h"
 #include "Utility/FileDialog.h"
 #include "Utility/ImGuiLog.h"
 
@@ -23,20 +24,25 @@ bool HeatrayRenderer::init(MTL::Device* device, MTK::View* view, const uint32_t 
     device->retain();
     m_device = device;
     
+    // Imgui setup.
+    {
+        imgui_helper::init_imgui(device, static_cast<void*>(view));
+        
+        // Install the imgui log now that imgui has been setup.
+        util::ImGuiLog::install();
+    }
+    
+    LOG_INFO("Initialized Metal device \"%s\"", m_device->name()->cString(NS::UTF8StringEncoding));
+    
+    m_shaderLibrary = m_device->newDefaultLibrary();
     m_commandQueue = m_device->newCommandQueue();
     
-    m_renderWindowParams.width = renderWidth - UI_WINDOW_WIDTH;
-    m_renderWindowParams.height = renderHeight;
-    m_passGenerator.init(device, m_renderWindowParams.width, m_renderWindowParams.height);
+    m_passGenerator.init(device, m_shaderLibrary);
     
-    imgui_helper::init_imgui(device, static_cast<void*>(view));
+    setupDisplayShader(view);
     
-    // Install the imgui log now that imgui has been setup.
-    util::ImGuiLog::install();
-    
-    LOG_INFO("Huz");
-    LOG_WARNING("Huzzah!");
-    LOG_ERROR("Oh no!");
+    // Setup window-size specific data.
+    resize(renderWidth, renderHeight);
     
     return true;
 }
@@ -44,23 +50,42 @@ bool HeatrayRenderer::init(MTL::Device* device, MTK::View* view, const uint32_t 
 void HeatrayRenderer::destroy() {
     m_passGenerator.destroy();
     
+    m_display.pipelineState->release();
+    m_display.vertexConstants->release();
+    
     m_commandQueue->release();
     m_device->release();
 }
 
 void HeatrayRenderer::resize(const uint32_t newWidth, const uint32_t newHeight) {
-    m_passGenerator.resize(m_device, newWidth, newHeight);
+    m_renderWindowParams.width = newWidth - UI_WINDOW_WIDTH;
+    m_renderWindowParams.height = newHeight;
+    
+    m_passGenerator.resize(m_device, m_renderWindowParams.width, m_renderWindowParams.height);
+    
+    // Update the display shader constants which are based on the frame size
+    // to avoid rendering into the part of the view containing the UI.
+    {
+        DisplayVertexShader::Constants* constants = static_cast<DisplayVertexShader::Constants*>(m_display.vertexConstants->contents());
+        constants->quadOffset = ((float(UI_WINDOW_WIDTH) / float(newWidth)) * 2.0f) - 1.0f;
+    }
 }
 
 void HeatrayRenderer::render(MTK::View* view) {
     NS::AutoreleasePool* pool = NS::AutoreleasePool::alloc()->init(); // Do we really need this?
     
     MTL::CommandBuffer *commandBuffer = m_commandQueue->commandBuffer();
+    
+    // Encode the commands to generate a single pass of the pathtracer.
+    m_passGenerator.encodePass(commandBuffer);
+    
+    // Encode the commands to visualize the current state of the pathtracer
+    // as well as the UI.
     MTL::RenderPassDescriptor *descriptor = view->currentRenderPassDescriptor();
     MTL::RenderCommandEncoder *encoder = commandBuffer->renderCommandEncoder(descriptor);
+    encodeDisplay(view, encoder);
+    encodeUI(view, commandBuffer, encoder);
     encoder->endEncoding();
-    
-    renderUI(view, commandBuffer);
     
     commandBuffer->presentDrawable(view->currentDrawable());
     commandBuffer->commit();
@@ -76,7 +101,43 @@ void HeatrayRenderer::resetRenderer() {
     
 }
 
-bool HeatrayRenderer::renderUI(MTK::View* view, MTL::CommandBuffer* cmdBuffer) {
+void HeatrayRenderer::setupDisplayShader(const MTK::View* view) {
+    // Setup the pipeline that will be used to visualize the raytraced data.
+    {
+        MTL::Function* vertexFunction = m_shaderLibrary->newFunction(NS::String::string("DisplayVS", NS::UTF8StringEncoding));
+        MTL::Function* fragmentFunction = m_shaderLibrary->newFunction(NS::String::string("DisplayFS", NS::UTF8StringEncoding));
+        
+        MTL::RenderPipelineDescriptor* descriptor = MTL::RenderPipelineDescriptor::alloc()->init();
+        descriptor->setVertexFunction(vertexFunction);
+        descriptor->setFragmentFunction(fragmentFunction);
+        descriptor->colorAttachments()->object(0)->setPixelFormat(view->colorPixelFormat());
+        
+        NS::Error* error = nullptr;
+        m_display.pipelineState = m_device->newRenderPipelineState(descriptor, &error);
+        if (!m_display.pipelineState) {
+            LOG_ERROR("Failed to create display pipeline: \"%s\"", error->localizedDescription()->utf8String());
+            assert(false);
+        }
+        
+        descriptor->release();
+    }
+    
+    // Allocate the buffers used for shader constants.
+    m_display.vertexConstants = m_device->newBuffer(sizeof(DisplayVertexShader::Constants), MTL::ResourceStorageModeShared);
+}
+
+void HeatrayRenderer::encodeDisplay(MTK::View* view, MTL::RenderCommandEncoder* encoder) {
+    encoder->pushDebugGroup(NS::String::string("Display Shader", NS::UTF8StringEncoding));
+    encoder->setRenderPipelineState(m_display.pipelineState);
+    encoder->setVertexBuffer(m_display.vertexConstants, 0, DisplayVertexShader::BufferLocation);
+    
+    // Draw a screen-aligned quad.
+    encoder->drawPrimitives(MTL::PrimitiveTypeTriangleStrip, (NS::UInteger)0, 4);
+    
+    encoder->popDebugGroup();
+}
+
+bool HeatrayRenderer::encodeUI(MTK::View* view, MTL::CommandBuffer* cmdBuffer, MTL::RenderCommandEncoder* encoder) {
     imgui_helper::start_imgui_frame(static_cast<void*>(view));
     
     ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -151,7 +212,7 @@ bool HeatrayRenderer::renderUI(MTK::View* view, MTL::CommandBuffer* cmdBuffer) {
     
     ImGui::End();
     
-    imgui_helper::end_imgui_frame(static_cast<void*>(view), cmdBuffer);
+    imgui_helper::end_imgui_frame(cmdBuffer, encoder);
     
     return false;
 }

@@ -9,6 +9,7 @@
 
 #include <imgui.h>
 #include <Metal/MTLDevice.hpp>
+#include <Metal/MTLRenderCommandEncoder.hpp>
 #include <Metal/MTLCommandBuffer.hpp>
 
 namespace imgui_helper {
@@ -17,6 +18,6 @@ void init_imgui(MTL::Device* device, void* view);
 
 void start_imgui_frame(void* view);
 
-void end_imgui_frame(void* view, MTL::CommandBuffer* commandBuffer);
+void end_imgui_frame(MTL::CommandBuffer* commandBuffer, MTL::RenderCommandEncoder* encoder);
 
 } // namespace imgui_helper.

@@ -120,5 +120,6 @@ void MTKViewDelegate::drawInMTKView(MTK::View* view) {
 }
 
 void MTKViewDelegate::drawableSizeWillChange(MTK::View* view, CGSize size) {
-    m_renderer.resize(uint32_t(size.width), uint32_t(size.height));
+    // Divide by 2 due to retina scaling.
+    m_renderer.resize(uint32_t(size.width / 2), uint32_t(size.height / 2));
 }

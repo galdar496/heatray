@@ -9,9 +9,12 @@
 
 #include "PassGenerator_macOS.hpp"
 
+#include <Metal/MTLBuffer.hpp>
 #include <Metal/MTLCommandBuffer.hpp>
 #include <Metal/MTLCommandQueue.hpp>
 #include <Metal/MTLDevice.hpp>
+#include <Metal/MTLLibrary.hpp>
+#include <Metal/MTLRenderPipeline.hpp>
 #include <MetalKit/MTKView.hpp>
 
 #include <cstdint>
@@ -52,9 +55,12 @@ public:
     void resetRenderer();
     
 private:
-    bool renderUI(MTK::View* view, MTL::CommandBuffer* cmdBuffer);
+    void setupDisplayShader(const MTK::View* view);
+    void encodeDisplay(MTK::View* view, MTL::RenderCommandEncoder* encoder);
+    bool encodeUI(MTK::View* view, MTL::CommandBuffer* cmdBuffer, MTL::RenderCommandEncoder* encoder);
     
     MTL::Device* m_device = nullptr;
+    MTL::Library* m_shaderLibrary = nullptr;
     MTL::CommandQueue* m_commandQueue = nullptr;
     
     PassGenerator m_passGenerator; // Generator of pathtraced frames.
@@ -66,4 +72,9 @@ private:
     
     WindowParams m_windowParams; // Current size of the display window.
     WindowParams m_renderWindowParams; // Current size of the rendering window.
+    
+    struct {
+        MTL::RenderPipelineState* pipelineState = nullptr;
+        MTL::Buffer* vertexConstants = nullptr;
+    } m_display;
 };

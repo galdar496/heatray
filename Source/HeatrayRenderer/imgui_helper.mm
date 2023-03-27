@@ -46,18 +46,16 @@ void start_imgui_frame(void* view) {
     ImGui::NewFrame();
 }
 
-void end_imgui_frame(void* view, MTL::CommandBuffer* commandBuffer) {
+void end_imgui_frame(MTL::CommandBuffer* commandBuffer, MTL::RenderCommandEncoder* encoder) {
     ImGui::Render();
     
     id mtlCommandBuffer = (__bridge id<MTLCommandBuffer>)commandBuffer;
-    MTKView* mtkView = (__bridge MTKView*)view;
+    id mtlEncoder = (__bridge id<MTLRenderCommandEncoder>)encoder;
     
-    id <MTLRenderCommandEncoder> renderEncoder = [mtlCommandBuffer renderCommandEncoderWithDescriptor:mtkView.currentRenderPassDescriptor];
-    [renderEncoder pushDebugGroup:@"Dear ImGui rendering"];
+    [mtlEncoder pushDebugGroup:@"Dear ImGui rendering"];
     ImDrawData* drawData = ImGui::GetDrawData();
-    ImGui_ImplMetal_RenderDrawData(drawData, mtlCommandBuffer, renderEncoder);
-    [renderEncoder popDebugGroup];
-    [renderEncoder endEncoding];
+    ImGui_ImplMetal_RenderDrawData(drawData, mtlCommandBuffer, mtlEncoder);
+    [mtlEncoder popDebugGroup];
 }
 
 } // namespace imgui_helper.
