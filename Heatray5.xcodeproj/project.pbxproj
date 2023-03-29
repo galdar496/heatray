@@ -1,0 +1,659 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		322BB94E29C5259700A5E57A /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 322BB94D29C5259700A5E57A /* Metal.framework */; };
+		322BB95829C528A500A5E57A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 322BB95729C528A500A5E57A /* Foundation.framework */; };
+		322BB96029C52D4400A5E57A /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 322BB95F29C52D4400A5E57A /* MetalKit.framework */; };
+		32AB97E629CD27010084A69F /* MetalPerformanceShaders.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32AB97E529CD27010084A69F /* MetalPerformanceShaders.framework */; };
+		32AB990B29CD38990084A69F /* imgui_widgets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB980B29CD38980084A69F /* imgui_widgets.cpp */; };
+		32AB991129CD38990084A69F /* imgui_impl_metal.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32AB982029CD38980084A69F /* imgui_impl_metal.mm */; };
+		32AB991C29CD38990084A69F /* imgui_impl_osx.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32AB982F29CD38980084A69F /* imgui_impl_osx.mm */; };
+		32AB992929CD38990084A69F /* .editorconfig in Resources */ = {isa = PBXBuildFile; fileRef = 32AB984029CD38980084A69F /* .editorconfig */; };
+		32AB992A29CD38990084A69F /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 32AB984129CD38980084A69F /* .gitignore */; };
+		32AB992B29CD38990084A69F /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB984229CD38980084A69F /* imgui.cpp */; };
+		32AB999929CD38990084A69F /* FUNDING.yml in Resources */ = {isa = PBXBuildFile; fileRef = 32AB98E529CD38990084A69F /* FUNDING.yml */; };
+		32AB999A29CD38990084A69F /* static-analysis.yml in Resources */ = {isa = PBXBuildFile; fileRef = 32AB98E729CD38990084A69F /* static-analysis.yml */; };
+		32AB999B29CD38990084A69F /* scheduled.yml in Resources */ = {isa = PBXBuildFile; fileRef = 32AB98E829CD38990084A69F /* scheduled.yml */; };
+		32AB999C29CD38990084A69F /* build.yml in Resources */ = {isa = PBXBuildFile; fileRef = 32AB98E929CD38990084A69F /* build.yml */; };
+		32AB999D29CD38990084A69F /* pull_request_template.md in Resources */ = {isa = PBXBuildFile; fileRef = 32AB98EA29CD38990084A69F /* pull_request_template.md */; };
+		32AB999E29CD38990084A69F /* issue_template.md in Resources */ = {isa = PBXBuildFile; fileRef = 32AB98EB29CD38990084A69F /* issue_template.md */; };
+		32AB999F29CD38990084A69F /* .gitattributes in Resources */ = {isa = PBXBuildFile; fileRef = 32AB98EC29CD38990084A69F /* .gitattributes */; };
+		32AB99A029CD38990084A69F /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 32AB98EE29CD38990084A69F /* LICENSE.txt */; };
+		32AB99A129CD38990084A69F /* imgui_tables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB98EF29CD38990084A69F /* imgui_tables.cpp */; };
+		32AB99A229CD38990084A69F /* imgui_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB98F029CD38990084A69F /* imgui_demo.cpp */; };
+		32AB99A329CD38990084A69F /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB98F129CD38990084A69F /* imgui_draw.cpp */; };
+		32AB99A529CD39690084A69F /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32AB99A429CD39690084A69F /* AppKit.framework */; };
+		32AB99A729CD39CF0084A69F /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32AB99A629CD39CF0084A69F /* GameController.framework */; };
+		32AB99FD29CF37CB0084A69F /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB99E829CF37CB0084A69F /* Log.cpp */; };
+		32AB99FE29CF37CB0084A69F /* TextureLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB99E929CF37CB0084A69F /* TextureLoader.cpp */; };
+		32AB9A0129CF37CB0084A69F /* FileIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB99F029CF37CB0084A69F /* FileIO.cpp */; };
+		32AB9A0229CF37CB0084A69F /* ShaderCodeLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB99F329CF37CB0084A69F /* ShaderCodeLoader.cpp */; };
+		32AB9A0329CF37CB0084A69F /* ConsoleLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB99F729CF37CB0084A69F /* ConsoleLog.cpp */; };
+		32AB9A0429CF37CB0084A69F /* FileDialogMacOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32AB99FC29CF37CB0084A69F /* FileDialogMacOS.mm */; };
+		32AB9A0C29CF3A8F0084A69F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32AB9A0729CF3A8F0084A69F /* Assets.xcassets */; };
+		32AB9A0D29CF3A8F0084A69F /* metal-cpp-generator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A0929CF3A8F0084A69F /* metal-cpp-generator.cpp */; };
+		32AB9A0E29CF3A8F0084A69F /* AppDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A0A29CF3A8F0084A69F /* AppDelegate.cpp */; };
+		32AB9A0F29CF3A8F0084A69F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A0B29CF3A8F0084A69F /* main.cpp */; };
+		32AB9A5C29CF3DF10084A69F /* HeatrayRenderer_macOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A2729CF3DF10084A69F /* HeatrayRenderer_macOS.cpp */; };
+		32AB9A5D29CF3DF10084A69F /* PassGenerator_macOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A2829CF3DF10084A69F /* PassGenerator_macOS.mm */; };
+		32AB9A6529CF3DF10084A69F /* RayGeneration.metal in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A3A29CF3DF10084A69F /* RayGeneration.metal */; };
+		32AB9A6629CF3DF10084A69F /* imgui_helper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A3D29CF3DF10084A69F /* imgui_helper.mm */; };
+		32AB9A7529CFF4420084A69F /* Display.metal in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A7429CFF4420084A69F /* Display.metal */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		322BB91C29C5229100A5E57A /* Heatray5.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Heatray5.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		322BB94129C5244C00A5E57A /* ShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
+		322BB94329C5244C00A5E57A /* Renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
+		322BB94429C5244C00A5E57A /* Renderer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Renderer.mm; sourceTree = "<group>"; };
+		322BB94529C5244C00A5E57A /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
+		322BB94D29C5259700A5E57A /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		322BB95729C528A500A5E57A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		322BB95F29C52D4400A5E57A /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		32AB97DB29C6465A0084A69F /* HeatrayRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = HeatrayRenderer.cpp; sourceTree = "<group>"; };
+		32AB97DC29C6465A0084A69F /* HeatrayRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = HeatrayRenderer.hpp; sourceTree = "<group>"; };
+		32AB97E229C651130084A69F /* PassGenerator.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = PassGenerator.mm; sourceTree = "<group>"; };
+		32AB97E329C651130084A69F /* PassGenerator.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PassGenerator.hpp; sourceTree = "<group>"; };
+		32AB97E529CD27010084A69F /* MetalPerformanceShaders.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShaders.framework; path = System/Library/Frameworks/MetalPerformanceShaders.framework; sourceTree = SDKROOT; };
+		32AB97E929CD2FB60084A69F /* imgui_helper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = imgui_helper.mm; sourceTree = "<group>"; };
+		32AB97EA29CD2FB60084A69F /* imgui_helper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = imgui_helper.hpp; sourceTree = "<group>"; };
+		32AB980829CD38980084A69F /* imgui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui.h; sourceTree = "<group>"; };
+		32AB980929CD38980084A69F /* imstb_textedit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imstb_textedit.h; sourceTree = "<group>"; };
+		32AB980A29CD38980084A69F /* imconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imconfig.h; sourceTree = "<group>"; };
+		32AB980B29CD38980084A69F /* imgui_widgets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_widgets.cpp; sourceTree = "<group>"; };
+		32AB980C29CD38980084A69F /* imstb_truetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imstb_truetype.h; sourceTree = "<group>"; };
+		32AB981229CD38980084A69F /* imgui_impl_osx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui_impl_osx.h; sourceTree = "<group>"; };
+		32AB982029CD38980084A69F /* imgui_impl_metal.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = imgui_impl_metal.mm; sourceTree = "<group>"; };
+		32AB982B29CD38980084A69F /* imgui_impl_metal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui_impl_metal.h; sourceTree = "<group>"; };
+		32AB982F29CD38980084A69F /* imgui_impl_osx.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = imgui_impl_osx.mm; sourceTree = "<group>"; };
+		32AB984029CD38980084A69F /* .editorconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .editorconfig; sourceTree = "<group>"; };
+		32AB984129CD38980084A69F /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		32AB984229CD38980084A69F /* imgui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui.cpp; sourceTree = "<group>"; };
+		32AB98E329CD38990084A69F /* imgui_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui_internal.h; sourceTree = "<group>"; };
+		32AB98E529CD38990084A69F /* FUNDING.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = FUNDING.yml; sourceTree = "<group>"; };
+		32AB98E729CD38990084A69F /* static-analysis.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = "static-analysis.yml"; sourceTree = "<group>"; };
+		32AB98E829CD38990084A69F /* scheduled.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = scheduled.yml; sourceTree = "<group>"; };
+		32AB98E929CD38990084A69F /* build.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = build.yml; sourceTree = "<group>"; };
+		32AB98EA29CD38990084A69F /* pull_request_template.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = pull_request_template.md; sourceTree = "<group>"; };
+		32AB98EB29CD38990084A69F /* issue_template.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = issue_template.md; sourceTree = "<group>"; };
+		32AB98EC29CD38990084A69F /* .gitattributes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitattributes; sourceTree = "<group>"; };
+		32AB98ED29CD38990084A69F /* imstb_rectpack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imstb_rectpack.h; sourceTree = "<group>"; };
+		32AB98EE29CD38990084A69F /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
+		32AB98EF29CD38990084A69F /* imgui_tables.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_tables.cpp; sourceTree = "<group>"; };
+		32AB98F029CD38990084A69F /* imgui_demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_demo.cpp; sourceTree = "<group>"; };
+		32AB98F129CD38990084A69F /* imgui_draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_draw.cpp; sourceTree = "<group>"; };
+		32AB99A429CD39690084A69F /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		32AB99A629CD39CF0084A69F /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
+		32AB99E729CF37CB0084A69F /* ShaderCodeLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderCodeLoader.h; sourceTree = "<group>"; };
+		32AB99E829CF37CB0084A69F /* Log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Log.cpp; sourceTree = "<group>"; };
+		32AB99E929CF37CB0084A69F /* TextureLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureLoader.cpp; sourceTree = "<group>"; };
+		32AB99EA29CF37CB0084A69F /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		32AB99EB29CF37CB0084A69F /* TextureLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureLoader.h; sourceTree = "<group>"; };
+		32AB99EC29CF37CB0084A69F /* ConsoleLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConsoleLog.h; sourceTree = "<group>"; };
+		32AB99EE29CF37CB0084A69F /* StringUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringUtils.h; sourceTree = "<group>"; };
+		32AB99EF29CF37CB0084A69F /* ImGuiLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImGuiLog.h; sourceTree = "<group>"; };
+		32AB99F029CF37CB0084A69F /* FileIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileIO.cpp; sourceTree = "<group>"; };
+		32AB99F129CF37CB0084A69F /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
+		32AB99F229CF37CB0084A69F /* AsyncTaskQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AsyncTaskQueue.h; sourceTree = "<group>"; };
+		32AB99F329CF37CB0084A69F /* ShaderCodeLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderCodeLoader.cpp; sourceTree = "<group>"; };
+		32AB99F429CF37CB0084A69F /* Log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Log.h; sourceTree = "<group>"; };
+		32AB99F529CF37CB0084A69F /* BlueNoise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueNoise.h; sourceTree = "<group>"; };
+		32AB99F629CF37CB0084A69F /* FileIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileIO.h; sourceTree = "<group>"; };
+		32AB99F729CF37CB0084A69F /* ConsoleLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConsoleLog.cpp; sourceTree = "<group>"; };
+		32AB99F829CF37CB0084A69F /* Hash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hash.h; sourceTree = "<group>"; };
+		32AB99F929CF37CB0084A69F /* FileDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileDialog.h; sourceTree = "<group>"; };
+		32AB99FA29CF37CB0084A69F /* AABB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AABB.h; sourceTree = "<group>"; };
+		32AB99FB29CF37CB0084A69F /* Random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Random.h; sourceTree = "<group>"; };
+		32AB99FC29CF37CB0084A69F /* FileDialogMacOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FileDialogMacOS.mm; sourceTree = "<group>"; };
+		32AB9A0629CF3A8F0084A69F /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		32AB9A0729CF3A8F0084A69F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		32AB9A0829CF3A8F0084A69F /* Heatray5_macOS.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Heatray5_macOS.entitlements; sourceTree = "<group>"; };
+		32AB9A0929CF3A8F0084A69F /* metal-cpp-generator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "metal-cpp-generator.cpp"; sourceTree = "<group>"; };
+		32AB9A0A29CF3A8F0084A69F /* AppDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AppDelegate.cpp; sourceTree = "<group>"; };
+		32AB9A0B29CF3A8F0084A69F /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		32AB9A1029CF3AED0084A69F /* metal-cpp */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "metal-cpp"; path = "3rdParty/metal-cpp"; sourceTree = "<group>"; };
+		32AB9A1129CF3AED0084A69F /* metal-cpp-extensions */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "metal-cpp-extensions"; path = "3rdParty/metal-cpp-extensions"; sourceTree = "<group>"; };
+		32AB9A2729CF3DF10084A69F /* HeatrayRenderer_macOS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HeatrayRenderer_macOS.cpp; sourceTree = "<group>"; };
+		32AB9A2829CF3DF10084A69F /* PassGenerator_macOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PassGenerator_macOS.mm; sourceTree = "<group>"; };
+		32AB9A2929CF3DF10084A69F /* imgui_helper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = imgui_helper.hpp; sourceTree = "<group>"; };
+		32AB9A2A29CF3DF10084A69F /* FlyCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlyCamera.h; sourceTree = "<group>"; };
+		32AB9A3829CF3DF10084A69F /* OrbitCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrbitCamera.h; sourceTree = "<group>"; };
+		32AB9A3929CF3DF10084A69F /* PassGenerator_macOS.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PassGenerator_macOS.hpp; sourceTree = "<group>"; };
+		32AB9A3A29CF3DF10084A69F /* RayGeneration.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = RayGeneration.metal; sourceTree = "<group>"; };
+		32AB9A3D29CF3DF10084A69F /* imgui_helper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = imgui_helper.mm; sourceTree = "<group>"; };
+		32AB9A3E29CF3DF10084A69F /* HeatrayRenderer_macOS.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = HeatrayRenderer_macOS.hpp; sourceTree = "<group>"; };
+		32AB9A7429CFF4420084A69F /* Display.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Display.metal; sourceTree = "<group>"; };
+		32AB9A7629CFF8A70084A69F /* DisplayShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DisplayShaderTypes.h; sourceTree = "<group>"; };
+		32AB9A7729D001E70084A69F /* HeatrayRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HeatrayRenderer.cpp; sourceTree = "<group>"; };
+		32AB9A7929D12CD60084A69F /* RayGenerationConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RayGenerationConstants.h; sourceTree = "<group>"; };
+		32AB9A7A29D12D3C0084A69F /* PassGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PassGenerator.cpp; sourceTree = "<group>"; };
+		32AB9A7C29D12FBC0084A69F /* Ray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ray.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		322BB91929C5229100A5E57A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				32AB99A729CD39CF0084A69F /* GameController.framework in Frameworks */,
+				32AB99A529CD39690084A69F /* AppKit.framework in Frameworks */,
+				32AB97E629CD27010084A69F /* MetalPerformanceShaders.framework in Frameworks */,
+				322BB96029C52D4400A5E57A /* MetalKit.framework in Frameworks */,
+				322BB95829C528A500A5E57A /* Foundation.framework in Frameworks */,
+				322BB94E29C5259700A5E57A /* Metal.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		322BB90D29C5229000A5E57A = {
+			isa = PBXGroup;
+			children = (
+				32AB9A2629CF3DF10084A69F /* HeatrayRenderer */,
+				32AB9A1029CF3AED0084A69F /* metal-cpp */,
+				32AB9A1129CF3AED0084A69F /* metal-cpp-extensions */,
+				32AB9A0529CF3A8F0084A69F /* Heatray */,
+				32AB99E629CF37CB0084A69F /* Utility */,
+				32AB97EE29CD38980084A69F /* imgui */,
+				322BB95429C5279B00A5E57A /* HeatrayRenderer */,
+				322BB91D29C5229100A5E57A /* Products */,
+				322BB94C29C5259600A5E57A /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		322BB91D29C5229100A5E57A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				322BB91C29C5229100A5E57A /* Heatray5.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		322BB94C29C5259600A5E57A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				32AB99A629CD39CF0084A69F /* GameController.framework */,
+				32AB99A429CD39690084A69F /* AppKit.framework */,
+				32AB97E529CD27010084A69F /* MetalPerformanceShaders.framework */,
+				322BB95F29C52D4400A5E57A /* MetalKit.framework */,
+				322BB95729C528A500A5E57A /* Foundation.framework */,
+				322BB94D29C5259700A5E57A /* Metal.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		322BB95429C5279B00A5E57A /* HeatrayRenderer */ = {
+			isa = PBXGroup;
+			children = (
+				322BB94329C5244C00A5E57A /* Renderer.h */,
+				322BB94429C5244C00A5E57A /* Renderer.mm */,
+				322BB94529C5244C00A5E57A /* Shaders.metal */,
+				322BB94129C5244C00A5E57A /* ShaderTypes.h */,
+				32AB97DB29C6465A0084A69F /* HeatrayRenderer.cpp */,
+				32AB97DC29C6465A0084A69F /* HeatrayRenderer.hpp */,
+				32AB97E229C651130084A69F /* PassGenerator.mm */,
+				32AB97E329C651130084A69F /* PassGenerator.hpp */,
+				32AB97E929CD2FB60084A69F /* imgui_helper.mm */,
+				32AB97EA29CD2FB60084A69F /* imgui_helper.hpp */,
+			);
+			path = HeatrayRenderer;
+			sourceTree = "<group>";
+		};
+		32AB97EE29CD38980084A69F /* imgui */ = {
+			isa = PBXGroup;
+			children = (
+				32AB980829CD38980084A69F /* imgui.h */,
+				32AB980929CD38980084A69F /* imstb_textedit.h */,
+				32AB980A29CD38980084A69F /* imconfig.h */,
+				32AB980B29CD38980084A69F /* imgui_widgets.cpp */,
+				32AB980C29CD38980084A69F /* imstb_truetype.h */,
+				32AB980D29CD38980084A69F /* backends */,
+				32AB984029CD38980084A69F /* .editorconfig */,
+				32AB984129CD38980084A69F /* .gitignore */,
+				32AB984229CD38980084A69F /* imgui.cpp */,
+				32AB98E329CD38990084A69F /* imgui_internal.h */,
+				32AB98E429CD38990084A69F /* .github */,
+				32AB98EC29CD38990084A69F /* .gitattributes */,
+				32AB98ED29CD38990084A69F /* imstb_rectpack.h */,
+				32AB98EE29CD38990084A69F /* LICENSE.txt */,
+				32AB98EF29CD38990084A69F /* imgui_tables.cpp */,
+				32AB98F029CD38990084A69F /* imgui_demo.cpp */,
+				32AB98F129CD38990084A69F /* imgui_draw.cpp */,
+			);
+			name = imgui;
+			path = 3rdParty/imgui;
+			sourceTree = "<group>";
+		};
+		32AB980D29CD38980084A69F /* backends */ = {
+			isa = PBXGroup;
+			children = (
+				32AB981229CD38980084A69F /* imgui_impl_osx.h */,
+				32AB982029CD38980084A69F /* imgui_impl_metal.mm */,
+				32AB982B29CD38980084A69F /* imgui_impl_metal.h */,
+				32AB982F29CD38980084A69F /* imgui_impl_osx.mm */,
+			);
+			path = backends;
+			sourceTree = "<group>";
+		};
+		32AB98E429CD38990084A69F /* .github */ = {
+			isa = PBXGroup;
+			children = (
+				32AB98E529CD38990084A69F /* FUNDING.yml */,
+				32AB98E629CD38990084A69F /* workflows */,
+				32AB98EA29CD38990084A69F /* pull_request_template.md */,
+				32AB98EB29CD38990084A69F /* issue_template.md */,
+			);
+			path = .github;
+			sourceTree = "<group>";
+		};
+		32AB98E629CD38990084A69F /* workflows */ = {
+			isa = PBXGroup;
+			children = (
+				32AB98E729CD38990084A69F /* static-analysis.yml */,
+				32AB98E829CD38990084A69F /* scheduled.yml */,
+				32AB98E929CD38990084A69F /* build.yml */,
+			);
+			path = workflows;
+			sourceTree = "<group>";
+		};
+		32AB99E629CF37CB0084A69F /* Utility */ = {
+			isa = PBXGroup;
+			children = (
+				32AB99E729CF37CB0084A69F /* ShaderCodeLoader.h */,
+				32AB99E829CF37CB0084A69F /* Log.cpp */,
+				32AB99E929CF37CB0084A69F /* TextureLoader.cpp */,
+				32AB99EA29CF37CB0084A69F /* CMakeLists.txt */,
+				32AB99EB29CF37CB0084A69F /* TextureLoader.h */,
+				32AB99EC29CF37CB0084A69F /* ConsoleLog.h */,
+				32AB99EE29CF37CB0084A69F /* StringUtils.h */,
+				32AB99EF29CF37CB0084A69F /* ImGuiLog.h */,
+				32AB99F029CF37CB0084A69F /* FileIO.cpp */,
+				32AB99F129CF37CB0084A69F /* Timer.h */,
+				32AB99F229CF37CB0084A69F /* AsyncTaskQueue.h */,
+				32AB99F329CF37CB0084A69F /* ShaderCodeLoader.cpp */,
+				32AB99F429CF37CB0084A69F /* Log.h */,
+				32AB99F529CF37CB0084A69F /* BlueNoise.h */,
+				32AB99F629CF37CB0084A69F /* FileIO.h */,
+				32AB99F729CF37CB0084A69F /* ConsoleLog.cpp */,
+				32AB99F829CF37CB0084A69F /* Hash.h */,
+				32AB99F929CF37CB0084A69F /* FileDialog.h */,
+				32AB99FA29CF37CB0084A69F /* AABB.h */,
+				32AB99FB29CF37CB0084A69F /* Random.h */,
+				32AB99FC29CF37CB0084A69F /* FileDialogMacOS.mm */,
+			);
+			name = Utility;
+			path = Source/Utility;
+			sourceTree = "<group>";
+		};
+		32AB9A0529CF3A8F0084A69F /* Heatray */ = {
+			isa = PBXGroup;
+			children = (
+				32AB9A0A29CF3A8F0084A69F /* AppDelegate.cpp */,
+				32AB9A0629CF3A8F0084A69F /* AppDelegate.h */,
+				32AB9A0729CF3A8F0084A69F /* Assets.xcassets */,
+				32AB9A0829CF3A8F0084A69F /* Heatray5_macOS.entitlements */,
+				32AB9A0B29CF3A8F0084A69F /* main.cpp */,
+				32AB9A0929CF3A8F0084A69F /* metal-cpp-generator.cpp */,
+			);
+			name = Heatray;
+			path = Source/Heatray;
+			sourceTree = "<group>";
+		};
+		32AB9A2629CF3DF10084A69F /* HeatrayRenderer */ = {
+			isa = PBXGroup;
+			children = (
+				32AB9A7A29D12D3C0084A69F /* PassGenerator.cpp */,
+				32AB9A7729D001E70084A69F /* HeatrayRenderer.cpp */,
+				32AB9A7329CFEB8B0084A69F /* Shaders */,
+				32AB9A2A29CF3DF10084A69F /* FlyCamera.h */,
+				32AB9A2729CF3DF10084A69F /* HeatrayRenderer_macOS.cpp */,
+				32AB9A3E29CF3DF10084A69F /* HeatrayRenderer_macOS.hpp */,
+				32AB9A2929CF3DF10084A69F /* imgui_helper.hpp */,
+				32AB9A3D29CF3DF10084A69F /* imgui_helper.mm */,
+				32AB9A3829CF3DF10084A69F /* OrbitCamera.h */,
+				32AB9A3929CF3DF10084A69F /* PassGenerator_macOS.hpp */,
+				32AB9A2829CF3DF10084A69F /* PassGenerator_macOS.mm */,
+			);
+			name = HeatrayRenderer;
+			path = Source/HeatrayRenderer;
+			sourceTree = "<group>";
+		};
+		32AB9A7329CFEB8B0084A69F /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				32AB9A3A29CF3DF10084A69F /* RayGeneration.metal */,
+				32AB9A7429CFF4420084A69F /* Display.metal */,
+				32AB9A7629CFF8A70084A69F /* DisplayShaderTypes.h */,
+				32AB9A7929D12CD60084A69F /* RayGenerationConstants.h */,
+				32AB9A7C29D12FBC0084A69F /* Ray.h */,
+			);
+			path = Shaders;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		322BB91B29C5229100A5E57A /* Heatray5 macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 322BB93029C5229100A5E57A /* Build configuration list for PBXNativeTarget "Heatray5 macOS" */;
+			buildPhases = (
+				322BB91829C5229100A5E57A /* Sources */,
+				322BB91929C5229100A5E57A /* Frameworks */,
+				322BB91A29C5229100A5E57A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Heatray5 macOS";
+			productName = "Heatray5 macOS";
+			productReference = 322BB91C29C5229100A5E57A /* Heatray5.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		322BB90E29C5229000A5E57A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1420;
+				TargetAttributes = {
+					322BB91B29C5229100A5E57A = {
+						CreatedOnToolsVersion = 14.2;
+					};
+				};
+			};
+			buildConfigurationList = 322BB91129C5229000A5E57A /* Build configuration list for PBXProject "Heatray5" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 322BB90D29C5229000A5E57A;
+			productRefGroup = 322BB91D29C5229100A5E57A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				322BB91B29C5229100A5E57A /* Heatray5 macOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		322BB91A29C5229100A5E57A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				32AB992A29CD38990084A69F /* .gitignore in Resources */,
+				32AB992929CD38990084A69F /* .editorconfig in Resources */,
+				32AB999A29CD38990084A69F /* static-analysis.yml in Resources */,
+				32AB9A0C29CF3A8F0084A69F /* Assets.xcassets in Resources */,
+				32AB999B29CD38990084A69F /* scheduled.yml in Resources */,
+				32AB999929CD38990084A69F /* FUNDING.yml in Resources */,
+				32AB999E29CD38990084A69F /* issue_template.md in Resources */,
+				32AB99A029CD38990084A69F /* LICENSE.txt in Resources */,
+				32AB999F29CD38990084A69F /* .gitattributes in Resources */,
+				32AB999C29CD38990084A69F /* build.yml in Resources */,
+				32AB999D29CD38990084A69F /* pull_request_template.md in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		322BB91829C5229100A5E57A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				32AB9A6529CF3DF10084A69F /* RayGeneration.metal in Sources */,
+				32AB99FE29CF37CB0084A69F /* TextureLoader.cpp in Sources */,
+				32AB99A229CD38990084A69F /* imgui_demo.cpp in Sources */,
+				32AB9A6629CF3DF10084A69F /* imgui_helper.mm in Sources */,
+				32AB9A7529CFF4420084A69F /* Display.metal in Sources */,
+				32AB9A5C29CF3DF10084A69F /* HeatrayRenderer_macOS.cpp in Sources */,
+				32AB99A329CD38990084A69F /* imgui_draw.cpp in Sources */,
+				32AB9A0429CF37CB0084A69F /* FileDialogMacOS.mm in Sources */,
+				32AB990B29CD38990084A69F /* imgui_widgets.cpp in Sources */,
+				32AB991129CD38990084A69F /* imgui_impl_metal.mm in Sources */,
+				32AB9A0D29CF3A8F0084A69F /* metal-cpp-generator.cpp in Sources */,
+				32AB9A0F29CF3A8F0084A69F /* main.cpp in Sources */,
+				32AB9A0129CF37CB0084A69F /* FileIO.cpp in Sources */,
+				32AB9A5D29CF3DF10084A69F /* PassGenerator_macOS.mm in Sources */,
+				32AB9A0E29CF3A8F0084A69F /* AppDelegate.cpp in Sources */,
+				32AB99FD29CF37CB0084A69F /* Log.cpp in Sources */,
+				32AB991C29CD38990084A69F /* imgui_impl_osx.mm in Sources */,
+				32AB992B29CD38990084A69F /* imgui.cpp in Sources */,
+				32AB9A0229CF37CB0084A69F /* ShaderCodeLoader.cpp in Sources */,
+				32AB99A129CD38990084A69F /* imgui_tables.cpp in Sources */,
+				32AB9A0329CF37CB0084A69F /* ConsoleLog.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		322BB92E29C5229100A5E57A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+			};
+			name = Debug;
+		};
+		322BB92F29C5229100A5E57A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+			};
+			name = Release;
+		};
+		322BB93129C5229100A5E57A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = Source/Heatray/Heatray5_macOS.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"HEATRAY_RELEASE=0",
+					"HEATRAY_DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/3rdParty/metal-cpp",
+					"$(PROJECT_DIR)/3rdParty/metal-cpp-extensions",
+					"$(PROJECT_DIR)/3rdParty/imgui",
+					"$(PROJECT_DIR)/Source",
+				);
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/3rdParty/imgui/examples/libs/glfw/lib-vc2010-64",
+					"$(PROJECT_DIR)/3rdParty/imgui/examples/libs/glfw/lib-vc2010-32",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Cody.Heatray5;
+				PRODUCT_NAME = Heatray5;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Debug;
+		};
+		322BB93229C5229100A5E57A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = Source/Heatray/Heatray5_macOS.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"HEATRAY_DEBUG=0",
+					"HEATRAY_RELEASE=1",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/3rdParty/metal-cpp",
+					"$(PROJECT_DIR)/3rdParty/metal-cpp-extensions",
+					"$(PROJECT_DIR)/3rdParty/imgui",
+					"$(PROJECT_DIR)/Source",
+				);
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/3rdParty/imgui/examples/libs/glfw/lib-vc2010-64",
+					"$(PROJECT_DIR)/3rdParty/imgui/examples/libs/glfw/lib-vc2010-32",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Cody.Heatray5;
+				PRODUCT_NAME = Heatray5;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		322BB91129C5229000A5E57A /* Build configuration list for PBXProject "Heatray5" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				322BB92E29C5229100A5E57A /* Debug */,
+				322BB92F29C5229100A5E57A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		322BB93029C5229100A5E57A /* Build configuration list for PBXNativeTarget "Heatray5 macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				322BB93129C5229100A5E57A /* Debug */,
+				322BB93229C5229100A5E57A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 322BB90E29C5229000A5E57A /* Project object */;
+}
