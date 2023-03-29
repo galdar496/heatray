@@ -3,7 +3,6 @@
 out
 build
 .DS_Store
-*.xcodeproj
 CMakeScripts
 *.swp
 cmake_install.cmake
