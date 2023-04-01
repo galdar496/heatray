@@ -134,6 +134,10 @@
 		32AB9A7929D12CD60084A69F /* RayGenerationConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RayGenerationConstants.h; sourceTree = "<group>"; };
 		32AB9A7A29D12D3C0084A69F /* PassGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PassGenerator.cpp; sourceTree = "<group>"; };
 		32AB9A7C29D12FBC0084A69F /* Ray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ray.h; sourceTree = "<group>"; };
+		32AB9A7D29D8AA950084A69F /* HeatrayRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HeatrayRenderer.h; sourceTree = "<group>"; };
+		32AB9A7E29D8AA950084A69F /* PassGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PassGenerator.h; sourceTree = "<group>"; };
+		32AB9A7F29D8B0DB0084A69F /* GlobalData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GlobalData.h; sourceTree = "<group>"; };
+		32AB9A8029D8B5510084A69F /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -309,6 +313,8 @@
 		32AB9A2629CF3DF10084A69F /* HeatrayRenderer */ = {
 			isa = PBXGroup;
 			children = (
+				32AB9A7D29D8AA950084A69F /* HeatrayRenderer.h */,
+				32AB9A7E29D8AA950084A69F /* PassGenerator.h */,
 				32AB9A7A29D12D3C0084A69F /* PassGenerator.cpp */,
 				32AB9A7729D001E70084A69F /* HeatrayRenderer.cpp */,
 				32AB9A7329CFEB8B0084A69F /* Shaders */,
@@ -333,6 +339,8 @@
 				32AB9A7629CFF8A70084A69F /* DisplayShaderTypes.h */,
 				32AB9A7929D12CD60084A69F /* RayGenerationConstants.h */,
 				32AB9A7C29D12FBC0084A69F /* Ray.h */,
+				32AB9A7F29D8B0DB0084A69F /* GlobalData.h */,
+				32AB9A8029D8B5510084A69F /* Constants.h */,
 			);
 			path = Shaders;
 			sourceTree = "<group>";

@@ -77,7 +77,7 @@ void HeatrayRenderer::render(MTK::View* view) {
     MTL::CommandBuffer *commandBuffer = m_commandQueue->commandBuffer();
     
     // Encode the commands to generate a single pass of the pathtracer.
-    m_passGenerator.encodePass(commandBuffer);
+    m_passGenerator.encodePass(commandBuffer, m_renderOptions);
     
     // Encode the commands to visualize the current state of the pathtracer
     // as well as the UI.

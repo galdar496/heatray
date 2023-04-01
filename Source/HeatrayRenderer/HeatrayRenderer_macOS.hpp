@@ -77,4 +77,6 @@ private:
         MTL::RenderPipelineState* pipelineState = nullptr;
         MTL::Buffer* vertexConstants = nullptr;
     } m_display;
+    
+    PassGenerator::RenderOptions m_renderOptions;
 };

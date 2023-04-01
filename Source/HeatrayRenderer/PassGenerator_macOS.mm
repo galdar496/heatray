@@ -7,6 +7,7 @@
 
 #include "PassGenerator_macOS.hpp"
 
+#include "Shaders/GlobalData.h"
 #include "Shaders/Ray.h"
 #include "Shaders/RayGenerationConstants.h"
 #include "Utility/Log.h"
@@ -34,11 +35,16 @@ struct {
     
     // Per-frame constant buffers.
     struct {
+        id <MTLBuffer> globalData[MAX_FRAMES_IN_FLIGHT];
         id <MTLBuffer> rayGeneration[MAX_FRAMES_IN_FLIGHT];
         
         // Advanced each time constant buffers are updated.
         size_t currentBufferIndex = 0;
     } perFrameConstants;
+    
+    // We use a semaphore to ensure that the CPU doesn't get ahead of the
+    // MAX_FRAMES_IN_FLIGHT and garble GPU memory.
+    dispatch_semaphore_t passSemaphore;
 } raytracer;
 
 PassGenerator::~PassGenerator() {
@@ -81,9 +87,12 @@ void PassGenerator::init(MTL::Device* device, MTL::Library* shaderLibrary) {
     // Initialize all per-frame buffers.
     {
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
+            raytracer.perFrameConstants.globalData[i] = [mtlDevice newBufferWithLength:sizeof(GlobalData) options:MTLResourceStorageModeShared];
             raytracer.perFrameConstants.rayGeneration[i] = [mtlDevice newBufferWithLength:sizeof(RayGenerationConstants) options:MTLResourceStorageModeShared];
         }
     }
+    
+    raytracer.passSemaphore = dispatch_semaphore_create(MAX_FRAMES_IN_FLIGHT);
 }
 
 void PassGenerator::destroy() {
@@ -118,7 +127,7 @@ void PassGenerator::resize(MTL::Device* device, const uint32_t newWidth, const u
     m_renderHeight = newHeight;
 }
 
-void PassGenerator::encodePass(MTL::CommandBuffer* cmdBuffer) {
+void PassGenerator::encodePass(MTL::CommandBuffer* cmdBuffer, const RenderOptions& newRenderOptions) {
     // Use an 8x8 grid for threadgroup scheduling and round the current render width / height up to a multiple
     // of 8x8. Each shader will need to determine if the current thread is within the valid range before proceeding.
     MTLSize threadsPerThreadgroup = MTLSizeMake(8, 8, 1);
@@ -129,14 +138,66 @@ void PassGenerator::encodePass(MTL::CommandBuffer* cmdBuffer) {
     
     id <MTLComputeCommandEncoder> computeEncoder = [mtlCmdBuffer computeCommandEncoder];
     
+    // Advance to the next index in the ring buffers.
+    raytracer.perFrameConstants.currentBufferIndex = (raytracer.perFrameConstants.currentBufferIndex + 1) % MAX_FRAMES_IN_FLIGHT;
+    size_t currentBufferIndex = raytracer.perFrameConstants.currentBufferIndex;
+    
+    if (newRenderOptions.resetInternalState) {
+        resetRenderingState(newRenderOptions);
+    }
+    
+    // Before we start updating constants in our ring buffers, ensure that we're not too far ahead of the GPU.
+    dispatch_semaphore_wait(raytracer.passSemaphore, DISPATCH_TIME_FOREVER);
+    
+    // Tell the command buffer to signal our semaphore once it's been completed so that we can resuse
+    // ring buffer memory for the next pass.
+    [mtlCmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> buffer) {
+        dispatch_semaphore_signal(raytracer.passSemaphore);
+    }];
+    
+    // Update the global data for this pass.
+    {
+        GlobalData* globalData = static_cast<GlobalData*>(raytracer.perFrameConstants.globalData[currentBufferIndex].contents);
+        globalData->sampleIndex = m_currentSampleIndex;
+    }
+    
     // Ray generation from the camera.
     {
+        // Update the constants necessary for ray generation.
+        {
+            RayGenerationConstants* constants = static_cast<RayGenerationConstants*>(raytracer.perFrameConstants.rayGeneration[currentBufferIndex].contents);
+            
+            constexpr vector_float2 sensorDimensions{36.0f, 24.0f}; // Dimensions of 35mm film.
+            // https://en.wikipedia.org/wiki/Angle_of_view#Calculating_a_camera's_angle_of_view
+            const float fovY = 2.0f * std::atan2(sensorDimensions.y, 2.0f * m_renderOptions.camera.focalLength);
+            constants->fovTan = std::tanf(fovY * 0.5f);
+            
+            constants->aspectRatio = m_renderOptions.camera.aspectRatio;
+            constants->viewMatrix = m_renderOptions.camera.viewMatrix;
+            constants->renderWidth = m_renderWidth;
+            constants->renderHeight = m_renderHeight;
+        }
+        
         [computeEncoder pushDebugGroup:@"Camera ray generation"];
-        [computeEncoder setBuffer:raytracer.perFrameConstants.rayGeneration[0] offset:0 atIndex:0];
-        [computeEncoder setBuffer:raytracer.rayBuffer                          offset:0 atIndex:1];
+        [computeEncoder setBuffer:raytracer.perFrameConstants.rayGeneration[currentBufferIndex] offset:0 atIndex:0];
+        [computeEncoder setBuffer:raytracer.rayBuffer                                           offset:0 atIndex:1];
         [computeEncoder setComputePipelineState:raytracer.rayGenerationPipelineState];
         [computeEncoder dispatchThreadgroups:threadgroups threadsPerThreadgroup:threadsPerThreadgroup];
         [computeEncoder popDebugGroup];
         [computeEncoder endEncoding];
     }
+    
+    // Pass has been encoded, increase our sample index for the next pass.
+    ++m_currentSampleIndex;
+}
+
+void PassGenerator::resetRenderingState(const RenderOptions& newOptions) {
+    m_currentSampleIndex = 0;
+    
+    // TODO: NEED TO DO SOMETHING TO CLEAR THE TEXTURE!!. PROBABLY A CUSTOM COMPUTE KERNEL.
+    
+    // Copy all new settings.
+    m_renderOptions = newOptions;
+    
+    m_renderOptions.resetInternalState = false;
 }

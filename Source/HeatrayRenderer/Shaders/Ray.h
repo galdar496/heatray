@@ -26,6 +26,9 @@ struct Ray {
     int sequenceID;            // Which sequence should this ray be using.
     PACKED_FLOAT3 direction;   // Direction the ray is traveling.
     float maxDistance;         // Maximum allowed distance for this ray.
-    PACKED_FLOAT3 color;       // The accumulated color along the ray's path so far.
+    PACKED_FLOAT3 weight;      // The accumulated weight along the ray's path so far.
     float sequenceIndexOffset; // The offset into the sequence for this ray.
 };
+
+#undef PACKED_FLOAT3
+
