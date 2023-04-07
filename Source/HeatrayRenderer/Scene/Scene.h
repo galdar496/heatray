@@ -13,8 +13,6 @@
 
 #include <Utility/AABB.h>
 
-#include <glm/glm/mat4x4.hpp>
-
 #include <functional>
 #include <string_view>
 #include <vector>
@@ -47,7 +45,7 @@ public:
 	// Add a new mesh to the scene via the various supported MeshProviders.
 	// Returns an index where this mesh is placed within the internal list of
 	// meshes.
-	size_t addMesh(MeshProvider *meshProvider, std::vector<std::shared_ptr<Material>> &&materials, const glm::mat4 &transform);
+	size_t addMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>> &&materials, const matrix_float4x4& transform);
 
 	//-------------------------------------------------------------------------
 	// Erase an already-created mesh based on the index returned from addMesh().
@@ -55,28 +53,28 @@ public:
 
 	//-------------------------------------------------------------------------
 	// Apply a transform to the scene that will affect all mesh objects.
-    void applyTransform(const glm::mat4 &transform);
+    void applyTransform(const matrix_float4x4& transform);
 
 	void clearMeshesAndMaterials() { m_meshes.clear(); }
-	void clearLighting() { m_lighting->clear(); }
+	//void clearLighting() { m_lighting->clear(); }
 	void clearAll() {
 		clearMeshesAndMaterials();
-		clearLighting();
+		//clearLighting();
 	}
 
-	std::shared_ptr<Lighting> lighting() { return m_lighting; }
+	//std::shared_ptr<Lighting> lighting() { return m_lighting; }
 	const std::vector<Mesh> &meshes() { return m_meshes; }
 
 	const util::AABB &aabb() const { return m_aabb; }
 
 private:
 	Scene() {
-		m_lighting = std::shared_ptr<Lighting>(new Lighting);
+		//m_lighting = std::shared_ptr<Lighting>(new Lighting);
 	}
 	void bindLighting(const Mesh &mesh);
 
 	std::vector<Mesh> m_meshes;
-	std::shared_ptr<Lighting> m_lighting = nullptr;
+	//std::shared_ptr<Lighting> m_lighting = nullptr;
 
 	NewProgramCreatedCallback m_newProgramCreatedCallback;
 

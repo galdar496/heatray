@@ -4,7 +4,6 @@
 #include "MeshProvider.h"
 
 #include <HeatrayRenderer/Materials/Material.h>
-#include <RLWrapper/Program.h>
 
 std::shared_ptr<Scene> Scene::create()
 {
@@ -13,20 +12,20 @@ std::shared_ptr<Scene> Scene::create()
 
 void Scene::loadFromDisk(const std::string_view path, bool convertToMeters)
 {
-	m_lighting->clearAllButEnvironment();
+	//m_lighting->clearAllButEnvironment();
 
 	// We use Assimp to load scene data from disk.
-	AssimpMeshProvider provider(path, convertToMeters, m_lighting);
-	m_aabb = provider.sceneAABB();
+	//AssimpMeshProvider provider(path, convertToMeters, m_lighting);
+	//m_aabb = provider.sceneAABB();
 
-	auto &materials = provider.GetMaterials();
-	Mesh mesh(&provider, materials, m_newProgramCreatedCallback, glm::mat4(1.0f));
-	bindLighting(mesh);
+	//auto &materials = provider.GetMaterials();
+	//Mesh mesh(&provider, materials, m_newProgramCreatedCallback, matrix_identity_double4x4);
+	//bindLighting(mesh);
 	
-	m_meshes.emplace_back(std::move(mesh));
+	//m_meshes.emplace_back(std::move(mesh));
 }
 
-size_t Scene::addMesh(MeshProvider *meshProvider, std::vector<std::shared_ptr<Material>>&& materials, const glm::mat4& transform)
+size_t Scene::addMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>>&& materials, const matrix_float4x4& transform)
 {
 	Mesh mesh(meshProvider, materials, m_newProgramCreatedCallback, transform);
 	bindLighting(mesh);
@@ -35,15 +34,15 @@ size_t Scene::addMesh(MeshProvider *meshProvider, std::vector<std::shared_ptr<Ma
 	return (m_meshes.size() - 1);
 }
 
-void Scene::applyTransform(const glm::mat4 &transform)
+void Scene::applyTransform(const matrix_float4x4& transform)
 {
 	for (auto &mesh : m_meshes) {
 		for (auto &submesh : mesh.submeshes()) {
-			submesh.primitive->bind();
-			int worldFromEntityLocation = submesh.material->program()->getUniformLocation("worldFromEntity");
-			glm::mat4 newTransform = transform * submesh.transform;
-			submesh.material->program()->setMatrix4fv(worldFromEntityLocation, &(newTransform[0][0]));
-			submesh.primitive->unbind();
+			//submesh.primitive->bind();
+			//int worldFromEntityLocation = submesh.material->program()->getUniformLocation("worldFromEntity");
+            matrix_float4x4 newTransform = transform * submesh.transform;
+			//submesh.material->program()->setMatrix4fv(worldFromEntityLocation, &(newTransform[0][0]));
+			//submesh.primitive->unbind();
 		}
 	}
 }
@@ -52,8 +51,8 @@ void Scene::bindLighting(const Mesh& mesh)
 {
 	// Ensure any newly created programs are setup to bind scene lighting data.
 	for (auto& submesh : mesh.submeshes()) {
-		submesh.primitive->bind();
-		m_lighting->bindLightingBuffersToProgram(submesh.material->program());
-		submesh.primitive->unbind();
+		//submesh.primitive->bind();
+		//m_lighting->bindLightingBuffersToProgram(submesh.material->program());
+		//submesh.primitive->unbind();
 	}
 }

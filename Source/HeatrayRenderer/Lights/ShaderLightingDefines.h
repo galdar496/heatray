@@ -7,6 +7,8 @@
 
 #pragma once
 
+#if 0
+
 #include <RLWrapper/Primitive.h>
 
 #define GLM_FORCE_SWIZZLE
@@ -62,3 +64,5 @@ struct SpotLightsBuffer {
     glm::vec2 angles[ShaderLightingDefines::MAX_NUM_SPOT_LIGHTS]; // x: inner, y: outer.
     RLprimitive primitives[ShaderLightingDefines::MAX_NUM_SPOT_LIGHTS] = { RL_NULL_PRIMITIVE };
 };
+
+#endif

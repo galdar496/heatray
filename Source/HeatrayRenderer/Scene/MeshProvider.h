@@ -16,8 +16,7 @@
 
 #pragma once
 
-#include <glm/glm/mat4x4.hpp>
-
+#include <simd/simd.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string>
@@ -58,7 +57,7 @@ public:
         size_t elementCount = 0;
         DrawMode drawMode = DrawMode::Triangles;
         int materialIndex = -1;
-        glm::mat4 localTransform = glm::mat4(1.0f);
+        matrix_float4x4 localTransform = matrix_identity_float4x4;
         std::string name;
     };
 

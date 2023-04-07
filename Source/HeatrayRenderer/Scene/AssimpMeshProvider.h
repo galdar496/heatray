@@ -1,5 +1,7 @@
 #pragma once
 
+#if 0
+
 #include "MeshProvider.h"
 
 #include <HeatrayRenderer/Materials/Material.h>
@@ -95,3 +97,5 @@ private:
 
     util::AABB m_sceneAABB;
 };
+
+#endif

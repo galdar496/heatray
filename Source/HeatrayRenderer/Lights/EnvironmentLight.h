@@ -8,6 +8,8 @@
 
 #pragma once
 
+#if 0
+
 #include "Light.h"
 #include "ShaderLightingDefines.h"
 
@@ -65,3 +67,5 @@ private:
 
     glm::vec3 m_solidColor = glm::vec3(0.0f);
 };
+
+#endif

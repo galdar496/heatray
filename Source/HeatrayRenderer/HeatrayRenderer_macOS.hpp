@@ -56,7 +56,7 @@ public:
     
 private:
     void setupDisplayShader(const MTK::View* view);
-    void encodeDisplay(MTK::View* view, MTL::RenderCommandEncoder* encoder);
+    void encodeDisplay(MTK::View* view, MTL::RenderCommandEncoder* encoder, MTL::Texture* raytracedPixels);
     bool encodeUI(MTK::View* view, MTL::CommandBuffer* cmdBuffer, MTL::RenderCommandEncoder* encoder);
     
     MTL::Device* m_device = nullptr;

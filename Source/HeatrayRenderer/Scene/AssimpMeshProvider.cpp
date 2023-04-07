@@ -1,3 +1,5 @@
+#if 0
+
 #define GLM_FORCE_SWIZZLE
 
 #include "AssimpMeshProvider.h"
@@ -721,3 +723,5 @@ void AssimpMeshProvider::LoadScene(const std::string_view filename, std::shared_
         LOG_ERROR("Error: No scene found in asset.\n");
     }
 }
+
+#endif

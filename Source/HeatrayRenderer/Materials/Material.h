@@ -7,9 +7,6 @@
 
 #pragma once
 
-#include <RLWrapper/Buffer.h>
-#include <RLWrapper/Program.h>
-
 #include <memory>
 
 class Material
@@ -26,8 +23,8 @@ public:
         , m_type(type) {}
     virtual ~Material() = default;
 
-    std::shared_ptr<openrl::Program> program() { return m_program; }
-    std::shared_ptr<openrl::Buffer> uniformBlock() { return m_constants; }
+//    std::shared_ptr<openrl::Program> program() { return m_program; }
+//    std::shared_ptr<openrl::Buffer> uniformBlock() { return m_constants; }
     const std::string_view name() const { return m_name; }
     Type type() const { return m_type; }
 
@@ -52,11 +49,12 @@ public:
 protected:
     static constexpr char const * m_vertexShader = "vertex.rlsl";
 
-    std::shared_ptr<openrl::Buffer>  m_constants = nullptr; // Constants used by this material. Will be uploaded as a uniform block to the corresponding shader.
-    std::shared_ptr<openrl::Program> m_program   = nullptr; // Shader representing this material.
+//    std::shared_ptr<openrl::Buffer>  m_constants = nullptr; // Constants used by this material. Will be uploaded as a uniform block to the corresponding shader.
+//    std::shared_ptr<openrl::Program> m_program   = nullptr; // Shader representing this material.
 
     bool m_enableVertexColors = false;
 
     const std::string m_name;
     Type m_type;
 };
+

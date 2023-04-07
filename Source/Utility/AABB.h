@@ -8,8 +8,7 @@
 
 #pragma once
 
-#include "glm/glm/glm.hpp"
-
+#include <simd/simd.h>
 #include <cmath>
 #include <limits>
 
@@ -17,8 +16,8 @@ namespace util {
 
 struct AABB {
     AABB() {
-        min = glm::vec3(std::numeric_limits<float>::max());
-        max = glm::vec3(std::numeric_limits<float>::min());
+        min = simd::float3(std::numeric_limits<float>::max());
+        max = simd::float3(std::numeric_limits<float>::min());
     }
     ~AABB() = default;
     AABB(const AABB& other) = default;
@@ -26,37 +25,39 @@ struct AABB {
 
     //-------------------------------------------------------------------------
     // Expand the AABB to contain the new point.
-    void expand(const glm::vec3& v) {
-        min = glm::min(min, v);
-        max = glm::max(max, v);
+    void expand(const simd::float3 v) {
+        min = vector_min(min, v);
+        max = vector_max(max, v);
     }
 
-    glm::vec3 center() const {
-        glm::vec3 transformedMin = transform * glm::vec4(min, 1.0f);
-        glm::vec3 transformedMax = transform * glm::vec4(max, 1.0f);
+    vector_float3 center() const {
+        simd::float3 transformedMin = matrix_multiply(transform, simd::make_float4(min, 1.0f)).xyz;
+        simd::float3 transformedMax = (transform * simd::make_float4(max, 1.0f)).xyz;
         return (transformedMin + transformedMax) * 0.5f;
     }
 
     float radius() const {
-        glm::vec3 transformedMin = transform * glm::vec4(min, 1.0f);
-        glm::vec3 transformedMax = transform * glm::vec4(max, 1.0f);
-        return glm::length(transformedMax - transformedMin);
+        simd::float3 transformedMin = (transform * simd::make_float4(min, 1.0f)).xyz;
+        simd::float3 transformedMax = (transform * simd::make_float4(max, 1.0f)).xyz;
+        return simd::distance(transformedMax, transformedMin);
     }
     
     float bottom() const {
-        glm::vec3 transformedMin = transform * glm::vec4(min, 1.0f);
-        glm::vec3 transformedMax = transform * glm::vec4(max, 1.0f);
+        simd::float3 transformedMin = (transform * simd::make_float4(min, 1.0f)).xyz;
+        simd::float3 transformedMax = (transform * simd::make_float4(max, 1.0f)).xyz;
         float floor = center().y - std::fabsf(transformedMax.y - transformedMin.y) * 0.5f;
         return floor;
     }
     
-    bool valid() const { return glm::any(glm::lessThan(min, max)); }
+    bool valid() const {
+        return simd::any(min < max);
+    }
 
     // Corners of the box.
-    glm::vec3 min = glm::vec3(0.0f);
-    glm::vec3 max = glm::vec3(0.0f);
+    simd::float3 min;
+    simd::float3 max;
     
-    glm::mat4 transform = glm::mat4(1.0f);
+    simd::float4x4 transform = matrix_identity_float4x4;
 };
 
 } // namespace util.

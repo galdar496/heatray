@@ -9,10 +9,9 @@
 
 #pragma once
 
-#include <glm/glm/mat4x4.hpp>
+#include <Metal/MTLBuffer.hpp>
 
-#include <OpenRL/rl.h>
-
+#include <simd/simd.h>
 #include <functional>
 #include <memory>
 #include <vector>
@@ -34,7 +33,7 @@ public:
     Mesh(MeshProvider *meshProvider,
            std::vector<std::shared_ptr<Material>> &materials, 
            std::function<void(const std::shared_ptr<openrl::Program>)> & materialCreatedCallback,
-           const glm::mat4 &transform);
+           const simd::float4x4 &transform);
     ~Mesh() = default;
 
     // TODO:  Add accessors and stuff to mutate a RLMesh.  Right now it serves the
@@ -50,15 +49,15 @@ public:
         std::shared_ptr<openrl::Primitive> primitive = nullptr;
         size_t elementCount = 0;
         size_t offset = 0;
-        RLenum mode = 0;
+        //RLenum mode = 0;
         std::shared_ptr<Material> material = nullptr;
-        glm::mat4 transform = glm::mat4(1.0f);
+        simd::float4x4 transform = matrix_identity_float4x4;
     };
     const std::vector<Submesh> &submeshes() const { return m_submeshes; }
 
 private:
-    std::vector<std::shared_ptr<openrl::Buffer>> m_vertexBuffers;
-    std::vector<std::shared_ptr<openrl::Buffer>> m_indexBuffers;
+    std::vector<std::shared_ptr<MTL::Buffer*>> m_vertexBuffers;
+    std::vector<std::shared_ptr<MTL::Buffer*>> m_indexBuffers;
 
     std::vector<Submesh> m_submeshes;
 

@@ -10,6 +10,7 @@
 #include <Metal/MTLCommandBuffer.hpp>
 #include <Metal/MTLDevice.hpp>
 #include <Metal/MTLLibrary.hpp>
+#include <Metal/MTLTexture.hpp>
 
 #include <cstdint>
 #include <simd/simd.h>
@@ -62,8 +63,10 @@ public:
     };
     
     //-------------------------------------------------------------------------
-    // Encode the commands to render a pass (sample) of a frame.
-    void encodePass(MTL::CommandBuffer* cmdBuffer, const RenderOptions& newRenderOptions);
+    // Encode the commands to render a pass (sample) of a frame. The returned
+    // texture is the current state of the raytracer (including all previous
+    // passes since the last time the generator was reset).
+    MTL::Texture* encodePass(MTL::CommandBuffer* cmdBuffer, const RenderOptions& newRenderOptions);
     
 private:
     void resetRenderingState(const RenderOptions& newOptions);
@@ -71,6 +74,7 @@ private:
     uint32_t m_renderWidth = 0;
     uint32_t m_renderHeight = 0;
     uint32_t m_currentSampleIndex = 0;
+    bool m_shouldClear = true;
     
     RenderOptions m_renderOptions;
 };

@@ -77,13 +77,13 @@ void HeatrayRenderer::render(MTK::View* view) {
     MTL::CommandBuffer *commandBuffer = m_commandQueue->commandBuffer();
     
     // Encode the commands to generate a single pass of the pathtracer.
-    m_passGenerator.encodePass(commandBuffer, m_renderOptions);
+    MTL::Texture* raytracedPixels = m_passGenerator.encodePass(commandBuffer, m_renderOptions);
     
     // Encode the commands to visualize the current state of the pathtracer
     // as well as the UI.
     MTL::RenderPassDescriptor *descriptor = view->currentRenderPassDescriptor();
     MTL::RenderCommandEncoder *encoder = commandBuffer->renderCommandEncoder(descriptor);
-    encodeDisplay(view, encoder);
+    encodeDisplay(view, encoder, raytracedPixels);
     encodeUI(view, commandBuffer, encoder);
     encoder->endEncoding();
     
@@ -126,12 +126,13 @@ void HeatrayRenderer::setupDisplayShader(const MTK::View* view) {
     m_display.vertexConstants = m_device->newBuffer(sizeof(DisplayVertexShader::Constants), MTL::ResourceStorageModeShared);
 }
 
-void HeatrayRenderer::encodeDisplay(MTK::View* view, MTL::RenderCommandEncoder* encoder) {
+void HeatrayRenderer::encodeDisplay(MTK::View* view, MTL::RenderCommandEncoder* encoder, MTL::Texture* raytracedPixels) {
     encoder->pushDebugGroup(NS::String::string("Display Shader", NS::UTF8StringEncoding));
     encoder->setRenderPipelineState(m_display.pipelineState);
     encoder->setVertexBuffer(m_display.vertexConstants, 0, DisplayVertexShader::BufferLocation);
     
-    // Draw a screen-aligned quad.
+    // Draw a screen-aligned quad which will read from the raytraced pixels and perform an extra processing required.
+    encoder->setFragmentTexture(raytracedPixels, 0);
     encoder->drawPrimitives(MTL::PrimitiveTypeTriangleStrip, (NS::UInteger)0, 4);
     
     encoder->popDebugGroup();

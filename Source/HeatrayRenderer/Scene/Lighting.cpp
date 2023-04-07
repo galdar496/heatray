@@ -1,3 +1,5 @@
+#if 0
+
 #include "Lighting.h"
 
 #include <HeatrayRenderer/Lights/EnvironmentLight.h>
@@ -413,3 +415,5 @@ void Lighting::removeSpotLight(std::shared_ptr<SpotLight> light)
         m_spot.buffer->unbind();
     }
 }
+
+#endif

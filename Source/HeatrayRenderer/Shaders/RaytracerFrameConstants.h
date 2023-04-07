@@ -9,10 +9,16 @@
 
 #include <simd/simd.h>
 
-struct RayGenerationConstants {
+struct FrameCamera {
     simd::float4x4 viewMatrix;
     float fovTan = 0.0f;
     float aspectRatio = 1.0f;
     uint32_t renderWidth = 0;
     uint32_t renderHeight = 0;
+};
+
+struct RaytracerFrameConstants {
+    FrameCamera camera;
+    unsigned int sampleIndex = 0;
+    bool shouldClear = false;
 };

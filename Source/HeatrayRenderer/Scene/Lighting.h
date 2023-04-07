@@ -7,6 +7,8 @@
 
 #pragma once
 
+#if 0
+
 #include <HeatrayRenderer/Lights/Light.h>
 #include <HeatrayRenderer/Lights/ShaderLightingDefines.h>
 
@@ -101,3 +103,5 @@ private:
 
     LightCreatedCallback m_lightCreatedCallback;
 };
+
+#endif

@@ -7,6 +7,8 @@
 
 #pragma once
 
+#if 0
+
 #include "ShaderLightingDefines.h"
 
 #include <RLWrapper/Primitive.h>
@@ -42,3 +44,5 @@ protected:
     const std::string m_name;
     const Type m_type;
 };
+
+#endif

@@ -41,11 +41,11 @@ vertex DisplayVertexOut DisplayVS(unsigned short vertexId [[vertex_id]],
 }
 
 fragment float4 DisplayFS(DisplayVertexOut in [[stage_in]],
-                          texture2d<float> accumulatedSamples)
+                          texture2d<float> raytracedPixels)
 {
     constexpr sampler sampler(min_filter::nearest, mag_filter::nearest, mip_filter::none);
 
-    float4 color = accumulatedSamples.sample(sampler, in.uv);
+    float4 color = raytracedPixels.sample(sampler, in.uv);
 
     // The 'w' component holds the number of samples for this pixel.
     return float4(color.xyz / color.w, 1.0f);

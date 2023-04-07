@@ -10,6 +10,11 @@
 		322BB94E29C5259700A5E57A /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 322BB94D29C5259700A5E57A /* Metal.framework */; };
 		322BB95829C528A500A5E57A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 322BB95729C528A500A5E57A /* Foundation.framework */; };
 		322BB96029C52D4400A5E57A /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 322BB95F29C52D4400A5E57A /* MetalKit.framework */; };
+		322EFCA729E0C17C00F37CC4 /* Mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 322EFC9C29E0C17C00F37CC4 /* Mesh.cpp */; };
+		322EFCA829E0C17C00F37CC4 /* CMakeLists.txt in Resources */ = {isa = PBXBuildFile; fileRef = 322EFC9D29E0C17C00F37CC4 /* CMakeLists.txt */; };
+		322EFCA929E0C17C00F37CC4 /* Scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 322EFC9E29E0C17C00F37CC4 /* Scene.cpp */; };
+		322EFCAA29E0C17C00F37CC4 /* Lighting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 322EFCA329E0C17C00F37CC4 /* Lighting.cpp */; };
+		322EFCAB29E0C17C00F37CC4 /* AssimpMeshProvider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 322EFCA429E0C17C00F37CC4 /* AssimpMeshProvider.cpp */; };
 		32AB97E629CD27010084A69F /* MetalPerformanceShaders.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32AB97E529CD27010084A69F /* MetalPerformanceShaders.framework */; };
 		32AB990B29CD38990084A69F /* imgui_widgets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB980B29CD38980084A69F /* imgui_widgets.cpp */; };
 		32AB991129CD38990084A69F /* imgui_impl_metal.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32AB982029CD38980084A69F /* imgui_impl_metal.mm */; };
@@ -42,27 +47,29 @@
 		32AB9A0F29CF3A8F0084A69F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A0B29CF3A8F0084A69F /* main.cpp */; };
 		32AB9A5C29CF3DF10084A69F /* HeatrayRenderer_macOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A2729CF3DF10084A69F /* HeatrayRenderer_macOS.cpp */; };
 		32AB9A5D29CF3DF10084A69F /* PassGenerator_macOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A2829CF3DF10084A69F /* PassGenerator_macOS.mm */; };
-		32AB9A6529CF3DF10084A69F /* RayGeneration.metal in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A3A29CF3DF10084A69F /* RayGeneration.metal */; };
+		32AB9A6529CF3DF10084A69F /* Raytracer.metal in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A3A29CF3DF10084A69F /* Raytracer.metal */; };
 		32AB9A6629CF3DF10084A69F /* imgui_helper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A3D29CF3DF10084A69F /* imgui_helper.mm */; };
 		32AB9A7529CFF4420084A69F /* Display.metal in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A7429CFF4420084A69F /* Display.metal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		322BB91C29C5229100A5E57A /* Heatray5.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Heatray5.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		322BB94129C5244C00A5E57A /* ShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
-		322BB94329C5244C00A5E57A /* Renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
-		322BB94429C5244C00A5E57A /* Renderer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Renderer.mm; sourceTree = "<group>"; };
-		322BB94529C5244C00A5E57A /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		322BB94D29C5259700A5E57A /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		322BB95729C528A500A5E57A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		322BB95F29C52D4400A5E57A /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
-		32AB97DB29C6465A0084A69F /* HeatrayRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = HeatrayRenderer.cpp; sourceTree = "<group>"; };
-		32AB97DC29C6465A0084A69F /* HeatrayRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = HeatrayRenderer.hpp; sourceTree = "<group>"; };
-		32AB97E229C651130084A69F /* PassGenerator.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = PassGenerator.mm; sourceTree = "<group>"; };
-		32AB97E329C651130084A69F /* PassGenerator.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PassGenerator.hpp; sourceTree = "<group>"; };
+		322EFC9B29E0C17C00F37CC4 /* PlaneMeshProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaneMeshProvider.h; sourceTree = "<group>"; };
+		322EFC9C29E0C17C00F37CC4 /* Mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mesh.cpp; sourceTree = "<group>"; };
+		322EFC9D29E0C17C00F37CC4 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		322EFC9E29E0C17C00F37CC4 /* Scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Scene.cpp; sourceTree = "<group>"; };
+		322EFC9F29E0C17C00F37CC4 /* MeshProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshProvider.h; sourceTree = "<group>"; };
+		322EFCA029E0C17C00F37CC4 /* AssimpMeshProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssimpMeshProvider.h; sourceTree = "<group>"; };
+		322EFCA129E0C17C00F37CC4 /* Mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mesh.h; sourceTree = "<group>"; };
+		322EFCA229E0C17C00F37CC4 /* SphereMeshProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphereMeshProvider.h; sourceTree = "<group>"; };
+		322EFCA329E0C17C00F37CC4 /* Lighting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Lighting.cpp; sourceTree = "<group>"; };
+		322EFCA429E0C17C00F37CC4 /* AssimpMeshProvider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AssimpMeshProvider.cpp; sourceTree = "<group>"; };
+		322EFCA529E0C17C00F37CC4 /* Lighting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lighting.h; sourceTree = "<group>"; };
+		322EFCA629E0C17C00F37CC4 /* Scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Scene.h; sourceTree = "<group>"; };
 		32AB97E529CD27010084A69F /* MetalPerformanceShaders.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShaders.framework; path = System/Library/Frameworks/MetalPerformanceShaders.framework; sourceTree = SDKROOT; };
-		32AB97E929CD2FB60084A69F /* imgui_helper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = imgui_helper.mm; sourceTree = "<group>"; };
-		32AB97EA29CD2FB60084A69F /* imgui_helper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = imgui_helper.hpp; sourceTree = "<group>"; };
 		32AB980829CD38980084A69F /* imgui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui.h; sourceTree = "<group>"; };
 		32AB980929CD38980084A69F /* imstb_textedit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imstb_textedit.h; sourceTree = "<group>"; };
 		32AB980A29CD38980084A69F /* imconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imconfig.h; sourceTree = "<group>"; };
@@ -125,18 +132,17 @@
 		32AB9A2A29CF3DF10084A69F /* FlyCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlyCamera.h; sourceTree = "<group>"; };
 		32AB9A3829CF3DF10084A69F /* OrbitCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrbitCamera.h; sourceTree = "<group>"; };
 		32AB9A3929CF3DF10084A69F /* PassGenerator_macOS.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PassGenerator_macOS.hpp; sourceTree = "<group>"; };
-		32AB9A3A29CF3DF10084A69F /* RayGeneration.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = RayGeneration.metal; sourceTree = "<group>"; };
+		32AB9A3A29CF3DF10084A69F /* Raytracer.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Raytracer.metal; sourceTree = "<group>"; };
 		32AB9A3D29CF3DF10084A69F /* imgui_helper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = imgui_helper.mm; sourceTree = "<group>"; };
 		32AB9A3E29CF3DF10084A69F /* HeatrayRenderer_macOS.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = HeatrayRenderer_macOS.hpp; sourceTree = "<group>"; };
 		32AB9A7429CFF4420084A69F /* Display.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Display.metal; sourceTree = "<group>"; };
 		32AB9A7629CFF8A70084A69F /* DisplayShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DisplayShaderTypes.h; sourceTree = "<group>"; };
 		32AB9A7729D001E70084A69F /* HeatrayRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HeatrayRenderer.cpp; sourceTree = "<group>"; };
-		32AB9A7929D12CD60084A69F /* RayGenerationConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RayGenerationConstants.h; sourceTree = "<group>"; };
+		32AB9A7929D12CD60084A69F /* RaytracerFrameConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RaytracerFrameConstants.h; sourceTree = "<group>"; };
 		32AB9A7A29D12D3C0084A69F /* PassGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PassGenerator.cpp; sourceTree = "<group>"; };
 		32AB9A7C29D12FBC0084A69F /* Ray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ray.h; sourceTree = "<group>"; };
 		32AB9A7D29D8AA950084A69F /* HeatrayRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HeatrayRenderer.h; sourceTree = "<group>"; };
 		32AB9A7E29D8AA950084A69F /* PassGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PassGenerator.h; sourceTree = "<group>"; };
-		32AB9A7F29D8B0DB0084A69F /* GlobalData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GlobalData.h; sourceTree = "<group>"; };
 		32AB9A8029D8B5510084A69F /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -166,7 +172,6 @@
 				32AB9A0529CF3A8F0084A69F /* Heatray */,
 				32AB99E629CF37CB0084A69F /* Utility */,
 				32AB97EE29CD38980084A69F /* imgui */,
-				322BB95429C5279B00A5E57A /* HeatrayRenderer */,
 				322BB91D29C5229100A5E57A /* Products */,
 				322BB94C29C5259600A5E57A /* Frameworks */,
 			);
@@ -193,21 +198,23 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		322BB95429C5279B00A5E57A /* HeatrayRenderer */ = {
+		322EFC9A29E0C17C00F37CC4 /* Scene */ = {
 			isa = PBXGroup;
 			children = (
-				322BB94329C5244C00A5E57A /* Renderer.h */,
-				322BB94429C5244C00A5E57A /* Renderer.mm */,
-				322BB94529C5244C00A5E57A /* Shaders.metal */,
-				322BB94129C5244C00A5E57A /* ShaderTypes.h */,
-				32AB97DB29C6465A0084A69F /* HeatrayRenderer.cpp */,
-				32AB97DC29C6465A0084A69F /* HeatrayRenderer.hpp */,
-				32AB97E229C651130084A69F /* PassGenerator.mm */,
-				32AB97E329C651130084A69F /* PassGenerator.hpp */,
-				32AB97E929CD2FB60084A69F /* imgui_helper.mm */,
-				32AB97EA29CD2FB60084A69F /* imgui_helper.hpp */,
+				322EFCA429E0C17C00F37CC4 /* AssimpMeshProvider.cpp */,
+				322EFCA029E0C17C00F37CC4 /* AssimpMeshProvider.h */,
+				322EFC9D29E0C17C00F37CC4 /* CMakeLists.txt */,
+				322EFCA329E0C17C00F37CC4 /* Lighting.cpp */,
+				322EFCA529E0C17C00F37CC4 /* Lighting.h */,
+				322EFC9C29E0C17C00F37CC4 /* Mesh.cpp */,
+				322EFCA129E0C17C00F37CC4 /* Mesh.h */,
+				322EFC9F29E0C17C00F37CC4 /* MeshProvider.h */,
+				322EFC9B29E0C17C00F37CC4 /* PlaneMeshProvider.h */,
+				322EFC9E29E0C17C00F37CC4 /* Scene.cpp */,
+				322EFCA629E0C17C00F37CC4 /* Scene.h */,
+				322EFCA229E0C17C00F37CC4 /* SphereMeshProvider.h */,
 			);
-			path = HeatrayRenderer;
+			path = Scene;
 			sourceTree = "<group>";
 		};
 		32AB97EE29CD38980084A69F /* imgui */ = {
@@ -317,6 +324,7 @@
 				32AB9A7E29D8AA950084A69F /* PassGenerator.h */,
 				32AB9A7A29D12D3C0084A69F /* PassGenerator.cpp */,
 				32AB9A7729D001E70084A69F /* HeatrayRenderer.cpp */,
+				322EFC9A29E0C17C00F37CC4 /* Scene */,
 				32AB9A7329CFEB8B0084A69F /* Shaders */,
 				32AB9A2A29CF3DF10084A69F /* FlyCamera.h */,
 				32AB9A2729CF3DF10084A69F /* HeatrayRenderer_macOS.cpp */,
@@ -334,12 +342,11 @@
 		32AB9A7329CFEB8B0084A69F /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
-				32AB9A3A29CF3DF10084A69F /* RayGeneration.metal */,
+				32AB9A3A29CF3DF10084A69F /* Raytracer.metal */,
 				32AB9A7429CFF4420084A69F /* Display.metal */,
 				32AB9A7629CFF8A70084A69F /* DisplayShaderTypes.h */,
-				32AB9A7929D12CD60084A69F /* RayGenerationConstants.h */,
+				32AB9A7929D12CD60084A69F /* RaytracerFrameConstants.h */,
 				32AB9A7C29D12FBC0084A69F /* Ray.h */,
-				32AB9A7F29D8B0DB0084A69F /* GlobalData.h */,
 				32AB9A8029D8B5510084A69F /* Constants.h */,
 			);
 			path = Shaders;
@@ -410,6 +417,7 @@
 				32AB999929CD38990084A69F /* FUNDING.yml in Resources */,
 				32AB999E29CD38990084A69F /* issue_template.md in Resources */,
 				32AB99A029CD38990084A69F /* LICENSE.txt in Resources */,
+				322EFCA829E0C17C00F37CC4 /* CMakeLists.txt in Resources */,
 				32AB999F29CD38990084A69F /* .gitattributes in Resources */,
 				32AB999C29CD38990084A69F /* build.yml in Resources */,
 				32AB999D29CD38990084A69F /* pull_request_template.md in Resources */,
@@ -423,7 +431,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				32AB9A6529CF3DF10084A69F /* RayGeneration.metal in Sources */,
+				32AB9A6529CF3DF10084A69F /* Raytracer.metal in Sources */,
+				322EFCA929E0C17C00F37CC4 /* Scene.cpp in Sources */,
 				32AB99FE29CF37CB0084A69F /* TextureLoader.cpp in Sources */,
 				32AB99A229CD38990084A69F /* imgui_demo.cpp in Sources */,
 				32AB9A6629CF3DF10084A69F /* imgui_helper.mm in Sources */,
@@ -433,13 +442,16 @@
 				32AB9A0429CF37CB0084A69F /* FileDialogMacOS.mm in Sources */,
 				32AB990B29CD38990084A69F /* imgui_widgets.cpp in Sources */,
 				32AB991129CD38990084A69F /* imgui_impl_metal.mm in Sources */,
+				322EFCA729E0C17C00F37CC4 /* Mesh.cpp in Sources */,
 				32AB9A0D29CF3A8F0084A69F /* metal-cpp-generator.cpp in Sources */,
 				32AB9A0F29CF3A8F0084A69F /* main.cpp in Sources */,
 				32AB9A0129CF37CB0084A69F /* FileIO.cpp in Sources */,
 				32AB9A5D29CF3DF10084A69F /* PassGenerator_macOS.mm in Sources */,
+				322EFCAB29E0C17C00F37CC4 /* AssimpMeshProvider.cpp in Sources */,
 				32AB9A0E29CF3A8F0084A69F /* AppDelegate.cpp in Sources */,
 				32AB99FD29CF37CB0084A69F /* Log.cpp in Sources */,
 				32AB991C29CD38990084A69F /* imgui_impl_osx.mm in Sources */,
+				322EFCAA29E0C17C00F37CC4 /* Lighting.cpp in Sources */,
 				32AB992B29CD38990084A69F /* imgui.cpp in Sources */,
 				32AB9A0229CF37CB0084A69F /* ShaderCodeLoader.cpp in Sources */,
 				32AB99A129CD38990084A69F /* imgui_tables.cpp in Sources */,
