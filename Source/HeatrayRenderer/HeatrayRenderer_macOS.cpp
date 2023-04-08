@@ -7,6 +7,10 @@
 
 #include "HeatrayRenderer_macOS.hpp"
 
+#include "Scene/Scene.h" // TEMPORARY!
+
+#include "Materials/PhysicallyBasedMaterial.h"
+#include "Scene/SphereMeshProvider.h"
 #include "Shaders/DisplayShaderTypes.h"
 #include "Utility/FileDialog.h"
 #include "Utility/ImGuiLog.h"
@@ -39,11 +43,22 @@ bool HeatrayRenderer::init(MTL::Device* device, MTK::View* view, const uint32_t 
     m_commandQueue = m_device->newCommandQueue();
     
     m_passGenerator.init(device, m_shaderLibrary);
+    m_passGenerator.installStatUpdateCallback([this](PassGenerator::RenderStats stats) {
+        m_currentPassTime = stats.passGPUTimeSeconds;
+        m_totalRenderTime += stats.passGPUTimeSeconds;
+    });
     
     setupDisplayShader(view);
     
     // Setup window-size specific data.
     resize(renderWidth, renderHeight);
+    
+    // Setup some defaults.
+    m_renderOptions.scene = "Editable PBR Material";
+    m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
+    
+    // Load the default scene.
+    changeScene(m_renderOptions.scene, true);
     
     // Get the internal state ready to go.
     resetRenderer();
@@ -129,6 +144,8 @@ void HeatrayRenderer::adjustCamera(const float phiDelta, const float thetaDelta,
 void HeatrayRenderer::resetRenderer() {
     m_renderOptions.resetInternalState = true;
     m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
+    m_currentPass = 0;
+    m_totalRenderTime = 0.0f;
 }
 
 void HeatrayRenderer::setupDisplayShader(const MTK::View* view) {
@@ -178,6 +195,12 @@ bool HeatrayRenderer::encodeUI(MTK::View* view, MTL::CommandBuffer* cmdBuffer, M
     bool shouldCloseWindow = false;
     ImGui::Begin("Main Menu", &shouldCloseWindow, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
     
+    ImGui::Text("Render stats:");
+    {
+        ImGui::Text("Passes completed: %u\n", uint32_t(m_currentPass));
+        ImGui::Text("Pass time(s): %f\n", m_currentPassTime);
+        ImGui::Text("Total render time(s): %f\n", m_totalRenderTime);
+    }
     if (ImGui::CollapsingHeader("Camera options")) {
         ImGui::Checkbox("Lock camera", &(m_camera.locked));
         if (!m_camera.locked) {
@@ -266,4 +289,24 @@ bool HeatrayRenderer::encodeUI(MTK::View* view, MTL::CommandBuffer* cmdBuffer, M
     imgui_helper::end_imgui_frame(cmdBuffer, encoder);
     
     return shouldResetRenderer;
+}
+
+void HeatrayRenderer::changeScene(const std::string &sceneName, const bool moveCamera) {
+    LOG_INFO("Loading scene: %s", sceneName.c_str());
+    
+    if (sceneName == "Editable PBR Material") {
+        SphereMeshProvider sphereMeshProvider(50, 50, 1.0f, "PBR Sphere");
+        std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>("PBR");
+        PhysicallyBasedMaterial::Parameters &params = material->parameters();
+        params.metallic = 0.0f;
+        params.roughness = 1.0f;
+        params.baseColor = simd::make_float3(0.8f);
+        params.specularF0 = 0.0f;
+        params.clearCoat = 0.0f;
+        params.clearCoatRoughness = 0.0f;
+        params.forceEnableAllTextures = true;
+        
+        std::shared_ptr<Scene> scene = Scene::create();
+        scene->addMesh(&sphereMeshProvider, { material }, matrix_identity_float4x4, m_device);
+    }
 }

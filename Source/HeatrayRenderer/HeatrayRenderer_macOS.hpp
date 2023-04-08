@@ -55,6 +55,11 @@ public:
     // Reset the renderer's internal state.
     void resetRenderer();
     
+    //-------------------------------------------------------------------------
+    // Load a new scene from disk. If 'moveCamera' is true, the camera will be
+    // moved to a new location based on the size of the new scene.
+    void changeScene(const std::string &sceneName, bool moveCamera);
+    
 private:
     void setupDisplayShader(const MTK::View* view);
     void encodeDisplay(MTK::View* view, MTL::RenderCommandEncoder* encoder, MTL::Texture* raytracedPixels);
@@ -88,4 +93,10 @@ private:
     } m_camera;
     
     float m_distanceScale = 1.0f;
+    
+    size_t m_currentPass = 0;
+    size_t m_totalPasses = 0;
+    
+    float m_currentPassTime = 0.0f;
+    float m_totalRenderTime = 0.0f;
 };

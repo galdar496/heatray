@@ -57,7 +57,7 @@ public:
         size_t elementCount = 0;
         DrawMode drawMode = DrawMode::Triangles;
         int materialIndex = -1;
-        matrix_float4x4 localTransform = matrix_identity_float4x4;
+        simd::float4x4 localTransform = matrix_identity_float4x4;
         std::string name;
     };
 

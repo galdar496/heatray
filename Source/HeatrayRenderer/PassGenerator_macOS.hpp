@@ -14,6 +14,7 @@
 
 #include <cstdint>
 #include <simd/simd.h>
+#include <string>
 
 class PassGenerator {
 public:
@@ -39,6 +40,8 @@ public:
     struct RenderOptions {
         // If true, the internal state of the pass generator is reset.
         bool resetInternalState = true;
+        
+        std::string scene; // Name of the scene.
         
         struct Camera {
             static constexpr size_t NUM_FSTOPS = 12;
@@ -68,6 +71,14 @@ public:
     // passes since the last time the generator was reset).
     MTL::Texture* encodePass(MTL::CommandBuffer* cmdBuffer, const RenderOptions& newRenderOptions);
     
+    struct RenderStats {
+        float passGPUTimeSeconds = 0.0f;
+    };
+    using StatUpdateCallback = std::function<void(const RenderStats stats)>;
+    void installStatUpdateCallback(StatUpdateCallback&& callback) {
+        m_statUpdateCallback = std::move(callback);
+    };
+    
 private:
     void resetRenderingState(const RenderOptions& newOptions);
     
@@ -77,4 +88,6 @@ private:
     bool m_shouldClear = true;
     
     RenderOptions m_renderOptions;
+    
+    StatUpdateCallback m_statUpdateCallback = nullptr;
 };

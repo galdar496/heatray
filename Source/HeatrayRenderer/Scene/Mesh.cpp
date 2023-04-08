@@ -10,8 +10,8 @@
 
 Mesh::Mesh(MeshProvider* meshProvider,
            std::vector<std::shared_ptr<Material>>& materials,
-           std::function<void(const std::shared_ptr<openrl::Program>)>& materialCreatedCallback,
-           const simd::float4x4& transform)
+           const simd::float4x4& transform,
+           MTL::Device* device)
 {
     m_materials = std::move(materials);
 
@@ -22,31 +22,25 @@ Mesh::Mesh(MeshProvider* meshProvider,
 
     LOG_INFO("Building Mesh data for Provider %s", meshProvider->name().data());
     size_t vertexBufferCount = meshProvider->GetVertexBufferCount();
-//    for (size_t ii = 0; ii < vertexBufferCount; ++ii) {
-//        std::shared_ptr<openrl::Buffer> buffer = openrl::Buffer::create(RL_ARRAY_BUFFER, nullptr, meshProvider->GetVertexBufferSize(ii), "Vertex Buffer");
-//        buffer->bind();
-//        uint8_t * mapping = buffer->mapBuffer<uint8_t>(RL_READ_WRITE);
-//        meshProvider->FillVertexBuffer(ii, mapping);
-//        buffer->unmapBuffer();
-//        m_vertexBuffers.push_back(std::move(buffer));
-//    }
-//
-//    size_t indexBufferCount = meshProvider->GetIndexBufferCount();
-//    for (size_t ii = 0; ii < indexBufferCount; ++ii) {
-//        size_t numIndices = meshProvider->GetIndexBufferSize(ii);
-//        if (numIndices == 0) {
-//            LOG_WARNING("Found a 0-sized index buffer - skipping.");
-//            m_indexBuffers.push_back(nullptr);
-//            continue;
-//        }
-//
-//        std::shared_ptr<openrl::Buffer> buffer = openrl::Buffer::create(RL_ELEMENT_ARRAY_BUFFER, nullptr, numIndices, "Index Buffer");
-//        buffer->bind();
-//        uint8_t * mapping = buffer->mapBuffer<uint8_t>(RL_READ_WRITE);
-//        meshProvider->FillIndexBuffer(ii, mapping);
-//        buffer->unmapBuffer();
-//        m_indexBuffers.push_back(std::move(buffer));
-//    }
+    for (size_t ii = 0; ii < vertexBufferCount; ++ii) {
+        MTL::Buffer* buffer = device->newBuffer(meshProvider->GetVertexBufferSize(ii), MTL::ResourceStorageModeShared);
+        meshProvider->FillVertexBuffer(ii, static_cast<uint8_t*>(buffer->contents()));
+        m_vertexBuffers.push_back(buffer);
+    }
+
+    size_t indexBufferCount = meshProvider->GetIndexBufferCount();
+    for (size_t ii = 0; ii < indexBufferCount; ++ii) {
+        size_t indicesSize = meshProvider->GetIndexBufferSize(ii);
+        if (indicesSize == 0) {
+            LOG_WARNING("Found a 0-sized index buffer - skipping.");
+            m_indexBuffers.push_back(nullptr);
+            continue;
+        }
+
+        MTL::Buffer* buffer = device->newBuffer(indicesSize, MTL::ResourceStorageModeShared);
+        meshProvider->FillIndexBuffer(ii, static_cast<uint8_t*>(buffer->contents()));
+        m_indexBuffers.push_back(buffer);
+    }
 //
 //    m_submeshes.resize(meshProvider->GetSubmeshCount());
 //    for (int ii = 0; ii < meshProvider->GetSubmeshCount(); ++ii) {
@@ -126,7 +120,7 @@ Mesh::Mesh(MeshProvider* meshProvider,
 //                m_vertexBuffers[attribute.buffer]->setAsVertexAttribute(attributeLocation, attribute.componentCount, RL_FLOAT, attribute.stride, attribute.offset);
 //            }
 //        }
-//        
+//
 //        switch (submesh.drawMode) {
 //            case DrawMode::Triangles:
 //                rlSubmesh.mode = RL_TRIANGLES;
@@ -141,7 +135,7 @@ Mesh::Mesh(MeshProvider* meshProvider,
 //
 //        rlSubmesh.elementCount = submesh.elementCount;
 //        rlSubmesh.offset = submesh.indexOffset;
-//        
+//
 //        if (m_indexBuffers[submesh.indexBuffer]) {
 //            LOG_INFO("\tSubmitting %s to OpenRL", submesh.name.c_str());
 //            m_indexBuffers[submesh.indexBuffer]->bind();

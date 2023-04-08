@@ -25,9 +25,9 @@ void Scene::loadFromDisk(const std::string_view path, bool convertToMeters)
 	//m_meshes.emplace_back(std::move(mesh));
 }
 
-size_t Scene::addMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>>&& materials, const matrix_float4x4& transform)
+size_t Scene::addMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>>&& materials, const matrix_float4x4& transform, MTL::Device* device)
 {
-	Mesh mesh(meshProvider, materials, m_newProgramCreatedCallback, transform);
+	Mesh mesh(meshProvider, materials, transform, device);
 	bindLighting(mesh);
 	
 	m_meshes.emplace_back(std::move(mesh));

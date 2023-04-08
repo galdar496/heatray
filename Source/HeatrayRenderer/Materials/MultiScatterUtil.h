@@ -7,6 +7,8 @@
 //
 //
 
+#if 0
+
 #pragma once
 
 #include <RLWrapper/Texture.h>
@@ -23,3 +25,5 @@ void generateMultiScatterTexture();
 // the same shared pointer instead of reloading the multiscatter texture
 // continuously.
 std::shared_ptr<openrl::Texture> loadMultiscatterTexture();
+
+#endif

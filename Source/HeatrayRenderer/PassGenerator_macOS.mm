@@ -173,6 +173,18 @@ MTL::Texture* PassGenerator::encodePass(MTL::CommandBuffer* cmdBuffer, const Ren
     // ring buffer memory for the next pass.
     [mtlCmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> buffer) {
         dispatch_semaphore_signal(raytracer.passSemaphore);
+        
+        if (m_statUpdateCallback) {
+            // Determine how long this command buffer took to run.
+            CFTimeInterval startTime = buffer.GPUStartTime;
+            CFTimeInterval endTime = buffer.GPUEndTime;
+            CFTimeInterval duration = endTime - startTime;
+            
+            RenderStats stats;
+            stats.passGPUTimeSeconds = float(duration); // CFTimeInterval is in seconds.
+            
+            m_statUpdateCallback(stats);
+        }
     }];
     
     RaytracerFrameConstants* raytracerFrameConstants = static_cast<RaytracerFrameConstants*>(raytracer.perFrameConstants.raytracerFrameConstants[currentBufferIndex].contents);

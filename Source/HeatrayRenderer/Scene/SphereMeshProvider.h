@@ -12,13 +12,15 @@
 
 #include "MeshProvider.h"
 
-#include "glm/glm/glm.hpp"
+#include "Utility/Math.h"
 
-glm::vec3 CartesianFromSpherical(glm::vec3 const & spherical)
+#include <simd/simd.h>
+
+simd::float3 CartesianFromSpherical(simd::float3 const & spherical)
 {
-    return glm::vec3(spherical.x * std::cos(spherical.y) * std::sin(spherical.z),
-                     spherical.x * std::cos(spherical.z),
-                     spherical.x * std::sin(spherical.y) * std::sin(-spherical.z));
+    return simd::make_float3(spherical.x * std::cos(spherical.y) * std::sin(spherical.z),
+                             spherical.x * std::cos(spherical.z),
+                             spherical.x * std::sin(spherical.y) * std::sin(-spherical.z));
 }
 
 class SphereMeshProvider : public MeshProvider
@@ -37,13 +39,19 @@ public:
 
     size_t GetVertexBufferSize(size_t bufferIndex) override
     {
-        size_t componentCounts[3] = {3, 3, 2};
+        size_t componentSizes[3] = {
+            sizeof(simd::float3), // Position
+            sizeof(simd::float3), // Normal
+            sizeof(simd::float2)  // UV
+        };
 
-        return vertexCount * componentCounts[bufferIndex] * sizeof(float);
+        return vertexCount * componentSizes[bufferIndex];
     }
 
     void FillVertexBuffer(size_t bufferIndex, uint8_t *buffer) override
     {
+        constexpr size_t stepSize = sizeof(simd::float3) / sizeof(float);
+        
         float *floatPtr = (float *)buffer;
         size_t vSteps = vSlices + 2;
         for (size_t ii = 0; ii < uSlices + 1; ++ii) {
@@ -54,13 +62,15 @@ public:
                 float v = (float)jj / (float)(vSlices + 1);
 
                 if (bufferIndex == 0 || bufferIndex == 1) {
-                    const glm::vec3 spherical(radius, float(u * glm::two_pi<float>()), float(v * glm::pi<float>()));
-                    glm::vec3 p = CartesianFromSpherical(spherical);
+                    const simd::float3 spherical = simd::make_float3(radius, float(u * util::constants::TWO_PI), float(v * util::constants::PI));
+                    simd::float3 p = CartesianFromSpherical(spherical);
                     if (bufferIndex == 1) {
-                        p = glm::normalize(p);
+                        p = simd::normalize(p);
                     }
-                    memcpy(floatPtr, &p.x, sizeof(glm::vec3));
-                    floatPtr += 3;
+                    floatPtr[0] = p.x;
+                    floatPtr[1] = p.y;
+                    floatPtr[2] = p.z;
+                    floatPtr += stepSize;
                 } else {
                     *floatPtr = u;
                     ++floatPtr;
@@ -84,7 +94,7 @@ public:
 
     void FillIndexBuffer(size_t bufferIndex, uint8_t *buffer) override
     {
-        int *indexPtr = (int *)buffer;
+        uint32_t *indexPtr = (uint32_t *)buffer;
 
         int vSteps = (int)vSlices + 2;
         for (int ii = 0; ii < (int)uSlices; ++ii) {
@@ -141,21 +151,21 @@ public:
         submesh.vertexAttributes[0].componentCount = 3;
         submesh.vertexAttributes[0].size = sizeof(float);
         submesh.vertexAttributes[0].offset = 0;
-        submesh.vertexAttributes[0].stride = 3 * sizeof(float);
+        submesh.vertexAttributes[0].stride = sizeof(simd::float3);
 
         submesh.vertexAttributes[1].usage = VertexAttributeUsage_Normal;
         submesh.vertexAttributes[1].buffer = 1;
         submesh.vertexAttributes[1].componentCount = 3;
         submesh.vertexAttributes[1].size = sizeof(float);
         submesh.vertexAttributes[1].offset = 0;
-        submesh.vertexAttributes[1].stride = 3 * sizeof(float);
+        submesh.vertexAttributes[1].stride = sizeof(simd::float3);
 
         submesh.vertexAttributes[2].usage = VertexAttributeUsage_TexCoord;
         submesh.vertexAttributes[2].buffer = 2;
         submesh.vertexAttributes[2].componentCount = 2;
         submesh.vertexAttributes[2].size = sizeof(float);
         submesh.vertexAttributes[2].offset = 0;
-        submesh.vertexAttributes[2].stride = 2 * sizeof(float);
+        submesh.vertexAttributes[2].stride = sizeof(simd::float2);
 
         submesh.indexBuffer = 0;
         submesh.indexOffset = 0;
@@ -163,7 +173,7 @@ public:
         submesh.elementCount = 3 * triangleCount;
 
         submesh.drawMode = DrawMode::Triangles;
-        submesh.localTransform = glm::mat4(1.0f); // identity.
+        submesh.localTransform = matrix_identity_float4x4;
         submesh.name = "Sphere";
 
         return submesh;

@@ -13,14 +13,13 @@
 
 #include <Utility/AABB.h>
 
+#include <Metal/MTLDevice.hpp>
+
 #include <functional>
 #include <string_view>
 #include <vector>
 
 // Forward declarations.
-namespace openrl {
-class Program;
-} // namespace openrl.
 class Material;
 class MeshProvider;
 
@@ -31,12 +30,6 @@ public:
 	~Scene() { clearAll(); }
 
 	//-------------------------------------------------------------------------
-	// When new programs are created, this callback will be invoked to ensure
-	// that any extra bindings etc are performed by the calling code.
-	using NewProgramCreatedCallback = std::function<void(const std::shared_ptr<openrl::Program>)>;
-	void installNewProgramCreatedCallback(NewProgramCreatedCallback &&callback) { m_newProgramCreatedCallback = std::move(callback); }
-
-	//-------------------------------------------------------------------------
 	// Load a mesh from disk. It is recommended to use this function instead
 	// of the AssimpMeshProvider directly.
 	void loadFromDisk(const std::string_view path, bool convertToMeters);
@@ -45,7 +38,7 @@ public:
 	// Add a new mesh to the scene via the various supported MeshProviders.
 	// Returns an index where this mesh is placed within the internal list of
 	// meshes.
-	size_t addMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>> &&materials, const matrix_float4x4& transform);
+	size_t addMesh(MeshProvider* meshProvider, std::vector<std::shared_ptr<Material>> &&materials, const matrix_float4x4& transform, MTL::Device* device);
 
 	//-------------------------------------------------------------------------
 	// Erase an already-created mesh based on the index returned from addMesh().
@@ -75,8 +68,6 @@ private:
 
 	std::vector<Mesh> m_meshes;
 	//std::shared_ptr<Lighting> m_lighting = nullptr;
-
-	NewProgramCreatedCallback m_newProgramCreatedCallback;
 
 	util::AABB m_aabb; // AABB that encapsulates the scene.
 };
