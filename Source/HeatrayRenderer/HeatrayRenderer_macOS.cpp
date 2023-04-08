@@ -10,6 +10,7 @@
 #include "Shaders/DisplayShaderTypes.h"
 #include "Utility/FileDialog.h"
 #include "Utility/ImGuiLog.h"
+#include "Utility/Math.h"
 
 #include "imgui_helper.hpp"
 
@@ -44,6 +45,9 @@ bool HeatrayRenderer::init(MTL::Device* device, MTK::View* view, const uint32_t 
     // Setup window-size specific data.
     resize(renderWidth, renderHeight);
     
+    // Get the internal state ready to go.
+    resetRenderer();
+    
     return true;
 }
 
@@ -69,6 +73,8 @@ void HeatrayRenderer::resize(const uint32_t newWidth, const uint32_t newHeight) 
         DisplayVertexShader::Constants* constants = static_cast<DisplayVertexShader::Constants*>(m_display.vertexConstants->contents());
         constants->quadOffset = ((float(UI_WINDOW_WIDTH) / float(newWidth)) * 2.0f) - 1.0f;
     }
+    
+    resetRenderer();
 }
 
 void HeatrayRenderer::render(MTK::View* view) {
@@ -84,7 +90,9 @@ void HeatrayRenderer::render(MTK::View* view) {
     MTL::RenderPassDescriptor *descriptor = view->currentRenderPassDescriptor();
     MTL::RenderCommandEncoder *encoder = commandBuffer->renderCommandEncoder(descriptor);
     encodeDisplay(view, encoder, raytracedPixels);
-    encodeUI(view, commandBuffer, encoder);
+    if (encodeUI(view, commandBuffer, encoder)) {
+        resetRenderer();
+    }
     encoder->endEncoding();
     
     commandBuffer->presentDrawable(view->currentDrawable());
@@ -94,11 +102,33 @@ void HeatrayRenderer::render(MTK::View* view) {
 }
 
 void HeatrayRenderer::adjustCamera(const float phiDelta, const float thetaDelta, const float distanceDelta) {
-    
+    if (!m_camera.locked) {
+        float SCALE = 0.5f;
+
+        m_camera.orbitCamera.phi += util::radians(phiDelta) * SCALE;
+        m_camera.orbitCamera.theta += util::radians(thetaDelta) * SCALE;
+        m_camera.orbitCamera.distance += distanceDelta * SCALE * m_distanceScale;
+
+        // Ensure that the camera parameters are valid.
+        {
+            if (m_camera.orbitCamera.phi < 0.0f) {
+                m_camera.orbitCamera.phi += util::constants::TWO_PI;
+            }
+            else if (m_camera.orbitCamera.phi > util::constants::TWO_PI) {
+                m_camera.orbitCamera.phi -= util::constants::TWO_PI;
+            }
+
+            m_camera.orbitCamera.theta = std::clamp(m_camera.orbitCamera.theta, -util::constants::HALF_PI, util::constants::HALF_PI);
+            m_camera.orbitCamera.distance = std::clamp(m_camera.orbitCamera.distance, 0.0f, m_camera.orbitCamera.max_distance);
+
+            m_renderOptions.camera.focusDistance = m_camera.orbitCamera.distance; // Auto-focus to the center of the scene.
+        }
+    }
 }
 
 void HeatrayRenderer::resetRenderer() {
-    
+    m_renderOptions.resetInternalState = true;
+    m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
 }
 
 void HeatrayRenderer::setupDisplayShader(const MTK::View* view) {
@@ -139,12 +169,32 @@ void HeatrayRenderer::encodeDisplay(MTK::View* view, MTL::RenderCommandEncoder* 
 }
 
 bool HeatrayRenderer::encodeUI(MTK::View* view, MTL::CommandBuffer* cmdBuffer, MTL::RenderCommandEncoder* encoder) {
+    bool shouldResetRenderer = false;
+    
     imgui_helper::start_imgui_frame(static_cast<void*>(view));
     
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(ImVec2(UI_WINDOW_WIDTH, static_cast<float>(m_windowParams.height)));
     bool shouldCloseWindow = false;
     ImGui::Begin("Main Menu", &shouldCloseWindow, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
+    
+    if (ImGui::CollapsingHeader("Camera options")) {
+        ImGui::Checkbox("Lock camera", &(m_camera.locked));
+        if (!m_camera.locked) {
+            ImGui::Text("Orbital Camera");
+            ImGui::PushID("CameraPhi");
+            bool changed = ImGui::SliderAngle("Phi", &(m_camera.orbitCamera.phi), 0.0f, 360.0f);
+            ImGui::PopID();
+            ImGui::PushID("CameraTheta");
+            changed |= ImGui::SliderAngle("Theta", &(m_camera.orbitCamera.theta), -90.0f, 90.0f);
+            ImGui::PopID();
+            changed |= ImGui::SliderFloat("Distance", &(m_camera.orbitCamera.distance), 0.0f, m_camera.orbitCamera.max_distance);
+            changed |= ImGui::InputFloat3("Target", m_camera.orbitCamera.target.uiValue<float>(), "%f", ImGuiInputTextFlags_CharsDecimal);
+            if (changed) {
+                shouldResetRenderer = true;
+            }
+        }
+    }
     
     // Console log.
     {
@@ -215,5 +265,5 @@ bool HeatrayRenderer::encodeUI(MTK::View* view, MTL::CommandBuffer* cmdBuffer, M
     
     imgui_helper::end_imgui_frame(cmdBuffer, encoder);
     
-    return false;
+    return shouldResetRenderer;
 }

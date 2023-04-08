@@ -48,7 +48,7 @@ fragment float4 DisplayFS(DisplayVertexOut in [[stage_in]],
     float4 color = raytracedPixels.sample(sampler, in.uv);
 
     // The 'w' component holds the number of samples for this pixel.
-    return float4(color.xyz / color.w, 1.0f);
+    return float4(color.xyz / max(1.0f, color.w), 1.0f);
     
     return float4(1.0f, 0.0f, 0.0f, 1.0f);
 }

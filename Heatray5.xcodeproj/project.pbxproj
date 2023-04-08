@@ -69,6 +69,8 @@
 		322EFCA429E0C17C00F37CC4 /* AssimpMeshProvider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AssimpMeshProvider.cpp; sourceTree = "<group>"; };
 		322EFCA529E0C17C00F37CC4 /* Lighting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lighting.h; sourceTree = "<group>"; };
 		322EFCA629E0C17C00F37CC4 /* Scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Scene.h; sourceTree = "<group>"; };
+		322EFCAC29E0E29800F37CC4 /* Math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
+		322EFCAD29E0E97200F37CC4 /* UIEditableSIMD.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIEditableSIMD.h; sourceTree = "<group>"; };
 		32AB97E529CD27010084A69F /* MetalPerformanceShaders.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShaders.framework; path = System/Library/Frameworks/MetalPerformanceShaders.framework; sourceTree = SDKROOT; };
 		32AB980829CD38980084A69F /* imgui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui.h; sourceTree = "<group>"; };
 		32AB980929CD38980084A69F /* imstb_textedit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imstb_textedit.h; sourceTree = "<group>"; };
@@ -298,6 +300,7 @@
 				32AB99FA29CF37CB0084A69F /* AABB.h */,
 				32AB99FB29CF37CB0084A69F /* Random.h */,
 				32AB99FC29CF37CB0084A69F /* FileDialogMacOS.mm */,
+				322EFCAC29E0E29800F37CC4 /* Math.h */,
 			);
 			name = Utility;
 			path = Source/Utility;
@@ -334,6 +337,7 @@
 				32AB9A3829CF3DF10084A69F /* OrbitCamera.h */,
 				32AB9A3929CF3DF10084A69F /* PassGenerator_macOS.hpp */,
 				32AB9A2829CF3DF10084A69F /* PassGenerator_macOS.mm */,
+				322EFCAD29E0E97200F37CC4 /* UIEditableSIMD.h */,
 			);
 			name = HeatrayRenderer;
 			path = Source/HeatrayRenderer;

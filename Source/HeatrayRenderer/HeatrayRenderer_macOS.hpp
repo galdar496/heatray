@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "OrbitCamera.h"
 #include "PassGenerator_macOS.hpp"
 
 #include <Metal/MTLBuffer.hpp>
@@ -79,4 +80,12 @@ private:
     } m_display;
     
     PassGenerator::RenderOptions m_renderOptions;
+    
+    struct Camera {
+        //FlyCamera flyCamera;
+        OrbitCamera orbitCamera;
+        bool locked = false;
+    } m_camera;
+    
+    float m_distanceScale = 1.0f;
 };
