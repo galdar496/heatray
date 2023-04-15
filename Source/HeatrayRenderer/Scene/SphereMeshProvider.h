@@ -11,8 +11,9 @@
 #pragma once
 
 #include "MeshProvider.h"
+#include "VertexAttribute.h"
 
-#include "Utility/Math.h"
+#include <Utility/Math.h>
 
 #include <simd/simd.h>
 
@@ -146,21 +147,21 @@ public:
         Submesh submesh;
 
         submesh.vertexAttributeCount = 3;
-        submesh.vertexAttributes[0].usage = VertexAttributeUsage_Position;
+        submesh.vertexAttributes[0].usage = VertexAttributeUsage::Position;
         submesh.vertexAttributes[0].buffer = 0;
         submesh.vertexAttributes[0].componentCount = 3;
         submesh.vertexAttributes[0].size = sizeof(float);
         submesh.vertexAttributes[0].offset = 0;
         submesh.vertexAttributes[0].stride = sizeof(simd::float3);
 
-        submesh.vertexAttributes[1].usage = VertexAttributeUsage_Normal;
+        submesh.vertexAttributes[1].usage = VertexAttributeUsage::Normal;
         submesh.vertexAttributes[1].buffer = 1;
         submesh.vertexAttributes[1].componentCount = 3;
         submesh.vertexAttributes[1].size = sizeof(float);
         submesh.vertexAttributes[1].offset = 0;
         submesh.vertexAttributes[1].stride = sizeof(simd::float3);
 
-        submesh.vertexAttributes[2].usage = VertexAttributeUsage_TexCoord;
+        submesh.vertexAttributes[2].usage = VertexAttributeUsage::TexCoord;
         submesh.vertexAttributes[2].buffer = 2;
         submesh.vertexAttributes[2].componentCount = 2;
         submesh.vertexAttributes[2].size = sizeof(float);

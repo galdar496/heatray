@@ -48,8 +48,8 @@ public:
 	// Apply a transform to the scene that will affect all mesh objects.
     void applyTransform(const matrix_float4x4& transform);
 
-	void clearMeshesAndMaterials() { m_meshes.clear(); }
-	//void clearLighting() { m_lighting->clear(); }
+    void clearMeshesAndMaterials();
+    //void clearLighting() { m_lighting->clear(); }
 	void clearAll() {
 		clearMeshesAndMaterials();
 		//clearLighting();

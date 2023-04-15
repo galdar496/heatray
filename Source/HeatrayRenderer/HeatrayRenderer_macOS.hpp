@@ -10,6 +10,8 @@
 #include "OrbitCamera.h"
 #include "PassGenerator_macOS.hpp"
 
+#include "Scene/Scene.h"
+
 #include <Metal/MTLBuffer.hpp>
 #include <Metal/MTLCommandBuffer.hpp>
 #include <Metal/MTLCommandQueue.hpp>
@@ -99,4 +101,6 @@ private:
     
     float m_currentPassTime = 0.0f;
     float m_totalRenderTime = 0.0f;
+    
+    std::shared_ptr<Scene> m_scene = nullptr;
 };

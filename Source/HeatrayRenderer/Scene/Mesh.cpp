@@ -5,6 +5,7 @@
 #include <HeatrayRenderer/Materials/Material.h>
 #include <HeatrayRenderer/Materials/PhysicallyBasedMaterial.h>
 #include <Utility/Log.h>
+#include <Utility/Util.h>
 
 #include <simd/simd.h>
 
@@ -20,27 +21,35 @@ Mesh::Mesh(MeshProvider* meshProvider,
         material->build();
     }
 
-    LOG_INFO("Building Mesh data for Provider %s", meshProvider->name().data());
-    size_t vertexBufferCount = meshProvider->GetVertexBufferCount();
-    for (size_t ii = 0; ii < vertexBufferCount; ++ii) {
-        MTL::Buffer* buffer = device->newBuffer(meshProvider->GetVertexBufferSize(ii), MTL::ResourceStorageModeShared);
-        meshProvider->FillVertexBuffer(ii, static_cast<uint8_t*>(buffer->contents()));
-        m_vertexBuffers.push_back(buffer);
-    }
-
-    size_t indexBufferCount = meshProvider->GetIndexBufferCount();
-    for (size_t ii = 0; ii < indexBufferCount; ++ii) {
-        size_t indicesSize = meshProvider->GetIndexBufferSize(ii);
-        if (indicesSize == 0) {
-            LOG_WARNING("Found a 0-sized index buffer - skipping.");
-            m_indexBuffers.push_back(nullptr);
-            continue;
+    {
+        LOG_INFO("Building Mesh data for provider %s", meshProvider->name().data());
+        m_vertexBuffers.resize(meshProvider->GetVertexBufferCount());
+        for (size_t bufferIndex = 0; bufferIndex < m_vertexBuffers.size(); ++bufferIndex) {
+            MTL::Buffer* buffer = device->newBuffer(meshProvider->GetVertexBufferSize(bufferIndex), MTL::ResourceStorageModeShared);
+            meshProvider->FillVertexBuffer(bufferIndex, static_cast<uint8_t*>(buffer->contents()));
+            m_vertexBuffers[bufferIndex] = buffer;
         }
-
-        MTL::Buffer* buffer = device->newBuffer(indicesSize, MTL::ResourceStorageModeShared);
-        meshProvider->FillIndexBuffer(ii, static_cast<uint8_t*>(buffer->contents()));
-        m_indexBuffers.push_back(buffer);
+        
+        m_indexBuffers.resize(meshProvider->GetIndexBufferCount());
+        for (size_t bufferIndex = 0; bufferIndex < m_indexBuffers.size(); ++bufferIndex) {
+            size_t indicesSize = meshProvider->GetIndexBufferSize(bufferIndex);
+            if (indicesSize == 0) {
+                LOG_WARNING("Found a 0-sized index buffer - skipping.");
+                continue;
+            }
+            MTL::Buffer* buffer = device->newBuffer(indicesSize, MTL::ResourceStorageModeShared);
+            meshProvider->FillIndexBuffer(bufferIndex, static_cast<uint8_t*>(buffer->contents()));
+            m_indexBuffers[bufferIndex] = buffer;
+        }
     }
+    
+    // Now that we've loaded all mesh data, get the submeshes info.
+    m_submeshes.resize(meshProvider->GetSubmeshCount());
+    for (int submeshIndex = 0; submeshIndex < meshProvider->GetSubmeshCount(); ++submeshIndex) {
+        Submesh& submesh = m_submeshes[submeshIndex];
+        submesh = meshProvider->GetSubmesh(submeshIndex);
+    }
+    
 //
 //    m_submeshes.resize(meshProvider->GetSubmeshCount());
 //    for (int ii = 0; ii < meshProvider->GetSubmeshCount(); ++ii) {
@@ -145,10 +154,13 @@ Mesh::Mesh(MeshProvider* meshProvider,
 //    }
 }
 
-void Mesh::destroy()
-{
-    m_vertexBuffers.clear();
-    m_indexBuffers.clear();
+void Mesh::destroy() {
+    for (MTL::Buffer* buffer : m_vertexBuffers) {
+        buffer->release();
+    }
+    for (MTL::Buffer* buffer : m_indexBuffers) {
+        buffer->release();
+    }
     m_submeshes.clear();
     m_materials.clear();
 }

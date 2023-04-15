@@ -16,51 +16,19 @@
 
 #pragma once
 
-#include <simd/simd.h>
+#include "Submesh.h"
+#include "VertexAttribute.h"
+
+#include "Utility/Util.h"
+
 #include <stddef.h>
 #include <stdint.h>
 #include <string>
-
-enum class DrawMode {
-    Triangles,
-    TriangleStrip,
-};
-
-enum VertexAttributeUsage {
-    VertexAttributeUsage_Position,
-    VertexAttributeUsage_Normal,
-    VertexAttributeUsage_TexCoord,
-    VertexAttributeUsage_Tangents,
-    VertexAttributeUsage_Bitangents,
-    VertexAttributeUsage_Colors,
-
-    VertexAttributeUsageCount,
-};
-
-struct VertexAttribute {
-    VertexAttributeUsage usage = VertexAttributeUsage_Position;
-    int buffer = -1;
-    int componentCount = 0;
-    int size = 0;
-    size_t offset = 0;
-    int stride = 0;
-};
+#include <string_view>
 
 class MeshProvider
 {
 public:
-    struct Submesh {
-        int vertexAttributeCount = 0;
-        VertexAttribute vertexAttributes[VertexAttributeUsageCount];
-        size_t indexBuffer = 0;
-        size_t indexOffset = 0;
-        size_t elementCount = 0;
-        DrawMode drawMode = DrawMode::Triangles;
-        int materialIndex = -1;
-        simd::float4x4 localTransform = matrix_identity_float4x4;
-        std::string name;
-    };
-
     explicit MeshProvider(const std::string_view name) : m_name(name) {}
     virtual ~MeshProvider() {}
     virtual size_t GetVertexBufferCount() = 0;

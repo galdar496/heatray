@@ -7,8 +7,6 @@
 
 #include "HeatrayRenderer_macOS.hpp"
 
-#include "Scene/Scene.h" // TEMPORARY!
-
 #include "Materials/PhysicallyBasedMaterial.h"
 #include "Scene/SphereMeshProvider.h"
 #include "Shaders/DisplayShaderTypes.h"
@@ -54,10 +52,11 @@ bool HeatrayRenderer::init(MTL::Device* device, MTK::View* view, const uint32_t 
     resize(renderWidth, renderHeight);
     
     // Setup some defaults.
-    m_renderOptions.scene = "Editable PBR Material";
+    m_renderOptions.scene = "Test Sphere";
     m_renderOptions.camera.viewMatrix = m_camera.orbitCamera.createViewMatrix();
     
     // Load the default scene.
+    m_scene = Scene::create();
     changeScene(m_renderOptions.scene, true);
     
     // Get the internal state ready to go.
@@ -292,10 +291,11 @@ bool HeatrayRenderer::encodeUI(MTK::View* view, MTL::CommandBuffer* cmdBuffer, M
 }
 
 void HeatrayRenderer::changeScene(const std::string &sceneName, const bool moveCamera) {
+    m_scene->clearAll();
     LOG_INFO("Loading scene: %s", sceneName.c_str());
     
-    if (sceneName == "Editable PBR Material") {
-        SphereMeshProvider sphereMeshProvider(50, 50, 1.0f, "PBR Sphere");
+    if (sceneName == "Test Sphere") {
+        SphereMeshProvider sphereMeshProvider(50, 50, 1.0f, "Sphere");
         std::shared_ptr<PhysicallyBasedMaterial> material = std::make_shared<PhysicallyBasedMaterial>("PBR");
         PhysicallyBasedMaterial::Parameters &params = material->parameters();
         params.metallic = 0.0f;
@@ -306,7 +306,6 @@ void HeatrayRenderer::changeScene(const std::string &sceneName, const bool moveC
         params.clearCoatRoughness = 0.0f;
         params.forceEnableAllTextures = true;
         
-        std::shared_ptr<Scene> scene = Scene::create();
-        scene->addMesh(&sphereMeshProvider, { material }, matrix_identity_float4x4, m_device);
+        m_scene->addMesh(&sphereMeshProvider, { material }, matrix_identity_float4x4, m_device);
     }
 }

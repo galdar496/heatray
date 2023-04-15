@@ -16,6 +16,9 @@
 #include <simd/simd.h>
 #include <string>
 
+// Forward declarations.
+class Scene;
+
 class PassGenerator {
 public:
     PassGenerator() = default;
@@ -78,6 +81,10 @@ public:
     void installStatUpdateCallback(StatUpdateCallback&& callback) {
         m_statUpdateCallback = std::move(callback);
     };
+
+    //-------------------------------------------------------------------------
+    // Set the current scene data to be used for this class.
+    void setScene(std::shared_ptr<Scene> scene);
     
 private:
     void resetRenderingState(const RenderOptions& newOptions);

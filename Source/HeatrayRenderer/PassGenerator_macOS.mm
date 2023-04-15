@@ -7,8 +7,9 @@
 
 #include "PassGenerator_macOS.hpp"
 
+#include "Scene/Scene.h"
+#include "Shaders/FrameConstants.h"
 #include "Shaders/Ray.h"
-#include "Shaders/RaytracerFrameConstants.h"
 #include "Utility/Log.h"
 
 #include <Metal/Metal.h>
@@ -52,11 +53,13 @@ struct {
     
     AccumulationTextures accumulationTextures;
     
-    id <MTLComputePipelineState> raytracingPipelineState;
+    id <MTLComputePipelineState> cameraRayGeneratorPipelineState;
+    id <MTLComputePipelineState> rayShaderPipelineState;
     
     // Per-frame constant buffers.
     struct {
-        id <MTLBuffer> raytracerFrameConstants[MAX_FRAMES_IN_FLIGHT];
+        id <MTLBuffer> cameraRayGenerator[MAX_FRAMES_IN_FLIGHT];
+        id <MTLBuffer> frameGlobals[MAX_FRAMES_IN_FLIGHT];
         
         // Advanced each time constant buffers are updated.
         size_t currentBufferIndex = 0;
@@ -76,17 +79,34 @@ void createComputeShaderPipelines(id<MTLDevice> mtlDevice) {
     MTLComputePipelineDescriptor *computeDescriptor = [[MTLComputePipelineDescriptor alloc] init];
     computeDescriptor.threadGroupSizeIsMultipleOfThreadExecutionWidth = YES;
     
-    // Ray generation kernel.
+    // Camera ray generation kernel.
     {
-        computeDescriptor.computeFunction = [raytracer.shaderLibrary newFunctionWithName:@"generateFrame"];
+        computeDescriptor.computeFunction = [raytracer.shaderLibrary newFunctionWithName:@"generateCameraRays"];
         
-        raytracer.raytracingPipelineState = [mtlDevice newComputePipelineStateWithDescriptor:computeDescriptor
-                                                                                     options:0
+        raytracer.cameraRayGeneratorPipelineState = [mtlDevice newComputePipelineStateWithDescriptor:computeDescriptor
+                                                                                             options:0
+                                                                                          reflection:nil
+                                                                                               error:&error];
+        if (!raytracer.cameraRayGeneratorPipelineState) {
+            LOG_ERROR("Failed to create the camera ray generator compute pipeline: \"%s\"", [error.description cStringUsingEncoding:NSUTF8StringEncoding]);
+        }
+        
+        LOG_INFO("Created camera ray generation compute kernel");
+    }
+    
+    // Ray shading kernel.
+    {
+        computeDescriptor.computeFunction = [raytracer.shaderLibrary newFunctionWithName:@"shadeRays"];
+        
+        raytracer.rayShaderPipelineState = [mtlDevice newComputePipelineStateWithDescriptor:computeDescriptor
+                                                                                    options:0
                                                                                   reflection:nil
                                                                                        error:&error];
-        if (!raytracer.raytracingPipelineState) {
-            LOG_ERROR("Failed to create the raytracing compute pipeline: \"%s\"", [error.description cStringUsingEncoding:NSUTF8StringEncoding]);
+        if (!raytracer.rayShaderPipelineState) {
+            LOG_ERROR("Failed to create the ray shading compute pipeline: \"%s\"", [error.description cStringUsingEncoding:NSUTF8StringEncoding]);
         }
+        
+        LOG_INFO("Created ray shading compute kernel");
     }
 }
 
@@ -107,7 +127,8 @@ void PassGenerator::init(MTL::Device* device, MTL::Library* shaderLibrary) {
     // Initialize all per-frame buffers.
     {
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
-            raytracer.perFrameConstants.raytracerFrameConstants[i] = [mtlDevice newBufferWithLength:sizeof(RaytracerFrameConstants) options:MTLResourceStorageModeShared];
+            raytracer.perFrameConstants.cameraRayGenerator[i] = [mtlDevice newBufferWithLength:sizeof(CameraRayGeneratorConstants) options:MTLResourceStorageModeShared];
+            raytracer.perFrameConstants.frameGlobals[i] = [mtlDevice newBufferWithLength:sizeof(FrameGlobals) options:MTLResourceStorageModeShared];
         }
     }
     
@@ -156,8 +177,6 @@ MTL::Texture* PassGenerator::encodePass(MTL::CommandBuffer* cmdBuffer, const Ren
                                        1);
     id mtlCmdBuffer = (__bridge id<MTLCommandBuffer>)cmdBuffer;
     
-    id <MTLComputeCommandEncoder> computeEncoder = [mtlCmdBuffer computeCommandEncoder];
-    
     // Advance to the next index in the ring buffers.
     raytracer.perFrameConstants.currentBufferIndex = (raytracer.perFrameConstants.currentBufferIndex + 1) % MAX_FRAMES_IN_FLIGHT;
     size_t currentBufferIndex = raytracer.perFrameConstants.currentBufferIndex;
@@ -187,39 +206,62 @@ MTL::Texture* PassGenerator::encodePass(MTL::CommandBuffer* cmdBuffer, const Ren
         }
     }];
     
-    RaytracerFrameConstants* raytracerFrameConstants = static_cast<RaytracerFrameConstants*>(raytracer.perFrameConstants.raytracerFrameConstants[currentBufferIndex].contents);
+    // Update the globals for this frame.
+    {
+        FrameGlobals* globalConstants = static_cast<FrameGlobals*>(raytracer.perFrameConstants.frameGlobals[currentBufferIndex].contents);
+        
+        globalConstants->frameWidth = m_renderWidth;
+        globalConstants->frameHeight = m_renderHeight;
+        globalConstants->sampleIndex = m_currentSampleIndex;
+    }
     
     // Update the camera constants for this frame.
     {
+        CameraRayGeneratorConstants* cameraRayGeneratorConstants = static_cast<CameraRayGeneratorConstants*>(raytracer.perFrameConstants.cameraRayGenerator[currentBufferIndex].contents);
+        
         constexpr vector_float2 sensorDimensions{36.0f, 24.0f}; // Dimensions of 35mm film.
         // https://en.wikipedia.org/wiki/Angle_of_view#Calculating_a_camera's_angle_of_view
         const float fovY = 2.0f * std::atan2(sensorDimensions.y, 2.0f * m_renderOptions.camera.focalLength);
-        raytracerFrameConstants->camera.fovTan = std::tanf(fovY * 0.5f);
+        cameraRayGeneratorConstants->camera.fovTan = std::tanf(fovY * 0.5f);
         
-        raytracerFrameConstants->camera.aspectRatio = m_renderOptions.camera.aspectRatio;
-        raytracerFrameConstants->camera.viewMatrix = m_renderOptions.camera.viewMatrix;
-        raytracerFrameConstants->camera.renderWidth = m_renderWidth;
-        raytracerFrameConstants->camera.renderHeight = m_renderHeight;
-    }
-    
-    // Update the extra frame data for this pass.
-    {
-        raytracerFrameConstants->sampleIndex = m_currentSampleIndex;
-        raytracerFrameConstants->sampleIndex = m_shouldClear;
+        cameraRayGeneratorConstants->camera.aspectRatio = m_renderOptions.camera.aspectRatio;
+        cameraRayGeneratorConstants->camera.viewMatrix = m_renderOptions.camera.viewMatrix;
+        cameraRayGeneratorConstants->shouldClear = m_shouldClear;
         m_shouldClear = false;
     }
     
     // Ray generation from the camera.
     {
-        [computeEncoder pushDebugGroup:@"Raytracing"];
-        [computeEncoder setBuffer:raytracer.perFrameConstants.raytracerFrameConstants[currentBufferIndex] offset:0 atIndex:0];
+        id <MTLComputeCommandEncoder> computeEncoder = [mtlCmdBuffer computeCommandEncoder];
+        [computeEncoder pushDebugGroup:@"Camera Ray Generation"];
+        [computeEncoder setBuffer:raytracer.perFrameConstants.frameGlobals[currentBufferIndex] offset:0 atIndex:0];
+        [computeEncoder setBuffer:raytracer.perFrameConstants.cameraRayGenerator[currentBufferIndex] offset:0 atIndex:1];
+        [computeEncoder setBuffer:raytracer.rayBuffer offset:0 atIndex:2];
         [computeEncoder setTexture:raytracer.accumulationTextures.read() atIndex:0];
-        [computeEncoder setTexture:raytracer.accumulationTextures.write() atIndex:1];
-        [computeEncoder setComputePipelineState:raytracer.raytracingPipelineState];
+        [computeEncoder setComputePipelineState:raytracer.cameraRayGeneratorPipelineState];
         [computeEncoder dispatchThreadgroups:threadgroups threadsPerThreadgroup:threadsPerThreadgroup];
         [computeEncoder popDebugGroup];
         [computeEncoder endEncoding];
     }
+    
+    // Intersect the newly generated rays with the scene.
+//    {
+//        raytracer.rayIntersector.intersectionDataType = MPSIntersectionDataTypeDistancePrimitiveIndexCoordinates;
+//
+//        [raytracer.rayIntersector encodeIntersectionToCommandBuffer:mtlCmdBuffer
+//                                                   intersectionType:MPSIntersectionTypeNearest
+//                                                          rayBuffer:raytracer.rayBuffer
+//                                                    rayBufferOffset:0
+//                                                 intersectionBuffer:raytracer.intersectionBuffer
+//                                           intersectionBufferOffset:0
+//                                                           rayCount:m_renderWidth * m_renderHeight
+//                                              accelerationStructure:raytracer.accelerationStructure];
+//    }
+//
+//    // Shade the intersections.
+//    {
+//        id <MTLComputeCommandEncoder> computeEncoder = [mtlCmdBuffer computeCommandEncoder];
+//    }
     
     // Pass has been encoded, increase our sample index for the next pass.
     ++m_currentSampleIndex;
@@ -238,4 +280,23 @@ void PassGenerator::resetRenderingState(const RenderOptions& newOptions) {
     m_renderOptions = newOptions;
     
     m_renderOptions.resetInternalState = false;
+}
+
+void PassGenerator::setScene(std::shared_ptr<Scene> scene) {
+    // Read from the scene object and put its geometry into
+    // an acceleration structure for intersection testing.
+    assert(scene->meshes().size() == 1);
+    for (const Mesh& mesh : scene->meshes()) {
+        assert(mesh.submeshes().size() == 1);
+        for (const Submesh& submesh : mesh.submeshes()) {
+            raytracer.accelerationStructure.vertexBuffer = (__bridge id<MTLBuffer>)(mesh.vertexBuffer(submesh.vertexAttributes[util::to_underlying(VertexAttributeUsage::Position)].buffer));
+            raytracer.accelerationStructure.vertexBufferOffset = submesh.vertexAttributes[util::to_underlying(VertexAttributeUsage::Position)].offset;
+            raytracer.accelerationStructure.indexBuffer = (__bridge id<MTLBuffer>)mesh.indexBuffer(submesh.indexBuffer);
+            raytracer.accelerationStructure.indexBufferOffset = submesh.indexOffset;
+            
+            // TODO: ADD OTHER VERTEX ATTRIBUTES HERE!!
+        }
+    }
+    
+    [raytracer.accelerationStructure rebuild];
 }

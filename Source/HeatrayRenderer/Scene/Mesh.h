@@ -9,9 +9,16 @@
 
 #pragma once
 
+#include "Submesh.h"
+#include "VertexAttribute.h"
+
+#include <Utility/Util.h>
+
+#include <Metal/MTLArgumentEncoder.hpp>
 #include <Metal/MTLBuffer.hpp>
 #include <Metal/MTLDevice.hpp>
 
+#include <array>
 #include <simd/simd.h>
 #include <functional>
 #include <memory>
@@ -21,8 +28,7 @@
 class MeshProvider;
 class Material;
 
-class Mesh
-{
+class Mesh {
 public:
     Mesh() = delete;
 
@@ -30,28 +36,27 @@ public:
            std::vector<std::shared_ptr<Material>>& materials,
            const simd::float4x4 &transform,
            MTL::Device* device);
-    ~Mesh() = default;
+    ~Mesh() { destroy(); }
 
     void destroy();
 
-    bool valid() const { return m_indexBuffers.size() > 0; }
+    bool valid() const { return m_submeshes.size() > 0; }
 
     const std::vector<std::shared_ptr<Material>>& materials() const { return m_materials;  }
     
-    struct Submesh {
-        size_t elementCount = 0;
-        size_t offset = 0;
-        //RLenum mode = 0;
-        std::shared_ptr<Material> material = nullptr;
-        simd::float4x4 transform = matrix_identity_float4x4;
-    };
     const std::vector<Submesh> &submeshes() const { return m_submeshes; }
+    
+    MTL::Buffer* vertexBuffer(size_t bufferIndex) const { return m_vertexBuffers[bufferIndex]; }
+    MTL::Buffer* indexBuffer(size_t bufferIndex) const { return m_indexBuffers[bufferIndex]; }
 
 private:
+    // All vertex / index buffers are stored here. Each submesh
+    // will reference a collection of these buffers as necessary.
     std::vector<MTL::Buffer*> m_vertexBuffers;
     std::vector<MTL::Buffer*> m_indexBuffers;
-
+    
     std::vector<Submesh> m_submeshes;
-
     std::vector<std::shared_ptr<Material>> m_materials;
+    
+    MTL::ArgumentEncoder* resourceEncoder = nullptr;
 };

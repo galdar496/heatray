@@ -17,6 +17,7 @@
 		322EFCB829E109D100F37CC4 /* PhysicallyBasedMaterial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 322EFCB429E109D100F37CC4 /* PhysicallyBasedMaterial.cpp */; };
 		322EFCB929E109D100F37CC4 /* GlassMaterial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 322EFCB529E109D100F37CC4 /* GlassMaterial.cpp */; };
 		322EFCBA29E109D100F37CC4 /* MultiScatterUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 322EFCB629E109D100F37CC4 /* MultiScatterUtil.cpp */; };
+		3299F86629EB43350066AFF7 /* RayShader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 3299F86529EB43350066AFF7 /* RayShader.metal */; };
 		32AB97E629CD27010084A69F /* MetalPerformanceShaders.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32AB97E529CD27010084A69F /* MetalPerformanceShaders.framework */; };
 		32AB990B29CD38990084A69F /* imgui_widgets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB980B29CD38980084A69F /* imgui_widgets.cpp */; };
 		32AB991129CD38990084A69F /* imgui_impl_metal.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32AB982029CD38980084A69F /* imgui_impl_metal.mm */; };
@@ -48,7 +49,7 @@
 		32AB9A0F29CF3A8F0084A69F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A0B29CF3A8F0084A69F /* main.cpp */; };
 		32AB9A5C29CF3DF10084A69F /* HeatrayRenderer_macOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A2729CF3DF10084A69F /* HeatrayRenderer_macOS.cpp */; };
 		32AB9A5D29CF3DF10084A69F /* PassGenerator_macOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A2829CF3DF10084A69F /* PassGenerator_macOS.mm */; };
-		32AB9A6529CF3DF10084A69F /* Raytracer.metal in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A3A29CF3DF10084A69F /* Raytracer.metal */; };
+		32AB9A6529CF3DF10084A69F /* CameraRayGenerator.metal in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A3A29CF3DF10084A69F /* CameraRayGenerator.metal */; };
 		32AB9A6629CF3DF10084A69F /* imgui_helper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A3D29CF3DF10084A69F /* imgui_helper.mm */; };
 		32AB9A7529CFF4420084A69F /* Display.metal in Sources */ = {isa = PBXBuildFile; fileRef = 32AB9A7429CFF4420084A69F /* Display.metal */; };
 /* End PBXBuildFile section */
@@ -80,6 +81,10 @@
 		322EFCB429E109D100F37CC4 /* PhysicallyBasedMaterial.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PhysicallyBasedMaterial.cpp; sourceTree = "<group>"; };
 		322EFCB529E109D100F37CC4 /* GlassMaterial.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GlassMaterial.cpp; sourceTree = "<group>"; };
 		322EFCB629E109D100F37CC4 /* MultiScatterUtil.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MultiScatterUtil.cpp; sourceTree = "<group>"; };
+		3299F86529EB43350066AFF7 /* RayShader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = RayShader.metal; sourceTree = "<group>"; };
+		3299F86729EB4FF40066AFF7 /* VertexAttribute.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VertexAttribute.h; sourceTree = "<group>"; };
+		3299F86829EB56E50066AFF7 /* Util.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Util.h; sourceTree = "<group>"; };
+		3299F86929EB634F0066AFF7 /* Submesh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Submesh.h; sourceTree = "<group>"; };
 		32AB97E529CD27010084A69F /* MetalPerformanceShaders.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShaders.framework; path = System/Library/Frameworks/MetalPerformanceShaders.framework; sourceTree = SDKROOT; };
 		32AB980829CD38980084A69F /* imgui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui.h; sourceTree = "<group>"; };
 		32AB980929CD38980084A69F /* imstb_textedit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imstb_textedit.h; sourceTree = "<group>"; };
@@ -143,18 +148,18 @@
 		32AB9A2A29CF3DF10084A69F /* FlyCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlyCamera.h; sourceTree = "<group>"; };
 		32AB9A3829CF3DF10084A69F /* OrbitCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrbitCamera.h; sourceTree = "<group>"; };
 		32AB9A3929CF3DF10084A69F /* PassGenerator_macOS.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PassGenerator_macOS.hpp; sourceTree = "<group>"; };
-		32AB9A3A29CF3DF10084A69F /* Raytracer.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Raytracer.metal; sourceTree = "<group>"; };
+		32AB9A3A29CF3DF10084A69F /* CameraRayGenerator.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = CameraRayGenerator.metal; sourceTree = "<group>"; };
 		32AB9A3D29CF3DF10084A69F /* imgui_helper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = imgui_helper.mm; sourceTree = "<group>"; };
 		32AB9A3E29CF3DF10084A69F /* HeatrayRenderer_macOS.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = HeatrayRenderer_macOS.hpp; sourceTree = "<group>"; };
 		32AB9A7429CFF4420084A69F /* Display.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Display.metal; sourceTree = "<group>"; };
 		32AB9A7629CFF8A70084A69F /* DisplayShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DisplayShaderTypes.h; sourceTree = "<group>"; };
 		32AB9A7729D001E70084A69F /* HeatrayRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HeatrayRenderer.cpp; sourceTree = "<group>"; };
-		32AB9A7929D12CD60084A69F /* RaytracerFrameConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RaytracerFrameConstants.h; sourceTree = "<group>"; };
+		32AB9A7929D12CD60084A69F /* FrameConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameConstants.h; sourceTree = "<group>"; };
 		32AB9A7A29D12D3C0084A69F /* PassGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PassGenerator.cpp; sourceTree = "<group>"; };
 		32AB9A7C29D12FBC0084A69F /* Ray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ray.h; sourceTree = "<group>"; };
 		32AB9A7D29D8AA950084A69F /* HeatrayRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HeatrayRenderer.h; sourceTree = "<group>"; };
 		32AB9A7E29D8AA950084A69F /* PassGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PassGenerator.h; sourceTree = "<group>"; };
-		32AB9A8029D8B5510084A69F /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
+		32AB9A8029D8B5510084A69F /* ShaderMathConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderMathConstants.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -224,6 +229,8 @@
 				322EFC9E29E0C17C00F37CC4 /* Scene.cpp */,
 				322EFCA629E0C17C00F37CC4 /* Scene.h */,
 				322EFCA229E0C17C00F37CC4 /* SphereMeshProvider.h */,
+				3299F86729EB4FF40066AFF7 /* VertexAttribute.h */,
+				3299F86929EB634F0066AFF7 /* Submesh.h */,
 			);
 			path = Scene;
 			sourceTree = "<group>";
@@ -325,6 +332,7 @@
 				32AB99FB29CF37CB0084A69F /* Random.h */,
 				32AB99FC29CF37CB0084A69F /* FileDialogMacOS.mm */,
 				322EFCAC29E0E29800F37CC4 /* Math.h */,
+				3299F86829EB56E50066AFF7 /* Util.h */,
 			);
 			name = Utility;
 			path = Source/Utility;
@@ -371,12 +379,13 @@
 		32AB9A7329CFEB8B0084A69F /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
-				32AB9A3A29CF3DF10084A69F /* Raytracer.metal */,
+				32AB9A7929D12CD60084A69F /* FrameConstants.h */,
+				32AB9A3A29CF3DF10084A69F /* CameraRayGenerator.metal */,
 				32AB9A7429CFF4420084A69F /* Display.metal */,
+				3299F86529EB43350066AFF7 /* RayShader.metal */,
 				32AB9A7629CFF8A70084A69F /* DisplayShaderTypes.h */,
-				32AB9A7929D12CD60084A69F /* RaytracerFrameConstants.h */,
 				32AB9A7C29D12FBC0084A69F /* Ray.h */,
-				32AB9A8029D8B5510084A69F /* Constants.h */,
+				32AB9A8029D8B5510084A69F /* ShaderMathConstants.h */,
 			);
 			path = Shaders;
 			sourceTree = "<group>";
@@ -458,7 +467,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				32AB9A6529CF3DF10084A69F /* Raytracer.metal in Sources */,
+				32AB9A6529CF3DF10084A69F /* CameraRayGenerator.metal in Sources */,
 				322EFCA929E0C17C00F37CC4 /* Scene.cpp in Sources */,
 				32AB99FE29CF37CB0084A69F /* TextureLoader.cpp in Sources */,
 				32AB99A229CD38990084A69F /* imgui_demo.cpp in Sources */,
@@ -480,6 +489,7 @@
 				32AB991C29CD38990084A69F /* imgui_impl_osx.mm in Sources */,
 				322EFCBA29E109D100F37CC4 /* MultiScatterUtil.cpp in Sources */,
 				322EFCAA29E0C17C00F37CC4 /* Lighting.cpp in Sources */,
+				3299F86629EB43350066AFF7 /* RayShader.metal in Sources */,
 				32AB992B29CD38990084A69F /* imgui.cpp in Sources */,
 				322EFCB829E109D100F37CC4 /* PhysicallyBasedMaterial.cpp in Sources */,
 				322EFCB929E109D100F37CC4 /* GlassMaterial.cpp in Sources */,

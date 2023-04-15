@@ -40,7 +40,7 @@ void Scene::applyTransform(const matrix_float4x4& transform)
 		for (auto &submesh : mesh.submeshes()) {
 			//submesh.primitive->bind();
 			//int worldFromEntityLocation = submesh.material->program()->getUniformLocation("worldFromEntity");
-            matrix_float4x4 newTransform = transform * submesh.transform;
+            matrix_float4x4 newTransform = transform * submesh.localTransform;
 			//submesh.material->program()->setMatrix4fv(worldFromEntityLocation, &(newTransform[0][0]));
 			//submesh.primitive->unbind();
 		}
@@ -55,4 +55,8 @@ void Scene::bindLighting(const Mesh& mesh)
 		//m_lighting->bindLightingBuffersToProgram(submesh.material->program());
 		//submesh.primitive->unbind();
 	}
+}
+
+void Scene::clearMeshesAndMaterials() {
+    m_meshes.clear();
 }
